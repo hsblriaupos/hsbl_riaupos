@@ -1,3 +1,5 @@
+/* public/css/data.css - KOSONGKAN atau buat sangat minimal */
+
 .form-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -10,40 +12,5 @@
     flex-direction: column;
 }
 
-nav {
-    position: relative; /* Ganti dari sticky */
-    margin-top: 60px;   /* Sesuaikan dengan tinggi header */
-    width: 100vw;
-    max-width: 100% !important;
-    z-index: 50;
-}
-
-
-/* Menghilangkan jarak dari atas */
-.wrapper {
-    margin-top: 0 !important;
-}
-
-/* Menghilangkan padding pada tab bar */
-nav a {
-    padding: 12px 0; /* Padding atas dan bawah tab lebih besar */
-    width: 100%;     /* Agar tab mengisi penuh lebar kontainer */
-}
-
-/* Tab active */
-nav a.active {
-    border-bottom: 4px solid #3b82f6;  /* Border biru untuk tab aktif */
-    color: #3b82f6; /* Warna teks biru untuk tab aktif */
-}
-
-/* Pengaturan untuk responsif pada layar kecil */
-@media (max-width: 640px) {
-    .topbar {
-        padding: 0 10px;  /* Mengurangi padding pada header agar lebih rapat */
-    }
-
-    nav a {
-        padding: 12px 10px;  /* Menambah padding agar lebih enak di klik pada layar kecil */
-    }
-}
-
+/* HAPUS SEMUA CSS UNTUK NAV DAN TABS DI SINI */
+/* Semua styling tabs sudah ada di app.blade.php */

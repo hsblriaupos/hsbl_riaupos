@@ -28,82 +28,82 @@ class AdminController extends Controller
 
     // ALL DATA
     public function allData()
-{
-    $seasons = AddData::whereNotNull('season_name')
-        ->where('season_name', '<>', '')
-        ->distinct()
-        ->pluck('season_name')
-        ->sort();
+    {
+        $seasons = AddData::whereNotNull('season_name')
+            ->where('season_name', '<>', '')
+            ->distinct()
+            ->pluck('season_name')
+            ->sort();
 
-    $series = AddData::whereNotNull('series_name')
-        ->where('series_name', '<>', '')
-        ->distinct()
-        ->pluck('series_name')
-        ->sort();
+        $series = AddData::whereNotNull('series_name')
+            ->where('series_name', '<>', '')
+            ->distinct()
+            ->pluck('series_name')
+            ->sort();
 
-    $competitions = AddData::whereNotNull('competition')
-        ->where('competition', '<>', '')
-        ->distinct()
-        ->pluck('competition')
-        ->sort();
+        $competitions = AddData::whereNotNull('competition')
+            ->where('competition', '<>', '')
+            ->distinct()
+            ->pluck('competition')
+            ->sort();
 
-    $phases = AddData::whereNotNull('phase')
-        ->where('phase', '<>', '')
-        ->distinct()
-        ->pluck('phase')
-        ->sort();
+        $phases = AddData::whereNotNull('phase')
+            ->where('phase', '<>', '')
+            ->distinct()
+            ->pluck('phase')
+            ->sort();
 
-    $competition_types = AddData::whereNotNull('competition_type')
-        ->where('competition_type', '<>', '')
-        ->distinct()
-        ->pluck('competition_type')
-        ->sort();
+        $competition_types = AddData::whereNotNull('competition_type')
+            ->where('competition_type', '<>', '')
+            ->distinct()
+            ->pluck('competition_type')
+            ->sort();
 
-    return view('admin.all_data', compact('seasons', 'series', 'competitions', 'phases', 'competition_types'));
-}
+        return view('admin.all_data', compact('seasons', 'series', 'competitions', 'phases', 'competition_types'));
+    }
 
 
     public function storeData(Request $request)
     {
-        // Validasi input
+        // 1️⃣ Validasi
         $validated = $request->validate([
             'season_name'      => 'nullable|string|max:255',
             'series_name'      => 'nullable|string|max:255',
             'competition'      => 'nullable|string|max:255',
             'phase'            => 'nullable|string|max:255',
-            'competition_type' => 'nullable|string|max:255', // ✅ tambahkan ini
+            'competition_type' => 'nullable|string|max:255',
         ]);
 
-
-        // Cek jika semua field kosong
-        if (
-            empty($validated['season_name']) &&
-            empty($validated['series_name']) &&
-            empty($validated['competition']) &&
-            empty($validated['phase']) &&
-            empty($validated['competition_type']) // ✅ tambahkan ini
-        ) {
-            return redirect()->route('admin.all_data')->with('warning', 'Harus mengisi minimal salah satu field!');
+        // 2️⃣ Pastikan minimal 1 field terisi
+        if (collect($validated)->filter()->isEmpty()) {
+            return redirect()
+                ->route('admin.all_data')
+                ->with('warning', 'Harus mengisi minimal salah satu field!');
         }
 
-        // Cek apakah data sudah ada
-        $exists = AddData::where('season_name', $validated['season_name'])
-            ->where('series_name', $validated['series_name'])
-            ->where('competition', $validated['competition'])
-            ->where('phase', $validated['phase'])
-            ->where('competition_type', $validated['competition_type']) // ✅ tambahkan ini
-            ->exists();
+        // 3️⃣ Cek duplikasi (NULL-SAFE)
+        $query = AddData::query();
 
-
-        if ($exists) {
-            return redirect()->route('admin.all_data')->with('warning', 'Data sudah ada!');
+        foreach ($validated as $column => $value) {
+            if ($value === null || $value === '') {
+                $query->whereNull($column);
+            } else {
+                $query->where($column, $value);
+            }
         }
 
-        // Jika validasi lolos, simpan data
+        if ($query->exists()) {
+            return redirect()
+                ->route('admin.all_data')
+                ->with('warning', 'Data sudah ada!');
+        }
+
+        // 4️⃣ Simpan
         AddData::create($validated);
 
-        // Redirect dengan pesan sukses
-        return redirect()->route('admin.all_data')->with('success', 'Data berhasil ditambahkan!');
+        return redirect()
+            ->route('admin.all_data')
+            ->with('success', 'Data berhasil ditambahkan!');
     }
 
     // CITY
@@ -135,7 +135,7 @@ class AdminController extends Controller
         return redirect()->route('admin.all_data_city')->with('success', 'Kota berhasil ditambahkan!');
     }
 
-    // SCHOOL
+    // SCHOOL MANAGEMENT
     public function school(Request $request)
     {
         $search = $request->input('search');
@@ -149,6 +149,7 @@ class AdminController extends Controller
             ->when($cityFilter, fn($query) => $query->where('city_id', $cityFilter))
             ->when($categoryFilter, fn($query) => $query->where('category_name', $categoryFilter))
             ->when($typeFilter, fn($query) => $query->where('type', $typeFilter))
+            ->orderBy('school_name')
             ->paginate($perPage)
             ->withQueryString();
 
@@ -158,43 +159,107 @@ class AdminController extends Controller
 
         return view('admin.all_data_school', compact('schools', 'cities', 'categories', 'types'));
     }
+
     public function storeSchool(Request $request)
     {
-        // Validasi awal (semua nullable biar bisa dicek manual dulu)
-        $data = $request->validate([
-            'school_name'   => 'nullable|string|max:255',
-            'city_id'       => 'nullable|exists:cities,id',
-            'category_name' => 'nullable|string',
-            'type'          => 'nullable|string',
+        // Validasi data
+        $validated = $request->validate([
+            'school_name'   => 'required|string|max:255',
+            'city_id'       => 'required|exists:cities,id',
+            'category_name' => 'required|string|in:SMA,SMK,MA',
+            'type'          => 'required|string|in:NEGERI,SWASTA',
         ]);
 
-        // Cek jika ada salah satu field kosong (karena semua wajib diisi)
-        if (empty($data['school_name']) || empty($data['city_id']) || empty($data['category_name']) || empty($data['type'])) {
-            return redirect()->route('admin.all_data_school')->with('warning', 'Semua data harus diisi!');
-        }
-
-        // Cek duplikat berdasarkan nama & kota
-        $exists = School::where('school_name', $data['school_name'])
-            ->where('city_id', $data['city_id'])
+        // Cek duplikat
+        $exists = School::where('school_name', $validated['school_name'])
+            ->where('city_id', $validated['city_id'])
             ->exists();
 
         if ($exists) {
-            return redirect()->route('admin.all_data_school')->with('warning', 'Sekolah dengan nama dan kota tersebut sudah terdaftar.');
+            return redirect()->route('admin.all_data_school')
+                ->with('warning', 'Sekolah dengan nama dan kota tersebut sudah terdaftar.');
         }
 
-        // Simpan ke database
-        School::create($data);
+        // Simpan data
+        School::create($validated);
 
-        return redirect()->route('admin.all_data_school')->with('success', 'Sekolah berhasil ditambahkan.');
+        return redirect()->route('admin.all_data_school')
+            ->with('success', 'Sekolah berhasil ditambahkan.');
     }
-    public function index(Request $request)
+
+    // Method untuk edit data (digunakan dalam modal)
+    public function editData(Request $request)
     {
-        $perPage = $request->get('per_page', 10); // Default 25
-        $schools = School::with('city')->paginate($perPage);
-        $cities = City::all(); // Kalau dipakai
+        $request->validate([
+            'table' => 'required|string',
+            'id' => 'required|integer',
+        ]);
 
-        return view('admin.all_data_school.index', compact('schools', 'cities'));
+        $table = $request->table;
+        $id = $request->id;
+
+        // Jika table adalah schools
+        if ($table === 'schools') {
+            $validated = $request->validate([
+                'school_name'   => 'required|string|max:255',
+                'city_id'       => 'required|exists:cities,id',
+                'category_name' => 'required|string|in:SMA,SMK,MA',
+                'type'          => 'required|string|in:NEGERI,SWASTA',
+            ]);
+
+            $school = School::findOrFail($id);
+
+            // Cek duplikat (kecuali untuk record yang sama)
+            $exists = School::where('school_name', $validated['school_name'])
+                ->where('city_id', $validated['city_id'])
+                ->where('id', '!=', $id)
+                ->exists();
+
+            if ($exists) {
+                return redirect()->route('admin.all_data_school')
+                    ->with('warning', 'Sekolah dengan nama dan kota tersebut sudah terdaftar.');
+            }
+
+            $school->update($validated);
+
+            return redirect()->route('admin.all_data_school')
+                ->with('success', 'Data sekolah berhasil diperbarui.');
+        }
+
+        return redirect()->back()->with('error', 'Tabel tidak valid.');
     }
+
+    // Method untuk delete data
+    public function deleteData(Request $request)
+    {
+        $request->validate([
+            'table' => 'required|string',
+            'id' => 'required|integer',
+        ]);
+
+        $table = $request->table;
+        $id = $request->id;
+
+        if ($table === 'schools') {
+            $school = School::findOrFail($id);
+            $school->delete();
+
+            return redirect()->route('admin.all_data_school')
+                ->with('success', 'Data sekolah berhasil dihapus.');
+        }
+
+        return redirect()->back()->with('error', 'Tabel tidak valid.');
+    }
+
+    // Optional: Method untuk export data
+    public function exportSchool()
+    {
+        // Logika export data sekolah ke Excel/CSV
+        // Anda bisa menggunakan package seperti Maatwebsite/Laravel-Excel
+        return response()->json(['message' => 'Export feature coming soon']);
+    }
+
+
 
     // VENUE 
     public function venue(Request $request)
@@ -255,7 +320,7 @@ class AdminController extends Controller
 
         return redirect()->route('admin.all_data_venue')->with('success', 'Venue berhasil ditambahkan.');
     }
-    
+
     // AWARD
     public function award()
     {

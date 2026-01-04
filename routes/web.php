@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Storage;
 | 🏠 LANDING PAGE (Welcome) - Akan tampil user/dashboard
 |--------------------------------------------------------------------------
 */
+
 Route::get('/', function () {
     return view('user.dashboard');
 })->name('welcome');
@@ -60,23 +61,26 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
-    // Data Master
+    // ========== DATA MASTER ROUTES ==========
+
+    // City Management
     Route::get('/city', [AdminController::class, 'city'])->name('all_data_city');
     Route::post('/city', [AdminController::class, 'storeCity'])->name('city.store');
     Route::post('/city/edit', [DataActionController::class, 'edit'])->name('city.edit');
     Route::post('/city/delete', [DataActionController::class, 'delete'])->name('city.delete');
 
+    // General Data
     Route::get('/data', [AdminController::class, 'allData'])->name('all_data');
     Route::post('/add-data', [AdminController::class, 'storeData'])->name('data.store');
     Route::post('/data/edit', [DataActionController::class, 'edit'])->name('data.edit');
     Route::post('/data/delete', [DataActionController::class, 'delete'])->name('data.delete');
     Route::get('/data/{type}', [DataActionController::class, 'index'])->where('type', 'school|venue|match|award')->name('data.dynamic');
 
-    // School Management
-    Route::get('/school', [AdminController::class, 'index'])->name('school.index');
-    Route::post('/school', [AdminController::class, 'store'])->name('school.store');
-    Route::get('/school/{id}/edit', [AdminController::class, 'editSchool'])->name('school.edit');
-    Route::put('/school/{id}', [AdminController::class, 'updateSchool'])->name('school.update');
+    // ========== SCHOOL MANAGEMENT - PERBAIKAN DI SINI ==========
+    Route::get('/school', [AdminController::class, 'school'])->name('all_data_school'); // HAPUS 'admin.' di depan
+    Route::post('/school/store', [AdminController::class, 'storeSchool'])->name('school.store');
+    Route::post('/school/edit', [AdminController::class, 'editData'])->name('data.edit');
+    Route::post('/school/delete', [AdminController::class, 'deleteData'])->name('data.delete');
 
     // Venue Management
     Route::get('/venue', [AdminController::class, 'venue'])->name('all_data_venue');
@@ -93,11 +97,18 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     // Export Data
     Route::get('/export/{type}', [DataActionController::class, 'export'])->where('type', 'school|venue|match|award')->name('data.export');
 
+
     // Team Verification
     Route::get('/team-list', [TeamController::class, 'teamList'])->name('tv_team_list');
     Route::get('/team-list/{id}', [TeamController::class, 'teamShow'])->name('team-list.show');
     Route::get('/team-verification', [TeamController::class, 'teamVerification'])->name('tv_team_verification');
     Route::get('/team-awards', [TeamController::class, 'teamAwards'])->name('tv_team_awards');
+
+    // Tambahkan route untuk action lock/unlock dan verification
+    Route::post('/team/{id}/lock', [TeamController::class, 'lock'])->name('team.lock');
+    Route::post('/team/{id}/unlock', [TeamController::class, 'unlock'])->name('team.unlock');
+    Route::post('/team/{id}/verify', [TeamController::class, 'verify'])->name('team.verify');
+    Route::post('/team/{id}/reject', [TeamController::class, 'reject'])->name('team.reject');
 
     // Camper Management
     Route::get('/camper', [CamperController::class, 'camper'])->name('camper_team');

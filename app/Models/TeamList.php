@@ -12,6 +12,10 @@ class TeamList extends Model
     protected $table = 'team_list';
 
     protected $primaryKey = 'team_id';
+    
+    public $incrementing = true; // Pastikan ini true jika team_id adalah auto-increment
+    
+    protected $keyType = 'int'; // Tipe data primary key
 
     protected $fillable = [
         'school_id',
