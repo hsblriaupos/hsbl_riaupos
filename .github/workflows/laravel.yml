@@ -7,18 +7,19 @@ on:
     branches: [ main, master ]
 
 jobs:
-  syntax-check:
+  laravel-tests:
     runs-on: ubuntu-latest
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup PHP
+      - name: Setup PHP 8.2
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.1'
-          extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_mysql, mysqlnd, gd, zip
+          php-version: '8.2'  
+          extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_mysql, mysqlnd, gd, zip, bcmath
+          coverage: none
 
       - name: Validate composer.json
         run: composer validate --strict
@@ -32,34 +33,36 @@ jobs:
       - name: Generate Application Key
         run: php artisan key:generate
 
+      - name: Check PHP Version
+        run: php --version
+
       - name: Check PHP Syntax
         run: |
-          echo "🔍 Checking PHP syntax..."
+          echo "🔍 Checking PHP syntax with PHP $(php --version | head -n 1 | cut -d' ' -f2)..."
           
           # Check app directory
           for file in $(find app -name "*.php"); do
-            php -l "$file" || { echo "❌ Syntax error in: $file"; exit 1; }
+            php -l "$file" || { echo "Syntax error in: $file"; exit 1; }
           done
           
           # Check database directory
           for file in $(find database -name "*.php"); do
-            php -l "$file" || { echo "❌ Syntax error in: $file"; exit 1; }
+            php -l "$file" || { echo "Syntax error in: $file"; exit 1; }
           done
           
           # Check routes
-          php -l routes/web.php || { echo "❌ Syntax error in routes/web.php"; exit 1; }
+          php -l routes/web.php || { echo "Syntax error in routes/web.php"; exit 1; }
           
-          echo "✅ All PHP files have valid syntax!"
+          echo "All PHP files have valid syntax!"
 
       - name: Check Laravel Artisan Commands
         run: |
           php artisan --version
-          php artisan route:list --compact
           php artisan config:clear
           php artisan cache:clear
 
       - name: Run Tests
-        run: php artisan test || echo "Tests completed (some may have failed)"
+        run: php artisan test
 
       - name: Completion Message
         run: echo "Laravel CI/CD completed successfully!"
