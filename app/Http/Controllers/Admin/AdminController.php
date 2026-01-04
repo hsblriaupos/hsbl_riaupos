@@ -29,37 +29,53 @@ class AdminController extends Controller
     // ALL DATA
     public function allData()
     {
-        $seasons = AddData::whereNotNull('season_name')
-            ->where('season_name', '<>', '')
-            ->distinct()
-            ->pluck('season_name')
-            ->sort();
+        try {
+            $seasons = AddData::whereNotNull('season_name')
+                ->where('season_name', '<>', '')
+                ->select('season_name')
+                ->distinct()
+                ->orderBy('season_name')
+                ->pluck('season_name');
 
-        $series = AddData::whereNotNull('series_name')
-            ->where('series_name', '<>', '')
-            ->distinct()
-            ->pluck('series_name')
-            ->sort();
+            $series = AddData::whereNotNull('series_name')
+                ->where('series_name', '<>', '')
+                ->select('series_name')
+                ->distinct()
+                ->orderBy('series_name')
+                ->pluck('series_name');
 
-        $competitions = AddData::whereNotNull('competition')
-            ->where('competition', '<>', '')
-            ->distinct()
-            ->pluck('competition')
-            ->sort();
+            $competitions = AddData::whereNotNull('competition')
+                ->where('competition', '<>', '')
+                ->select('competition')
+                ->distinct()
+                ->orderBy('competition')
+                ->pluck('competition');
 
-        $phases = AddData::whereNotNull('phase')
-            ->where('phase', '<>', '')
-            ->distinct()
-            ->pluck('phase')
-            ->sort();
+            $phases = AddData::whereNotNull('phase')
+                ->where('phase', '<>', '')
+                ->select('phase')
+                ->distinct()
+                ->orderBy('phase')
+                ->pluck('phase');
 
-        $competition_types = AddData::whereNotNull('competition_type')
-            ->where('competition_type', '<>', '')
-            ->distinct()
-            ->pluck('competition_type')
-            ->sort();
+            $competition_types = AddData::whereNotNull('competition_type')
+                ->where('competition_type', '<>', '')
+                ->select('competition_type')
+                ->distinct()
+                ->orderBy('competition_type')
+                ->pluck('competition_type');
 
-        return view('admin.all_data', compact('seasons', 'series', 'competitions', 'phases', 'competition_types'));
+            return view('admin.all_data', compact('seasons', 'series', 'competitions', 'phases', 'competition_types'));
+        } catch (\Exception $e) {
+            // Jika ada error, return data kosong
+            return view('admin.all_data', [
+                'seasons' => collect(),
+                'series' => collect(),
+                'competitions' => collect(),
+                'phases' => collect(),
+                'competition_types' => collect()
+            ]);
+        }
     }
 
 
