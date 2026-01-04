@@ -1,4 +1,4 @@
-name: Laravel Syntax Check Only
+name: Laravel CI/CD
 
 on:
   push:
@@ -18,15 +18,26 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: mbstring, xml, ctype, iconv, intl
+          extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_mysql, mysqlnd, gd, zip, bcmath
 
-      - name: Create Minimal .env (No Database)
+      - name: Create Environment File
         run: |
-          echo "APP_ENV=testing" > .env
-          echo "APP_KEY=base64:testkey123456789012345678901234567890" >> .env
-          echo "CACHE_DRIVER=array" >> .env
-          echo "SESSION_DRIVER=array" >> .env
-          echo "QUEUE_CONNECTION=sync" >> .env
+          cat > .env << 'EOF'
+          APP_NAME="Riau Pos - Honda HSBL"
+          APP_ENV=testing
+          APP_KEY=base64:testkey123456789012345678901234567890
+          APP_DEBUG=false
+          APP_URL=http://localhost
+          
+          # Gunakan quotes untuk :memory:
+          DB_CONNECTION=sqlite
+          DB_DATABASE=":memory:"
+          
+          CACHE_DRIVER=array
+          SESSION_DRIVER=array
+          QUEUE_CONNECTION=sync
+          FILESYSTEM_DISK=local
+          EOF
 
       - name: Install Dependencies
         run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
@@ -34,25 +45,32 @@ jobs:
       - name: Check PHP Syntax
         run: |
           echo "📁 Checking PHP syntax..."
-          find app -name "*.php" -type f -exec php -l {} \;
-          echo "✅ App directory syntax OK!"
           
-          find database -name "*.php" -type f -exec php -l {} \;
-          echo "✅ Database directory syntax OK!"
+          # Check app directory
+          for file in $(find app -name "*.php" -type f); do
+            php -l "$file" || { echo "❌ Error in: $file"; exit 1; }
+          done
           
-          php -l routes/web.php
-          echo "✅ Routes syntax OK!"
+          echo "✅ App syntax OK!"
+          
+          # Check database directory
+          for file in $(find database -name "*.php" -type f); do
+            php -l "$file" || { echo "❌ Error in: $file"; exit 1; }
+          done
+          
+          echo "✅ Database syntax OK!"
+          
+          # Check important files
+          php -l routes/web.php && echo "✅ Routes syntax OK!"
+          php -l config/app.php && echo "✅ Config syntax OK!"
 
-      - name: Check Laravel Commands (Safe)
+      - name: Run Safe Laravel Commands
         run: |
-          # Commands yang tidak butuh database
+          echo "🚀 Running Laravel commands..."
           php artisan --version
-          php artisan route:list --except-vendor || echo "⚠️ Route list may fail"
-          
-          # Clear cache tanpa database
-          php artisan config:clear && echo "✅ Config cleared"
-          php artisan view:clear && echo "✅ View cleared"
-          php artisan route:clear && echo "✅ Route cleared"
+          php artisan config:clear
+          php artisan view:clear
+          echo "✅ Commands completed!"
 
-      - name: Completion
-        run: echo "✅ All checks completed successfully!"
+      - name: Final Message
+        run: echo "🎉 CI/CD check passed!"
