@@ -175,9 +175,9 @@
     <!-- Page Header -->
     <div class="page-header">
         <h1 class="page-title mt-2">
-            <i class="fas fa-city me-2"></i> Data Kota
+            <i class="fas fa-city me-2"></i> City Manegement
         </h1>
-        <p class="page-subtitle">Kelola daftar kota untuk kompetisi HSBL</p>
+        <p class="page-subtitle">Manage the list of cities for the HSBL competition</p>
     </div>
 
     <!-- Form Tambah Kota -->

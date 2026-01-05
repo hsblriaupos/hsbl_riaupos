@@ -268,9 +268,9 @@
     <!-- Page Header -->
     <div class="page-header">
         <h1 class="page-title mt-2">
-            <i class="fas fa-school me-2"></i> Data Sekolah
+            <i class="fas fa-school me-2"></i> School Management
         </h1>
-        <p class="page-subtitle">Kelola daftar sekolah untuk kompetisi HSBL</p>
+        <p class="page-subtitle">Manage the list of schools for the HSBL competition</p>
     </div>
 
     <!-- Form Tambah Sekolah -->

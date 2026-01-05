@@ -267,9 +267,9 @@
     <!-- Page Header -->
     <div class="page-header">
         <h1 class="page-title mt-2">
-            <i class="fas fa-trophy me-2"></i> Data Award
+            <i class="fas fa-trophy me-2"></i> Award Management
         </h1>
-        <p class="page-subtitle">Kelola jenis dan kategori award untuk kompetisi HSBL</p>
+        <p class="page-subtitle">Manage award types and categories for HSBL competitions</p>
     </div>
 
     <!-- Form Tambah Award -->

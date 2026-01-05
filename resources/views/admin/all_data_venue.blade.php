@@ -282,9 +282,9 @@
     <!-- Page Header -->
     <div class="page-header">
         <h1 class="page-title mt-2">
-            <i class="fas fa-map-marker-alt me-2"></i> Data Venue
+            <i class="fas fa-map-marker-alt me-2"></i> Venue Management
         </h1>
-        <p class="page-subtitle">Kelola daftar venue untuk kompetisi HSBL</p>
+        <p class="page-subtitle">Manage the list of venues for HSBL competitions</p>
     </div>
 
     <!-- Form Tambah Venue -->

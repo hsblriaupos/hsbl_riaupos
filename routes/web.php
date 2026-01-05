@@ -101,14 +101,16 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     // Team Verification
     Route::get('/team-list', [TeamController::class, 'teamList'])->name('tv_team_list');
     Route::get('/team-list/{id}', [TeamController::class, 'teamShow'])->name('team-list.show');
-    Route::get('/team-verification', [TeamController::class, 'teamVerification'])->name('tv_team_verification');
-    Route::get('/team-awards', [TeamController::class, 'teamAwards'])->name('tv_team_awards');
-
-    // Tambahkan route untuk action lock/unlock dan verification
+    Route::get('/team-list/export', [TeamController::class, 'export'])->name('team-list.export');
     Route::post('/team/{id}/lock', [TeamController::class, 'lock'])->name('team.lock');
     Route::post('/team/{id}/unlock', [TeamController::class, 'unlock'])->name('team.unlock');
     Route::post('/team/{id}/verify', [TeamController::class, 'verify'])->name('team.verify');
     Route::post('/team/{id}/reject', [TeamController::class, 'reject'])->name('team.reject');
+    
+    Route::get('/team-verification', [TeamController::class, 'teamVerification'])->name('tv_team_verification');
+    Route::get('/team-awards', [TeamController::class, 'teamAwards'])->name('tv_team_awards');
+
+
 
     // Camper Management
     Route::get('/camper', [CamperController::class, 'camper'])->name('camper_team');
