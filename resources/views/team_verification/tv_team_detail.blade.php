@@ -6,38 +6,43 @@
 
 @push('styles')
 <style>
+    body {
+        background: #f4f6f9;
+        font-family: Arial, sans-serif;
+    }
+
     .page-header {
-        margin-bottom: 30px;
+        margin-bottom: 20px;
     }
 
     .page-title {
-        font-size: 1.3rem;
-        font-weight: 600;
+        font-size: 1.5rem;
+        font-weight: 700;
         color: #2c3e50;
         margin-bottom: 5px;
     }
 
     .page-subtitle {
-        color: #6c757d;
+        color: #7f8c8d;
         font-size: 0.9rem;
     }
 
     /* Card Styles */
-    .info-card {
-        background: white;
-        border: 1px solid #e3e6f0;
+    .card {
+        background: #fff;
         border-radius: 6px;
-        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
-        margin-bottom: 30px;
+        margin-bottom: 25px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        border-top: 4px solid #00a65a;
         overflow: hidden;
     }
 
     .card-header {
-        background-color: #f8f9fc;
-        border-bottom: 1px solid #e3e6f0;
-        padding: 15px 20px;
-        font-weight: 600;
-        color: #4a4c54;
+        padding: 14px 18px;
+        font-weight: bold;
+        border-bottom: 1px solid #eee;
+        background-color: #f8f9fa;
+        color: #2c3e50;
         font-size: 1rem;
     }
 
@@ -45,210 +50,474 @@
         padding: 20px;
     }
 
-    /* Table Styles */
-    .info-table {
+    /* Team Information Grid */
+    .team-info {
+        display: grid;
+        grid-template-columns: 180px 1fr 280px;
+        gap: 25px;
+        align-items: start;
+    }
+
+    .logo-box {
+        text-align: center;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 6px;
+        border: 1px solid #eee;
+    }
+
+    .logo-box img {
+        width: 140px;
+        height: 140px;
+        object-fit: contain;
+        margin-bottom: 10px;
+    }
+
+    .logo-box p {
+        margin-top: 10px;
+        font-size: 13px;
+        color: #555;
+        font-weight: 600;
+    }
+
+    /* Info Tables */
+    .info-table,
+    .info-side table {
         width: 100%;
         border-collapse: collapse;
     }
 
-    .info-table tr {
-        border-bottom: 1px solid #e3e6f0;
+    .info-table td,
+    .info-side td {
+        padding: 8px 6px;
+        vertical-align: top;
+        font-size: 14px;
+        border-bottom: 1px solid #f0f0f0;
     }
 
-    .info-table tr:last-child {
+    .info-table td:first-child,
+    .info-side td:first-child {
+        width: 160px;
+        color: #555;
+        font-weight: 600;
+    }
+
+    .info-table tr:last-child td,
+    .info-side tr:last-child td {
         border-bottom: none;
     }
 
-    .info-table td {
-        padding: 12px 15px;
-        vertical-align: top;
-    }
-
-    .info-label {
-        width: 180px;
-        font-weight: 600;
-        color: #2c3e50;
-        background-color: #f8f9fc;
-        border-right: 1px solid #e3e6f0;
-    }
-
-    .info-value {
-        color: #495057;
-    }
-
-    /* Badge Styles */
-    .status-badge {
-        padding: 4px 10px;
-        font-size: 0.75rem;
-        font-weight: 500;
+    /* Status Styles */
+    .status-open {
+        color: #e74c3c;
+        font-weight: bold;
+        background: #ffebee;
+        padding: 3px 8px;
         border-radius: 4px;
-        display: inline-block;
+        font-size: 12px;
     }
 
-    .badge-open {
-        background-color: #d1fae5;
-        color: #28a745;
+    .status-locked {
+        color: #2ecc71;
+        font-weight: bold;
+        background: #e8f5e9;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-size: 12px;
     }
 
-    .badge-locked {
-        background-color: #fee2e2;
-        color: #dc3545;
+    .status-verified {
+        color: #27ae60;
+        font-weight: bold;
+        background: #d5f4e6;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-size: 12px;
     }
 
-    .badge-verified {
-        background-color: #d1fae5;
-        color: #28a745;
+    .status-unverified {
+        color: #f39c12;
+        font-weight: bold;
+        background: #fef9e7;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-size: 12px;
     }
 
-    .badge-unverified {
-        background-color: #fef3c7;
-        color: #ffc107;
-    }
-
-    .badge-rejected {
-        background-color: #fee2e2;
-        color: #dc3545;
-    }
-
-    /* Action Buttons */
-    .action-buttons {
+    /* ===== ACTION BUTTONS ===== */
+    .action-buttons-container {
         display: flex;
-        gap: 10px;
+        flex-direction: column;
+        gap: 12px;
         margin-top: 20px;
     }
 
-    /* Player List Styles */
-    .player-table {
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .btn-lock {
+        background: #00a65a;
+        color: #fff;
+        padding: 10px 16px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+
+    .btn-lock:hover {
+        background: #008d4c;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-unlock {
+        background: #3498db;
+        color: #fff;
+        padding: 10px 16px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+
+    .btn-unlock:hover {
+        background: #2980b9;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-verify {
+        background: #27ae60;
+        color: #fff;
+        padding: 10px 16px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+
+    .btn-verify:hover {
+        background: #219653;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-unverify {
+        background: #f39c12;
+        color: #fff;
+        padding: 10px 16px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+
+    .btn-unverify:hover {
+        background: #d68910;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-reject {
+        background: #e74c3c;
+        color: #fff;
+        padding: 10px 16px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+
+    .btn-reject:hover {
+        background: #c0392b;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .action-label {
+        font-size: 12px;
+        color: #7f8c8d;
+        font-weight: 600;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    /* Data Tables */
+    table.data {
         width: 100%;
         border-collapse: collapse;
+        font-size: 14px;
         margin-top: 10px;
     }
 
-    .player-table th {
-        background-color: #f8f9fc;
-        padding: 12px 15px;
+    table.data th,
+    table.data td {
+        border: 1px solid #ddd;
+        padding: 10px 12px;
         text-align: left;
+        vertical-align: middle;
+    }
+
+    table.data th {
+        background: #f5f5f5;
         font-weight: 600;
-        color: #4a4c54;
-        border-bottom: 2px solid #e3e6f0;
-    }
-
-    .player-table td {
-        padding: 12px 15px;
-        border-bottom: 1px solid #e3e6f0;
-    }
-
-    .player-table tr:hover {
-        background-color: #f8f9fc;
-    }
-
-    /* Section Header */
-    .section-header {
-        margin: 30px 0 15px 0;
-        padding-bottom: 10px;
-        border-bottom: 2px solid #e3e6f0;
         color: #2c3e50;
-        font-size: 1.1rem;
-        font-weight: 600;
     }
 
-    /* Back Button */
+    table.data tbody tr:hover {
+        background-color: #f9f9f9;
+    }
+
+    .btn-detail {
+        background: #00c0ef;
+        color: #fff;
+        padding: 5px 12px;
+        border-radius: 4px;
+        font-size: 13px;
+        text-decoration: none;
+        display: inline-block;
+        font-weight: 500;
+        transition: background 0.3s;
+    }
+
+    .btn-detail:hover {
+        background: #00a7d0;
+        color: white;
+        text-decoration: none;
+    }
+
+    /* ===== JERSEY SINGLE FULL BOX ===== */
+    .jersey-single-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 30px;
+        background: #f8f9fa;
+        border-radius: 6px;
+        border: 2px solid #e3e6f0;
+        min-height: 300px;
+    }
+
+    .jersey-main-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 25px;
+        text-align: center;
+    }
+
+    .jersey-image-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 40px;
+        flex-wrap: wrap;
+    }
+
+    .jersey-single-item {
+        text-align: center;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        min-width: 200px;
+        border: 1px solid #ddd;
+    }
+
+    .jersey-single-item p {
+        margin-bottom: 15px;
+        font-weight: bold;
+        color: #2c3e50;
+        font-size: 16px;
+    }
+
+    .jersey-single-item .no-image {
+        width: 180px;
+        height: 180px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #ecf0f1, #f8f9fa);
+        border: 2px dashed #bdc3c7;
+        border-radius: 6px;
+        color: #7f8c8d;
+        font-size: 14px;
+        margin: 0 auto;
+    }
+
+    .jersey-single-item .no-image i {
+        font-size: 3rem;
+        margin-bottom: 10px;
+        color: #95a5a6;
+    }
+
+    /* Back Link */
     .back-link {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        color: #6c757d;
+        color: #2c3e50;
         text-decoration: none;
-        font-size: 0.9rem;
+        font-size: 14px;
+        font-weight: 500;
         margin-bottom: 20px;
-        padding: 8px 16px;
-        border: 1px solid #dee2e6;
+        padding: 10px 15px;
+        background: white;
         border-radius: 4px;
-        background-color: #f8f9fa;
-        transition: all 0.2s;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s;
     }
 
     .back-link:hover {
-        background-color: #e9ecef;
-        color: #495057;
+        background: #f8f9fa;
+        color: #2c3e50;
+        text-decoration: none;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Verification Buttons */
+    .verification-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 30px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 6px;
+        border: 1px solid #e3e6f0;
+    }
+
+    /* Link styles */
+    a {
+        color: #3498db;
         text-decoration: none;
     }
 
-    /* Jersey Images */
-    .jersey-container {
-        display: flex;
-        gap: 30px;
-        flex-wrap: wrap;
+    a:hover {
+        text-decoration: underline;
     }
 
-    .jersey-item {
+    /* Empty state */
+    .empty-state {
         text-align: center;
+        padding: 40px 20px;
+        color: #95a5a6;
     }
 
-    .jersey-placeholder {
-        width: 150px;
-        height: 150px;
-        background-color: #f8f9fa;
-        border: 1px solid #dee2e6;
-        border-radius: 4px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #6c757d;
-        font-size: 0.85rem;
-    }
-
-    .jersey-label {
-        margin-top: 10px;
-        font-weight: 500;
-        color: #495057;
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        color: #bdc3c7;
     }
 
     /* Responsive */
+    @media (max-width: 992px) {
+        .team-info {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .logo-box {
+            max-width: 200px;
+            margin: 0 auto;
+        }
+
+        .jersey-image-container {
+            gap: 20px;
+        }
+    }
+
     @media (max-width: 768px) {
-        .info-table {
-            display: block;
-        }
-        
-        .info-table tr {
-            display: block;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #e3e6f0;
-            padding-bottom: 15px;
-        }
-        
-        .info-table td {
-            display: block;
-            padding: 8px 0;
-            border: none;
-        }
-        
-        .info-label {
-            width: 100%;
-            background: none;
-            border: none;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-        
-        .jersey-container {
+        .jersey-image-container {
             flex-direction: column;
             gap: 20px;
         }
-        
+
+        table.data {
+            display: block;
+            overflow-x: auto;
+        }
+
+        .verification-buttons {
+            flex-direction: column;
+        }
+
         .action-buttons {
             flex-direction: column;
         }
-        
-        .action-buttons .btn {
+
+        .action-buttons button {
             width: 100%;
-            text-align: center;
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .card-body {
+            padding: 15px;
+        }
+
+        table.data th,
+        table.data td {
+            padding: 8px 10px;
+            font-size: 13px;
+        }
+
+        .jersey-single-item {
+            min-width: 100%;
+        }
+
+        .jersey-single-item .no-image {
+            width: 150px;
+            height: 150px;
         }
     }
 </style>
 @endpush
 
-<div class="container-fluid px-3">
+<div class="container-fluid py-4">
     <!-- Back Button -->
     <a href="{{ route('admin.tv_team_list') }}" class="back-link">
         <i class="fas fa-arrow-left"></i>
@@ -257,100 +526,138 @@
 
     <!-- Page Header -->
     <div class="page-header">
-        <div>
-            <h1 class="page-title">
-                <i class="fas fa-users text-primary me-2"></i>Informasi Tim
-            </h1>
-        </div>
+        <h1 class="page-title">Informasi Tim</h1>
+        <p class="page-subtitle">Detail informasi tim {{ $team->school_name }}</p>
     </div>
 
     <!-- Team Information Card -->
-    <div class="info-card">
-        <div class="card-header">
-            Informasi Tim
-        </div>
+    <div class="card">
+        <div class="card-header">Informasi Tim</div>
         <div class="card-body">
-            <table class="info-table">
-                <tr>
-                    <td class="info-label">ID Tim</td>
-                    <td class="info-value">: Tahun 1986</td>
-                    <td class="info-label">Musim</td>
-                    <td class="info-value">: Honda DBL 2019</td>
-                </tr>
-                <tr>
-                    <td class="info-label">Pemimpin</td>
-                    <td class="info-value">: Muhammad Alfah Reza</td>
-                    <td class="info-label">Seri</td>
-                    <td class="info-value">: Seri Riau</td>
-                </tr>
-                <tr>
-                    <td class="info-label">Nama Sekolah</td>
-                    <td class="info-value">: {{ $team->school_name }}</td>
-                    <td class="info-label">Wilayah</td>
-                    <td class="info-value">: -</td>
-                </tr>
-                <tr>
-                    <td class="info-label">Kompetisi</td>
-                    <td class="info-value">: {{ $team->competition }}</td>
-                    <td class="info-label">Surat</td>
-                    <td class="info-value">: <a href="#" style="color: #0d6efd; text-decoration: none;">Lihat di sini</a></td>
-                </tr>
-                <tr>
-                    <td class="info-label">Status Terkunci</td>
-                    <td class="info-value">
-                        : 
-                        @if($team->locked_status == 'locked')
-                        <span class="status-badge badge-locked">Terkunci</span>
-                        @else
-                        <span class="status-badge badge-open">Terbuka</span>
-                        @endif
-                    </td>
-                    <td class="info-label">Rekomendasi</td>
-                    <td class="info-value"></td>
-                </tr>
-                <tr>
-                    <td class="info-label">Status Verifikasi</td>
-                    <td class="info-value">
-                        : 
-                        @if($team->verification_status == 'verified')
-                        <span class="status-badge badge-verified">Terverifikasi</span>
-                        @elseif($team->verification_status == 'rejected')
-                        <span class="status-badge badge-rejected">Ditolak</span>
-                        @else
-                        <span class="status-badge badge-unverified">Tidak terverifikasi</span>
-                        @endif
-                    </td>
-                    <td class="info-label"></td>
-                    <td class="info-value">
-                        @if($team->locked_status != 'locked')
-                        <form action="{{ url('/admin/team/' . $team->team_id . '/lock') }}" method="POST" class="d-inline">
-                            @csrf
-                            @method('POST')
-                            <button type="submit" class="btn btn-outline-danger btn-sm">
-                                <i class="fas fa-lock me-1"></i> Tandai sebagai Terkunci
-                            </button>
-                        </form>
-                        @else
-                        <form action="{{ url('/admin/team/' . $team->team_id . '/unlock') }}" method="POST" class="d-inline">
-                            @csrf
-                            @method('POST')
-                            <button type="submit" class="btn btn-outline-success btn-sm">
-                                <i class="fas fa-unlock me-1"></i> Buka Kunci
-                            </button>
-                        </form>
-                        @endif
-                    </td>
-                </tr>
-            </table>
+            <div class="team-info">
+                <!-- Logo Box -->
+                <div class="logo-box">
+                    <img src="{{ asset('uploads/logo/hsbl.png') }}" alt="Logo Sekolah">
+                    <p>Logo Sekolah</p>
+                </div>
+
+                <!-- Main Info -->
+                <table class="info-table">
+                    <tr>
+                        <td>ID Tim</td>
+                        <td>: {{ $team->referral_code ?? 'Tahun 1986' }}</td>
+                    </tr>
+                    <tr>
+                        <td>Pemimpin</td>
+                        <td>: {{ $team->registered_by ?? 'Muhammad Alfah Reza' }}</td>
+                    </tr>
+                    <tr>
+                        <td>Nama Sekolah</td>
+                        <td>: {{ $team->school_name }}</td>
+                    </tr>
+                    <tr>
+                        <td>Kompetisi</td>
+                        <td>: {{ $team->competition }}</td>
+                    </tr>
+                    <tr>
+                        <td>Status Terkunci</td>
+                        <td>:
+                            @if($team->locked_status == 'locked')
+                            <span class="status-locked">Terkunci</span>
+                            @else
+                            <span class="status-open">Terbuka</span>
+                            @endif
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Status Verifikasi</td>
+                        <td>:
+                            @if($team->verification_status == 'verified')
+                            <span class="status-verified">Terverifikasi</span>
+                            @elseif($team->verification_status == 'rejected')
+                            <span class="status-open">Ditolak</span>
+                            @else
+                            <span class="status-unverified">Tidak terverifikasi</span>
+                            @endif
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- Side Info -->
+                <div class="info-side">
+                    <table>
+                        <tr>
+                            <td>Musim</td>
+                            <td>: {{ $team->season ?? 'Honda DBL 2019' }}</td>
+                        </tr>
+                        <tr>
+                            <td>Seri</td>
+                            <td>: {{ $team->series ?? 'Seri Riau' }}</td>
+                        </tr>
+                        <tr>
+                            <td>Wilayah</td>
+                            <td>: -</td>
+                        </tr>
+                        <tr>
+                            <td>Surat Rekomendasi</td>
+                            <td>: <a href="#">lihat di sini</a></td>
+                        </tr>
+                    </table>
+
+                    <!-- Action Buttons -->
+                    <div class="action-buttons-container">
+                        <div>
+                            <span class="action-label">Status Kunci:</span>
+                            <div class="action-buttons">
+                                @if($team->locked_status != 'locked')
+                                <form action="{{ route('admin.team.lock', $team->team_id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn-lock" onclick="return confirm('Kunci tim ini?')">
+                                        <i class="fas fa-lock"></i> Kunci Tim
+                                    </button>
+                                </form>
+                                @else
+                                <form action="{{ route('admin.team.unlock', $team->team_id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn-unlock" onclick="return confirm('Buka kunci tim ini?')">
+                                        <i class="fas fa-unlock"></i> Buka Kunci
+                                    </button>
+                                </form>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div>
+                            <span class="action-label">Status Verifikasi:</span>
+                            <div class="action-buttons">
+                                @if($team->verification_status != 'verified')
+                                <form action="{{ route('admin.team.verify', $team->team_id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn-verify" onclick="return confirm('Verifikasi tim ini?')">
+                                        <i class="fas fa-check-circle"></i> Verifikasi
+                                    </button>
+                                </form>
+                                @else
+                                <form action="{{ route('admin.team.unverify', $team->team_id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn-unverify" onclick="return confirm('Batalkan verifikasi tim ini?')">
+                                        <i class="fas fa-times-circle"></i> Batalkan Verifikasi
+                                    </button>
+                                </form>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Player List Section -->
-    <h3 class="section-header">Daftar Pemain</h3>
-    
-    <div class="info-card">
+    <!-- Player List Card -->
+    <div class="card">
+        <div class="card-header">Daftar Pemain</div>
         <div class="card-body">
-            <table class="player-table">
+            <table class="data">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -375,21 +682,22 @@
                         <td>Tahun 2018</td>
                         <td>Pemain</td>
                         <td>
-                            <a href="#" class="btn btn-sm btn-outline-primary">detail</a>
+                            <a class="btn-detail" href="#">
+                                <i class="fas fa-eye me-1"></i> detail
+                            </a>
                         </td>
                     </tr>
-                    <!-- Add more players as needed -->
+                    <!-- Tambahkan pemain lain jika ada -->
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- Official List Section -->
-    <h3 class="section-header">Daftar Resmi</h3>
-    
-    <div class="info-card">
+    <!-- Official List Card -->
+    <div class="card">
+        <div class="card-header">Daftar Resmi</div>
         <div class="card-body">
-            <table class="player-table">
+            <table class="data">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -402,10 +710,10 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Official list would go here -->
                     <tr>
-                        <td colspan="7" class="text-center text-muted py-3">
-                            Tidak ada data resmi
+                        <td colspan="7" style="text-align:center;color:#999;padding:30px;">
+                            <i class="fas fa-inbox" style="font-size:2rem;margin-bottom:10px;display:block;"></i>
+                            Belum ada data
                         </td>
                     </tr>
                 </tbody>
@@ -413,83 +721,64 @@
         </div>
     </div>
 
-    <!-- Jersey List Section -->
-    <h3 class="section-header">Daftar Jersey</h3>
-    
-    <div class="info-card">
+    <!-- Jersey List Card -->
+    <div class="card">
+        <div class="card-header">Daftar Jersey</div>
         <div class="card-body">
-            <div class="jersey-container">
-                <div class="jersey-item">
-                    <div class="jersey-placeholder">
-                        Image not available
+            <div class="jersey-single-container">
+                <h3 class="jersey-main-title">Galeri Jersey Tim</h3>
+                <div class="jersey-image-container">
+                    <div class="jersey-single-item">
+                        <p>Jersey Kandang</p>
+                        <div class="no-image">
+                            <i class="fas fa-tshirt"></i>
+                            <br>
+                            No Image
+                        </div>
                     </div>
-                    <div class="jersey-label">Jersey Kandang</div>
-                </div>
-                
-                <div class="jersey-item">
-                    <div class="jersey-placeholder">
-                        Image not available
+                    <div class="jersey-single-item">
+                        <p>Jersey Tandang</p>
+                        <div class="no-image">
+                            <i class="fas fa-tshirt"></i>
+                            <br>
+                            No Image
+                        </div>
                     </div>
-                    <div class="jersey-label">Jersey Tandang</div>
-                </div>
-                
-                <div class="jersey-item">
-                    <div class="jersey-placeholder">
-                        Image not available
+                    <div class="jersey-single-item">
+                        <p>Jersey Alternatif</p>
+                        <div class="no-image">
+                            <i class="fas fa-tshirt"></i>
+                            <br>
+                            No Image
+                        </div>
                     </div>
-                    <div class="jersey-label">Jersey Alternatif</div>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Verification Action Buttons -->
-    @if(in_array($team->verification_status, ['unverified', 'pending', 'rejected']))
-    <div class="action-buttons" style="margin-top: 30px; justify-content: center;">
-        <form action="{{ url('/admin/team/' . $team->team_id . '/verify') }}" method="POST" class="d-inline">
-            @csrf
-            @method('POST')
-            <button type="submit" class="btn btn-success btn-lg">
-                <i class="fas fa-check-circle me-2"></i> Verifikasi Tim
-            </button>
-        </form>
-        
-        <form action="{{ url('/admin/team/' . $team->team_id . '/reject') }}" method="POST" class="d-inline">
-            @csrf
-            @method('POST')
-            <button type="submit" class="btn btn-danger btn-lg">
-                <i class="fas fa-times-circle me-2"></i> Tolak Tim
-            </button>
-        </form>
-    </div>
-    @endif
 </div>
 
 @push('scripts')
 <script>
-    // Confirm before taking action
+    // Confirmation for all actions
     document.addEventListener('DOMContentLoaded', function() {
-        const actionForms = document.querySelectorAll('form[action*="/team/"]');
-        actionForms.forEach(form => {
-            form.addEventListener('submit', function(e) {
-                const action = this.action;
-                let message = '';
-                
-                if (action.includes('/verify')) {
-                    message = 'Apakah Anda yakin ingin memverifikasi tim ini?';
-                } else if (action.includes('/reject')) {
-                    message = 'Apakah Anda yakin ingin menolak tim ini?';
-                } else if (action.includes('/lock')) {
-                    message = 'Apakah Anda yakin ingin mengunci tim ini? Tim tidak dapat diedit.';
-                } else if (action.includes('/unlock')) {
-                    message = 'Apakah Anda yakin ingin membuka kunci tim ini?';
-                }
-                
-                if (message && !confirm(message)) {
-                    e.preventDefault();
-                }
+        // Player detail button click
+        const detailButtons = document.querySelectorAll('.btn-detail');
+        detailButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                alert('Fitur detail pemain akan segera tersedia!');
+                e.preventDefault();
             });
         });
+
+        // Link to recommendation letter
+        const letterLink = document.querySelector('a[href="#"]');
+        if (letterLink) {
+            letterLink.addEventListener('click', function(e) {
+                alert('Surat rekomendasi belum tersedia!');
+                e.preventDefault();
+            });
+        }
     });
 </script>
 @endpush

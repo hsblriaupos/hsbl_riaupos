@@ -5,7 +5,6 @@ namespace App\Http\Controllers\TeamVerification;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\TeamList;
-use App\Models\School;
 use App\Exports\TeamsExport;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -20,7 +19,7 @@ class TeamController extends Controller
             $query->where('school_name', $request->school);
         }
         
-        // Filter by status
+        // Filter by status - HANYA unverified/verified
         if ($request->filled('status')) {
             $query->where('verification_status', $request->status);
         }
@@ -184,12 +183,12 @@ class TeamController extends Controller
         return back()->with('success', 'Tim berhasil diverifikasi!');
     }
 
-    public function reject($id)
+    public function unverify($id)
     {
         $team = TeamList::where('team_id', $id)->firstOrFail();
-        $team->verification_status = 'rejected';
+        $team->verification_status = 'unverified';
         $team->save();
 
-        return back()->with('success', 'Tim berhasil ditolak!');
+        return back()->with('success', 'Verifikasi tim berhasil dibatalkan!');
     }
 }

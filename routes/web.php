@@ -76,8 +76,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::post('/data/delete', [DataActionController::class, 'delete'])->name('data.delete');
     Route::get('/data/{type}', [DataActionController::class, 'index'])->where('type', 'school|venue|match|award')->name('data.dynamic');
 
-    // ========== SCHOOL MANAGEMENT - PERBAIKAN DI SINI ==========
-    Route::get('/school', [AdminController::class, 'school'])->name('all_data_school'); // HAPUS 'admin.' di depan
+    // ========== SCHOOL MANAGEMENT ==========
+    Route::get('/school', [AdminController::class, 'school'])->name('all_data_school');
     Route::post('/school/store', [AdminController::class, 'storeSchool'])->name('school.store');
     Route::post('/school/edit', [AdminController::class, 'editData'])->name('data.edit');
     Route::post('/school/delete', [AdminController::class, 'deleteData'])->name('data.delete');
@@ -97,20 +97,20 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     // Export Data
     Route::get('/export/{type}', [DataActionController::class, 'export'])->where('type', 'school|venue|match|award')->name('data.export');
 
-
-    // Team Verification
+    // ========== TEAM VERIFICATION ==========
     Route::get('/team-list', [TeamController::class, 'teamList'])->name('tv_team_list');
     Route::get('/team-list/{id}', [TeamController::class, 'teamShow'])->name('team-list.show');
     Route::get('/team-list/export', [TeamController::class, 'export'])->name('team-list.export');
+    
+    // TEAM ACTIONS - PASTIKAN SEMUA ADA
     Route::post('/team/{id}/lock', [TeamController::class, 'lock'])->name('team.lock');
     Route::post('/team/{id}/unlock', [TeamController::class, 'unlock'])->name('team.unlock');
     Route::post('/team/{id}/verify', [TeamController::class, 'verify'])->name('team.verify');
-    Route::post('/team/{id}/reject', [TeamController::class, 'reject'])->name('team.reject');
+    Route::post('/team/{id}/unverify', [TeamController::class, 'unverify'])->name('team.unverify'); // INI YANG PERLU DITAMBAH
+    // Route::post('/team/{id}/reject', [TeamController::class, 'reject'])->name('team.reject'); // HAPUS ATAU COMMENT LINE INI
     
     Route::get('/team-verification', [TeamController::class, 'teamVerification'])->name('tv_team_verification');
     Route::get('/team-awards', [TeamController::class, 'teamAwards'])->name('tv_team_awards');
-
-
 
     // Camper Management
     Route::get('/camper', [CamperController::class, 'camper'])->name('camper_team');
@@ -208,5 +208,3 @@ Route::prefix('user')->name('user.')->group(function () {
 |--------------------------------------------------------------------------
 */
 // Jika ingin ada route public selain yang sudah ada di /user, bisa ditambahkan di sini
-// Contoh:
-// Route::get('/about', function () { return view('about'); })->name('about');

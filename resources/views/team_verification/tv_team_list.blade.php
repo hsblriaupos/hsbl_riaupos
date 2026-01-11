@@ -32,16 +32,17 @@
         background: white;
         border: none;
         border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         margin-bottom: 24px;
         overflow: hidden;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
+
     .admin-card:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
     }
-    
+
     .card-header {
         background: var(--primary-gradient);
         border: none;
@@ -59,10 +60,10 @@
         border: none;
         border-radius: 12px;
         margin-bottom: 24px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         overflow: hidden;
     }
-    
+
     .filter-header {
         background: #f8fafc;
         padding: 16px 24px;
@@ -74,18 +75,18 @@
         align-items: center;
         gap: 10px;
     }
-    
+
     .filter-body {
         padding: 24px;
     }
-    
+
     .filter-label {
         font-size: 0.85rem;
         color: #4a5568;
         margin-bottom: 6px;
         font-weight: 600;
     }
-    
+
     .form-control-sm {
         border: 1px solid #e2e8f0;
         border-radius: 8px;
@@ -99,7 +100,7 @@
         overflow-x: auto;
         border-radius: 0 0 12px 12px;
     }
-    
+
     .table {
         font-size: 0.9rem;
         margin-bottom: 0;
@@ -221,7 +222,7 @@
         min-width: 90px !important;
         max-width: 90px !important;
         height: 26px !important;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1) !important;
         border: 2px solid transparent !important;
         white-space: nowrap !important;
         overflow: hidden !important;
@@ -233,35 +234,23 @@
         color: white;
         border-color: #ff4757;
     }
-    
+
     .badge-unlocked {
         background: var(--success-gradient);
         color: white;
         border-color: #20bf6b;
     }
-    
+
     .badge-verified {
         background: var(--success-gradient);
         color: white;
         border-color: #2ecc71;
     }
-    
-    .badge-pending {
-        background: var(--warning-gradient);
-        color: white;
-        border-color: #f39c12;
-    }
-    
+
     .badge-unverified {
         background: #f1f5f9;
         color: #64748b;
         border-color: #cbd5e1;
-    }
-    
-    .badge-rejected {
-        background: var(--danger-gradient);
-        color: white;
-        border-color: #e74c3c;
     }
 
     .ref-code {
@@ -296,7 +285,7 @@
         flex-wrap: nowrap;
         justify-content: center;
     }
-    
+
     .btn-action {
         padding: 6px 10px;
         font-size: 0.75rem;
@@ -309,19 +298,38 @@
         justify-content: center;
         transition: all 0.3s ease;
         border: none;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
-    
+
     .btn-action:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
     }
-    
-    .btn-view { background: var(--primary-gradient); color: white; }
-    .btn-verify { background: var(--success-gradient); color: white; }
-    .btn-reject { background: var(--danger-gradient); color: white; }
-    .btn-lock { background: var(--warning-gradient); color: white; }
-    .btn-unlock { background: var(--info-gradient); color: white; }
+
+    .btn-view {
+        background: var(--primary-gradient);
+        color: white;
+    }
+
+    .btn-verify {
+        background: var(--success-gradient);
+        color: white;
+    }
+
+    .btn-unverify {
+        background: var(--warning-gradient);
+        color: white;
+    }
+
+    .btn-lock {
+        background: var(--danger-gradient);
+        color: white;
+    }
+
+    .btn-unlock {
+        background: var(--info-gradient);
+        color: white;
+    }
 
     /* ===== PAGINATION - SELALU MUNCUL ===== */
     .pagination-container {
@@ -333,7 +341,7 @@
         align-items: center !important;
         min-height: 75px;
     }
-    
+
     .pagination-info {
         font-size: 0.85rem;
         color: #718096;
@@ -342,13 +350,13 @@
         align-items: center;
         gap: 8px;
     }
-    
+
     .pagination-wrapper {
         display: flex;
         align-items: center;
         gap: 15px;
     }
-    
+
     .custom-pagination {
         display: flex;
         align-items: center;
@@ -357,11 +365,11 @@
         padding: 0;
         list-style: none;
     }
-    
+
     .page-item {
         margin: 0;
     }
-    
+
     .page-link {
         font-size: 0.85rem !important;
         padding: 8px 12px !important;
@@ -375,7 +383,7 @@
         display: block !important;
         transition: all 0.3s ease !important;
     }
-    
+
     .page-item.active .page-link {
         background: var(--primary-gradient) !important;
         border-color: #667eea !important;
@@ -383,27 +391,27 @@
         box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3) !important;
         transform: scale(1.05);
     }
-    
+
     .page-item:not(.active) .page-link:hover {
         background-color: #f1f5f9 !important;
         border-color: #cbd5e0 !important;
         color: #2d3748 !important;
         transform: translateY(-2px) !important;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
     }
-    
+
     .page-item.disabled .page-link {
         background-color: #f8fafc !important;
         color: #cbd5e0 !important;
         border-color: #e2e8f0 !important;
         cursor: not-allowed !important;
     }
-    
+
     .page-link:focus {
         outline: none !important;
         box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15) !important;
     }
-    
+
     .page-ellipsis {
         padding: 8px 4px;
         color: #a0aec0;
@@ -424,7 +432,7 @@
         gap: 8px;
         box-shadow: 0 4px 15px rgba(32, 191, 107, 0.2);
     }
-    
+
     .export-btn:hover {
         transform: translateY(-3px);
         box-shadow: 0 8px 25px rgba(32, 191, 107, 0.3);
@@ -436,21 +444,21 @@
         padding: 80px 20px;
         text-align: center;
     }
-    
+
     .empty-icon {
         font-size: 4rem;
         color: #cbd5e0;
         margin-bottom: 20px;
         opacity: 0.3;
     }
-    
+
     .empty-title {
         font-size: 1.3rem;
         color: #718096;
         margin-bottom: 12px;
         font-weight: 700;
     }
-    
+
     .empty-text {
         color: #a0aec0;
         font-size: 1rem;
@@ -464,47 +472,47 @@
         .container-fluid {
             padding: 0 16px;
         }
-        
+
         .action-buttons {
             flex-direction: column;
             gap: 4px;
             width: 100%;
         }
-        
+
         .btn-action {
             width: 100%;
             padding: 8px;
         }
-        
+
         .table th,
         .table td {
             padding: 10px 8px !important;
             font-size: 0.8rem !important;
         }
-        
+
         .category-tag {
             font-size: 0.65rem !important;
             padding: 3px 6px !important;
             min-width: 70px !important;
         }
-        
+
         .pagination-container {
             flex-direction: column;
             gap: 15px;
             text-align: center;
             padding: 16px !important;
         }
-        
+
         .pagination-wrapper {
             flex-direction: column;
             gap: 10px;
         }
-        
+
         .custom-pagination {
             flex-wrap: wrap;
             justify-content: center;
         }
-        
+
         .page-link {
             font-size: 0.8rem !important;
             padding: 6px 10px !important;
@@ -559,7 +567,6 @@
                             <option value="">Semua Status</option>
                             <option value="unverified" {{ request('status') == 'unverified' ? 'selected' : '' }}>Belum Verifikasi</option>
                             <option value="verified" {{ request('status') == 'verified' ? 'selected' : '' }}>Terverifikasi</option>
-                            <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Ditolak</option>
                         </select>
                     </div>
 
@@ -574,7 +581,7 @@
                     </div>
 
                     <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                        <label class="filter-label">Tahun Season</label>
+                        <label class="filter-label">Tahun</label>
                         <select name="year" class="form-control form-control-sm">
                             <option value="">Semua Tahun</option>
                             @foreach($years as $year)
@@ -730,14 +737,6 @@
                                 <span class="status-badge badge-verified">
                                     <i class="fas fa-check-circle"></i> VERIFIED
                                 </span>
-                                @elseif($team->verification_status == 'pending')
-                                <span class="status-badge badge-pending">
-                                    <i class="fas fa-clock"></i> PENDING
-                                </span>
-                                @elseif($team->verification_status == 'rejected')
-                                <span class="status-badge badge-rejected">
-                                    <i class="fas fa-times-circle"></i> REJECTED
-                                </span>
                                 @else
                                 <span class="status-badge badge-unverified">
                                     <i class="fas fa-hourglass-half"></i> UNVERIFIED
@@ -750,12 +749,14 @@
                             </td>
                             <td>
                                 <div class="action-buttons">
+                                    <!-- Button View -->
                                     <a href="{{ route('admin.team-list.show', $team->team_id) }}"
                                         class="btn btn-action btn-view"
                                         title="Lihat Detail">
                                         <i class="fas fa-eye"></i>
                                     </a>
 
+                                    <!-- Button Verifikasi / Batalkan Verifikasi -->
                                     @if($team->verification_status == 'unverified')
                                     <form action="{{ route('admin.team.verify', $team->team_id) }}"
                                         method="POST"
@@ -768,20 +769,21 @@
                                             <i class="fas fa-check"></i>
                                         </button>
                                     </form>
-
-                                    <form action="{{ route('admin.team.reject', $team->team_id) }}"
+                                    @else
+                                    <form action="{{ route('admin.team.unverify', $team->team_id) }}"
                                         method="POST"
                                         class="d-inline">
                                         @csrf
                                         <button type="submit"
-                                            class="btn btn-action btn-reject"
-                                            title="Tolak Tim"
-                                            onclick="return confirm('Tolak tim {{ $team->school_name }}?')">
+                                            class="btn btn-action btn-unverify"
+                                            title="Batalkan Verifikasi"
+                                            onclick="return confirm('Batalkan verifikasi tim {{ $team->school_name }}?')">
                                             <i class="fas fa-times"></i>
                                         </button>
                                     </form>
                                     @endif
 
+                                    <!-- Button Kunci / Buka Kunci -->
                                     @if($team->locked_status != 'locked')
                                     <form action="{{ route('admin.team.lock', $team->team_id) }}"
                                         method="POST"
@@ -835,81 +837,81 @@
                 <div class="pagination-info">
                     <i class="fas fa-info-circle me-2"></i>
                     @if($teamList->total() > 0)
-                        Menampilkan <strong>{{ $teamList->firstItem() }} - {{ $teamList->lastItem() }}</strong>
-                        dari total <strong>{{ $teamList->total() }}</strong> data
+                    Menampilkan <strong>{{ $teamList->firstItem() }} - {{ $teamList->lastItem() }}</strong>
+                    dari total <strong>{{ $teamList->total() }}</strong> data
                     @else
-                        Tidak ada data yang ditampilkan
+                    Tidak ada data yang ditampilkan
                     @endif
                 </div>
-                
+
                 @if($teamList->total() > 0)
                 <div class="pagination-wrapper">
                     <ul class="custom-pagination">
                         {{-- Previous Button --}}
                         <li class="page-item {{ $teamList->onFirstPage() ? 'disabled' : '' }}">
-                            <a class="page-link" 
-                               href="{{ $teamList->onFirstPage() ? '#' : $teamList->previousPageUrl() }}"
-                               aria-label="Previous">
+                            <a class="page-link"
+                                href="{{ $teamList->onFirstPage() ? '#' : $teamList->previousPageUrl() }}"
+                                aria-label="Previous">
                                 &laquo;
                             </a>
                         </li>
 
                         {{-- Page Numbers --}}
                         @php
-                            $currentPage = $teamList->currentPage();
-                            $lastPage = $teamList->lastPage();
-                            
-                            // Untuk halaman sedikit, tampilkan semua
-                            $showAll = $lastPage <= 5;
-                            
-                            // Untuk halaman banyak, tampilkan current dan sekitar
-                            $startPage = max($currentPage - 1, 1);
-                            $endPage = min($currentPage + 1, $lastPage);
-                        @endphp
+                        $currentPage = $teamList->currentPage();
+                        $lastPage = $teamList->lastPage();
 
-                        {{-- Always show first page --}}
-                        @if($currentPage > 2 && !$showAll)
+                        // Untuk halaman sedikit, tampilkan semua
+                        $showAll = $lastPage <= 5;
+
+                            // Untuk halaman banyak, tampilkan current dan sekitar
+                            $startPage=max($currentPage - 1, 1);
+                            $endPage=min($currentPage + 1, $lastPage);
+                            @endphp
+
+                            {{-- Always show first page --}}
+                            @if($currentPage> 2 && !$showAll)
                             <li class="page-item">
                                 <a class="page-link" href="{{ $teamList->url(1) }}">1</a>
                             </li>
                             @if($currentPage > 3)
-                                <li class="page-item disabled">
-                                    <span class="page-ellipsis">...</span>
-                                </li>
+                            <li class="page-item disabled">
+                                <span class="page-ellipsis">...</span>
+                            </li>
                             @endif
-                        @endif
+                            @endif
 
-                        {{-- Show pages around current --}}
-                        @for ($i = ($showAll ? 1 : $startPage); $i <= ($showAll ? $lastPage : $endPage); $i++)
-                            <li class="page-item {{ $i == $currentPage ? 'active' : '' }}">
+                            {{-- Show pages around current --}}
+                            @for ($i = ($showAll ? 1 : $startPage); $i <= ($showAll ? $lastPage : $endPage); $i++)
+                                <li class="page-item {{ $i == $currentPage ? 'active' : '' }}">
                                 @if($i == $currentPage)
-                                    <span class="page-link">{{ $i }}</span>
+                                <span class="page-link">{{ $i }}</span>
                                 @else
-                                    <a class="page-link" href="{{ $teamList->url($i) }}">{{ $i }}</a>
+                                <a class="page-link" href="{{ $teamList->url($i) }}">{{ $i }}</a>
                                 @endif
-                            </li>
-                        @endfor
-
-                        {{-- Always show last page --}}
-                        @if($currentPage < $lastPage - 1 && !$showAll)
-                            @if($currentPage < $lastPage - 2)
-                                <li class="page-item disabled">
-                                    <span class="page-ellipsis">...</span>
                                 </li>
-                            @endif
-                            <li class="page-item">
-                                <a class="page-link" href="{{ $teamList->url($lastPage) }}">{{ $lastPage }}</a>
-                            </li>
-                        @endif
+                                @endfor
 
-                        {{-- Next Button --}}
-                        <li class="page-item {{ !$teamList->hasMorePages() ? 'disabled' : '' }}">
-                            <a class="page-link" 
-                               href="{{ !$teamList->hasMorePages() ? '#' : $teamList->nextPageUrl() }}"
-                               aria-label="Next">
-                                &raquo;
-                            </a>
-                        </li>
+                                {{-- Always show last page --}}
+                                @if($currentPage < $lastPage - 1 && !$showAll)
+                                    @if($currentPage < $lastPage - 2)
+                                    <li class="page-item disabled">
+                                    <span class="page-ellipsis">...</span>
+                                    </li>
+                                    @endif
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $teamList->url($lastPage) }}">{{ $lastPage }}</a>
+                                    </li>
+                                    @endif
+
+                                    {{-- Next Button --}}
+                                    <li class="page-item {{ !$teamList->hasMorePages() ? 'disabled' : '' }}">
+                                        <a class="page-link"
+                                            href="{{ !$teamList->hasMorePages() ? '#' : $teamList->nextPageUrl() }}"
+                                            aria-label="Next">
+                                            &raquo;
+                                        </a>
+                                    </li>
                     </ul>
                 </div>
                 @endif
