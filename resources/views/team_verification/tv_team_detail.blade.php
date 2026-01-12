@@ -121,7 +121,8 @@
         gap: 25px;
     }
 
-    .info-section, .status-doc-section {
+    .info-section,
+    .status-doc-section {
         display: flex;
         flex-direction: column;
     }
@@ -633,16 +634,16 @@
             grid-template-columns: 1fr;
             gap: 20px;
         }
-        
+
         .logo-column {
             align-items: center;
         }
-        
+
         .content-grid {
             grid-template-columns: 1fr;
             gap: 20px;
         }
-        
+
         .logo-box-square {
             max-width: 180px;
         }
@@ -650,7 +651,7 @@
         .jersey-image-container {
             gap: 15px;
         }
-        
+
         .jersey-single-item {
             min-width: 180px;
         }
@@ -660,50 +661,50 @@
         .card-body {
             padding: 15px;
         }
-        
+
         .content-grid {
             grid-template-columns: 1fr;
             gap: 15px;
         }
-        
+
         .action-buttons-row.compact {
             flex-direction: row;
             flex-wrap: wrap;
         }
-        
+
         .action-buttons-row.compact .btn-action-simple {
             flex: 1;
             min-width: auto;
         }
-        
+
         .jersey-image-container {
             flex-direction: column;
             gap: 15px;
         }
-        
+
         .jersey-single-item {
             width: 100%;
             max-width: 100%;
         }
-        
+
         table.data th,
         table.data td {
             padding: 8px 6px;
             font-size: 12px;
         }
-        
+
         .btn-detail {
             padding: 5px 12px;
             font-size: 11px;
             min-width: 80px;
             height: 30px;
         }
-        
+
         .document-link {
             padding: 8px 10px;
             font-size: 12px;
         }
-        
+
         .btn-action-simple {
             padding: 7px 12px;
             font-size: 12px;
@@ -714,55 +715,55 @@
         .card-body {
             padding: 12px;
         }
-        
+
         .page-title {
             font-size: 1.4rem;
         }
-        
+
         .page-subtitle {
             font-size: 0.85rem;
         }
-        
+
         .action-buttons-row.compact {
             flex-direction: column;
         }
-        
+
         .action-buttons-row.compact .btn-action-simple {
             width: 100%;
         }
-        
+
         .back-link {
             padding: 8px 12px;
             font-size: 12px;
         }
-        
+
         .jersey-single-item .no-image {
             width: 140px;
             height: 140px;
         }
-        
+
         table.data th,
         table.data td {
             padding: 6px 4px;
             font-size: 11px;
         }
-        
+
         .btn-detail {
             padding: 4px 10px;
             font-size: 10px;
             min-width: 70px;
             height: 28px;
         }
-        
+
         .document-link {
             padding: 7px 9px;
             font-size: 11px;
         }
-        
+
         .document-link i {
             font-size: 12px;
         }
-        
+
         .btn-action-simple {
             padding: 6px 10px;
             font-size: 11px;
@@ -786,160 +787,161 @@
 
     <!-- Team Information Card -->
     <div class="card">
-    <div class="card-header">
-        <i class="fas fa-info-circle"></i>
-        <span>Informasi Tim</span>
-    </div>
-    <div class="card-body">
-        <div class="team-info">
-            <!-- Logo di Kiri -->
-            <div class="logo-column">
-                <div class="logo-box-square" onclick="showLogoPopup()">
-                    <img src="{{ asset('uploads/logo/hsbl.png') }}" alt="Logo Sekolah" id="team-logo">
-                    <p>Logo Sekolah</p>
-                </div>
-            </div>
+        <div class="card-header">
+            <i class="fas fa-info-circle"></i>
+            <span>Informasi Tim</span>
+        </div>
+        <div class="card-body">
+            <div class="team-info">
+                <!-- Logo di Kiri -->
+                <div class="logo-column">
+                    <div class="logo-box-square" onclick="showLogoPopup()">
+                        <img src="{{ asset('uploads/logo/hsbl.png') }}" alt="Logo Sekolah" id="team-logo">
 
-            <!-- Konten di Kanan -->
-            <div class="content-column">
-                <div class="content-grid">
-                    <!-- Info Dasar -->
-                    <div class="info-section">
-                        <table class="info-table">
-                            <tr>
-                                <td>ID Tim</td>
-                                <td>: <strong>{{ $team->referral_code ?? 'Tahun 1986' }}</strong></td>
-                            </tr>
-                            <tr>
-                                <td>Leader</td>
-                                <td>: {{ $team->registered_by ?? 'Muhammad Alfah Reza' }}</td>
-                            </tr>
-                            <tr>
-                                <td>Nama Sekolah</td>
-                                <td>: <strong>{{ $team->school_name }}</strong></td>
-                            </tr>
-                            <tr>
-                                <td>Kompetisi</td>
-                                <td>: {{ $team->competition }}</td>
-                            </tr>
-                            <tr>
-                                <td>Musim</td>
-                                <td>: {{ $team->season ?? 'Honda DBL 2019' }}</td>
-                            </tr>
-                            <tr>
-                                <td>Seri</td>
-                                <td>: {{ $team->series ?? 'Seri Riau' }}</td>
-                            </tr>
-                            <tr>
-                                <td>Wilayah</td>
-                                <td>: -</td>
-                            </tr>
-                        </table>
                     </div>
+                </div>
 
-                    <!-- Status dan Dokumen -->
-                    <div class="status-doc-section">
-                        <!-- Status -->
-                        <div class="status-section">
-                            <table class="info-table compact">
+                <!-- Konten di Kanan -->
+                <div class="content-column">
+                    <div class="content-grid">
+                        <!-- Info Dasar -->
+                        <div class="info-section">
+                            <table class="info-table">
                                 <tr>
-                                    <td>Status Terkunci</td>
-                                    <td>: 
-                                        @if($team->locked_status == 'locked')
-                                        <span class="status-locked">Terkunci</span>
-                                        @else
-                                        <span class="status-open">Terbuka</span>
-                                        @endif
-                                    </td>
+                                    <td>ID Tim</td>
+                                    <td>: <strong>{{ $team->referral_code ?? 'Tahun 1986' }}</strong></td>
                                 </tr>
                                 <tr>
-                                    <td>Status Verifikasi</td>
-                                    <td>: 
-                                        @if($team->verification_status == 'verified')
-                                        <span class="status-verified">Terverifikasi</span>
-                                        @else
-                                        <span class="status-unverified">Belum Diverifikasi</span>
-                                        @endif
-                                    </td>
+                                    <td>Leader</td>
+                                    <td>: {{ $team->registered_by ?? 'Muhammad Alfah Reza' }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Nama Sekolah</td>
+                                    <td>: <strong>{{ $team->school_name }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>Kompetisi</td>
+                                    <td>: {{ $team->competition }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Musim</td>
+                                    <td>: {{ $team->season ?? 'Honda DBL 2019' }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Seri</td>
+                                    <td>: {{ $team->series ?? 'Seri Riau' }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Wilayah</td>
+                                    <td>: -</td>
                                 </tr>
                             </table>
                         </div>
 
-                        <!-- Dokumen -->
-                        <div class="documents-section">
-                            <h4>Dokumen</h4>
-                            <div class="document-links compact">
-                                <!-- Surat Rekomendasi -->
-                                @if($team->recommendation_letter)
-                                <a href="{{ asset('storage/' . $team->recommendation_letter) }}" 
-                                   target="_blank" 
-                                   class="document-link available">
-                                    <i class="fas fa-file-pdf"></i>
-                                    <span>Surat Rekomendasi</span>
-                                </a>
-                                @else
-                                <a href="#" 
-                                   class="document-link warning mb-2" 
-                                   onclick="showAlert('Surat Rekomendasi')">
-                                    <i class="fas fa-exclamation-circle"></i>
-                                    <span>Surat Rekomendasi (Belum Upload)</span>
-                                </a>
-                                @endif
-
-                                <!-- Bukti Langganan Koran -->
-                                @if($team->koran)
-                                <a href="{{ asset('storage/' . $team->koran) }}" 
-                                   target="_blank" 
-                                   class="document-link available">
-                                    <i class="fas fa-newspaper"></i>
-                                    <span>Bukti Langganan Koran</span>
-                                </a>
-                                @else
-                                <a href="#" 
-                                   class="document-link danger" 
-                                   onclick="showAlert('Bukti Langganan Koran')">
-                                    <i class="fas fa-times-circle"></i>
-                                    <span>Bukti Langganan Koran (Belum Upload)</span>
-                                </a>
-                                @endif
+                        <!-- Status dan Dokumen -->
+                        <div class="status-doc-section">
+                            <!-- Status -->
+                            <div class="status-section">
+                                <table class="info-table compact">
+                                    <tr>
+                                        <td>Status Terkunci</td>
+                                        <td>:
+                                            @if($team->locked_status == 'locked')
+                                            <span class="status-locked">Terkunci</span>
+                                            @else
+                                            <span class="status-open">Terbuka</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Status Verifikasi</td>
+                                        <td>:
+                                            @if($team->verification_status == 'verified')
+                                            <span class="status-verified">Terverifikasi</span>
+                                            @else
+                                            <span class="status-unverified">Belum Diverifikasi</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                </table>
                             </div>
-                        </div>
 
-                        <!-- Action Buttons -->
-                        <div class="action-buttons mt-2">
-                            <h4>Aksi Tim</h4>
-                            <div class="action-buttons-row compact">
-                                @if($team->locked_status != 'locked')
-                                <form action="{{ route('admin.team.lock', $team->team_id) }}" method="POST" class="d-inline" onsubmit="return confirmAction('Kunci tim {{ $team->school_name }}?')">
-                                    @csrf
-                                    <button type="submit" class="btn-action-simple btn-lock">
-                                        <i class="fas fa-lock"></i> Kunci
-                                    </button>
-                                </form>
-                                @else
-                                <form action="{{ route('admin.team.unlock', $team->team_id) }}" method="POST" class="d-inline" onsubmit="return confirmAction('Buka kunci tim {{ $team->school_name }}?')">
-                                    @csrf
-                                    <button type="submit" class="btn-action-simple btn-unlock">
-                                        <i class="fas fa-unlock"></i> Buka
-                                    </button>
-                                </form>
-                                @endif
+                            <!-- Dokumen -->
+                            <div class="documents-section">
+                                <h4>Dokumen</h4>
+                                <div class="document-links compact">
+                                    <!-- Surat Rekomendasi -->
+                                    @if($team->recommendation_letter)
+                                    <a href="{{ asset('storage/' . $team->recommendation_letter) }}"
+                                        target="_blank"
+                                        class="document-link available">
+                                        <i class="fas fa-file-pdf"></i>
+                                        <span>Surat Rekomendasi</span>
+                                    </a>
+                                    @else
+                                    <a href="#"
+                                        class="document-link warning mb-2"
+                                        onclick="showAlert('Surat Rekomendasi')">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        <span>Surat Rekomendasi (Belum Upload)</span>
+                                    </a>
+                                    @endif
 
-                                @if($team->verification_status != 'verified')
-                                <form action="{{ route('admin.team.verify', $team->team_id) }}" method="POST" class="d-inline" onsubmit="return confirmAction('Verifikasi tim {{ $team->school_name }}?')">
-                                    @csrf
-                                    <button type="submit" class="btn-action-simple btn-verify">
-                                        <i class="fas fa-check"></i> Verifikasi
-                                    </button>
-                                </form>
-                                @else
-                                <form action="{{ route('admin.team.unverify', $team->team_id) }}" method="POST" class="d-inline" onsubmit="return confirmAction('Batalkan verifikasi tim {{ $team->school_name }}?')">
-                                    @csrf
-                                    <button type="submit" class="btn-action-simple btn-unverify">
-                                        <i class="fas fa-times"></i> Batal
-                                    </button>
-                                </form>
-                                @endif
+                                    <!-- Bukti Langganan Koran -->
+                                    @if($team->koran)
+                                    <a href="{{ asset('storage/' . $team->koran) }}"
+                                        target="_blank"
+                                        class="document-link available">
+                                        <i class="fas fa-newspaper"></i>
+                                        <span>Bukti Langganan Koran</span>
+                                    </a>
+                                    @else
+                                    <a href="#"
+                                        class="document-link danger"
+                                        onclick="showAlert('Bukti Langganan Koran')">
+                                        <i class="fas fa-times-circle"></i>
+                                        <span>Bukti Langganan Koran (Belum Upload)</span>
+                                    </a>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="action-buttons mt-2">
+                                <h4>Aksi Tim</h4>
+                                <div class="action-buttons-row compact">
+                                    @if($team->locked_status != 'locked')
+                                    <form action="{{ route('admin.team.lock', $team->team_id) }}" method="POST" class="d-inline" onsubmit="return confirmAction('Kunci tim {{ $team->school_name }}?')">
+                                        @csrf
+                                        <button type="submit" class="btn-action-simple btn-lock">
+                                            <i class="fas fa-lock"></i> Kunci
+                                        </button>
+                                    </form>
+                                    @else
+                                    <form action="{{ route('admin.team.unlock', $team->team_id) }}" method="POST" class="d-inline" onsubmit="return confirmAction('Buka kunci tim {{ $team->school_name }}?')">
+                                        @csrf
+                                        <button type="submit" class="btn-action-simple btn-unlock">
+                                            <i class="fas fa-unlock"></i> Buka
+                                        </button>
+                                    </form>
+                                    @endif
+
+                                    @if($team->verification_status != 'verified')
+                                    <form action="{{ route('admin.team.verify', $team->team_id) }}" method="POST" class="d-inline" onsubmit="return confirmAction('Verifikasi tim {{ $team->school_name }}?')">
+                                        @csrf
+                                        <button type="submit" class="btn-action-simple btn-verify">
+                                            <i class="fas fa-check"></i> Verifikasi
+                                        </button>
+                                    </form>
+                                    @else
+                                    <form action="{{ route('admin.team.unverify', $team->team_id) }}" method="POST" class="d-inline" onsubmit="return confirmAction('Batalkan verifikasi tim {{ $team->school_name }}?')">
+                                        @csrf
+                                        <button type="submit" class="btn-action-simple btn-unverify">
+                                            <i class="fas fa-times"></i> Batal
+                                        </button>
+                                    </form>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -947,52 +949,78 @@
             </div>
         </div>
     </div>
-</div>
 
     <!-- Player List Card -->
-    <div class="card">
-        <div class="card-header">
-            <i class="fas fa-users"></i>
-            <span>Daftar Pemain</span>
-        </div>
-        <div class="card-body">
-            <div class="table-container">
-                <table class="data">
-                    <thead>
-                        <tr>
-                            <th width="50">#</th>
-                            <th>Nama</th>
-                            <th width="80">Jersey</th>
-                            <th width="120">Tanggal Lahir</th>
-                            <th>Sekolah</th>
-                            <th width="100">Nilai</th>
-                            <th width="100">Tahun STTB</th>
-                            <th width="120">Peran Tim</th>
-                            <th width="120" class="text-center">Tindakan</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td><strong>Muhammad Alfah Reza</strong></td>
-                            <td class="text-center">1</td>
-                            <td>02 April 2003</td>
-                            <td>{{ $team->school_name }}</td>
-                            <td>Kelas XI</td>
-                            <td>2018</td>
-                            <td><span class="status-verified" style="background:#e3f2fd;color:#1565c0;border-color:#bbdefb;">Pemain</span></td>
-                            <td class="text-center">
-                                <a class="btn-detail" href="#">
-                                    <i class="fas fa-eye"></i> Detail
-                                </a>
-                            </td>
-                        </tr>
-                        <!-- Tambahkan pemain lain jika ada -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
+<div class="card">
+    <div class="card-header">
+        <i class="fas fa-users"></i>
+        <span>Daftar Pemain ({{ $players->count() ?? 0 }})</span>
     </div>
+    <div class="card-body">
+        @if($players && $players->count() > 0)
+        <div class="table-container">
+            <table class="data">
+                <thead>
+                    <tr>
+                        <th width="50">#</th>
+                        <th>Nama</th>
+                        <th width="80">No. Jersey</th>
+                        <th width="120">Tanggal Lahir</th>
+                        <th width="100">Jenis Kelamin</th>
+                        <th width="100">Posisi</th>
+                        <th width="100">Kelas</th>
+                        <th width="100">Tahun STTB</th>
+                        <th width="100" class="text-center">Tindakan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($players as $index => $player)
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td><strong>{{ $player->name ?? 'N/A' }}</strong></td>
+                        <td class="text-center">{{ $player->jersey_number ?? '-' }}</td>
+                        <td>
+                            @if($player->birthdate)
+                            {{ \Carbon\Carbon::parse($player->birthdate)->isoFormat('D MMMM YYYY') }}
+                            @else
+                            <span style="color: #718096;">-</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if($player->gender == 'Male')
+                            Laki-laki
+                            @elseif($player->gender == 'Female')
+                            Perempuan
+                            @else
+                            <span style="color: #718096;">-</span>
+                            @endif
+                        </td>
+                        <td>{{ $player->basketball_position ?? '-' }}</td>
+                        <td>{{ $player->grade ?? '-' }}</td>
+                        <td>{{ $player->sttb_year ?? '-' }}</td>
+                        <td class="text-center">
+                            <button class="btn-detail" onclick="showPlayerDetail({{ $player->id }})" title="Lihat detail">
+                                <i class="fas fa-eye"></i> Detail
+                            </button>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        @else
+        <div class="empty-state">
+            <i class="fas fa-users"></i>
+            <h5>Belum ada data pemain</h5>
+            <p>Data pemain akan muncul di sini setelah mendaftar menggunakan referral code tim ini.</p>
+            <p class="text-muted mt-2" style="font-size: 12px;">
+                <i class="fas fa-info-circle"></i>
+                Tim ini memiliki referral code: <strong>{{ $team->referral_code ?? 'N/A' }}</strong>
+            </p>
+        </div>
+        @endif
+    </div>
+</div>
 
     <!-- Official List Card -->
     <div class="card">
@@ -1116,6 +1144,65 @@
             });
         });
 
+        // Function to show player detail modal
+        window.showPlayerDetail = function(playerId) {
+            // Untuk sementara, tampilkan informasi sederhana
+            // Nanti bisa diganti dengan AJAX request
+            Swal.fire({
+                title: 'Detail Pemain',
+                html: `<div style="text-align: left; font-size: 14px;">
+                <div class="text-center mb-3">
+                    <i class="fas fa-user-circle" style="font-size: 4rem; color: #667eea;"></i>
+                </div>
+                <p><strong>Fitur detail pemain dalam pengembangan!</strong></p>
+                <p>ID Pemain: <code>${playerId}</code></p>
+                <p>Fitur yang akan datang:</p>
+                <ul style="text-align: left; padding-left: 20px;">
+                    <li>Data pribadi lengkap</li>
+                    <li>Dokumen pemain (KK, Akte, Raport)</li>
+                    <li>Foto formal & pas foto</li>
+                    <li>Riwayat akademik</li>
+                    <li>Data orang tua/wali</li>
+                </ul>
+               </div>`,
+                icon: 'info',
+                confirmButtonText: 'Mengerti',
+                confirmButtonColor: '#667eea',
+                showCloseButton: true,
+                width: 500
+            });
+        };
+
+        // Update event listener untuk tombol detail
+        document.addEventListener('DOMContentLoaded', function() {
+            // ... kode yang sudah ada ...
+
+            // Hapus event listener lama dan ganti dengan yang baru
+            const detailButtons = document.querySelectorAll('.btn-detail');
+            detailButtons.forEach(button => {
+                // Hapus event listener lama jika ada
+                button.removeEventListener('click', function() {});
+
+                // Tambah event listener baru dengan properti onclick
+                if (button.getAttribute('onclick')) {
+                    // Biarkan onclick attribute yang menangani
+                } else {
+                    button.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        Swal.fire({
+                            title: 'Detail Pemain',
+                            text: 'Klik tombol Detail untuk melihat informasi lengkap pemain',
+                            icon: 'info',
+                            confirmButtonText: 'Mengerti',
+                            confirmButtonColor: '#667eea',
+                        });
+                    });
+                }
+            });
+
+            // ... kode lainnya ...
+        });
+
         // Document links click handler
         const documentLinks = document.querySelectorAll('.document-link[href="#"]');
         documentLinks.forEach(link => {
@@ -1132,7 +1219,7 @@
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
                 const message = this.getAttribute('onsubmit').match(/return confirmAction\('(.+)'\)/)[1];
-                
+
                 Swal.fire({
                     title: 'Konfirmasi',
                     text: message,
@@ -1154,7 +1241,7 @@
                                 Swal.showLoading();
                             }
                         });
-                        
+
                         // Submit form after a short delay to show loading
                         setTimeout(() => {
                             form.submit();

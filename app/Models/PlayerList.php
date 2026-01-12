@@ -48,15 +48,24 @@ class PlayerList extends Model
         'unlocked_at',
     ];
 
+    // Tambahkan ini untuk cast tanggal
+    protected $dates = [
+        'birthdate',
+        'finalized_at',
+        'unlocked_at',
+        'created_at',
+        'updated_at'
+    ];
+
     // Relasi ke tim
     public function team()
     {
-        return $this->belongsTo(TeamList::class, 'team_id');
+        return $this->belongsTo(TeamList::class, 'team_id', 'team_id');
     }
 
-    // App\Models\PlayerList.php
-    public function schoolData()
-    {
-        return $this->belongsTo(School::class, 'school', 'id');
-    }
+    // Relasi ke sekolah - HAPUS jika tidak ada tabel schools
+    // public function schoolData()
+    // {
+    //     return $this->belongsTo(School::class, 'school', 'id');
+    // }
 }
