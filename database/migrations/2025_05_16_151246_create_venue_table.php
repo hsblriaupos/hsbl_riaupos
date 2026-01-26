@@ -10,16 +10,18 @@ return new class extends Migration
     {
         Schema::create('venue', function (Blueprint $table) {
             $table->id();
-            $table->string('venue_name');
-            $table->unsignedBigInteger('city_id');
+
+            $table->string('venue_name')->nullable();
+            $table->unsignedBigInteger('city_id')->nullable();
             $table->string('location')->nullable();
             $table->string('layout')->nullable();
+
             $table->timestamps();
 
             $table->foreign('city_id')
-                  ->references('id')
-                  ->on('cities')
-                  ->onDelete('cascade');
+                ->references('id')
+                ->on('cities')
+                ->nullOnDelete();
         });
     }
 

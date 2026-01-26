@@ -15,12 +15,37 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet" />
     <link href="{{ asset('css/layoutWeb.css') }}" rel="stylesheet" />
     <style>
+        /* Fix untuk SweetAlert yang keimpit header */
+        .swal2-container {
+            z-index: 999999 !important;
+        }
         
+        .swal2-popup {
+            margin-top: 80px !important;
+        }
+        
+        /* Tambah padding top untuk main content karena header fixed */
+        #user-layout main {
+            padding-top: 100px;
+            min-height: calc(100vh - 200px);
+        }
+        
+        /* Untuk mobile */
+        @media (max-width: 768px) {
+            #user-layout main {
+                padding-top: 90px;
+            }
+            
+            .swal2-popup {
+                margin-top: 70px !important;
+            }
+        }
     </style>
 
     @stack('styles')
 </head>
 <body class="bg-gray-200" id="user-layout">
+@include('partials.sweetalert')
 
     {{-- ==================== HEADER ==================== --}}
     <header class="fixed top-0 left-0 right-0 z-50 bg-white rounded-b-[40px] shadow-lg px-6 py-4 max-w-7xl mx-auto"
@@ -105,7 +130,7 @@
 
     {{-- ==================== MAIN CONTENT ==================== --}}
     <main class="flex-grow w-full px-4">
-        <div class="max-w-7xl mx-auto w-full">
+        <div class="max-w-7xl mx-auto w-full pt-16"> <!-- TAMBAH pt-16 -->
             @yield('content')
         </div>
     </main>

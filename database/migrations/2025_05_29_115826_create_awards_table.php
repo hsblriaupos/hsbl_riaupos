@@ -4,19 +4,22 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateAwardsTable extends Migration
+return new class extends Migration
 {
-    public function up()
+    public function up(): void
     {
         Schema::create('awards', function (Blueprint $table) {
             $table->id();
-            $table->string('award_type');
-            $table->string('category');
+
+            $table->string('award_type')->nullable();
+            $table->string('category')->nullable();
+
+            $table->timestamps();
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('awards');
     }
-}
+};

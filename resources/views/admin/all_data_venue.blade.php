@@ -216,7 +216,7 @@
         background-color: #fecaca;
     }
 
-    /* Filter Section */
+    /* ===== SECTION FILTER YANG DIPERBAIKI ===== */
     .filter-section {
         background-color: #f8fafc;
         padding: 12px 16px;
@@ -226,26 +226,202 @@
     .filter-form {
         display: flex;
         flex-wrap: wrap;
-        gap: 10px;
+        gap: 12px;
         align-items: center;
     }
 
     .filter-select {
-        min-width: 150px;
-        max-width: 200px;
+        min-width: 180px;
+        flex: 1;
     }
 
     .search-box {
-        flex-grow: 1;
-        min-width: 200px;
-        max-width: 300px;
+        flex: 2;
+        min-width: 250px;
     }
 
-    /* Pagination */
+    .input-group .form-control:focus {
+        z-index: 3;
+    }
+
+    .input-group .btn-outline-secondary {
+        border-left: 0;
+        background-color: #f8f9fa;
+        transition: all 0.2s;
+    }
+
+    .input-group .btn-outline-secondary:hover {
+        background-color: #e9ecef;
+        border-color: #ced4da;
+        color: #495057;
+    }
+
+    /* ===== PAGINATION YANG SERAGAM ===== */
+    .pagination-container {
+        background: #f8fafc !important;
+        padding: 16px 24px !important;
+        border-top: 1px solid #e2e8f0 !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        min-height: 65px;
+    }
+
     .pagination-info {
         font-size: 0.85rem;
-        color: #7f8c8d;
-        margin-right: 15px;
+        color: #718096;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .pagination-info i {
+        color: #667eea;
+    }
+
+    .custom-pagination {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .page-link {
+        font-size: 0.85rem !important;
+        padding: 7px 12px !important;
+        border: 1px solid #e2e8f0 !important;
+        color: #4a5568 !important;
+        font-weight: 600 !important;
+        border-radius: 6px !important;
+        min-width: 35px !important;
+        height: 35px;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s !important;
+        text-decoration: none !important;
+    }
+
+    .page-item.active .page-link {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        border-color: #667eea !important;
+        color: white !important;
+        box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2) !important;
+    }
+
+    .page-link:hover:not(.active .page-link) {
+        background: #f1f5f9 !important;
+        border-color: #cbd5e0 !important;
+        color: #2d3748 !important;
+        text-decoration: none !important;
+    }
+
+    .page-item.disabled .page-link {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    /* ============================================
+       MODAL GAMBAR - UKURAN LEBIH KECIL & RAPI
+       ============================================ */
+    
+    /* Modal Container - UKURAN DIPERKECIL LAGI */
+    .modal-dialog.modal-sm {
+        max-width: 450px !important;
+        margin-top: 30px !important;
+    }
+
+    .modal-content {
+        border-radius: 8px;
+        overflow: hidden;
+        max-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Modal Header */
+    .modal-header {
+        padding: 10px 15px;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+        flex-shrink: 0;
+    }
+
+    .modal-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    /* Modal Body - Container Gambar */
+    .modal-body {
+        padding: 0;
+        flex: 1;
+        overflow: hidden;
+    }
+
+    .image-container {
+        background-color: #f8f9fa;
+        padding: 12px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: auto;
+        max-height: 50vh;
+        min-height: 180px;
+    }
+
+    /* Styling Gambar */
+    #modalImage {
+        transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        cursor: zoom-in;
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        border-radius: 4px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+    }
+
+    #modalImage.zoomed {
+        transform: scale(1.25);
+        cursor: zoom-out;
+        box-shadow: 0 3px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Modal Footer */
+    .modal-footer {
+        padding: 8px 15px;
+        background-color: #f8f9fa;
+        border-top: 1px solid #dee2e6;
+        flex-shrink: 0;
+    }
+
+    /* Efek Hover untuk Container Gambar */
+    .image-container:hover #modalImage:not(.zoomed) {
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.18);
+    }
+
+    /* Smooth transition untuk modal */
+    .modal.fade .modal-dialog {
+        transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+    }
+
+    /* Styling tombol close */
+    .btn-close {
+        padding: 6px;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+        font-size: 0.8rem;
+    }
+
+    .btn-close:hover {
+        opacity: 1;
     }
 
     /* Responsive */
@@ -268,18 +444,97 @@
         .filter-select,
         .search-box {
             max-width: 100%;
+            min-width: 100%;
         }
 
         .img-thumbnail {
             width: 50px;
             height: 50px;
         }
+        
+        /* Modal Responsive */
+        .modal-dialog.modal-sm {
+            max-width: 90% !important;
+            margin: 20px auto !important;
+        }
+        
+        .image-container {
+            max-height: 45vh;
+            padding: 10px;
+        }
+        
+        #modalImage.zoomed {
+            transform: scale(1.15);
+        }
+        
+        .modal-header {
+            padding: 8px 12px;
+        }
+        
+        .modal-footer {
+            padding: 6px 12px;
+        }
+        
+        /* Pagination responsive */
+        .pagination-container {
+            flex-direction: column;
+            gap: 12px;
+            text-align: center;
+            padding: 14px 20px !important;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .modal-dialog.modal-sm {
+            max-width: 95% !important;
+            margin: 15px auto !important;
+        }
+        
+        .image-container {
+            max-height: 40vh;
+            padding: 8px;
+        }
+        
+        .modal-header,
+        .modal-footer {
+            padding: 6px 10px;
+        }
+        
+        .modal-title {
+            font-size: 0.9rem;
+        }
+        
+        #modalImage.zoomed {
+            transform: scale(1.1);
+        }
+        
+        .btn-close {
+            padding: 4px;
+            font-size: 0.7rem;
+        }
+        
+        .custom-pagination {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+    }
+
+    /* Untuk device mobile kecil */
+    @media (max-width: 400px) {
+        .modal-dialog.modal-sm {
+            max-width: 98% !important;
+            margin: 10px auto !important;
+        }
+        
+        .image-container {
+            max-height: 35vh;
+        }
     }
 </style>
 @endpush
 
 <div class="container">
-    <!-- Page Header -->
+    <!-- Header Halaman -->
     <div class="page-header">
         <h1 class="page-title mt-2">
             <i class="fas fa-map-marker-alt me-2"></i> Venue Management
@@ -293,7 +548,7 @@
             <i class="fas fa-plus-circle me-2"></i> Tambah Venue Baru
         </div>
         <div class="card-body">
-            <form action="{{ url('/admin/venue') }}" method="POST" enctype="multipart/form-data" id="addVenueForm">
+            <form action="{{ route('admin.venue.store') }}" method="POST" enctype="multipart/form-data" id="addVenueForm">
                 @csrf
                 <div class="row g-3">
                     <div class="col-md-6">
@@ -345,7 +600,7 @@
                     <button type="reset" class="btn-secondary">
                         <i class="fas fa-redo me-2"></i> Reset
                     </button>
-                    <button type="submit" class="btn-submit">
+                    <button type="submit" class="btn-submit" id="submitBtn">
                         <i class="fas fa-plus me-2"></i> Tambah Venue
                     </button>
                 </div>
@@ -353,14 +608,14 @@
         </div>
     </div>
 
-    <!-- Filter Section -->
+    <!-- Section Filter -->
     <div class="card">
         <div class="card-header">
             <i class="fas fa-filter me-2"></i> Filter & Pencarian
         </div>
         <div class="filter-section">
-            <form method="GET" action="{{ url('/admin/venue') }}" class="filter-form">
-                <select name="city_id" class="form-control filter-select" onchange="this.form.submit()">
+            <form method="GET" action="{{ route('admin.all_data_venue') }}" class="filter-form" id="filterForm">
+                <select name="city_id" class="form-control filter-select">
                     <option value="">Semua Kota</option>
                     @foreach($cities as $city)
                     <option value="{{ $city->id }}" {{ request('city_id') == $city->id ? 'selected' : '' }}>
@@ -373,7 +628,7 @@
                     <input type="text"
                         name="search"
                         class="form-control"
-                        placeholder="Cari venue..."
+                        placeholder="Cari nama venue atau lokasi..."
                         value="{{ request('search') }}">
                     <button class="btn btn-outline-secondary" type="submit">
                         <i class="fas fa-search"></i>
@@ -382,15 +637,20 @@
 
                 <div class="d-flex align-items-center gap-2">
                     <span class="pagination-info">
-                        Menampilkan {{ $venues->firstItem() ?? 0 }}-{{ $venues->lastItem() ?? 0 }} dari {{ $venues->total() }}
+                        <i class="fas fa-database me-1"></i>
+                        {{ $venues->total() }} Data
                     </span>
-                    <select name="per_page" class="form-control" style="width: auto;" onchange="this.form.submit()">
+                    <select name="per_page" class="form-control" style="width: auto;">
                         <option value="10" {{ request('per_page', 10) == 10 ? 'selected' : '' }}>10</option>
                         <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
                         <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
                         <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
                     </select>
                 </div>
+
+                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetFilter()">
+                    <i class="fas fa-redo me-1"></i> Reset
+                </button>
             </form>
         </div>
     </div>
@@ -403,9 +663,6 @@
                 <span class="badge bg-primary ms-2">{{ $venues->total() }}</span>
             </div>
             <div>
-                <a href="{{ url('/admin/venue') }}" class="btn-secondary btn-sm">
-                    <i class="fas fa-redo me-1"></i> Reset Filter
-                </a>
                 <a href="{{ url('/admin/export/venue') }}" class="btn-submit btn-sm">
                     <i class="fas fa-file-export me-1"></i> Export
                 </a>
@@ -474,8 +731,8 @@
                                         <i class="fas fa-edit"></i>
                                     </button>
 
-                                    <form method="POST" action="{{ url('/admin/venue/delete') }}"
-                                        class="delete-form">
+                                    <form method="POST" action="{{ route('admin.venue.delete') }}"
+                                        class="delete-form d-inline">
                                         @csrf
                                         @method('DELETE')
                                         <input type="hidden" name="table" value="venue">
@@ -495,6 +752,11 @@
                                 <div class="empty-state">
                                     <i class="fas fa-map-marker-alt"></i>
                                     <p>Belum ada data venue.</p>
+                                    @if(request()->hasAny(['city_id', 'search']))
+                                    <a href="{{ route('admin.all_data_venue') }}" class="btn btn-primary btn-sm mt-2">
+                                        Reset Filter
+                                    </a>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
@@ -503,35 +765,109 @@
                 </table>
             </div>
 
-            <!-- Pagination -->
-            @if($venues->hasPages())
-            <div class="p-3 border-top">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="pagination-info">
-                        Menampilkan {{ $venues->firstItem() }} sampai {{ $venues->lastItem() }} dari {{ $venues->total() }} data
-                    </div>
-                    <div>
-                        {{ $venues->onEachSide(1)->links('pagination::simple-bootstrap-4') }}
-                    </div>
+            <!-- Pagination - SELALU TAMPIL -->
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    @if($venues->total() > 0)
+                    Menampilkan <strong>{{ $venues->firstItem() }} - {{ $venues->lastItem() }}</strong>
+                    dari <strong>{{ $venues->total() }}</strong> data
+                    @else
+                    Tidak ada data yang ditampilkan
+                    @endif
                 </div>
+
+                <nav>
+                    <ul class="custom-pagination">
+                        {{-- Previous Page Link --}}
+                        <li class="page-item {{ $venues->onFirstPage() ? 'disabled' : '' }}">
+                            <a class="page-link" 
+                               href="{{ $venues->onFirstPage() ? '#' : $venues->previousPageUrl() }}"
+                               aria-label="Previous">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+
+                        {{-- Page Numbers --}}
+                        @php
+                        $currentPage = $venues->currentPage();
+                        $lastPage = $venues->lastPage();
+                        $startPage = max($currentPage - 2, 1);
+                        $endPage = min($currentPage + 2, $lastPage);
+                        @endphp
+
+                        {{-- First page --}}
+                        @if($startPage > 1)
+                        <li class="page-item">
+                            <a class="page-link" href="{{ $venues->url(1) . '&' . http_build_query(request()->except('page')) }}">1</a>
+                        </li>
+                        @if($startPage > 2)
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                        @endif
+                        @endif
+
+                        {{-- Pages around current --}}
+                        @for ($i = $startPage; $i <= $endPage; $i++)
+                            <li class="page-item {{ $i == $currentPage ? 'active' : '' }}">
+                                @if($i == $currentPage)
+                                <span class="page-link">{{ $i }}</span>
+                                @else
+                                <a class="page-link" href="{{ $venues->url($i) . '&' . http_build_query(request()->except('page')) }}">{{ $i }}</a>
+                                @endif
+                            </li>
+                        @endfor
+
+                        {{-- Last page --}}
+                        @if($endPage < $lastPage)
+                            @if($endPage < $lastPage - 1)
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                            @endif
+                            <li class="page-item">
+                                <a class="page-link" href="{{ $venues->url($lastPage) . '&' . http_build_query(request()->except('page')) }}">{{ $lastPage }}</a>
+                            </li>
+                        @endif
+
+                        {{-- Next Page Link --}}
+                        <li class="page-item {{ !$venues->hasMorePages() ? 'disabled' : '' }}">
+                            <a class="page-link" 
+                               href="{{ !$venues->hasMorePages() ? '#' : $venues->nextPageUrl() }}"
+                               aria-label="Next">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
             </div>
-            @endif
         </div>
     </div>
 </div>
 
-<!-- Image Modal -->
+<!-- Image Modal - UKURAN LEBIH KECIL -->
 <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">
                     <i class="fas fa-image me-2"></i> Layout Venue
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body text-center p-0">
-                <img id="modalImage" src="" alt="Layout Venue" class="img-fluid rounded">
+            <div class="modal-body p-0">
+                <div class="image-container">
+                    <img id="modalImage" src="" alt="Layout Venue" class="img-fluid">
+                </div>
+            </div>
+            <div class="modal-footer d-flex justify-content-between">
+                <small class="text-muted d-flex align-items-center">
+                    <i class="fas fa-info-circle me-1"></i> Klik untuk zoom
+                </small>
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i> Tutup
+                </button>
             </div>
         </div>
     </div>
@@ -545,10 +881,10 @@
                 <h5 class="modal-title">
                     <i class="fas fa-edit me-2"></i> Edit Venue
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="editVenueForm" method="POST" action="{{ url('/admin/venue/edit') }}" enctype="multipart/form-data">
+                <form id="editVenueForm" method="POST" action="{{ route('admin.venue.edit') }}" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="table" value="venue">
                     <input type="hidden" name="id" id="editVenueId">
@@ -585,7 +921,7 @@
                         <button type="button" class="btn-secondary" data-bs-dismiss="modal">
                             Batal
                         </button>
-                        <button type="submit" class="btn-submit">
+                        <button type="submit" class="btn-submit" id="saveEditBtn">
                             <i class="fas fa-save me-2"></i> Simpan
                         </button>
                     </div>
@@ -600,7 +936,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    // Set data for edit venue modal
+    // Set data untuk edit venue modal
     function setEditVenueData(button) {
         document.getElementById('editVenueId').value = button.dataset.id;
         document.getElementById('editVenueName').value = button.dataset.name;
@@ -608,15 +944,149 @@
         document.getElementById('editVenueLocation').value = button.dataset.location;
     }
 
-    // Show image in modal
+    // Tampilkan gambar di modal dengan kontrol zoom
     function showImage(imageSrc) {
-        document.getElementById('modalImage').src = imageSrc;
+        const modalImage = document.getElementById('modalImage');
+        modalImage.src = imageSrc;
+        modalImage.classList.remove('zoomed');
+        
+        // Reset event listener
+        modalImage.onclick = null;
+        
+        // Tambah fungsi klik untuk zoom
+        modalImage.onclick = function() {
+            if (this.classList.contains('zoomed')) {
+                this.classList.remove('zoomed');
+                this.style.cursor = 'zoom-in';
+            } else {
+                this.classList.add('zoomed');
+                this.style.cursor = 'zoom-out';
+            }
+        };
+        
+        // Set cursor awal
+        modalImage.style.cursor = 'zoom-in';
     }
 
-    // Delete Confirmation
-    document.addEventListener('DOMContentLoaded', function() {
-        const deleteButtons = document.querySelectorAll('.btn-delete');
+    // Reset zoom ketika modal ditutup
+    const imageModal = document.getElementById('imageModal');
+    if (imageModal) {
+        imageModal.addEventListener('hidden.bs.modal', function () {
+            const modalImage = document.getElementById('modalImage');
+            if (modalImage) {
+                modalImage.classList.remove('zoomed');
+                modalImage.style.cursor = 'zoom-in';
+            }
+        });
+    }
 
+    // Fungsi filter
+    function resetFilter() {
+        if (confirm('Reset semua filter?')) {
+            window.location.href = "{{ route('admin.all_data_venue') }}";
+        }
+    }
+
+    // DOM Ready function
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto submit filter ketika select berubah
+        const filterSelects = document.querySelectorAll('#filterForm select');
+        filterSelects.forEach(select => {
+            select.addEventListener('change', function() {
+                document.getElementById('filterForm').submit();
+            });
+        });
+
+        // Form validation untuk tambah venue
+        const addForm = document.getElementById('addVenueForm');
+        const submitBtn = document.getElementById('submitBtn');
+
+        if (addForm && submitBtn) {
+            addForm.addEventListener('submit', function(e) {
+                const venueName = this.querySelector('[name="venue_name"]').value.trim();
+                const cityId = this.querySelector('[name="city_id"]').value;
+                const location = this.querySelector('[name="location"]').value.trim();
+
+                if (!venueName || !cityId || !location) {
+                    e.preventDefault();
+                    Swal.fire({
+                        title: 'Form Tidak Lengkap',
+                        text: 'Harap lengkapi semua field yang wajib diisi',
+                        icon: 'warning',
+                        confirmButtonColor: '#3085d6',
+                    });
+                } else {
+                    // Tampilkan loading
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Menyimpan...';
+                    
+                    // Tampilkan toast loading (bukan popup besar)
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 1500,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.addEventListener('mouseenter', Swal.stopTimer)
+                            toast.addEventListener('mouseleave', Swal.resumeTimer)
+                        }
+                    })
+                    
+                    Toast.fire({
+                        icon: 'info',
+                        title: 'Menyimpan data venue...'
+                    });
+                }
+            });
+        }
+
+        // Form validation untuk edit venue
+        const editForm = document.getElementById('editVenueForm');
+        const saveEditBtn = document.getElementById('saveEditBtn');
+
+        if (editForm && saveEditBtn) {
+            editForm.addEventListener('submit', function(e) {
+                const venueName = this.querySelector('[name="venue_name"]').value.trim();
+                const cityId = this.querySelector('[name="city_id"]').value;
+                const location = this.querySelector('[name="location"]').value.trim();
+
+                if (!venueName || !cityId || !location) {
+                    e.preventDefault();
+                    Swal.fire({
+                        title: 'Form Tidak Lengkap',
+                        text: 'Harap lengkapi semua field yang wajib diisi',
+                        icon: 'warning',
+                        confirmButtonColor: '#3085d6',
+                    });
+                } else {
+                    // Tampilkan loading
+                    saveEditBtn.disabled = true;
+                    saveEditBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Menyimpan...';
+                    
+                    // Tampilkan toast loading
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 1500,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.addEventListener('mouseenter', Swal.stopTimer)
+                            toast.addEventListener('mouseleave', Swal.resumeTimer)
+                        }
+                    })
+                    
+                    Toast.fire({
+                        icon: 'info',
+                        title: 'Menyimpan perubahan...'
+                    });
+                }
+            });
+        }
+
+        // Confirmation untuk delete
+        const deleteButtons = document.querySelectorAll('.btn-delete');
         deleteButtons.forEach(button => {
             button.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -649,47 +1119,38 @@
             });
         });
 
-        // Form validation
-        const addForm = document.getElementById('addVenueForm');
-        const editForm = document.getElementById('editVenueForm');
+        // Perbaiki issue modal close
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
+            modal.addEventListener('hidden.bs.modal', function () {
+                document.body.classList.remove('modal-open');
+                const backdrops = document.querySelectorAll('.modal-backdrop');
+                backdrops.forEach(backdrop => backdrop.remove());
+            });
+        });
 
-        if (addForm) {
-            addForm.addEventListener('submit', function(e) {
-                const venueName = this.querySelector('[name="venue_name"]').value.trim();
-                const cityId = this.querySelector('[name="city_id"]').value;
-                const location = this.querySelector('[name="location"]').value.trim();
-
-                if (!venueName || !cityId || !location) {
-                    e.preventDefault();
-                    Swal.fire({
-                        title: 'Form Tidak Lengkap',
-                        text: 'Harap lengkapi semua field yang wajib diisi',
-                        icon: 'warning',
-                        confirmButtonColor: '#3085d6',
-                    });
+        // Tambah event untuk tombol search
+        const searchBtn = document.querySelector('.search-box button[type="submit"]');
+        if (searchBtn) {
+            searchBtn.addEventListener('click', function(e) {
+                const form = this.closest('form');
+                const searchInput = form.querySelector('input[name="search"]');
+                
+                // Jika search input kosong, submit seperti biasa
+                if (!searchInput.value.trim()) {
+                    return true;
                 }
+                
+                // Tampilkan loading kecil untuk search
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                this.disabled = true;
+                
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-search"></i>';
+                    this.disabled = false;
+                }, 1000);
             });
         }
-
-        if (editForm) {
-            editForm.addEventListener('submit', function(e) {
-                const venueName = this.querySelector('[name="venue_name"]').value.trim();
-                const cityId = this.querySelector('[name="city_id"]').value;
-                const location = this.querySelector('[name="location"]').value.trim();
-
-                if (!venueName || !cityId || !location) {
-                    e.preventDefault();
-                    Swal.fire({
-                        title: 'Form Tidak Lengkap',
-                        text: 'Harap lengkapi semua field yang wajib diisi',
-                        icon: 'warning',
-                        confirmButtonColor: '#3085d6',
-                    });
-                }
-            });
-        }
-
-
     });
 </script>
 @endpush

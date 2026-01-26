@@ -197,7 +197,7 @@
     @endif
 
     {{-- Tombol Hapus --}}
-    <form action="{{ route('admin.data.delete') }}" method="POST" style="display: inline;">
+    <form action="" method="POST" style="display: inline;">
         @csrf
         <input type="hidden" name="table" value="match_data">
         <input type="hidden" name="id" value="{{ $match->id }}">

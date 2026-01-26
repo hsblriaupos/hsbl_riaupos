@@ -6,21 +6,22 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up()
+    public function up(): void
     {
         Schema::create('add_data', function (Blueprint $table) {
             $table->id();
-            $table->string('season_name');
-            $table->string('series_name');
-            $table->string('competition');
-            $table->string('phase');
+            $table->string('season_name')->nullable();
+            $table->string('series_name')->nullable();
+            $table->string('competition')->nullable(); 
+            $table->string('competition_type')->nullable(); 
+            $table->string('phase')->nullable();
             $table->timestamps();
         });
+        
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('add_data');
     }
 };
-

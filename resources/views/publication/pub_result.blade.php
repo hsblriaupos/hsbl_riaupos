@@ -206,7 +206,7 @@
                                 onclick="openEditMatchResultModal(this)">
                                 ✏️ Edit
                             </button>
-                            <form method="POST" action="{{ route('admin.data.delete', $match->id) }}" class="inline"
+                            <form method="POST" action="" class="inline"
                                 onsubmit="return confirm('Yakin ingin hapus data ini?');">
                                 @csrf
                                 @method('DELETE')

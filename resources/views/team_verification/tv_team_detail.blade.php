@@ -951,76 +951,78 @@
     </div>
 
     <!-- Player List Card -->
-<div class="card">
-    <div class="card-header">
-        <i class="fas fa-users"></i>
-        <span>Daftar Pemain ({{ $players->count() ?? 0 }})</span>
-    </div>
-    <div class="card-body">
-        @if($players && $players->count() > 0)
-        <div class="table-container">
-            <table class="data">
-                <thead>
-                    <tr>
-                        <th width="50">#</th>
-                        <th>Nama</th>
-                        <th width="80">No. Jersey</th>
-                        <th width="120">Tanggal Lahir</th>
-                        <th width="100">Jenis Kelamin</th>
-                        <th width="100">Posisi</th>
-                        <th width="100">Kelas</th>
-                        <th width="100">Tahun STTB</th>
-                        <th width="100" class="text-center">Tindakan</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($players as $index => $player)
-                    <tr>
-                        <td>{{ $index + 1 }}</td>
-                        <td><strong>{{ $player->name ?? 'N/A' }}</strong></td>
-                        <td class="text-center">{{ $player->jersey_number ?? '-' }}</td>
-                        <td>
-                            @if($player->birthdate)
-                            {{ \Carbon\Carbon::parse($player->birthdate)->isoFormat('D MMMM YYYY') }}
-                            @else
-                            <span style="color: #718096;">-</span>
-                            @endif
-                        </td>
-                        <td>
-                            @if($player->gender == 'Male')
-                            Laki-laki
-                            @elseif($player->gender == 'Female')
-                            Perempuan
-                            @else
-                            <span style="color: #718096;">-</span>
-                            @endif
-                        </td>
-                        <td>{{ $player->basketball_position ?? '-' }}</td>
-                        <td>{{ $player->grade ?? '-' }}</td>
-                        <td>{{ $player->sttb_year ?? '-' }}</td>
-                        <td class="text-center">
-                            <button class="btn-detail" onclick="showPlayerDetail({{ $player->id }})" title="Lihat detail">
-                                <i class="fas fa-eye"></i> Detail
-                            </button>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-        @else
-        <div class="empty-state">
+    <div class="card">
+        <div class="card-header">
             <i class="fas fa-users"></i>
-            <h5>Belum ada data pemain</h5>
-            <p>Data pemain akan muncul di sini setelah mendaftar menggunakan referral code tim ini.</p>
-            <p class="text-muted mt-2" style="font-size: 12px;">
-                <i class="fas fa-info-circle"></i>
-                Tim ini memiliki referral code: <strong>{{ $team->referral_code ?? 'N/A' }}</strong>
-            </p>
+            <span>Daftar Pemain ({{ $players->count() ?? 0 }})</span>
         </div>
-        @endif
+        <div class="card-body">
+            @if($players && $players->count() > 0)
+            <div class="table-container">
+                <table class="data">
+                    <thead>
+                        <tr>
+                            <th width="50">#</th>
+                            <th>Nama</th>
+                            <th width="80">No. Jersey</th>
+                            <th width="120">Tanggal Lahir</th>
+                            <th width="100">Jenis Kelamin</th>
+                            <th width="100">Posisi</th>
+                            <th width="100">Kelas</th>
+                            <th width="100">Tahun STTB</th>
+                            <th width="100" class="text-center">Tindakan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($players as $index => $player)
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td><strong>{{ $player->name ?? 'N/A' }}</strong></td>
+                            <td class="text-center">{{ $player->jersey_number ?? '-' }}</td>
+                            <td>
+                                @if($player->birthdate)
+                                {{ \Carbon\Carbon::parse($player->birthdate)->isoFormat('D MMMM YYYY') }}
+                                @else
+                                <span style="color: #718096;">-</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($player->gender == 'Male')
+                                Laki-laki
+                                @elseif($player->gender == 'Female')
+                                Perempuan
+                                @else
+                                <span style="color: #718096;">-</span>
+                                @endif
+                            </td>
+                            <td>{{ $player->basketball_position ?? '-' }}</td>
+                            <td>{{ $player->grade ?? '-' }}</td>
+                            <td>{{ $player->sttb_year ?? '-' }}</td>
+                            <!-- Di dalam tabel daftar pemain -->
+                            <td class="text-center">
+                                <!-- GANTI ROUTE INI -->
+                                <a href="{{ route('admin.player.detail', $player->id) }}" class="btn-detail">
+                                    <i class="fas fa-eye"></i> Detail
+                                </a>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            @else
+            <div class="empty-state">
+                <i class="fas fa-users"></i>
+                <h5>Belum ada data pemain</h5>
+                <p>Data pemain akan muncul di sini setelah mendaftar menggunakan referral code tim ini.</p>
+                <p class="text-muted mt-2" style="font-size: 12px;">
+                    <i class="fas fa-info-circle"></i>
+                    Tim ini memiliki referral code: <strong>{{ $team->referral_code ?? 'N/A' }}</strong>
+                </p>
+            </div>
+            @endif
+        </div>
     </div>
-</div>
 
     <!-- Official List Card -->
     <div class="card">
@@ -1127,24 +1129,7 @@
             });
         };
 
-        // Player detail button click
-        const detailButtons = document.querySelectorAll('.btn-detail');
-        detailButtons.forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                Swal.fire({
-                    title: 'Informasi Detail',
-                    text: 'Fitur detail pemain akan segera tersedia!',
-                    icon: 'info',
-                    confirmButtonText: 'Mengerti',
-                    confirmButtonColor: '#667eea',
-                    timer: 3000,
-                    timerProgressBar: true
-                });
-            });
-        });
-
-        // Function to show player detail modal
+        // Function to show player detail modal (untuk backup/demo)
         window.showPlayerDetail = function(playerId) {
             // Untuk sementara, tampilkan informasi sederhana
             // Nanti bisa diganti dengan AJAX request
@@ -1173,34 +1158,29 @@
             });
         };
 
-        // Update event listener untuk tombol detail
-        document.addEventListener('DOMContentLoaded', function() {
-            // ... kode yang sudah ada ...
-
-            // Hapus event listener lama dan ganti dengan yang baru
-            const detailButtons = document.querySelectorAll('.btn-detail');
-            detailButtons.forEach(button => {
-                // Hapus event listener lama jika ada
-                button.removeEventListener('click', function() {});
-
-                // Tambah event listener baru dengan properti onclick
-                if (button.getAttribute('onclick')) {
-                    // Biarkan onclick attribute yang menangani
-                } else {
-                    button.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        Swal.fire({
-                            title: 'Detail Pemain',
-                            text: 'Klik tombol Detail untuk melihat informasi lengkap pemain',
-                            icon: 'info',
-                            confirmButtonText: 'Mengerti',
-                            confirmButtonColor: '#667eea',
-                        });
+        // PERBAIKAN: Event listener untuk tombol detail yang TIDAK memblokir navigasi
+        const detailButtons = document.querySelectorAll('.btn-detail');
+        detailButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                // Cek apakah link valid (tidak "#" atau kosong)
+                const href = this.getAttribute('href');
+                
+                // Jika href adalah "#" atau kosong, tampilkan alert dan batalkan navigasi
+                if (!href || href === '#' || href === 'javascript:void(0)') {
+                    e.preventDefault();
+                    Swal.fire({
+                        title: 'Informasi Detail',
+                        text: 'Fitur detail pemain akan segera tersedia!',
+                        icon: 'info',
+                        confirmButtonText: 'Mengerti',
+                        confirmButtonColor: '#667eea',
+                        timer: 3000,
+                        timerProgressBar: true
                     });
                 }
+                // Jika href valid (misal: "/admin/player/1"), biarkan navigasi berjalan normal
+                // TIDAK ADA e.preventDefault() di sini untuk link valid
             });
-
-            // ... kode lainnya ...
         });
 
         // Document links click handler
@@ -1256,6 +1236,17 @@
         availableDocs.forEach(doc => {
             doc.addEventListener('click', function(e) {
                 // Allow default behavior (open in new tab)
+                // Tidak perlu e.preventDefault() di sini
+            });
+        });
+        
+        // Debug: Log semua tombol detail untuk memastikan
+        console.log('Detail buttons found:', detailButtons.length);
+        detailButtons.forEach((btn, index) => {
+            console.log(`Button ${index + 1}:`, {
+                href: btn.getAttribute('href'),
+                text: btn.textContent.trim(),
+                onclick: btn.getAttribute('onclick')
             });
         });
     });

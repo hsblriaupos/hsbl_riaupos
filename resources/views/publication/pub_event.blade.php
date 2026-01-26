@@ -338,7 +338,7 @@
                                 ✏️ Edit
                             </button>
 
-                            <form action="{{ route('admin.data.delete') }}" method="POST" class="inline-block">
+                            <form action="{{ route('') }}" method="POST" class="inline-block">
                                 @csrf
                                 <input type="hidden" name="table" value="events_data">
                                 <input type="hidden" name="id" value="{{ $event->id }}">

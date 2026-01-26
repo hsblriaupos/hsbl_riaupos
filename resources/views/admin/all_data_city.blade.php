@@ -5,7 +5,7 @@
 @php $activeTab = 'city'; @endphp
 @include('partials.tabs', compact('activeTab'))
 
-{{-- Include sweetalert partial untuk handle delete confirmation --}}
+{{-- Include sweetalert --}}
 @include('partials.sweetalert')
 
 @push('styles')
@@ -156,6 +156,16 @@
         background-color: #fecaca;
     }
     
+    .edit-icon {
+        background-color: #e3f2fd;
+        color: #1976d2;
+        border: 1px solid #bbdefb;
+    }
+    
+    .edit-icon:hover {
+        background-color: #bbdefb;
+    }
+    
     /* Responsive */
     @media (max-width: 768px) {
         .card-body {
@@ -167,6 +177,11 @@
             padding: 8px 10px;
             font-size: 0.85rem;
         }
+        
+        .action-icons {
+            flex-direction: column;
+            align-items: center;
+        }
     }
 </style>
 @endpush
@@ -175,9 +190,9 @@
     <!-- Page Header -->
     <div class="page-header">
         <h1 class="page-title mt-2">
-            <i class="fas fa-city me-2"></i> City Manegement
+            <i class="fas fa-city me-2"></i> City Management
         </h1>
-        <p class="page-subtitle">Manage the list of cities for the HSBL competition</p>
+        <p class="page-subtitle">Manage the list of cities for the HSBL competitions</p>
     </div>
 
     <!-- Form Tambah Kota -->
@@ -186,7 +201,7 @@
             <i class="fas fa-plus-circle me-2"></i> Tambah Kota Baru
         </div>
         <div class="card-body">
-            <form action="{{ route('admin.city.store') }}" method="POST">
+            <form action="{{ route('admin.city.store') }}" method="POST" id="cityForm">
                 @csrf
                 <div class="mb-3">
                     <label for="city_name" class="form-label">Nama Kota</label>
@@ -195,10 +210,14 @@
                            id="city_name" 
                            class="form-control" 
                            placeholder="Contoh: Pekanbaru"
-                           required>
+                           required
+                           value="{{ old('city_name') }}">
+                    @error('city_name')
+                        <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div class="text-end">
-                    <button type="submit" class="btn-submit">
+                    <button type="submit" class="btn-submit" id="submitBtn">
                         <i class="fas fa-plus me-2"></i> Tambah Kota
                     </button>
                 </div>
@@ -210,6 +229,7 @@
     <div class="card">
         <div class="card-header">
             <i class="fas fa-list me-2"></i> Daftar Kota
+            <span class="badge bg-primary rounded-pill ms-2">{{ $cities->count() }}</span>
         </div>
         <div class="card-body p-0">
             <div class="table-container">
@@ -218,7 +238,7 @@
                         <tr>
                             <th style="width: 50px;">No.</th>
                             <th>Nama Kota</th>
-                            <th style="width: 100px;" class="text-center">Aksi</th>
+                            <th style="width: 120px;" class="text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -228,16 +248,25 @@
                             <td>{{ $city->city_name }}</td>
                             <td class="text-center">
                                 <div class="action-icons">
-                                    <form method="POST" action="{{ route('admin.data.delete') }}" 
-                                          class="delete-form">
+                                    {{-- Edit Button --}}
+                                    <button type="button" 
+                                            class="action-icon edit-icon"
+                                            title="Edit"
+                                            onclick="editCity('{{ $city->id }}', '{{ $city->city_name }}')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    
+                                    {{-- Delete Form --}}
+                                    <form method="POST" 
+                                          action="{{ route('admin.data.delete') }}" 
+                                          class="d-inline delete-form">
                                         @csrf
                                         <input type="hidden" name="table" value="cities">
-                                        <input type="hidden" name="field" value="id">
-                                        <input type="hidden" name="value" value="{{ $city->id }}">
+                                        <input type="hidden" name="id" value="{{ $city->id }}">
                                         <button type="submit" 
                                                 class="action-icon delete-icon btn-delete"
                                                 title="Hapus"
-                                                onclick="return confirm('Yakin ingin menghapus kota {{ $city->city_name }}?')">
+                                                data-item-name="{{ $city->city_name }}">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
@@ -261,55 +290,135 @@
     </div>
 </div>
 
+<!-- Edit Modal -->
+<div class="modal fade" id="editCityModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-edit me-2"></i> Edit Kota
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="editCityForm" method="POST" action="{{ route('admin.data.edit') }}">
+                    @csrf
+                    <input type="hidden" name="table" value="cities">
+                    <input type="hidden" name="id" id="editCityId">
+
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">Nama Kota Baru</label>
+                        <input type="text"
+                            name="new_value"
+                            id="editCityName"
+                            class="form-control"
+                            placeholder="Masukkan nama kota"
+                            required>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <button type="button" class="btn-secondary" data-bs-dismiss="modal">
+                            Batal
+                        </button>
+                        <button type="submit" class="btn-submit" id="saveEditBtn">
+                            <i class="fas fa-save me-2"></i> Simpan Perubahan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
-    // Auto focus on input when page loads
-    document.addEventListener('DOMContentLoaded', function() {
-        const cityInput = document.getElementById('city_name');
-        if (cityInput) {
-            cityInput.focus();
-        }
-    });
-    
-    // Custom delete confirmation untuk kota (override dari partials/sweetalert)
-    document.addEventListener('DOMContentLoaded', function() {
-        // Hanya override jika ada form delete untuk kota
-        const cityDeleteForms = document.querySelectorAll('.delete-form');
+    // Function to edit city
+    function editCity(id, name) {
+        document.getElementById('editCityId').value = id;
+        document.getElementById('editCityName').value = name;
         
-        cityDeleteForms.forEach(form => {
-            const deleteButton = form.querySelector('.btn-delete');
-            
-            // Remove default onclick
-            deleteButton.removeAttribute('onclick');
-            
-            // Add custom SweetAlert
-            deleteButton.addEventListener('click', function(e) {
-                e.preventDefault();
+        const modal = new bootstrap.Modal(document.getElementById('editCityModal'));
+        modal.show();
+        
+        // Focus on input after modal shows
+        setTimeout(() => {
+            document.getElementById('editCityName').focus();
+            document.getElementById('editCityName').select();
+        }, 300);
+    }
+    
+    // Handle form submissions dengan loading
+    document.addEventListener('DOMContentLoaded', function() {
+        // City Form
+        const cityForm = document.getElementById('cityForm');
+        const submitBtn = document.getElementById('submitBtn');
+
+        if (cityForm && submitBtn) {
+            cityForm.addEventListener('submit', function(e) {
+                // Disable button dan show loading
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Menyimpan...';
                 
-                // Get city name from the table row
-                const cityName = this.closest('tr').querySelector('td:nth-child(2)').textContent;
-                
+                // Show loading toast
                 Swal.fire({
-                    title: 'Hapus Data Kota?',
-                    html: `Apakah Anda yakin ingin menghapus kota <strong>${cityName}</strong>?`,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Ya, Hapus',
-                    cancelButtonText: 'Batal'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        form.submit();
+                    title: 'Menyimpan...',
+                    text: 'Sedang menyimpan data kota',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 1500,
+                    timerProgressBar: true,
+                    didOpen: () => {
+                        Swal.showLoading();
                     }
                 });
             });
-        });
+        }
+
+        // Edit Form
+        const editForm = document.getElementById('editCityForm');
+        const saveEditBtn = document.getElementById('saveEditBtn');
+        
+        if (editForm && saveEditBtn) {
+            editForm.addEventListener('submit', function(e) {
+                const newName = document.getElementById('editCityName').value.trim();
+                
+                if (!newName) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Perhatian',
+                        text: 'Nama kota tidak boleh kosong!',
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                    return false;
+                }
+                
+                // Disable button dan show loading
+                saveEditBtn.disabled = true;
+                saveEditBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Menyimpan...';
+                
+                // Show loading popup
+                Swal.fire({
+                    title: 'Menyimpan...',
+                    text: 'Sedang mengupdate data kota',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    timer: 1500,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                return true;
+            });
+        }
     });
 </script>
-
-
-
 @endpush
 
 @endsection

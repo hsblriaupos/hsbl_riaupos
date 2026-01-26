@@ -62,7 +62,6 @@ class EventController extends Controller
         $schoolNameSlug = Str::slug($school->school_name); // Membuat slug dari nama sekolah
 
         // Menyimpan dokumen dengan nama yang diubah
-        // Menyimpan dokumen dengan nama yang diubah
         if ($request->hasFile('recommendation_letter')) {
             $recommendationPath = $request->file('recommendation_letter')->storeAs('public/team_docs', $schoolNameSlug . '_recommendation_letter.' . $request->file('recommendation_letter')->getClientOriginalExtension());
             Log::info('Recommendation letter stored at: ' . $recommendationPath);

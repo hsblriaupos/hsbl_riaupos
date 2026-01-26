@@ -270,7 +270,7 @@
         <h1 class="page-title mt-2">
             <i class="fas fa-school me-2"></i> School Management
         </h1>
-        <p class="page-subtitle">Manage the list of schools for the HSBL competition</p>
+        <p class="page-subtitle">Manage the list of schools for the HSBL competitions</p>
     </div>
 
     <!-- Form Tambah Sekolah -->

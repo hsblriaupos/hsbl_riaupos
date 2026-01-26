@@ -50,6 +50,7 @@ class TeamController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('school_name', 'like', '%' . $search . '%')
+                    ->orWhere('team_name', 'like', '%' . $search . '%')
                     ->orWhere('referral_code', 'like', '%' . $search . '%')
                     ->orWhere('competition', 'like', '%' . $search . '%')
                     ->orWhere('series', 'like', '%' . $search . '%')
@@ -57,9 +58,14 @@ class TeamController extends Controller
             });
         }
 
-        // Sort
-        $sort = $request->get('sort', 'created_at');
+        // Sort - DEFAULT: updated_at descending (data terbaru di atas)
+        $sort = $request->get('sort', 'updated_at');
         $order = $request->get('order', 'desc');
+        
+        // Validasi kolom sort untuk menghindari SQL injection
+        $allowedSortColumns = ['updated_at', 'created_at', 'school_name', 'team_category', 'verification_status', 'locked_status'];
+        $sort = in_array($sort, $allowedSortColumns) ? $sort : 'updated_at';
+        
         $query->orderBy($sort, $order);
 
         // Get available years for filter
@@ -74,8 +80,8 @@ class TeamController extends Controller
         $schools = TeamList::distinct('school_name')->orderBy('school_name')->pluck('school_name');
         $competitions = TeamList::distinct('competition')->whereNotNull('competition')->orderBy('competition')->pluck('competition');
 
-        // Pagination - 25 per page
-        $teamList = $query->paginate(25)->withQueryString();
+        // Pagination - 50 per page untuk data lebih banyak dalam satu halaman
+        $teamList = $query->paginate(50)->withQueryString();
 
         return view('team_verification.tv_team_list', compact('teamList', 'schools', 'competitions', 'years'));
     }
@@ -127,12 +133,14 @@ class TeamController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('school_name', 'like', '%' . $search . '%')
+                    ->orWhere('team_name', 'like', '%' . $search . '%')
                     ->orWhere('referral_code', 'like', '%' . $search . '%')
-                    ->orWhere('competition', 'like', '%' . $search . '%');
+                    ->orWhere('competition', 'like', '%' . $search . '%')
+                    ->orWhere('registered_by', 'like', '%' . $search . '%');
             });
         }
 
-        return $query->orderBy('created_at', 'desc');
+        return $query->orderBy('updated_at', 'desc');
     }
 
     public function teamShow($id)
@@ -155,7 +163,9 @@ class TeamController extends Controller
 
     public function teamVerification()
     {
-        $unverifiedTeams = TeamList::where('verification_status', 'unverified')->paginate(25);
+        $unverifiedTeams = TeamList::where('verification_status', 'unverified')
+            ->orderBy('updated_at', 'desc')
+            ->paginate(50);
         return view('team_verification.tv_team_verification', compact('unverifiedTeams'));
     }
 
@@ -198,5 +208,25 @@ class TeamController extends Controller
         $team->save();
 
         return back()->with('success', 'Verifikasi tim berhasil dibatalkan!');
+    }
+
+    public function playerDetail($id)
+    {
+        $player = PlayerList::with('team')
+            ->where('id', $id)
+            ->first();
+
+        if (!$player) {
+            abort(404, 'Pemain tidak ditemukan');
+        }
+
+        // Ambil nama sekolah jika ada relasi school
+        // Jika tidak ada, bisa ambil dari team->school_name
+        $schoolName = null;
+        if ($player->team) {
+            $schoolName = $player->team->school_name;
+        }
+
+        return view('team_verification.tv_player_detail', compact('player', 'schoolName'));
     }
 }

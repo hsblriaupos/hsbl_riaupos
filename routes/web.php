@@ -7,6 +7,8 @@ use App\Http\Controllers\Admin\GalleryController as AdminGalleryController;
 use App\Http\Controllers\Admin\NewsController as AdminNewsController;
 use App\Http\Controllers\Admin\TermConditionController;
 use App\Http\Controllers\Camper\CamperController;
+use App\Http\Controllers\Form\FormTeamController;
+use App\Http\Controllers\Form\FormPlayerController;
 use App\Http\Controllers\GoogleController\GoogleController;
 use App\Http\Controllers\Publication\PublicationController;
 use App\Http\Controllers\Sponsor\SponsorController;
@@ -69,46 +71,52 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::post('/city/edit', [DataActionController::class, 'edit'])->name('city.edit');
     Route::post('/city/delete', [DataActionController::class, 'delete'])->name('city.delete');
 
-    // General Data
+    // General Data (add_data)
     Route::get('/data', [AdminController::class, 'allData'])->name('all_data');
-    Route::post('/add-data', [AdminController::class, 'storeData'])->name('data.store');
+    Route::post('/data/store', [AdminController::class, 'storeData'])->name('data.store');
     Route::post('/data/edit', [DataActionController::class, 'edit'])->name('data.edit');
     Route::post('/data/delete', [DataActionController::class, 'delete'])->name('data.delete');
-    Route::get('/data/{type}', [DataActionController::class, 'index'])->where('type', 'school|venue|match|award')->name('data.dynamic');
 
-    // ========== SCHOOL MANAGEMENT ==========
+    // School Management
     Route::get('/school', [AdminController::class, 'school'])->name('all_data_school');
     Route::post('/school/store', [AdminController::class, 'storeSchool'])->name('school.store');
-    Route::post('/school/edit', [AdminController::class, 'editData'])->name('data.edit');
-    Route::post('/school/delete', [AdminController::class, 'deleteData'])->name('data.delete');
+    Route::post('/school/edit', [DataActionController::class, 'edit'])->name('school.edit');
+    Route::post('/school/delete', [DataActionController::class, 'delete'])->name('school.delete');
 
-    // Venue Management
+    // Venue Management - PERBAIKAN DI SINI
     Route::get('/venue', [AdminController::class, 'venue'])->name('all_data_venue');
-    Route::post('/venue', [AdminController::class, 'storeVenue'])->name('venue.store');
-    Route::get('/venue/{id}/edit', [AdminController::class, 'editVenue'])->name('venue.edit');
-    Route::put('/venue/{id}', [AdminController::class, 'updateVenue'])->name('venue.update');
+    Route::post('/venue', [AdminController::class, 'storeVenue'])->name('venue.store'); // Diubah dari '/venue/store'
+    Route::post('/venue/edit', [DataActionController::class, 'edit'])->name('venue.edit');
+    Route::post('/venue/delete', [DataActionController::class, 'delete'])->name('venue.delete');
 
     // Award Management
     Route::get('/award', [AdminController::class, 'award'])->name('all_data_award');
-    Route::post('/award', [AdminController::class, 'storeAward'])->name('award.store');
-    Route::get('/award/{id}/edit', [AdminController::class, 'editAward'])->name('award.edit');
-    Route::put('/award/{id}', [AdminController::class, 'updateAward'])->name('award.update');
+    Route::post('/award/store', [AdminController::class, 'storeAward'])->name('award.store');
+    Route::post('/award/edit', [DataActionController::class, 'edit'])->name('award.edit');
+    Route::post('/award/delete', [DataActionController::class, 'delete'])->name('award.delete');
+
+    // Dynamic Data Routes (untuk view saja)
+    Route::get('/data/{type}', [DataActionController::class, 'index'])
+        ->where('type', 'school|venue|match|award|camper|city|event|match_result')
+        ->name('data.dynamic');
 
     // Export Data
-    Route::get('/export/{type}', [DataActionController::class, 'export'])->where('type', 'school|venue|match|award')->name('data.export');
+    Route::get('/export/{type}', [DataActionController::class, 'export'])
+        ->where('type', 'school|venue|match|award')
+        ->name('data.export');
 
     // ========== TEAM VERIFICATION ==========
     Route::get('/team-list', [TeamController::class, 'teamList'])->name('tv_team_list');
     Route::get('/team-list/{id}', [TeamController::class, 'teamShow'])->name('team-list.show');
     Route::get('/team-list/export', [TeamController::class, 'export'])->name('team-list.export');
-    
-    // TEAM ACTIONS - PASTIKAN SEMUA ADA
+
+    // Team Verification
     Route::post('/team/{id}/lock', [TeamController::class, 'lock'])->name('team.lock');
     Route::post('/team/{id}/unlock', [TeamController::class, 'unlock'])->name('team.unlock');
     Route::post('/team/{id}/verify', [TeamController::class, 'verify'])->name('team.verify');
-    Route::post('/team/{id}/unverify', [TeamController::class, 'unverify'])->name('team.unverify'); // INI YANG PERLU DITAMBAH
-    // Route::post('/team/{id}/reject', [TeamController::class, 'reject'])->name('team.reject'); // HAPUS ATAU COMMENT LINE INI
-    
+    Route::post('/team/{id}/unverify', [TeamController::class, 'unverify'])->name('team.unverify');
+
+    Route::get('/player/{id}', [TeamController::class, 'playerDetail'])->name('player.detail');
     Route::get('/team-verification', [TeamController::class, 'teamVerification'])->name('tv_team_verification');
     Route::get('/team-awards', [TeamController::class, 'teamAwards'])->name('tv_team_awards');
 
@@ -170,6 +178,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::delete('videos/{video}', [AdminGalleryController::class, 'destroy'])->name('videos.destroy');
 });
 
+
 /*
 |--------------------------------------------------------------------------
 | 👨‍🎓 USER / SISWA AREA (Prefix: /user) - PUBLIC
@@ -200,6 +209,28 @@ Route::prefix('user')->name('user.')->group(function () {
 
         return Storage::disk('public')->download($latestTerm->file_path, 'SyaratKetentuan-' . $latestTerm->year . '.pdf');
     })->name('download_terms');
+});
+
+// Form Team Registration Routes
+Route::prefix('form')->name('form.')->group(function () {
+    Route::get('/team/choice', [FormTeamController::class, 'showChoiceForm'])->name('team.choice');
+    Route::get('/team/create', [FormTeamController::class, 'showCreateForm'])->name('team.create');
+    Route::post('/team/create', [FormTeamController::class, 'createTeam'])->name('team.store');
+    Route::get('/team/join', [FormTeamController::class, 'showJoinForm'])->name('team.join');
+    Route::post('/team/join', [FormTeamController::class, 'joinTeam'])->name('team.join.submit');
+    Route::get('/team/success/{team_id}', [FormTeamController::class, 'showSuccessPage'])->name('team.success');
+    Route::get('/team/check-school', [FormTeamController::class, 'checkSchool'])->name('team.checkSchool');
+    Route::post('/team/check-existing', [FormTeamController::class, 'checkExistingTeam'])->name('team.checkExisting');
+
+    // Player Registration
+    Route::get('/player/create/{team_id?}', [FormPlayerController::class, 'showPlayerForm'])->name('player.create');
+    Route::post('/player/store', [FormPlayerController::class, 'storePlayer'])->name('player.store');
+    Route::get('/player/success/{team_id}/{player_id}', [FormPlayerController::class, 'showSuccessPage'])->name('player.success');
+
+    // API Endpoints
+    Route::post('/player/check-nik', [FormPlayerController::class, 'checkNik'])->name('player.checkNik');
+    Route::post('/player/check-email', [FormPlayerController::class, 'checkEmail'])->name('player.checkEmail');
+    Route::post('/player/check-leader', [FormPlayerController::class, 'checkLeaderExists'])->name('player.checkLeader');
 });
 
 /*
