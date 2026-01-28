@@ -17,7 +17,10 @@ use App\Http\Controllers\User\GalleryController as UserGalleryController;
 use App\Http\Controllers\User\HomeController;
 use App\Http\Controllers\User\NewsController;
 use App\Http\Controllers\User\PublicationController as UserPublicationController;
-use App\Http\Controllers\User\SiswaLoginController;
+use App\Http\Controllers\Student\StudentAuthController;
+use App\Http\Controllers\Student\StudentDashboardController;
+use App\Http\Controllers\Student\StudentProfileController;
+use App\Http\Controllers\Student\StudentSchoolController;
 use App\Models\TermCondition;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -38,26 +41,49 @@ Route::get('/', function () {
 |--------------------------------------------------------------------------
 */
 
-// Admin Login
+// Login Page dengan 2 tab (Admin & Student)
 Route::get('/login', [AdminLoginController::class, 'showLoginForm'])->name('login.form');
 Route::post('/login', [AdminLoginController::class, 'login'])->name('login');
-
-// Siswa Login
-Route::get('/login-siswa', [SiswaLoginController::class, 'showLoginForm'])->name('login.siswa.form');
-Route::post('/login-siswa', [SiswaLoginController::class, 'login'])->name('login.siswa');
 
 // Google Authentication
 Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])->name('google.redirect');
 Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('google.callback');
 
-// Logout (shared)
+// Shared Logout - handle semua tipe user
 Route::post('/logout', [AdminLoginController::class, 'logout'])->name('logout');
 
 /*
 |--------------------------------------------------------------------------
-| 🛡️ ADMIN AREA (Prefix: /admin)
+| 📝 STUDENT AUTHENTICATION ROUTES (Public)
 |--------------------------------------------------------------------------
 */
+Route::prefix('student')->name('student.')->group(function () {
+    // Login Page - redirect ke halaman utama dengan tab student aktif
+    Route::get('/login', function () {
+        return redirect()->route('login.form')->with('active_tab', 'student');
+    })->name('login');
+    
+    // Login Process
+    Route::post('/login', [StudentAuthController::class, 'login'])->name('login.submit');
+    
+    // Registration
+    Route::get('/register', [StudentAuthController::class, 'showRegisterForm'])->name('register');
+    Route::post('/register', [StudentAuthController::class, 'register'])->name('register.submit');
+    
+    // Forgot Password
+    Route::get('/forgot-password', [StudentAuthController::class, 'showForgotPasswordForm'])->name('password.request');
+    Route::post('/forgot-password', [StudentAuthController::class, 'forgotPassword'])->name('password.email');
+    
+    // Student-specific logout
+    Route::post('/logout', [StudentAuthController::class, 'logout'])->name('logout');
+});
+
+/*
+|--------------------------------------------------------------------------
+| 🛡️ ADMIN AREA (Prefix: /admin) - PROTECTED dengan middleware 'auth' saja
+|--------------------------------------------------------------------------
+*/
+// PERUBAHAN: Hapus 'admin', cukup pakai 'auth' saja
 Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
     // Dashboard
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
@@ -83,9 +109,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::post('/school/edit', [DataActionController::class, 'edit'])->name('school.edit');
     Route::post('/school/delete', [DataActionController::class, 'delete'])->name('school.delete');
 
-    // Venue Management - PERBAIKAN DI SINI
+    // Venue Management
     Route::get('/venue', [AdminController::class, 'venue'])->name('all_data_venue');
-    Route::post('/venue', [AdminController::class, 'storeVenue'])->name('venue.store'); // Diubah dari '/venue/store'
+    Route::post('/venue', [AdminController::class, 'storeVenue'])->name('venue.store');
     Route::post('/venue/edit', [DataActionController::class, 'edit'])->name('venue.edit');
     Route::post('/venue/delete', [DataActionController::class, 'delete'])->name('venue.delete');
 
@@ -110,7 +136,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('/team-list/{id}', [TeamController::class, 'teamShow'])->name('team-list.show');
     Route::get('/team-list/export', [TeamController::class, 'export'])->name('team-list.export');
 
-    // Team Verification
+    // Team Verification Actions
     Route::post('/team/{id}/lock', [TeamController::class, 'lock'])->name('team.lock');
     Route::post('/team/{id}/unlock', [TeamController::class, 'unlock'])->name('team.unlock');
     Route::post('/team/{id}/verify', [TeamController::class, 'verify'])->name('team.verify');
@@ -125,6 +151,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('/camper/detail/{id}', [CamperController::class, 'camperDetail'])->name('camper.detail');
     Route::post('/camper/detail/update/{id}', [CamperController::class, 'updateCamper'])->name('camper.update');
 
+    // ========== PUBLICATION MANAGEMENT ==========
+    
     // Match / Schedule Management
     Route::get('/schedule', [PublicationController::class, 'match'])->name('pub_schedule');
     Route::post('/schedule', [PublicationController::class, 'storeMatch'])->name('match.store');
@@ -148,6 +176,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::put('/event/{id}', [PublicationController::class, 'updateEvent'])->name('event.update');
     Route::post('/publication/event/publish/{id}', [PublicationController::class, 'publishEvent'])->name('event.publish');
 
+    // ========== CONTENT MANAGEMENT ==========
+    
     // Sponsor Management
     Route::get('/sponsor', [SponsorController::class, 'sponsor'])->name('sponsor.sponsor');
     Route::post('/sponsor', [SponsorController::class, 'store'])->name('sponsor.store');
@@ -178,10 +208,60 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::delete('videos/{video}', [AdminGalleryController::class, 'destroy'])->name('videos.destroy');
 });
 
+/*
+|--------------------------------------------------------------------------
+| 👨‍🎓 STUDENT AREA (Prefix: /student) - PROTECTED dengan middleware 'auth' saja
+|--------------------------------------------------------------------------
+*/
+// PERUBAHAN: Hapus 'student', cukup pakai 'auth' saja
+Route::prefix('student')->name('student.')->middleware(['auth'])->group(function () {
+    // Dashboard Student - Arahkan ke form_team.blade.php sesuai permintaan
+    Route::get('/dashboard', function () {
+        return view('user.form.form_team');
+    })->name('dashboard');
+    
+    // Notifikasi
+    Route::get('/notifications', function () {
+        return view('student.notifications');
+    })->name('notifications');
+    
+    // Edit Profil
+    Route::get('/profile/edit', function () {
+        return view('student.profile_edit');
+    })->name('profile.edit');
+    
+    // Tim Saya
+    Route::get('/my-team', function () {
+        return view('student.my_team');
+    })->name('team');
+    
+    // ========== SCHOOL DATA MANAGEMENT ==========
+    // Edit Data Sekolah (Route yang ditambahkan)
+    Route::get('/school/edit', function () {
+        return view('student.school_edit');
+    })->name('school.edit');
+    
+    // ========== PROFILE MANAGEMENT ==========
+    // Profile Management
+    Route::get('/profile', [StudentProfileController::class, 'index'])->name('profile');
+    Route::put('/profile', [StudentProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [StudentProfileController::class, 'updatePassword'])->name('profile.password');
+    
+    // Team Management (jika siswa punya tim)
+    Route::get('/team/players', [StudentDashboardController::class, 'teamPlayers'])->name('team.players');
+    
+    // Schedule & Results
+    Route::get('/schedules', [StudentDashboardController::class, 'schedules'])->name('schedules');
+    Route::get('/results', [StudentDashboardController::class, 'results'])->name('results');
+    
+    // Documents
+    Route::get('/documents', [StudentDashboardController::class, 'documents'])->name('documents');
+    Route::get('/documents/download/{id}', [StudentDashboardController::class, 'downloadDocument'])->name('documents.download');
+});
 
 /*
 |--------------------------------------------------------------------------
-| 👨‍🎓 USER / SISWA AREA (Prefix: /user) - PUBLIC
+| 👤 USER / PUBLIC AREA (Prefix: /user) - PUBLIC
 |--------------------------------------------------------------------------
 */
 Route::prefix('user')->name('user.')->group(function () {
@@ -211,8 +291,13 @@ Route::prefix('user')->name('user.')->group(function () {
     })->name('download_terms');
 });
 
-// Form Team Registration Routes
+/*
+|--------------------------------------------------------------------------
+| 📋 FORM REGISTRATION ROUTES - PUBLIC
+|--------------------------------------------------------------------------
+*/
 Route::prefix('form')->name('form.')->group(function () {
+    // Team Registration
     Route::get('/team/choice', [FormTeamController::class, 'showChoiceForm'])->name('team.choice');
     Route::get('/team/create', [FormTeamController::class, 'showCreateForm'])->name('team.create');
     Route::post('/team/create', [FormTeamController::class, 'createTeam'])->name('team.store');
@@ -238,4 +323,12 @@ Route::prefix('form')->name('form.')->group(function () {
 | 🌐 PUBLIC ROUTES (tanpa prefix)
 |--------------------------------------------------------------------------
 */
-// Jika ingin ada route public selain yang sudah ada di /user, bisa ditambahkan di sini
+// Redirect untuk login student
+Route::get('/student-login', function () {
+    return redirect()->route('login.form')->with('active_tab', 'student');
+})->name('student.login.redirect');
+
+// Redirect untuk register student
+Route::get('/student-register', function () {
+    return redirect()->route('student.register');
+})->name('student.register.redirect');

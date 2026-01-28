@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class AdminMiddleware
+class StudentMiddleware
 {
     /**
      * Handle an incoming request.
@@ -21,9 +21,9 @@ class AdminMiddleware
 
         $user = Auth::user();
 
-        if ($user->role !== 'admin') {
-            return redirect()->route('login.form')->withErrors([
-                'error' => 'Akses hanya untuk administrator.'
+        if ($user->role !== 'student') {
+            return redirect()->route('admin.dashboard')->withErrors([
+                'error' => 'Akses hanya untuk siswa.'
             ]);
         }
 

@@ -123,6 +123,47 @@
                             </li>
                         @endif
                     @endforeach
+                    
+                    {{-- ==================== LOGIN/AUTH MENU ==================== --}}
+                    <li class="border-l border-gray-300 pl-6 ml-2">
+                        @auth
+                            {{-- Jika user sudah login --}}
+                            @php
+                                $user = Auth::user();
+                                $role = $user->role ?? null;
+                            @endphp
+                            
+                            @if($role === 'admin')
+                                {{-- Menu untuk Admin --}}
+                                <a href="{{ route('admin.dashboard') }}" 
+                                   target="_blank"
+                                   class="hover:underline hover:text-[#71BBB2] font-bold text-teal-600">
+                                    <i class="fas fa-user-shield mr-1"></i> Administrator
+                                </a>
+                            @elseif($role === 'student')
+                                {{-- Menu untuk Student --}}
+                                <a href="{{ route('student.dashboard') }}" 
+                                   target="_blank"
+                                   class="hover:underline hover:text-[#71BBB2] font-bold text-teal-600">
+                                    <i class="fas fa-calendar-alt mr-1"></i> Events
+                                </a>
+                            @else
+                                {{-- Fallback jika role tidak dikenali --}}
+                                <a href="{{ route('login.form') }}" 
+                                   target="_blank"
+                                   class="hover:underline hover:text-[#71BBB2]">
+                                    <i class="fas fa-sign-in-alt mr-1"></i> Login
+                                </a>
+                            @endif
+                        @else
+                            {{-- Jika user belum login --}}
+                            <a href="{{ route('login.form') }}" 
+                               target="_blank"
+                               class="hover:underline hover:text-[#71BBB2]">
+                                <i class="fas fa-sign-in-alt mr-1"></i> Login
+                            </a>
+                        @endauth
+                    </li>
                 </ul>
             </nav>
         </div>

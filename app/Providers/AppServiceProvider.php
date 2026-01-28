@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Schema;
 use App\Models\Sponsor;
+use Illuminate\Database\QueryException;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -16,18 +17,25 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        // ⛑️ CEGAT DULU: pastikan tabel sponsors SUDAH ADA
-        if (Schema::hasTable('sponsors')) {
+        try {
+            // ⛑️ AMAN: hanya jalan jika DB & tabel siap
+            if (Schema::hasTable('sponsors')) {
 
-            $groupedSponsors = Sponsor::orderBy('category')
-                                      ->orderBy('created_at')
-                                      ->get()
-                                      ->groupBy('category');
+                $groupedSponsors = Sponsor::orderBy('category')
+                    ->orderBy('created_at')
+                    ->get()
+                    ->groupBy('category');
 
-            View::composer('*', function ($view) use ($groupedSponsors) {
-                $view->with('groupedSponsors', $groupedSponsors);
-            });
-
+                View::composer('*', function ($view) use ($groupedSponsors) {
+                    $view->with('groupedSponsors', $groupedSponsors);
+                });
+            }
+        } catch (\Throwable $e) {
+            // ⛔ DIAMKAN error:
+            // - composer install
+            // - migrate
+            // - fresh clone
+            // - env belum siap
         }
     }
 }
