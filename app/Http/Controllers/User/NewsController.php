@@ -19,6 +19,7 @@ class NewsController extends Controller
             ->pluck('series')
             ->unique()
             ->sort()
+            ->values()
             ->toArray();
 
         // 2. Bangun query: hanya berita yang dipublikasikan (status = view)
@@ -41,7 +42,7 @@ class NewsController extends Controller
         // 5. Ambil data berita terbaru, paginate
         $news = $query->latest()
                       ->paginate(8)
-                      ->appends($request->only('search', 'series'));
+                      ->withQueryString(); // Gunakan withQueryString() untuk menjaga parameter URL
 
         return view('user.media.news.news_list', compact('news', 'seriesList'));
     }
@@ -69,7 +70,23 @@ class NewsController extends Controller
      */
     public function create()
     {
-        return view('user.media.news.news_create');
+        // Ambil daftar series untuk dropdown form
+        $seriesList = [
+            'Bengkalis Series',
+            'Indragiri Hilir Series',
+            'Indragiri Hulu Series',
+            'Kampar Series',
+            'Kepulauan Meranti Series',
+            'Kuantan Singingi Series',
+            'Pelalawan Series',
+            'Rokan Hilir Series',
+            'Rokan Hulu Series',
+            'Siak Series',
+            'Dumai Series',
+            'Pekanbaru Series'
+        ];
+
+        return view('user.media.news.news_create', compact('seriesList'));
     }
 
     /**

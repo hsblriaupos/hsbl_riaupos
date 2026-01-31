@@ -8,6 +8,7 @@ use App\Models\TeamList;
 use App\Models\PlayerList;
 use App\Exports\TeamsExport;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Storage;
 
 class TeamController extends Controller
 {
@@ -83,6 +84,13 @@ class TeamController extends Controller
         // Pagination - 50 per page untuk data lebih banyak dalam satu halaman
         $teamList = $query->paginate(50)->withQueryString();
 
+        // Untuk debugging - bisa dihapus setelah fix
+        \Log::info('Team List Query:', [
+            'total' => $teamList->total(),
+            'count' => $teamList->count(),
+            'has_logo_count' => TeamList::whereNotNull('school_logo')->count()
+        ]);
+
         return view('team_verification.tv_team_list', compact('teamList', 'schools', 'competitions', 'years'));
     }
 
@@ -151,6 +159,15 @@ class TeamController extends Controller
         if (!$team) {
             abort(404, 'Team tidak ditemukan');
         }
+
+        // PERBAIKAN: Tambahkan log untuk debug
+        \Log::info('Team Detail:', [
+            'team_id' => $team->team_id,
+            'school_name' => $team->school_name,
+            'school_logo' => $team->school_logo,
+            'logo_exists' => $team->school_logo ? Storage::exists('public/uploads/school_logo/' . $team->school_logo) : false,
+            'logo_path' => $team->school_logo ? public_path('uploads/school_logo/' . $team->school_logo) : null
+        ]);
 
         // Ambil data pemain dengan team_id yang sama
         $players = PlayerList::where('team_id', $team->team_id)
@@ -228,5 +245,26 @@ class TeamController extends Controller
         }
 
         return view('team_verification.tv_player_detail', compact('player', 'schoolName'));
+    }
+
+    // PERBAIKAN: Tambahkan method untuk cek logo
+    public function checkLogoPath()
+    {
+        // Debug path logo
+        $teams = TeamList::whereNotNull('school_logo')->limit(5)->get();
+        
+        $results = [];
+        foreach ($teams as $team) {
+            $path = public_path('uploads/school_logo/' . $team->school_logo);
+            $results[] = [
+                'team_id' => $team->team_id,
+                'school_name' => $team->school_name,
+                'school_logo' => $team->school_logo,
+                'exists' => file_exists($path),
+                'path' => $path
+            ];
+        }
+        
+        return response()->json($results);
     }
 }

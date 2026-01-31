@@ -187,7 +187,7 @@
                         <a href="{{ route('admin.sponsor.sponsor') }}" class="btn btn-success btn-sm">
                             <i class="fas fa-handshake me-2"></i> Manage Sponsors
                         </a>
-                        <a href="{{ route('admin.pub_schedule') }}" class="btn btn-info btn-sm">
+                        <a href="{{ route('admin.pub_schedule.index') }}" class="btn btn-info btn-sm">
                             <i class="fas fa-calendar-plus me-2"></i> Add Match Schedule
                         </a>
                         <a href="{{ route('admin.tv_team_verification') }}" class="btn btn-warning btn-sm">

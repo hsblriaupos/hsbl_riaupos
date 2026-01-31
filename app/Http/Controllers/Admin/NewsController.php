@@ -34,8 +34,15 @@ class NewsController extends Controller
             $query->where('status', $request->status);
         }
 
+        // Ambil parameter per_page dari request, default 10
+        $perPage = $request->get('per_page', 10);
+        
+        // Validasi nilai per_page agar hanya angka yang valid
+        $validPerPage = in_array((int)$perPage, [10, 25, 50, 100]) ? (int)$perPage : 10;
+
+        // Paginate dengan jumlah per page yang dipilih
         $news = $query->latest()
-                      ->paginate(10)
+                      ->paginate($validPerPage)
                       ->withQueryString();
 
         return view('admin.media.news.news_list', compact('news', 'seriesList'));
@@ -57,7 +64,7 @@ class NewsController extends Controller
             'series'     => 'required|string|max:100',
             'title'      => 'required|string|max:255',
             'posted_by'  => 'required|string|max:100',
-            'status'     => 'required|in:draft,view,archived',
+            'status'     => 'required|in:draft,view',
             'image'      => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
             'content'    => 'required|string',
         ]);
@@ -73,9 +80,11 @@ class NewsController extends Controller
 
         News::create($data);
 
+        $statusMessage = $data['status'] == 'draft' ? 'saved as draft' : 'published (view)';
+        
         return redirect()
             ->route('admin.news.index')
-            ->with('success', 'Berita berhasil ditambahkan.');
+            ->with('success', "News has been {$statusMessage} successfully.");
     }
 
     public function edit(int $id)
@@ -97,7 +106,7 @@ class NewsController extends Controller
             'series'     => 'required|string|max:100',
             'title'      => 'required|string|max:255',
             'posted_by'  => 'required|string|max:100',
-            'status'     => 'required|in:draft,view,archived',
+            'status'     => 'required|in:draft,view',
             'image'      => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
             'content'    => 'required|string',
         ]);
@@ -113,9 +122,11 @@ class NewsController extends Controller
 
         $news->update($data);
 
+        $statusMessage = $data['status'] == 'draft' ? 'updated as draft' : 'published (view)';
+        
         return redirect()
             ->route('admin.news.index')
-            ->with('success', 'Berita berhasil diperbarui.');
+            ->with('success', "News has been {$statusMessage} successfully.");
     }
 
     public function destroy(int $id)
@@ -123,6 +134,25 @@ class NewsController extends Controller
         $news = News::findOrFail($id);
         $news->delete();
 
-        return back()->with('success', 'Berita berhasil dihapus.');
+        return back()->with('success', 'News has been deleted successfully.');
+    }
+
+    /**
+     * Bulk delete news items
+     */
+    public function bulkDestroy(Request $request)
+    {
+        $request->validate([
+            'selected' => 'required|array',
+            'selected.*' => 'exists:media_news,id'
+        ]);
+        
+        $count = count($request->selected);
+        
+        // Delete selected news items
+        News::whereIn('id', $request->selected)->delete();
+        
+        return redirect()->route('admin.news.index')
+            ->with('success', $count . ' news ' . ($count > 1 ? 'items' : 'item') . ' deleted successfully.');
     }
 }

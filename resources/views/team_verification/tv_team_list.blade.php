@@ -106,7 +106,7 @@
         box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
     }
 
-    /* ===== TABEL YANG LEGA & NYAMAN ===== */
+    /* ===== TABEL KOMPAK & RESPONSIVE ===== */
     .table-container {
         overflow-x: auto;
         border-radius: 0 0 10px 10px;
@@ -116,39 +116,37 @@
 
     .table {
         width: 100% !important;
-        font-size: 0.87rem;
+        font-size: 0.82rem;
         margin-bottom: 0;
         color: #4a5568;
         border-collapse: separate;
         border-spacing: 0;
-        table-layout: fixed;
     }
 
-    /* HEADER - LEGA & JELAS */
+    /* HEADER - KOMPAK & JELAS */
     .table th {
         text-align: center !important;
         vertical-align: middle !important;
         font-weight: 700 !important;
         color: #2d3748 !important;
-        padding: 14px 10px !important;
+        padding: 12px 8px !important;
         background: #f8fafc !important;
-        font-size: 0.8rem !important;
+        font-size: 0.75rem !important;
         text-transform: uppercase !important;
-        letter-spacing: 0.3px !important;
+        letter-spacing: 0.2px !important;
         border-bottom: 2px solid #e2e8f0 !important;
-        white-space: normal !important;
-        line-height: 1.3 !important;
-        word-break: break-word;
-        height: 55px;
+        white-space: nowrap !important;
+        line-height: 1.2 !important;
+        height: 48px;
     }
 
-    /* CELL - LEGA & RAPI */
+    /* CELL - KOMPAK & RAPI */
     .table td {
-        padding: 12px 10px !important;
+        padding: 10px 8px !important;
         vertical-align: middle !important;
         border-top: 1px solid #f7fafc !important;
-        line-height: 1.4 !important;
-        min-height: 65px;
+        line-height: 1.3 !important;
+        min-height: 56px;
     }
 
     /* ROW HOVER EFFECT */
@@ -162,150 +160,212 @@
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
 
-    /* ===== LEBAR KOLOM OPTIMAL ===== */
-    /* Total: 120 + 190 + 160 + 210 + 140 + 105 + 105 + 140 + 110 = ~1280px */
+    /* ===== LEBAR KOLOM OPTIMAL (LEBIH KOMPAK) ===== */
+    /* Total: 70 + 60 + 120 + 160 + 110 + 85 + 85 + 120 + 85 + 90 = ~985px */
     
-    /* Team Number - Lega */
+    /* Logo Sekolah */
     .table th:nth-child(1),
     .table td:nth-child(1) {
-        width: 120px !important;
-        min-width: 120px !important;
-        max-width: 120px !important;
+        width: 70px !important;
+        min-width: 70px !important;
+        max-width: 70px !important;
+        text-align: center !important;
+        padding: 5px !important;
+    }
+
+    /* Team Number */
+    .table th:nth-child(2),
+    .table td:nth-child(2) {
+        width: 60px !important;
+        min-width: 60px !important;
+        max-width: 60px !important;
         text-align: center !important;
     }
 
-    /* School - Perbesar (penting) */
-    .table th:nth-child(2),
-    .table td:nth-child(2) {
-        width: 190px !important;
-        min-width: 190px !important;
-        max-width: 190px !important;
+    /* School */
+    .table th:nth-child(3),
+    .table td:nth-child(3) {
+        width: 120px !important;
+        min-width: 120px !important;
+        max-width: 120px !important;
         text-align: left !important;
     }
 
-    /* Team Name - Lega */
-    .table th:nth-child(3),
-    .table td:nth-child(3) {
-        width: 160px !important;
-        min-width: 160px !important;
+    /* Team Name */
+    .table th:nth-child(4),
+    .table td:nth-child(4) {
+        width: 100px !important;
+        min-width: 100px !important;
         max-width: 160px !important;
         text-align: left !important;
     }
 
-    /* Competition - Perbesar (penting) */
-    .table th:nth-child(4),
-    .table td:nth-child(4) {
-        width: 210px !important;
-        min-width: 210px !important;
-        max-width: 210px !important;
-        text-align: left !important;
-    }
-
-    /* Registered By - Lega */
+    /* Competition */
     .table th:nth-child(5),
     .table td:nth-child(5) {
-        width: 140px !important;
-        min-width: 140px !important;
-        max-width: 140px !important;
-        text-align: center !important;
-    }
-
-    /* Lock Status - Cukup */
-    .table th:nth-child(6),
-    .table td:nth-child(6) {
-        width: 105px !important;
-        min-width: 105px !important;
-        max-width: 105px !important;
-        text-align: center !important;
-    }
-
-    /* Verify Status - Cukup */
-    .table th:nth-child(7),
-    .table td:nth-child(7) {
-        width: 105px !important;
-        min-width: 105px !important;
-        max-width: 105px !important;
-        text-align: center !important;
-    }
-
-    /* Updated At - Lega */
-    .table th:nth-child(8),
-    .table td:nth-child(8) {
-        width: 140px !important;
-        min-width: 140px !important;
-        max-width: 140px !important;
-        text-align: center !important;
-    }
-
-    /* Action - Lega untuk button */
-    .table th:nth-child(9),
-    .table td:nth-child(9) {
         width: 110px !important;
         min-width: 110px !important;
         max-width: 110px !important;
+        text-align: left !important;
+    }
+
+    /* Registered By */
+    .table th:nth-child(6),
+    .table td:nth-child(6) {
+        width: 85px !important;
+        min-width: 85px !important;
+        max-width: 85px !important;
         text-align: center !important;
     }
 
-    /* ===== STYLING KONTEN YANG NYAMAN ===== */
+    /* Lock Status */
+    .table th:nth-child(7),
+    .table td:nth-child(7) {
+        width: 85px !important;
+        min-width: 85px !important;
+        max-width: 85px !important;
+        text-align: center !important;
+    }
+
+    /* Verify Status */
+    .table th:nth-child(8),
+    .table td:nth-child(8) {
+        width: 85px !important;
+        min-width: 85px !important;
+        max-width: 85px !important;
+        text-align: center !important;
+    }
+
+    /* Updated At */
+    .table th:nth-child(9),
+    .table td:nth-child(9) {
+        width: 120px !important;
+        min-width: 90px !important;
+        max-width: 90px !important;
+        text-align: center !important;
+    }
+
+    /* Action */
+    .table th:nth-child(10),
+    .table td:nth-child(10) {
+        width: 90px !important;
+        min-width: 90px !important;
+        max-width: 90px !important;
+        text-align: center !important;
+    }
+
+    /* ===== LOGO SEKOLAH ===== */
+    .logo-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 50px;
+        height: 50px;
+        margin: 0 auto;
+        border-radius: 8px;
+        overflow: hidden;
+        background: linear-gradient(135deg, #f7fafc, #edf2f7);
+        border: 1px solid #e2e8f0;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .logo-container:hover {
+        transform: scale(1.05);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border-color: #cbd5e0;
+    }
+
+    .logo-img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        padding: 4px;
+        border-radius: 6px;
+        background: white;
+    }
+
+    .logo-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        color: #a0aec0;
+        font-size: 0.7rem;
+        background: linear-gradient(135deg, #f7fafc, #edf2f7);
+        border: 1px dashed #cbd5e0;
+        border-radius: 6px;
+        text-align: center;
+        padding: 4px;
+    }
+
+    .logo-placeholder i {
+        font-size: 1.2rem;
+        margin-bottom: 4px;
+        color: #a0aec0;
+    }
+
+    /* ===== STYLING KONTEN YANG KOMPAK ===== */
     .team-number-badge {
         font-family: 'SF Mono', 'Courier New', monospace;
-        font-size: 0.85rem;
+        font-size: 0.75rem;
         font-weight: 700;
         color: #2c3e50;
         background: #f8f9fa;
-        padding: 7px 12px;
-        border-radius: 6px;
+        padding: 4px 6px;
+        border-radius: 4px;
         border: 1px solid #e2e8f0;
         display: inline-block;
         text-align: center;
-        min-width: 90px;
-        letter-spacing: 0.3px;
-        line-height: 1.3;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        min-width: 45px;
+        letter-spacing: 0.2px;
+        line-height: 1.2;
     }
 
     .school-info {
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 3px;
     }
 
     .school-name {
         font-weight: 600;
         color: #2c3e50;
-        font-size: 0.87rem;
-        line-height: 1.4;
+        font-size: 0.8rem;
+        line-height: 1.3;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
-        max-height: 2.8em;
+        max-height: 2.6em;
     }
 
     .team-meta {
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 3px;
     }
 
     .team-name {
-        font-size: 0.87rem;
+        font-size: 0.8rem;
         color: #4a5568;
-        line-height: 1.4;
+        line-height: 1.3;
         font-weight: 500;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
-        max-height: 2.8em;
+        max-height: 2.6em;
     }
 
     .team-category {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         color: #718096;
         background: #f1f5f9;
-        padding: 3px 8px;
-        border-radius: 4px;
+        padding: 2px 6px;
+        border-radius: 3px;
         display: inline-block;
         width: fit-content;
     }
@@ -313,19 +373,19 @@
     .competition-info {
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 3px;
     }
 
     .competition-name {
-        font-size: 0.87rem;
+        font-size: 0.8rem;
         color: #4a5568;
         font-weight: 500;
-        line-height: 1.4;
+        line-height: 1.3;
         display: -webkit-box;
         -webkit-line-clamp: 3;
         -webkit-box-orient: vertical;
         overflow: hidden;
-        max-height: 4.2em;
+        max-height: 3.9em;
     }
 
     .registrant-info {
@@ -333,33 +393,34 @@
     }
 
     .registrant-name {
-        font-size: 0.87rem;
+        font-size: 0.8rem;
         color: #4a5568;
         font-weight: 500;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
-        max-height: 2.8em;
+        max-height: 2.6em;
     }
 
-    /* ===== BADGE STATUS YANG JELAS ===== */
+    /* ===== BADGE STATUS YANG JELAS & KOMPAK ===== */
     .status-badge {
-        padding: 6px 12px !important;
-        font-size: 0.73rem !important;
+        padding: 4px 8px !important;
+        font-size: 0.65rem !important;
         font-weight: 700 !important;
-        border-radius: 8px !important;
+        border-radius: 6px !important;
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
-        gap: 5px !important;
+        gap: 3px !important;
         text-transform: uppercase;
-        min-width: 85px;
-        height: 28px;
+        min-width: 65px;
+        max-width: 65px;
+        height: 24px;
         border: 1px solid transparent;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
         white-space: nowrap;
-        transition: all 0.2s;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .badge-locked {
@@ -391,33 +452,33 @@
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
     }
 
-    /* ===== ACTION BUTTONS YANG NYAMAN ===== */
+    /* ===== ACTION BUTTONS YANG KOMPAK ===== */
     .action-buttons {
         display: flex;
-        gap: 8px;
+        gap: 5px;
         flex-wrap: nowrap;
         justify-content: center;
     }
 
     .btn-action {
-        padding: 7px 10px;
-        font-size: 0.82rem;
-        border-radius: 6px;
+        padding: 5px 8px;
+        font-size: 0.75rem;
+        border-radius: 5px;
         line-height: 1;
-        min-width: 32px;
-        height: 32px;
+        min-width: 28px;
+        height: 28px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         transition: all 0.2s ease;
         border: none;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
         cursor: pointer;
     }
 
     .btn-action:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
     }
 
     .btn-view {
@@ -438,38 +499,39 @@
     /* ===== TANGGAL ===== */
     .date-cell {
         text-align: center;
-        font-size: 0.85rem;
+        font-size: 0.78rem;
     }
 
     .date-primary {
         font-weight: 600;
         color: #2c3e50;
-        margin-bottom: 3px;
+        margin-bottom: 2px;
+        font-size: 0.75rem;
     }
 
     .date-secondary {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         color: #718096;
     }
 
     /* ===== PAGINATION ===== */
     .pagination-container {
         background: #f8fafc !important;
-        padding: 16px 24px !important;
+        padding: 14px 20px !important;
         border-top: 1px solid #e2e8f0 !important;
         display: flex !important;
         justify-content: space-between !important;
         align-items: center !important;
-        min-height: 65px;
+        min-height: 60px;
     }
 
     .pagination-info {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         color: #718096;
         font-weight: 600;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
     }
 
     .pagination-info i {
@@ -479,21 +541,21 @@
     .custom-pagination {
         display: flex;
         align-items: center;
-        gap: 5px;
+        gap: 4px;
         margin: 0;
         padding: 0;
         list-style: none;
     }
 
     .page-link {
-        font-size: 0.85rem !important;
-        padding: 7px 12px !important;
+        font-size: 0.8rem !important;
+        padding: 5px 10px !important;
         border: 1px solid #e2e8f0 !important;
         color: #4a5568 !important;
         font-weight: 600 !important;
-        border-radius: 6px !important;
-        min-width: 35px !important;
-        height: 35px;
+        border-radius: 5px !important;
+        min-width: 30px !important;
+        height: 30px;
         text-align: center;
         display: flex;
         align-items: center;
@@ -519,93 +581,98 @@
         background: linear-gradient(135deg, #20bf6b 0%, #01baef 100%);
         color: white;
         border: none;
-        padding: 10px 20px;
-        border-radius: 8px;
+        padding: 9px 18px;
+        border-radius: 7px;
         font-weight: 600;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         display: inline-flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
         transition: all 0.3s;
-        box-shadow: 0 2px 6px rgba(32, 191, 107, 0.2);
+        box-shadow: 0 2px 5px rgba(32, 191, 107, 0.15);
         text-decoration: none;
     }
 
     .export-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(32, 191, 107, 0.3);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(32, 191, 107, 0.25);
         color: white;
     }
 
     /* ===== EMPTY STATE ===== */
     .empty-state {
-        padding: 60px 20px;
+        padding: 50px 15px;
         text-align: center;
     }
 
     .empty-icon {
-        font-size: 3.5rem;
+        font-size: 3rem;
         color: #cbd5e0;
-        margin-bottom: 20px;
+        margin-bottom: 15px;
         opacity: 0.4;
     }
 
     .empty-title {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
         color: #718096;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
         font-weight: 600;
     }
 
     .empty-text {
         color: #a0aec0;
-        font-size: 0.9rem;
-        max-width: 400px;
+        font-size: 0.85rem;
+        max-width: 350px;
         margin: 0 auto;
-        line-height: 1.5;
+        line-height: 1.4;
     }
 
     /* ===== INFO SEKUNDER ===== */
     .text-small {
-        font-size: 0.72rem !important;
-        line-height: 1.2 !important;
+        font-size: 0.68rem !important;
+        line-height: 1.1 !important;
         color: #718096;
         opacity: 0.8;
         display: flex;
         align-items: center;
-        gap: 4px;
+        gap: 3px;
+        margin-top: 1px;
+    }
+
+    /* ===== LOGO POPUP ===== */
+    .logo-popup-img {
+        max-width: 200px;
+        max-height: 200px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        padding: 8px;
+        background: white;
     }
 
     /* ===== RESPONSIVE ADJUSTMENTS ===== */
-    @media (max-width: 1600px) {
-        /* Sedikit lebih kecil untuk 1600px */
-        .table th:nth-child(2),
-        .table td:nth-child(2) { width: 180px !important; }
+    @media (max-width: 1400px) {
+        .table th:nth-child(3),
+        .table td:nth-child(3) { width: 110px !important; }
         .table th:nth-child(4),
-        .table td:nth-child(4) { width: 200px !important; }
-    }
-
-    @media (max-width: 1440px) {
-        /* Untuk 1440px masih nyaman */
-        .table th:nth-child(2),
-        .table td:nth-child(2) { width: 175px !important; }
-        .table th:nth-child(4),
-        .table td:nth-child(4) { width: 190px !important; }
+        .table td:nth-child(4) { width: 150px !important; }
         .table th:nth-child(5),
-        .table td:nth-child(5) { width: 135px !important; }
+        .table td:nth-child(5) { width: 100px !important; }
     }
 
-    @media (max-width: 1366px) {
-        /* Aktifkan scroll di 1366px ke bawah */
+    @media (max-width: 1200px) {
+        .container-fluid.py-4 {
+            padding-left: 0.75rem !important;
+            padding-right: 0.75rem !important;
+        }
+        
+        .table {
+            min-width: 900px !important;
+        }
+        
         .table-container {
             overflow-x: auto;
         }
         
-        .table {
-            min-width: 1280px !important;
-        }
-        
-        /* Sembunyikan info sekunder */
         .text-small {
             display: none;
         }
@@ -615,62 +682,34 @@
         .competition-name,
         .registrant-name {
             -webkit-line-clamp: 2;
-            max-height: 2.8em;
-        }
-    }
-
-    @media (max-width: 1200px) {
-        .container-fluid.py-4 {
-            padding-left: 0.75rem !important;
-            padding-right: 0.75rem !important;
-        }
-        
-        .table th,
-        .table td {
-            padding: 11px 8px !important;
-            font-size: 0.85rem !important;
-        }
-        
-        .team-number-badge {
-            font-size: 0.82rem;
-            padding: 6px 10px;
-            min-width: 85px;
-        }
-        
-        .status-badge {
-            min-width: 80px !important;
-            max-width: 80px !important;
-            font-size: 0.7rem !important;
-            padding: 5px 10px !important;
-        }
-        
-        .btn-action {
-            min-width: 30px;
-            height: 30px;
-            padding: 6px 9px;
         }
     }
 
     @media (max-width: 992px) {
         .filter-body {
-            padding: 20px;
+            padding: 18px;
         }
         
         .filter-header,
         .card-header {
-            padding: 14px 20px;
+            padding: 14px 18px;
         }
         
         .pagination-container {
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
             text-align: center;
-            padding: 14px 20px !important;
+            padding: 12px 18px !important;
         }
         
         .table th,
         .table td {
-            padding: 10px 6px !important;
+            padding: 9px 6px !important;
+        }
+        
+        .logo-container {
+            width: 45px;
+            height: 45px;
         }
     }
 
@@ -681,23 +720,32 @@
         }
         
         .page-title {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
         }
         
         .export-btn {
-            padding: 8px 16px;
-            font-size: 0.85rem;
+            padding: 8px 14px;
+            font-size: 0.8rem;
         }
         
         .d-flex.justify-content-between {
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
+        }
+        
+        .logo-container {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .logo-placeholder i {
+            font-size: 1rem;
         }
     }
 
     @media (max-width: 576px) {
         .filter-body {
-            padding: 16px;
+            padding: 14px;
         }
         
         .export-btn {
@@ -706,7 +754,19 @@
         }
         
         .pagination-info {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
+        }
+        
+        .page-link {
+            font-size: 0.75rem !important;
+            padding: 4px 8px !important;
+            min-width: 26px !important;
+            height: 26px;
+        }
+        
+        .logo-container {
+            width: 35px;
+            height: 35px;
         }
     }
 </style>
@@ -745,7 +805,7 @@
                             <option value="">Semua Sekolah</option>
                             @foreach($schools as $school)
                             <option value="{{ $school }}" {{ request('school') == $school ? 'selected' : '' }}>
-                                {{ Str::limit($school, 22) }}
+                                {{ Str::limit($school, 18) }}
                             </option>
                             @endforeach
                         </select>
@@ -788,7 +848,7 @@
                             <option value="">Semua Kompetisi</option>
                             @foreach($competitions as $comp)
                             <option value="{{ $comp }}" {{ request('competition') == $comp ? 'selected' : '' }}>
-                                {{ Str::limit($comp, 20) }}
+                                {{ Str::limit($comp, 18) }}
                             </option>
                             @endforeach
                         </select>
@@ -871,24 +931,42 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>TEAM<br>NUMBER</th>
+                            <th>LOGO</th>
+                            <th>TEAM<br>NO</th>
                             <th>SCHOOL</th>
                             <th>TEAM<br>NAME</th>
                             <th>COMPETITION</th>
-                            <th>REGISTERED<br>BY</th>
+                            <th>REG<br>BY</th>
                             <th>LOCK<br>STATUS</th>
                             <th>VERIFY<br>STATUS</th>
-                            <th>UPDATED<br>AT</th>
+                            <th>UPDATED</th>
                             <th>ACTION</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($teamList as $team)
                         <tr>
+                            <!-- Logo Sekolah -->
+                            <td>
+                                <div class="logo-container" onclick="showLogoPopup('{{ $team->school_logo ? asset('uploads/school_logo/' . $team->school_logo) : '' }}', '{{ $team->school_name }}')">
+                                    @if($team->school_logo && file_exists(public_path('uploads/school_logo/' . $team->school_logo)))
+                                        <img src="{{ asset('uploads/school_logo/' . $team->school_logo) }}" 
+                                             alt="Logo {{ $team->school_name }}"
+                                             class="logo-img"
+                                             onerror="this.onerror=null; this.parentElement.innerHTML = '<div class=\"logo-placeholder\"><i class=\"fas fa-school\"></i><span>No Logo</span></div>'">
+                                    @else
+                                        <div class="logo-placeholder">
+                                            <i class="fas fa-school"></i>
+                                            <span>No Logo</span>
+                                        </div>
+                                    @endif
+                                </div>
+                            </td>
+
                             <!-- Team Number -->
                             <td>
                                 <span class="team-number-badge" title="TEA{{ str_pad($team->team_id, 7, '0', STR_PAD_LEFT) }}">
-                                    TEA{{ str_pad($team->team_id, 4, '0', STR_PAD_LEFT) }}
+                                    {{ str_pad($team->team_id, 4, '0', STR_PAD_LEFT) }}
                                 </span>
                             </td>
 
@@ -896,11 +974,11 @@
                             <td>
                                 <div class="school-info">
                                     <div class="school-name" title="{{ $team->school_name }}">
-                                        {{ Str::limit($team->school_name, 35) }}
+                                        {{ Str::limit($team->school_name, 25) }}
                                     </div>
                                     @if($team->season)
                                     <div class="text-small">
-                                        <i class="fas fa-calendar-alt"></i>{{ $team->season }}
+                                        <i class="fas fa-calendar-alt"></i>{{ Str::limit($team->season, 12) }}
                                     </div>
                                     @endif
                                 </div>
@@ -910,11 +988,11 @@
                             <td>
                                 <div class="team-meta">
                                     <div class="team-name" title="{{ $team->school_name }}">
-                                        {{ Str::limit($team->school_name, 30) }}
+                                        {{ Str::limit($team->school_name, 22) }}
                                     </div>
                                     @if($team->team_category)
                                     <span class="team-category">
-                                        {{ $team->team_category }}
+                                        {{ Str::limit($team->team_category, 10) }}
                                     </span>
                                     @endif
                                 </div>
@@ -924,11 +1002,11 @@
                             <td>
                                 <div class="competition-info">
                                     <div class="competition-name" title="{{ $team->competition }}">
-                                        {{ Str::limit($team->competition, 40) }}
+                                        {{ Str::limit($team->competition, 28) }}
                                     </div>
                                     @if($team->series)
                                     <div class="text-small">
-                                        <i class="fas fa-layer-group"></i>{{ Str::limit($team->series, 20) }}
+                                        <i class="fas fa-layer-group"></i>{{ Str::limit($team->series, 15) }}
                                     </div>
                                     @endif
                                 </div>
@@ -938,11 +1016,11 @@
                             <td>
                                 <div class="registrant-info">
                                     <div class="registrant-name" title="{{ $team->registered_by }}">
-                                        {{ Str::limit($team->registered_by, 20) }}
+                                        {{ Str::limit($team->registered_by, 15) }}
                                     </div>
                                     @if($team->referral_code)
                                     <div class="text-small">
-                                        <i class="fas fa-hashtag"></i>{{ Str::limit($team->referral_code, 12) }}
+                                        <i class="fas fa-hashtag"></i>{{ Str::limit($team->referral_code, 8) }}
                                     </div>
                                     @endif
                                 </div>
@@ -952,11 +1030,11 @@
                             <td>
                                 @if($team->locked_status == 'locked')
                                 <span class="status-badge badge-locked" title="LOCKED">
-                                    <i class="fas fa-lock me-1"></i>LOCKED
+                                    <i class="fas fa-lock"></i> LOCKED
                                 </span>
                                 @else
                                 <span class="status-badge badge-unlocked" title="UNLOCKED">
-                                    <i class="fas fa-unlock me-1"></i>UNLOCKED
+                                    <i class="fas fa-unlock"></i> OPEN
                                 </span>
                                 @endif
                             </td>
@@ -965,11 +1043,11 @@
                             <td>
                                 @if($team->verification_status == 'verified')
                                 <span class="status-badge badge-verified" title="VERIFIED">
-                                    <i class="fas fa-check-circle me-1"></i>VERIFIED
+                                    <i class="fas fa-check"></i> VERIFIED
                                 </span>
                                 @else
                                 <span class="status-badge badge-unverified" title="UNVERIFIED">
-                                    <i class="fas fa-clock me-1"></i>PENDING
+                                    <i class="fas fa-clock"></i> PENDING
                                 </span>
                                 @endif
                             </td>
@@ -977,7 +1055,7 @@
                             <!-- Updated At -->
                             <td class="date-cell">
                                 @if($team->updated_at)
-                                <div class="date-primary">{{ $team->updated_at->format('d M Y') }}</div>
+                                <div class="date-primary">{{ $team->updated_at->format('d/m/Y') }}</div>
                                 <div class="date-secondary">{{ $team->updated_at->format('H:i') }}</div>
                                 @else
                                 <div class="date-primary">-</div>
@@ -1025,7 +1103,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="9">
+                            <td colspan="10">
                                 <div class="empty-state">
                                     <div class="empty-icon">
                                         <i class="fas fa-users-slash"></i>
@@ -1171,25 +1249,52 @@
         // Responsive table adjustments
         function checkTableWidth() {
             const screenWidth = window.innerWidth;
-            const table = document.querySelector('.table');
             const container = document.querySelector('.table-container');
             
-            if (screenWidth < 1366) {
+            if (screenWidth < 1200) {
                 container.style.overflowX = 'auto';
-                if (table) {
-                    table.style.minWidth = '1280px';
-                }
             } else {
                 container.style.overflowX = 'hidden';
-                if (table) {
-                    table.style.minWidth = '';
-                }
             }
         }
 
         window.addEventListener('resize', checkTableWidth);
         checkTableWidth(); // Initial check
     });
+
+    // Function to show logo popup
+    function showLogoPopup(logoUrl, schoolName) {
+        let htmlContent;
+        
+        if (logoUrl) {
+            htmlContent = `
+                <div style="text-align: center;">
+                    <img src="${logoUrl}" alt="Logo ${schoolName}" class="logo-popup-img">
+                    <p style="color: #666; font-size: 14px; margin-top: 10px;">${schoolName}</p>
+                </div>
+            `;
+        } else {
+            htmlContent = `
+                <div style="text-align: center;">
+                    <div style="width: 150px; height: 150px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #f7fafc, #edf2f7); border: 2px dashed #cbd5e0; border-radius: 8px; margin: 0 auto 15px;">
+                        <i class="fas fa-school" style="font-size: 2.5rem; color: #a0aec0; margin-bottom: 10px;"></i>
+                        <span style="color: #718096;">Logo Tidak Tersedia</span>
+                    </div>
+                    <p style="color: #666; font-size: 14px;">${schoolName}</p>
+                </div>
+            `;
+        }
+
+        Swal.fire({
+            title: 'Logo Sekolah',
+            html: htmlContent,
+            showCloseButton: true,
+            showConfirmButton: false,
+            width: 400,
+            padding: '20px',
+            background: '#fff'
+        });
+    }
 </script>
 @endpush
 @endsection

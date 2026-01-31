@@ -10,13 +10,14 @@ use App\Http\Controllers\Camper\CamperController;
 use App\Http\Controllers\Form\FormTeamController;
 use App\Http\Controllers\Form\FormPlayerController;
 use App\Http\Controllers\GoogleController\GoogleController;
-use App\Http\Controllers\Publication\PublicationController;
+use App\Http\Controllers\Publication\PubMatchDataController;
+use App\Http\Controllers\Publication\PubMatchResult;
 use App\Http\Controllers\Sponsor\SponsorController;
 use App\Http\Controllers\TeamVerification\TeamController;
 use App\Http\Controllers\User\GalleryController as UserGalleryController;
 use App\Http\Controllers\User\HomeController;
 use App\Http\Controllers\User\NewsController;
-use App\Http\Controllers\User\PublicationController as UserPublicationController;
+use App\Http\Controllers\User\PublicationController;
 use App\Http\Controllers\Student\StudentAuthController;
 use App\Http\Controllers\Student\StudentDashboardController;
 use App\Http\Controllers\Student\StudentProfileController;
@@ -83,7 +84,6 @@ Route::prefix('student')->name('student.')->group(function () {
 | 🛡️ ADMIN AREA (Prefix: /admin) - PROTECTED dengan middleware 'auth' saja
 |--------------------------------------------------------------------------
 */
-// PERUBAHAN: Hapus 'admin', cukup pakai 'auth' saja
 Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
     // Dashboard
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
@@ -151,36 +151,45 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('/camper/detail/{id}', [CamperController::class, 'camperDetail'])->name('camper.detail');
     Route::post('/camper/detail/update/{id}', [CamperController::class, 'updateCamper'])->name('camper.update');
 
-    // ========== PUBLICATION MANAGEMENT ==========
+// ========== PUBLICATION MANAGEMENT ==========
     
-    // Match / Schedule Management
-    Route::get('/schedule', [PublicationController::class, 'match'])->name('pub_schedule');
-    Route::post('/schedule', [PublicationController::class, 'storeMatch'])->name('match.store');
-    Route::get('/schedule/{id}/edit', [PublicationController::class, 'editMatch'])->name('match.edit');
-    Route::put('/schedule/{id}', [PublicationController::class, 'updateMatch'])->name('match.update');
-    Route::post('/publication/schedule/publish/{id}', [PublicationController::class, 'publish'])->name('match.publish');
-    Route::post('/publication/schedule/unpublish/{id}', [PublicationController::class, 'unpublish'])->name('match.unpublish');
-    Route::post('/publication/schedule/done/{id}', [PublicationController::class, 'done'])->name('match.done');
+Route::prefix('pub_schedule')->name('pub_schedule.')->group(function () {
+    Route::get('/', [PubMatchDataController::class, 'index'])->name('index');
+    Route::get('/create/{event_id?}', [PubMatchDataController::class, 'create'])->name('create');
+    Route::post('/', [PubMatchDataController::class, 'store'])->name('store');
+    Route::get('/{id}/edit', [PubMatchDataController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [PubMatchDataController::class, 'update'])->name('update');
+    Route::delete('/{id}', [PubMatchDataController::class, 'destroy'])->name('destroy');
+    Route::post('/bulk-destroy', [PubMatchDataController::class, 'bulkDestroy'])->name('bulk-destroy');
+    Route::post('/{id}/publish', [PubMatchDataController::class, 'publish'])->name('publish');
+    Route::post('/{id}/unpublish', [PubMatchDataController::class, 'unpublish'])->name('unpublish');
+    Route::post('/{id}/done', [PubMatchDataController::class, 'done'])->name('done');
+    // Hapus Route::patch('/{id}', [PubMatchDataController::class, 'update'])->name('update');
+    // karena sudah ada Route::put yang sama
+});
 
-    // Result Management
-    Route::get('/result', [PublicationController::class, 'result'])->name('pub_result');
-    Route::post('/result', [PublicationController::class, 'storeResult'])->name('result.store');
-    Route::get('/result/{id}/edit', [PublicationController::class, 'editResult'])->name('result.edit');
-    Route::put('/result/{id}', [PublicationController::class, 'updateResult'])->name('result.update');
-    Route::post('/publication/result/publish/{id}', [PublicationController::class, 'publish'])->name('result.publish');
-
-    // Event Management
-    Route::get('/event', [PublicationController::class, 'event'])->name('pub_event');
-    Route::post('/event', [PublicationController::class, 'storeEvent'])->name('event.store');
-    Route::get('/event/{id}/edit', [PublicationController::class, 'editEvent'])->name('event.edit');
-    Route::put('/event/{id}', [PublicationController::class, 'updateEvent'])->name('event.update');
-    Route::post('/publication/event/publish/{id}', [PublicationController::class, 'publishEvent'])->name('event.publish');
+// **RESULT MANAGEMENT - SEMUA ROUTES**
+Route::prefix('pub_result')->name('pub_result.')->group(function () {
+    Route::get('/', [PubMatchResult::class, 'index'])->name('index');
+    Route::get('/create/{event_id?}', [PubMatchResult::class, 'create'])->name('create');
+    Route::post('/', [PubMatchResult::class, 'store'])->name('store');
+    Route::get('/{id}/edit', [PubMatchResult::class, 'edit'])->name('edit');
+    Route::put('/{id}', [PubMatchResult::class, 'update'])->name('update');
+    Route::delete('/{id}', [PubMatchResult::class, 'destroy'])->name('destroy');
+    Route::post('/bulk-destroy', [PubMatchResult::class, 'bulkDestroy'])->name('bulk-destroy');
+    Route::post('/bulk-publish', [PubMatchResult::class, 'bulkPublish'])->name('bulk-publish'); // Ditambahkan
+    Route::post('/{id}/publish', [PubMatchResult::class, 'publish'])->name('publish');
+    Route::post('/{id}/unpublish', [PubMatchResult::class, 'unpublish'])->name('unpublish');
+    Route::post('/{id}/done', [PubMatchResult::class, 'done'])->name('done');
+});
 
     // ========== CONTENT MANAGEMENT ==========
     
     // Sponsor Management
     Route::get('/sponsor', [SponsorController::class, 'sponsor'])->name('sponsor.sponsor');
+    Route::get('/sponsor/create', [SponsorController::class, 'create'])->name('sponsor.create');
     Route::post('/sponsor', [SponsorController::class, 'store'])->name('sponsor.store');
+    Route::get('/sponsor/{id}/edit', [SponsorController::class, 'edit'])->name('sponsor.edit');
     Route::put('/sponsor/{id}', [SponsorController::class, 'update'])->name('sponsor.update');
     Route::delete('/sponsor/{id}', [SponsorController::class, 'destroy'])->name('sponsor.destroy');
     Route::post('/sponsor/destroy-selected', [SponsorController::class, 'destroySelected'])->name('sponsor.destroySelected');
@@ -192,6 +201,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('/news/{id}/edit', [AdminNewsController::class, 'edit'])->name('news.edit');
     Route::put('/news/{id}', [AdminNewsController::class, 'update'])->name('news.update');
     Route::delete('/news/{id}', [AdminNewsController::class, 'destroy'])->name('news.destroy');
+    Route::delete('/news/bulk/delete', [AdminNewsController::class, 'bulkDestroy'])->name('news.bulk-destroy');
 
     // Terms & Conditions Management
     Route::get('/term-conditions', [TermConditionController::class, 'index'])->name('term_conditions.index');
@@ -213,7 +223,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
 | 👨‍🎓 STUDENT AREA (Prefix: /student) - PROTECTED dengan middleware 'auth' saja
 |--------------------------------------------------------------------------
 */
-// PERUBAHAN: Hapus 'student', cukup pakai 'auth' saja
 Route::prefix('student')->name('student.')->middleware(['auth'])->group(function () {
     // Dashboard Student - Arahkan ke form_team.blade.php sesuai permintaan
     Route::get('/dashboard', function () {

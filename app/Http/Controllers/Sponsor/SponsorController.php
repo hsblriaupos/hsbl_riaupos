@@ -21,32 +21,43 @@ class SponsorController extends Controller
             $query->where('sponsor_name', 'like', "%{$request->search}%");
         }
 
-        // **Ubah urutan ke ascending agar sponsor baru di BAWAH**
-        $sponsors = $query->orderBy('created_at', 'asc')->get();
+        // **PAGINATE bukan GET - untuk mendukung pagination**
+        $perPage = $request->get('per_page', 10); // Default 10, bisa 10, 25, 50, 100
+        $sponsors = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
         $categories = [
-            'Presented By','Official Partners',
-            'Official Suppliers','Supporting Partners','Managed By'
+            'Presented By', 'Official Partners',
+            'Official Suppliers', 'Supporting Partners', 'Managed By'
         ];
 
         return view('admin.sponsor.sponsor', compact('sponsors', 'categories'));
     }
 
+    public function create()
+    {
+        $categories = [
+            'Presented By', 'Official Partners',
+            'Official Suppliers', 'Supporting Partners', 'Managed By'
+        ];
+        
+        return view('admin.sponsor.create', compact('categories'));
+    }
+
     public function store(Request $request)
     {
         $data = $request->validate([
-            'sponsor_name'=>'required|string|max:255',
-            'category'=>'required|string|max:255',
-            'logo'=>'required|image|mimes:jpg,jpeg,png,svg|max:2048',
-            'sponsors_web'=>'nullable|url|max:255',
+            'sponsor_name' => 'required|string|max:255',
+            'category' => 'required|string|max:255',
+            'logo' => 'required|image|mimes:jpg,jpeg,png,svg,webp,gif|max:2048',
+            'sponsors_web' => 'nullable|url|max:255',
         ]);
 
         $folder = public_path('uploads/sponsors');
-        if (! File::exists($folder)) {
+        if (!File::exists($folder)) {
             File::makeDirectory($folder, 0755, true);
         }
 
-        $file     = $request->file('logo');
+        $file = $request->file('logo');
         $filename = time() . '-' . Str::random(8) . '.' . $file->getClientOriginalExtension();
         $file->move($folder, $filename);
 
@@ -54,22 +65,33 @@ class SponsorController extends Controller
         Sponsor::create($data);
 
         return redirect()->route('admin.sponsor.sponsor')
-                         ->with('success','Sponsor berhasil ditambahkan.');
+            ->with('success', 'Sponsor berhasil ditambahkan.');
+    }
+
+    public function edit($id)
+    {
+        $sponsor = Sponsor::findOrFail($id);
+        $categories = [
+            'Presented By', 'Official Partners',
+            'Official Suppliers', 'Supporting Partners', 'Managed By'
+        ];
+        
+        return view('admin.sponsor.edit', compact('sponsor', 'categories'));
     }
 
     public function update(Request $request, $id)
     {
         $sponsor = Sponsor::findOrFail($id);
         $data = $request->validate([
-            'sponsor_name'=>'required|string|max:255',
-            'category'=>'required|string|max:255',
-            'logo'=>'nullable|image|mimes:jpg,jpeg,png,svg|max:2048',
-            'sponsors_web'=>'nullable|url|max:255',
+            'sponsor_name' => 'required|string|max:255',
+            'category' => 'required|string|max:255',
+            'logo' => 'nullable|image|mimes:jpg,jpeg,png,svg,webp,gif|max:2048',
+            'sponsors_web' => 'nullable|url|max:255',
         ]);
 
         $folder = public_path('uploads/sponsors');
         if ($request->hasFile('logo')) {
-            if (! File::exists($folder)) {
+            if (!File::exists($folder)) {
                 File::makeDirectory($folder, 0755, true);
             }
             // hapus file lama
@@ -77,16 +99,19 @@ class SponsorController extends Controller
             if (File::exists($old)) {
                 File::delete($old);
             }
-            $file     = $request->file('logo');
+            $file = $request->file('logo');
             $filename = time() . '-' . Str::random(8) . '.' . $file->getClientOriginalExtension();
             $file->move($folder, $filename);
             $data['logo'] = $filename;
+        } else {
+            // Pertahankan logo lama jika tidak ada upload baru
+            unset($data['logo']);
         }
 
         $sponsor->update($data);
 
         return redirect()->route('admin.sponsor.sponsor')
-                         ->with('success','Sponsor berhasil diperbarui.');
+            ->with('success', 'Sponsor berhasil diperbarui.');
     }
 
     public function destroy($id)
@@ -99,13 +124,13 @@ class SponsorController extends Controller
         $sponsor->delete();
 
         return redirect()->route('admin.sponsor.sponsor')
-                         ->with('success','Sponsor berhasil dihapus.');
+            ->with('success', 'Sponsor berhasil dihapus.');
     }
 
     public function destroySelected(Request $request)
     {
         $ids = $request->ids;
-        if (is_array($ids)) {
+        if (is_array($ids) && count($ids) > 0) {
             $items = Sponsor::whereIn('id', $ids)->get();
             $folder = public_path('uploads/sponsors');
             foreach ($items as $s) {
@@ -116,9 +141,9 @@ class SponsorController extends Controller
                 $s->delete();
             }
             return redirect()->route('admin.sponsor.sponsor')
-                             ->with('success','Sponsor terpilih berhasil dihapus.');
+                ->with('success', count($items) . ' sponsor terpilih berhasil dihapus.');
         }
         return redirect()->route('admin.sponsor.sponsor')
-                         ->with('error','Tidak ada sponsor dipilih.');
+            ->with('error', 'Tidak ada sponsor dipilih.');
     }
 }
