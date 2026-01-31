@@ -98,6 +98,33 @@
         padding: 8px;
     }
 
+    .logo-placeholder {
+        width: 120px;
+        height: 120px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f7fafc, #edf2f7);
+        border: 2px dashed #cbd5e0;
+        border-radius: 6px;
+        color: #718096;
+        font-size: 13px;
+        margin: 0 auto 10px;
+        transition: all 0.3s ease;
+    }
+
+    .logo-box-square:hover .logo-placeholder {
+        border-color: #a0aec0;
+        background: linear-gradient(135deg, #edf2f7, #e2e8f0);
+    }
+
+    .logo-placeholder i {
+        font-size: 2.5rem;
+        margin-bottom: 12px;
+        color: #a0aec0;
+    }
+
     .logo-box-square p {
         margin-top: 10px;
         font-size: 13px;
@@ -796,8 +823,20 @@
                 <!-- Logo di Kiri -->
                 <div class="logo-column">
                     <div class="logo-box-square" onclick="showLogoPopup()">
-                        <img src="{{ asset('uploads/logo/hsbl.png') }}" alt="Logo Sekolah" id="team-logo">
-
+                        @if($team->school_logo)
+                            <!-- Logo sekolah dari database -->
+                            <img src="{{ asset('uploads/school_logo/' . $team->school_logo) }}" 
+                                 alt="Logo Sekolah {{ $team->school_name }}"
+                                 id="team-logo"
+                                 onerror="this.onerror=null; this.src='{{ asset('uploads/school_logo/default_logo.png') }}'; this.parentElement.innerHTML = '<div class=\"logo-placeholder\"><i class=\"fas fa-school\"></i><span>Logo Tidak Ditemukan</span></div><p>Logo Sekolah</p>';">
+                        @else
+                            <!-- Logo default jika tidak ada -->
+                            <div class="logo-placeholder">
+                                <i class="fas fa-school"></i>
+                                <span>No Logo</span>
+                            </div>
+                        @endif
+                        <p>Logo Sekolah</p>
                     </div>
                 </div>
 
@@ -1114,11 +1153,37 @@
 
         // Function to show logo popup
         window.showLogoPopup = function() {
-            const logoUrl = document.getElementById('team-logo').src;
+            const logoImg = document.getElementById('team-logo');
+            let logoUrl = '';
+            let logoTitle = 'Logo Sekolah';
+            
+            if (logoImg) {
+                logoUrl = logoImg.src;
+                logoTitle = logoImg.alt || 'Logo Sekolah';
+            } else {
+                // Jika tidak ada logo, tampilkan placeholder
+                Swal.fire({
+                    title: 'Logo Sekolah',
+                    html: `<div style="text-align: center;">
+                            <div style="width: 200px; height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #f7fafc, #edf2f7); border: 2px dashed #cbd5e0; border-radius: 8px; margin: 0 auto 15px;">
+                                <i class="fas fa-school" style="font-size: 3rem; color: #a0aec0; margin-bottom: 15px;"></i>
+                                <span style="color: #718096;">Logo Tidak Tersedia</span>
+                            </div>
+                            <p style="color: #666; font-size: 14px;">{{ $team->school_name }}</p>
+                          </div>`,
+                    showCloseButton: true,
+                    showConfirmButton: false,
+                    width: 450,
+                    padding: '20px',
+                    background: '#fff'
+                });
+                return;
+            }
+
             Swal.fire({
-                title: 'Logo Sekolah',
+                title: logoTitle,
                 html: `<div style="text-align: center;">
-                        <img src="${logoUrl}" alt="Logo Sekolah" style="max-width: 300px; max-height: 300px; border-radius: 8px; margin-bottom: 15px;">
+                        <img src="${logoUrl}" alt="${logoTitle}" style="max-width: 300px; max-height: 300px; border-radius: 8px; margin-bottom: 15px;">
                         <p style="color: #666; font-size: 14px;">{{ $team->school_name }}</p>
                       </div>`,
                 showCloseButton: true,

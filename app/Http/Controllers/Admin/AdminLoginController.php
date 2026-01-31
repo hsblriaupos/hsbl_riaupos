@@ -12,24 +12,36 @@ class AdminLoginController extends Controller
 {
     public function showLoginForm()
     {
-        return view('login.login_admin'); // View: resources/views/login/login_admin.blade.php
+        return view('login.login_admin'); // View dengan 2 tab
     }
 
     public function login(Request $request)
     {
         $request->validate([
-            'name' => 'required',
-            'password' => 'required',
+            'login_type' => 'required|in:admin,student',
         ]);
 
-        $user = User::where('name', $request->name)->first();
+        // Login Admin
+        if ($request->login_type === 'admin') {
+            $request->validate([
+                'name' => 'required',
+                'password' => 'required',
+            ]);
 
-        if ($user && Hash::check($request->password, $user->password) && $user->role === 'admin') {
-            Auth::login($user);
-            return redirect()->route('admin.dashboard');
+            $user = User::where('name', $request->name)->first();
+
+            if ($user && Hash::check($request->password, $user->password) && $user->role === 'admin') {
+                Auth::login($user, $request->remember ?? false);
+                return redirect()->route('admin.dashboard');
+            }
+
+            return back()->withErrors([
+                'name' => 'Username atau password salah!',
+            ])->with('login_type', 'admin')->withInput();
         }
-
-        return back()->with('error', 'Username atau password salah!');
+        
+        // Login Student - redirect ke student login
+        return redirect()->route('student.login')->with('login_type', 'student');
     }
 
     public function logout(Request $request)

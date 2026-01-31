@@ -8,20 +8,25 @@ use Illuminate\Support\Facades\Auth;
 
 class AdminMiddleware
 {
+    /**
+     * Handle an incoming request.
+     */
     public function handle(Request $request, Closure $next)
     {
-        // Pastikan user sudah login
         if (!Auth::check()) {
-            return redirect()->route('login')->with('error', 'Silakan login dulu.');
+            return redirect()->route('login.form')->withErrors([
+                'error' => 'Silakan login terlebih dahulu.'
+            ]);
         }
 
         $user = Auth::user();
 
-        // Pastikan properti name ada dan sesuai
-        if (isset($user->name) && $user->name === 'Admin') {
-            return $next($request);
+        if ($user->role !== 'admin') {
+            return redirect()->route('login.form')->withErrors([
+                'error' => 'Akses hanya untuk administrator.'
+            ]);
         }
 
-        return redirect()->route('login')->with('error', 'Kamu tidak punya akses.');
+        return $next($request);
     }
 }

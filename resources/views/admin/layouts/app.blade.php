@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Admin - HSBL Riau Pos')</title>
 
+    {{-- Favicon --}}
+    <link rel="icon" href="{{ asset('uploads/logo/hsbl.png') }}" type="image/png" />
+
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -640,7 +643,8 @@
                         <i class="fas fa-globe me-2"></i> Website
                     </div>
                     <ul class="admin-submenu">
-                        <li><a href="{{ route('admin.pub_schedule') }}">Schedules and Results</a></li>
+                        <!-- REVISI: Mengarah ke route admin.pub_schedule.index -->
+                        <li><a href="{{ route('admin.pub_schedule.index') }}" class="{{ request()->routeIs('admin.pub_schedule.*') ? 'active' : '' }}">Schedules and Results</a></li>
                         <li><a href="#">Statistics (Optional)</a></li>
                         <li><a href="{{ route('admin.sponsor.sponsor') }}">Sponsor</a></li>
                     </ul>
@@ -679,7 +683,7 @@
 
     <!-- FOOTER TIDAK NGIMPIT SIDEBAR -->
     <footer class="admin-footer">
-        <p class="mb-1">Copyright © 2025 HSBL Riau Pos. All Rights Reserved.</p>
+        <p class="mb-1">Copyright © {{ date('Y') }} HSBL Riau Pos. All Rights Reserved.</p>
         <p class="mb-0">Developed with ❤️ by: Mutia Rizkianti | Wafiq Wardatul Khairani</p>
     </footer>
 
@@ -712,38 +716,40 @@
         });
     </script>
 
-<script>
-    // Auto refresh hanya untuk halaman tertentu
-    const pagesWithAutoRefresh = [
-        'admin.dashboard',
-        'admin.all_data', 
-        'admin.tv_team_verification',
-        'admin.tv_team_list'
-    ];
-    
-    // Cek route saat ini
-    const currentRoute = "{{ Route::currentRouteName() }}";
-    
-    if (pagesWithAutoRefresh.includes(currentRoute)) {
-        console.log('Auto refresh enabled for:', currentRoute);
+    <script>
+        // Auto refresh hanya untuk halaman tertentu
+        const pagesWithAutoRefresh = [
+            'admin.dashboard',
+            'admin.all_data', 
+            'admin.tv_team_verification',
+            'admin.tv_team_list',
+            'admin.pub_schedule.index', // Ditambahkan route baru
+            'admin.pub_result.index'
+        ];
         
-        // Cek dulu apakah user sedang tidak aktif
-        let lastActivity = Date.now();
-        ['click', 'keypress', 'mousemove', 'scroll'].forEach(ev => {
-            window.addEventListener(ev, () => lastActivity = Date.now());
-        });
+        // Cek route saat ini
+        const currentRoute = "{{ Route::currentRouteName() }}";
         
-        // Tunggu 2 menit, tapi cek dulu activity terakhir
-        setTimeout(() => {
-            if (Date.now() - lastActivity > 30000) { // 30 detik tidak aktif
-                console.log('Auto refreshing page...');
-                location.reload();
-            } else {
-                console.log('Auto refresh skipped - user is active');
-            }
-        }, 120000); // 2 menit
-    }
-</script>
+        if (pagesWithAutoRefresh.includes(currentRoute)) {
+            console.log('Auto refresh enabled for:', currentRoute);
+            
+            // Cek dulu apakah user sedang tidak aktif
+            let lastActivity = Date.now();
+            ['click', 'keypress', 'mousemove', 'scroll'].forEach(ev => {
+                window.addEventListener(ev, () => lastActivity = Date.now());
+            });
+            
+            // Tunggu 2 menit, tapi cek dulu activity terakhir
+            setTimeout(() => {
+                if (Date.now() - lastActivity > 30000) { // 30 detik tidak aktif
+                    console.log('Auto refreshing page...');
+                    location.reload();
+                } else {
+                    console.log('Auto refresh skipped - user is active');
+                }
+            }, 120000); // 2 menit
+        }
+    </script>
     
     @stack('scripts')
 </body>

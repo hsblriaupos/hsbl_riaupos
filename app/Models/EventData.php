@@ -12,5 +12,6 @@ class EventData extends Model {
         'end_date',
         'start_time',
         'end_time',
+        'term_cond', // TAMBAHKAN INI
     ];
 }
