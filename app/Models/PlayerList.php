@@ -14,13 +14,15 @@ class PlayerList extends Model
 
     protected $fillable = [
         'team_id',
+        'category',  // 🔥 FIX: 'category' bukan 'team_category'
+        'role',      // 🔥 FIX: 'role' bukan 'team_role'
         'nik',
         'name',
         'birthdate',
         'gender',
         'email',
         'phone',
-        'school',           // Ini adalah foreign key ke schools.id (bigint)
+        'school_id', // 🔥 FIX: 'school_id' bukan 'school'
         'grade',
         'sttb_year',
         'height',
@@ -42,8 +44,7 @@ class PlayerList extends Model
         'last_report_card',
         'formal_photo',
         'assignment_letter',
-        'team_role',        // 'Leader' atau 'Player'
-        'category',         // 'putra', 'putri', 'dancer'
+        'payment_proof', // 🔥 TAMBAH field payment_proof
         'is_finalized',
         'finalized_at',
         'unlocked_by_admin',
@@ -76,11 +77,11 @@ class PlayerList extends Model
     }
 
     /**
-     * Relasi ke School (karena school adalah foreign key)
+     * Relasi ke School (karena school_id adalah foreign key)
      */
-    public function schoolData()
+    public function school()
     {
-        return $this->belongsTo(School::class, 'school', 'id');
+        return $this->belongsTo(School::class, 'school_id', 'id');
     }
 
     /**
@@ -88,7 +89,7 @@ class PlayerList extends Model
      */
     public function scopeLeader($query)
     {
-        return $query->where('team_role', 'Leader');
+        return $query->where('role', 'Leader'); // 🔥 FIX: 'role' bukan 'team_role'
     }
 
     /**
@@ -96,7 +97,7 @@ class PlayerList extends Model
      */
     public function scopePlayer($query)
     {
-        return $query->where('team_role', 'Player');
+        return $query->where('role', 'Player'); // 🔥 FIX: 'role' bukan 'team_role'
     }
 
     /**
@@ -120,7 +121,7 @@ class PlayerList extends Model
      */
     public function getSchoolNameAttribute()
     {
-        return $this->schoolData ? $this->schoolData->school_name : 'Tidak diketahui';
+        return $this->school ? $this->school->school_name : 'Tidak diketahui';
     }
 
     /**
@@ -128,7 +129,7 @@ class PlayerList extends Model
      */
     public function getRoleBadgeAttribute()
     {
-        return $this->team_role === 'Leader' 
+        return $this->role === 'Leader' 
             ? '<span class="badge bg-warning">Leader</span>' 
             : '<span class="badge bg-info">Player</span>';
     }
@@ -155,7 +156,7 @@ class PlayerList extends Model
      */
     public function isLeader()
     {
-        return $this->team_role === 'Leader';
+        return $this->role === 'Leader'; // 🔥 FIX: 'role' bukan 'team_role'
     }
 
     /**
@@ -163,7 +164,7 @@ class PlayerList extends Model
      */
     public function isRegularPlayer()
     {
-        return $this->team_role === 'Player';
+        return $this->role === 'Player'; // 🔥 FIX: 'role' bukan 'team_role'
     }
 
     /**
@@ -180,5 +181,13 @@ class PlayerList extends Model
     public function isUnlockedByAdmin()
     {
         return (bool) $this->unlocked_by_admin;
+    }
+
+    /**
+     * Cek apakah player memiliki bukti pembayaran
+     */
+    public function hasPaymentProof()
+    {
+        return !empty($this->payment_proof);
     }
 }

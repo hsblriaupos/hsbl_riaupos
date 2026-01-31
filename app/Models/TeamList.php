@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Storage;
 
 class TeamList extends Model
 {
@@ -20,6 +21,7 @@ class TeamList extends Model
     protected $fillable = [
         'school_id',
         'school_name',
+        'school_logo',  
         'referral_code',
         'season',
         'series',
@@ -32,12 +34,19 @@ class TeamList extends Model
         'payment_proof',
         'payment_status',
         'koran',
+        'is_leader_paid', 
+        'payment_date',   
     ];
     
-    // Cast untuk enum
+    protected $appends = [
+        'school_logo_url'
+    ];
+
     protected $casts = [
         'locked_status' => 'string',
         'verification_status' => 'string',
+        'is_leader_paid' => 'boolean',
+        'payment_date' => 'datetime',
     ];
     
     public function school()
@@ -68,5 +77,32 @@ class TeamList extends Model
     public function leader()
     {
         return $this->belongsTo(User::class, 'registered_by');
+    }
+
+    /**
+     * Accessor untuk mendapatkan URL logo sekolah tim
+     */
+    public function getSchoolLogoUrlAttribute()
+    {
+        // Prioritas 1: Logo yang diupload spesifik untuk tim ini
+        if ($this->school_logo) {
+            return Storage::url($this->school_logo);
+        }
+        
+        // Prioritas 2: Logo dari tabel schools
+        if ($this->school && $this->school->school_logo) {
+            return Storage::url($this->school->school_logo);
+        }
+        
+        // Fallback: Logo default
+        return asset('images/default-school-logo.png');
+    }
+
+    /**
+     * Cek apakah tim memiliki logo spesifik
+     */
+    public function hasCustomLogo()
+    {
+        return !empty($this->school_logo);
     }
 }

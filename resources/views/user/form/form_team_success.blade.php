@@ -5,132 +5,102 @@
 @section('content')
 <div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow border-0">
-                <!-- Header -->
-                <div class="card-header bg-gradient-primary text-white py-4 text-center">
-                    <h1 class="mb-0">🎉 Selamat!</h1>
-                    <p class="mb-0 opacity-75">Tim kamu berhasil didaftarkan</p>
-                </div>
-                
-                <!-- Body -->
-                <div class="card-body p-5">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-0 shadow-lg">
+                <div class="card-body p-5 text-center">
                     <!-- Success Icon -->
-                    <div class="text-center mb-4">
-                        <div class="d-inline-block p-4 rounded-circle bg-success bg-opacity-10">
-                            <i class="fas fa-check-circle fa-4x text-success"></i>
+                    <div class="mb-4">
+                        <div class="success-icon">
+                            <i class="fas fa-check-circle"></i>
                         </div>
                     </div>
+
+                    <!-- Success Message -->
+                    <h2 class="text-success mb-3">🎉 Tim Berhasil Dibuat!</h2>
                     
+                    <p class="lead mb-4">
+                        Tim Anda telah berhasil didaftarkan dan pembayaran telah diverifikasi.
+                    </p>
+                    
+                    <div class="alert alert-info mb-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Selanjutnya:</strong> Lengkapi data diri Anda sebagai <strong>Kapten Tim</strong>.
+                    </div>
+
                     <!-- Team Info -->
-                    <div class="card border-primary mb-4">
+                    <div class="card bg-light mb-4">
                         <div class="card-body">
-                            <h5 class="card-title text-primary mb-3">
-                                <i class="fas fa-info-circle me-2"></i>Informasi Tim
-                            </h5>
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <strong>Nama Sekolah:</strong>
-                                    <p class="mb-0">{{ $team->school_name }}</p>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <strong>Kategori:</strong>
-                                    <p class="mb-0">{{ $team->team_category }}</p>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <strong>Season:</strong>
-                                    <p class="mb-0">{{ $team->season }}</p>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <strong>Series:</strong>
-                                    <p class="mb-0">{{ $team->series }}</p>
-                                </div>
-                            </div>
+                            <h5 class="card-title">📋 Informasi Tim</h5>
+                            <ul class="list-unstyled mb-0">
+                                <li><strong>Sekolah:</strong> {{ $team->school_name }}</li>
+                                <li><strong>Kategori:</strong> {{ $team->team_category }}</li>
+                                <li><strong>Season:</strong> {{ $team->season }}</li>
+                                <li><strong>Series:</strong> {{ $team->series }}</li>
+                                <li><strong>Kompetisi:</strong> {{ $team->competition }}</li>
+                                <li><strong>Pendaftar:</strong> {{ $team->registered_by }}</li>
+                            </ul>
                         </div>
                     </div>
-                    
-                    <!-- Referral Code Box -->
+
+                    <!-- Referral Code -->
+                    @if($referralCode)
                     <div class="card border-success mb-4">
                         <div class="card-header bg-success text-white">
-                            <i class="fas fa-key me-2"></i>Referral Code
+                            <i class="fas fa-gift me-2"></i>Referral Code Tim
                         </div>
                         <div class="card-body text-center">
-                            <div class="display-4 fw-bold text-success mb-3 font-monospace">
-                                {{ $team->referral_code }}
-                            </div>
-                            <p class="text-muted">
-                                <i class="fas fa-share-alt me-1"></i>
-                                Bagikan kode ini ke teman sekelas untuk bergabung
+                            <h3 class="text-success mb-3">{{ $referralCode }}</h3>
+                            <p class="text-muted small mb-0">
+                                Kode ini akan digunakan oleh anggota tim untuk bergabung.
+                                <strong>Simpan baik-baik!</strong>
                             </p>
                         </div>
                     </div>
                     
-                    <!-- Next Steps -->
-                    <div class="card border-warning">
-                        <div class="card-header bg-warning">
-                            <i class="fas fa-forward me-2"></i>Langkah Selanjutnya
-                        </div>
-                        <div class="card-body">
-                            <div class="d-flex mb-3">
-                                <div class="me-3">
-                                    <span class="badge bg-warning rounded-circle p-2">1</span>
-                                </div>
-                                <div>
-                                    <strong>Pembayaran</strong>
-                                    <p class="text-muted mb-0">
-                                        Sebagai Leader, kamu perlu melakukan pembayaran terlebih dahulu
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="d-flex mb-3">
-                                <div class="me-3">
-                                    <span class="badge bg-warning rounded-circle p-2">2</span>
-                                </div>
-                                <div>
-                                    <strong>Data Leader</strong>
-                                    <p class="text-muted mb-0">Isi data pribadi kamu sebagai Leader</p>
-                                </div>
-                            </div>
-                            <div class="d-flex">
-                                <div class="me-3">
-                                    <span class="badge bg-warning rounded-circle p-2">3</span>
-                                </div>
-                                <div>
-                                    <strong>Undang Anggota</strong>
-                                    <p class="text-muted mb-0">
-                                        Bagikan referral code dan undang teman bergabung
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="alert alert-warning mb-4">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Catatan Penting:</strong> 
+                        1 referral code digunakan untuk semua kategori tim di sekolah yang sama.
                     </div>
-                    
+                    @endif
+
                     <!-- Action Buttons -->
-                    <div class="text-center mt-5">
-                        <a href="{{ route('payment.form', ['team_id' => $team->team_id]) }}" 
-                           class="btn btn-primary btn-lg px-5 py-3 me-3">
-                            <i class="fas fa-credit-card me-2"></i>Lanjut ke Pembayaran
-                        </a>
+                    <div class="d-grid gap-3">
+                        <!-- Lanjut ke Form Kapten -->
                         <a href="{{ route('form.player.create', ['team_id' => $team->team_id]) }}" 
-                           class="btn btn-outline-primary btn-lg px-5 py-3">
-                            <i class="fas fa-user me-2"></i>Isi Data Leader Dulu
+                           class="btn btn-primary btn-lg">
+                            <i class="fas fa-user-shield me-2"></i>Lengkapi Data Kapten
+                        </a>
+                        
+                        <!-- Bagikan Referral Code -->
+                        <a href="#" onclick="copyReferralCode()" class="btn btn-outline-success">
+                            <i class="fas fa-copy me-2"></i>Salin Referral Code
+                        </a>
+                        
+                        <!-- Dashboard -->
+                        <a href="{{ route('user.dashboard') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                         </a>
                     </div>
-                    
-                    <!-- Share Options -->
-                    <div class="text-center mt-4">
-                        <p class="text-muted mb-2">Bagikan referral code:</p>
-                        <div class="d-flex justify-content-center gap-2">
-                            <button class="btn btn-outline-success" onclick="shareCode('whatsapp')">
-                                <i class="fab fa-whatsapp me-2"></i>WhatsApp
-                            </button>
-                            <button class="btn btn-outline-info" onclick="shareCode('telegram')">
-                                <i class="fab fa-telegram me-2"></i>Telegram
-                            </button>
-                            <button class="btn btn-outline-primary" onclick="copyCode()">
-                                <i class="fas fa-copy me-2"></i>Salin Kode
-                            </button>
-                        </div>
+
+                    <!-- Instructions -->
+                    <div class="mt-5 pt-4 border-top">
+                        <h5 class="mb-3">📝 Petunjuk Selanjutnya:</h5>
+                        <ol class="text-start text-muted">
+                            <li class="mb-2">Klik <strong>"Lengkapi Data Kapten"</strong> untuk mengisi data diri Anda</li>
+                            <li class="mb-2">Upload dokumen yang diperlukan (KTP, foto, dll)</li>
+                            <li class="mb-2">Setelah submit, Anda akan mendapatkan <strong>referral code</strong></li>
+                            <li class="mb-2">Bagikan referral code ke anggota tim Anda</li>
+                            <li>Anggota tim bisa join menggunakan referral code tersebut</li>
+                        </ol>
+                    </div>
+
+                    <!-- Additional Info -->
+                    <div class="mt-4 pt-3 border-top">
+                        <p class="text-muted small mb-0">
+                            Butuh bantuan? 
+                            <a href="mailto:support@hsbl.com" class="text-decoration-none">support@hsbl.com</a>
+                        </p>
                     </div>
                 </div>
             </div>
@@ -140,54 +110,58 @@
 
 @push('scripts')
 <script>
-function copyCode() {
-    const code = '{{ $team->referral_code }}';
-    navigator.clipboard.writeText(code).then(() => {
-        alert('Referral code berhasil disalin!');
-    });
-}
-
-function shareCode(platform) {
-    const code = '{{ $team->referral_code }}';
-    const message = `Halo! Gabung ke tim {{ $team->school_name }} ({{ $team->team_category }}) di HSBL! ` +
-                   `Gunakan referral code: ${code}`;
-    
-    let url = '';
-    
-    switch(platform) {
-        case 'whatsapp':
-            url = `https://wa.me/?text=${encodeURIComponent(message)}`;
-            break;
-        case 'telegram':
-            url = `https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(message)}`;
-            break;
+    function copyReferralCode() {
+        const referralCode = "{{ $referralCode ?? '' }}";
+        if (referralCode) {
+            navigator.clipboard.writeText(referralCode)
+                .then(() => {
+                    alert('Referral code berhasil disalin: ' + referralCode);
+                })
+                .catch(err => {
+                    console.error('Gagal menyalin: ', err);
+                });
+        }
     }
-    
-    if (url) {
-        window.open(url, '_blank');
-    }
-}
 </script>
 
+@push('styles')
 <style>
-.bg-gradient-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-.font-monospace {
-    font-family: 'Courier New', monospace;
-    letter-spacing: 2px;
-}
-.badge.rounded-circle {
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-}
-.card-header {
-    border-radius: 0 !important;
-}
+    .success-icon {
+        font-size: 5rem;
+        color: #28a745;
+        animation: bounceIn 1s;
+    }
+    
+    @keyframes bounceIn {
+        0% {
+            transform: scale(0.3);
+            opacity: 0;
+        }
+        50% {
+            transform: scale(1.05);
+        }
+        70% {
+            transform: scale(0.9);
+        }
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+    
+    .card {
+        border-radius: 15px;
+    }
+    
+    .btn-lg {
+        padding: 0.75rem 2rem;
+        font-size: 1.1rem;
+    }
+    
+    ol.text-start li {
+        padding-left: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
 </style>
 @endpush
 @endsection

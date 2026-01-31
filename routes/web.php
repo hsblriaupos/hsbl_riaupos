@@ -211,19 +211,22 @@ Route::prefix('user')->name('user.')->group(function () {
     })->name('download_terms');
 });
 
-// Form Team Registration Routes
+
+// routes/web.php - Update bagian form
 Route::prefix('form')->name('form.')->group(function () {
     Route::get('/team/choice', [FormTeamController::class, 'showChoiceForm'])->name('team.choice');
     Route::get('/team/create', [FormTeamController::class, 'showCreateForm'])->name('team.create');
     Route::post('/team/create', [FormTeamController::class, 'createTeam'])->name('team.store');
     Route::get('/team/join', [FormTeamController::class, 'showJoinForm'])->name('team.join');
     Route::post('/team/join', [FormTeamController::class, 'joinTeam'])->name('team.join.submit');
-    Route::get('/team/success/{team_id}', [FormTeamController::class, 'showSuccessPage'])->name('team.success');
+
+    // School check endpoints
     Route::get('/team/check-school', [FormTeamController::class, 'checkSchool'])->name('team.checkSchool');
+    Route::post('/team/check-school-exists', [FormTeamController::class, 'checkSchoolExists'])->name('team.checkSchoolExists');
     Route::post('/team/check-existing', [FormTeamController::class, 'checkExistingTeam'])->name('team.checkExisting');
 
     // Player Registration
-    Route::get('/player/create/{team_id?}', [FormPlayerController::class, 'showPlayerForm'])->name('player.create');
+    Route::get('/player/create/{team_id}', [FormPlayerController::class, 'showPlayerForm'])->name('player.create');
     Route::post('/player/store', [FormPlayerController::class, 'storePlayer'])->name('player.store');
     Route::get('/player/success/{team_id}/{player_id}', [FormPlayerController::class, 'showSuccessPage'])->name('player.success');
 
@@ -231,8 +234,11 @@ Route::prefix('form')->name('form.')->group(function () {
     Route::post('/player/check-nik', [FormPlayerController::class, 'checkNik'])->name('player.checkNik');
     Route::post('/player/check-email', [FormPlayerController::class, 'checkEmail'])->name('player.checkEmail');
     Route::post('/player/check-leader', [FormPlayerController::class, 'checkLeaderExists'])->name('player.checkLeader');
-});
+    Route::post('/player/check-team-payment', [FormPlayerController::class, 'checkTeamPayment'])->name('player.checkTeamPayment');
 
+    // ✅ PERBAIKAN: HAPUS ROUTE INI karena tidak digunakan lagi
+    // Route::get('/team/success/{team_id}', [FormTeamController::class, 'showSuccessPage'])->name('team.success');
+});
 /*
 |--------------------------------------------------------------------------
 | 🌐 PUBLIC ROUTES (tanpa prefix)
