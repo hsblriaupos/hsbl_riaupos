@@ -300,11 +300,8 @@ Route::prefix('user')->name('user.')->group(function () {
     })->name('download_terms');
 });
 
-/*
-|--------------------------------------------------------------------------
-| 📋 FORM REGISTRATION ROUTES - PUBLIC
-|--------------------------------------------------------------------------
-*/
+
+// routes/web.php - Update bagian form
 Route::prefix('form')->name('form.')->group(function () {
     // Team Registration
     Route::get('/team/choice', [FormTeamController::class, 'showChoiceForm'])->name('team.choice');
