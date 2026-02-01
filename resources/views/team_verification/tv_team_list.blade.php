@@ -948,12 +948,13 @@
                         <tr>
                             <!-- Logo Sekolah -->
                             <td>
-                                <div class="logo-container" onclick="showLogoPopup('{{ $team->school_logo ? asset('uploads/school_logo/' . $team->school_logo) : '' }}', '{{ $team->school_name }}')">
-                                    @if($team->school_logo && file_exists(public_path('uploads/school_logo/' . $team->school_logo)))
-                                        <img src="{{ asset('uploads/school_logo/' . $team->school_logo) }}" 
+                                <div class="logo-container" onclick="showLogoPopup('{{ $team->school_logo ? asset('storage/' . $team->school_logo) : '' }}', '{{ $team->school_name }}')">
+                                    @if($team->school_logo)
+                                        <!-- 🔥 PERBAIKAN: Gunakan storage path yang benar -->
+                                        <img src="{{ asset('storage/' . $team->school_logo) }}" 
                                              alt="Logo {{ $team->school_name }}"
                                              class="logo-img"
-                                             onerror="this.onerror=null; this.parentElement.innerHTML = '<div class=\"logo-placeholder\"><i class=\"fas fa-school\"></i><span>No Logo</span></div>'">
+                                             onerror="this.onerror=null; this.parentElement.innerHTML = '<div class=\"logo-placeholder\"><i class=\"fas fa-school\"></i><span>No Logo</span></div>
                                     @else
                                         <div class="logo-placeholder">
                                             <i class="fas fa-school"></i>
@@ -1266,7 +1267,7 @@
     function showLogoPopup(logoUrl, schoolName) {
         let htmlContent;
         
-        if (logoUrl) {
+        if (logoUrl && logoUrl !== '{{ asset('storage/') }}') {
             htmlContent = `
                 <div style="text-align: center;">
                     <img src="${logoUrl}" alt="Logo ${schoolName}" class="logo-popup-img">

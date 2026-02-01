@@ -15,83 +15,66 @@ use Illuminate\Support\Facades\Storage;
 class FormPlayerController extends Controller
 {
     /**
-     * Tampilkan form untuk pendaftaran player
+     * Tampilkan form untuk pendaftaran player DENGAN kategori
      */
-    public function showPlayerForm(Request $request, $team_id = null)
+    public function showPlayerFormWithCategory(Request $request, $team_id, $category)
     {
         try {
-            // Jika team_id dikirim via parameter
-            if ($team_id) {
-                $request->session()->put('current_team_id', $team_id);
-            } else {
-                // Ambil dari session
-                $team_id = $request->session()->get('current_team_id');
-
-                if (!$team_id) {
-                    // Cek session lain
-                    $team_id = $request->session()->get('created_team_id') ??
-                        $request->session()->get('joining_team_id');
-
-                    if (!$team_id) {
-                        return redirect()->route('form.team.choice')
-                            ->with('error', 'Silakan daftarkan atau bergabung dengan tim terlebih dahulu.');
-                    }
-                }
-            }
-
-            Log::info('=== SHOW PLAYER FORM ===');
+            Log::info('=== SHOW PLAYER FORM WITH CATEGORY ===');
             Log::info('Team ID: ' . $team_id);
+            Log::info('Category from URL: ' . $category);
+
+            // Validasi kategori
+            if (!in_array($category, ['putra', 'putri', 'dancer'])) {
+                return redirect()->route('form.team.choice')
+                    ->with('error', 'Kategori tidak valid.');
+            }
 
             // Ambil data tim
             $team = TeamList::findOrFail($team_id);
+            
+            // Set session
+            session([
+                'current_team_id' => $team_id,
+                'current_player_category' => $category
+            ]);
 
-            // Tentukan kategori dari tim
-            $teamCategory = $team->team_category;
-
-            // Normalisasi kategori
-            $category = strtolower($teamCategory);
-            if (str_contains($category, 'putra')) {
-                $category = 'putra';
-            } elseif (str_contains($category, 'putri')) {
-                $category = 'putri';
-            } elseif ($teamCategory == 'Dancer') {
-                $category = 'dancer';
-            }
-
-            Log::info('Team category: ' . $teamCategory . ', normalized to: ' . $category);
-
-            // ============================================
-            // 🔥 PERBAIKAN UTAMA: TENTUKAN ROLE PLAYER
-            // ============================================
+            // Tentukan kategori untuk form
+            $formCategory = $category;
+            
+            // Tentukan role berdasarkan kondisi
             $role = 'Player';
             $isCaptain = false;
-
-            // 1. CEK: Apakah tim sudah punya Leader yang BAYAR?
-            $hasLeaderPaid = $team->is_leader_paid;
             
-            // 2. CEK: Apakah sudah ada Leader di kategori ini?
-            $existingLeaderCount = PlayerList::where('team_id', $team_id)
-                ->where('category', $category)
-                ->where('role', 'Leader')
-                ->count();
-
-            Log::info('Team has paid leader: ' . ($hasLeaderPaid ? 'YES' : 'NO'));
-            Log::info('Existing Leader count in ' . $category . ': ' . $existingLeaderCount);
-
-            // 3. LOGIKA: Jika tim BELUM bayar dan BELUM ada Leader di kategori ini → bisa jadi Leader
-            if (!$hasLeaderPaid && $existingLeaderCount === 0) {
-                $role = 'Leader';
-                $isCaptain = true;
-                Log::info('✅ User CAN register as Leader (no leader in category yet)');
+            // ============================================
+            // 🔥 LOGIC BARU: Tentukan apakah bisa jadi Leader
+            // ============================================
+            $canBeLeader = session('current_can_be_leader', false);
+            
+            if ($canBeLeader) {
+                // Cek apakah sudah ada Leader di kategori ini
+                $existingLeaderCount = PlayerList::where('team_id', $team_id)
+                    ->where('category', $category)
+                    ->where('role', 'Leader')
+                    ->count();
+                    
+                Log::info('Existing Leader count in ' . $category . ': ' . $existingLeaderCount);
+                
+                // Jika belum ada Leader di kategori ini, bisa jadi Leader
+                if ($existingLeaderCount === 0) {
+                    $role = 'Leader';
+                    $isCaptain = true;
+                    Log::info('✅ User CAN register as Leader (no leader in category yet)');
+                } else {
+                    Log::info('❌ User must register as Player (leader already exists in category)');
+                }
             } else {
-                Log::info('❌ User must register as Player (leader exists or team already paid)');
+                Log::info('❌ User must register as Player (cannot be leader from session)');
             }
+            
+            Log::info('Final Role: ' . $role . ', isCaptain: ' . ($isCaptain ? 'true' : 'false'));
 
-            // Debug info tambahan
-            $allPlayersCount = PlayerList::where('team_id', $team_id)->count();
-            Log::info('Total players in team: ' . $allPlayersCount);
-
-            // Ambil data sekolah untuk autofill
+            // Ambil data sekolah
             $school = School::where('school_name', $team->school_name)->first();
 
             // Ambil enum gender
@@ -100,11 +83,6 @@ class FormPlayerController extends Controller
                 preg_match("/^enum\((.*)\)$/", $col->Type, $matches);
                 $genderOptions = collect(explode(',', str_replace("'", '', $matches[1])));
             } catch (\Exception $e) {
-                $genderOptions = collect(['Male', 'Female']);
-            }
-
-            // Fallback
-            if ($genderOptions->isEmpty()) {
                 $genderOptions = collect(['Male', 'Female']);
             }
 
@@ -123,8 +101,6 @@ class FormPlayerController extends Controller
             // Ambil referral code jika sudah ada
             $referralCode = ($team->referral_code && $team->referral_code !== '') ? $team->referral_code : null;
 
-            Log::info('Player form prepared. Role: ' . $role . ', isCaptain: ' . ($isCaptain ? 'true' : 'false'));
-
             return view('user.form.form_player', compact(
                 'team',
                 'school',
@@ -140,8 +116,53 @@ class FormPlayerController extends Controller
             ));
 
         } catch (\Exception $e) {
+            Log::error('❌ Error in showPlayerFormWithCategory: ' . $e->getMessage());
+            return redirect()->route('form.team.choice')
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Tampilkan form untuk pendaftaran player (legacy method)
+     */
+    public function showPlayerForm(Request $request, $team_id = null)
+    {
+        try {
+            // Jika team_id dikirim via parameter
+            if ($team_id) {
+                // Ambil data tim
+                $team = TeamList::findOrFail($team_id);
+                
+                // Tentukan kategori default berdasarkan team_category
+                $defaultCategory = 'putra'; // default
+                if (str_contains(strtolower($team->team_category), 'putri')) {
+                    $defaultCategory = 'putri';
+                } elseif ($team->team_category == 'Dancer') {
+                    $defaultCategory = 'dancer';
+                }
+                
+                return $this->showPlayerFormWithCategory($request, $team_id, $defaultCategory);
+            } else {
+                // Ambil dari session
+                $team_id = $request->session()->get('current_team_id');
+
+                if (!$team_id) {
+                    // Cek session lain
+                    $team_id = $request->session()->get('created_team_id') ??
+                        $request->session()->get('joining_team_id');
+
+                    if (!$team_id) {
+                        return redirect()->route('form.team.choice')
+                            ->with('error', 'Silakan daftarkan atau bergabung dengan tim terlebih dahulu.');
+                    }
+                }
+                
+                // Ambil kategori dari session
+                $category = session('current_player_category', 'putra');
+                return $this->showPlayerFormWithCategory($request, $team_id, $category);
+            }
+        } catch (\Exception $e) {
             Log::error('❌ Error in showPlayerForm: ' . $e->getMessage());
-            Log::error('Stack trace: ' . $e->getTraceAsString());
             return redirect()->route('form.team.choice')
                 ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
@@ -170,18 +191,10 @@ class FormPlayerController extends Controller
 
             // Ambil data tim
             $team = TeamList::findOrFail($teamId);
-            $teamCategory = strtolower($team->team_category);
-
-            // Normalisasi kategori
-            $category = 'putra';
-            if (str_contains($teamCategory, 'putra')) {
-                $category = 'putra';
-            } elseif (str_contains($teamCategory, 'putri')) {
-                $category = 'putri';
-            } elseif ($teamCategory == 'dancer') {
-                $category = 'dancer';
-            }
-
+            
+            // Ambil kategori dari request atau session
+            $category = $request->input('category') ?? session('current_player_category', 'putra');
+            
             Log::info('Player category: ' . $category);
 
             // ============================================
@@ -197,7 +210,8 @@ class FormPlayerController extends Controller
             Log::info('Team payment status: ' . ($team->is_leader_paid ? 'paid' : 'not paid'));
 
             // Jika tim BELUM bayar dan BELUM ada Leader di kategori ini, maka ini adalah Kapten
-            $isCaptain = (!$team->is_leader_paid && $existingLeaderCount === 0);
+            // Jika tim SUDAH bayar dan BELUM ada Leader di kategori ini, juga bisa jadi Leader
+            $isCaptain = ($existingLeaderCount === 0);
             $teamRole = $isCaptain ? 'Leader' : 'Player';
 
             Log::info('🎯 Player role determined as: ' . $teamRole . ', isCaptain: ' . ($isCaptain ? 'true' : 'false'));
@@ -429,7 +443,10 @@ class FormPlayerController extends Controller
                 'joining_team_id',
                 'registered_by_name',
                 'is_first_team_for_school',
-                'team_paid'
+                'team_paid',
+                'current_can_be_leader',
+                'current_player_category',
+                'join_referral_code'
             ];
 
             foreach ($sessionKeys as $key) {
@@ -646,8 +663,9 @@ class FormPlayerController extends Controller
             // Cek apakah tim sudah bayar
             $hasLeaderPaid = $team->is_leader_paid;
             
-            // Jika tim BELUM bayar dan BELUM ada Leader di kategori ini, maka bisa jadi Leader
-            $canBeLeader = (!$hasLeaderPaid && $existingLeaderCount === 0);
+            // Jika tim SUDAH bayar dan BELUM ada Leader di kategori ini, maka bisa jadi Leader
+            // Jika tim BELUM bayar, tidak bisa jadi Leader (harus ada yang bayar dulu)
+            $canBeLeader = ($hasLeaderPaid && $existingLeaderCount === 0);
 
             return response()->json([
                 'exists' => !$canBeLeader,

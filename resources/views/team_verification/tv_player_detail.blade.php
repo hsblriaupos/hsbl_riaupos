@@ -318,7 +318,6 @@
                             @php
                                 $photos = [
                                     ['field' => 'formal_photo', 'name' => 'Foto Formal'],
-                                    ['field' => 'formal_photo', 'name' => 'Foto Resmi']
                                 ];
                             @endphp
                             

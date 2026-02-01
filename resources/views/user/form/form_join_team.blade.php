@@ -27,8 +27,11 @@
                         <!-- Info Box -->
                         <div class="alert alert-info mb-4">
                             <i class="fas fa-info-circle me-2"></i>
-                            <strong>Referral code</strong> bisa kamu dapatkan dari teman yang sudah 
-                            mendaftar sebagai Leader terlebih dahulu.
+                            <strong>Setelah memasukkan referral code</strong>, Anda akan diminta untuk:
+                            <ol class="mt-2 mb-0">
+                                <li><strong>Pilih Posisi</strong> (Basket Putra, Basket Putri, atau Dancer)</li>
+                                <li><strong>Isi Form Pendaftaran</strong> sesuai posisi yang dipilih</li>
+                            </ol>
                         </div>
                         
                         <!-- Referral Code Input -->
@@ -58,46 +61,10 @@
                             </small>
                         </div>
                         
-                        <!-- What happens next -->
-                        <div class="card border-0 bg-light mb-4">
-                            <div class="card-body">
-                                <h6 class="card-title text-success mb-3">
-                                    <i class="fas fa-forward me-2"></i>Apa yang terjadi selanjutnya?
-                                </h6>
-                                <div class="d-flex mb-3">
-                                    <div class="me-3">
-                                        <span class="badge bg-success rounded-circle p-2">1</span>
-                                    </div>
-                                    <div>
-                                        <strong>Verifikasi Kode</strong>
-                                        <p class="text-muted mb-0">Kami akan cek kevalidan referral code</p>
-                                    </div>
-                                </div>
-                                <div class="d-flex mb-3">
-                                    <div class="me-3">
-                                        <span class="badge bg-success rounded-circle p-2">2</span>
-                                    </div>
-                                    <div>
-                                        <strong>Isi Data Pribadi</strong>
-                                        <p class="text-muted mb-0">Isi form data anggota tim</p>
-                                    </div>
-                                </div>
-                                <div class="d-flex">
-                                    <div class="me-3">
-                                        <span class="badge bg-success rounded-circle p-2">3</span>
-                                    </div>
-                                    <div>
-                                        <strong>Upload Dokumen</strong>
-                                        <p class="text-muted mb-0">Upload dokumen yang diperlukan</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
                         <!-- Submit Button -->
                         <div class="text-center mt-4">
                             <button type="submit" class="btn btn-success btn-lg px-5 py-3">
-                                <i class="fas fa-users me-2"></i> Gabung ke Tim
+                                <i class="fas fa-users me-2"></i> Lanjut ke Pilih Posisi
                             </button>
                             <a href="{{ route('form.team.choice') }}" class="btn btn-outline-secondary ms-3">
                                 Kembali
@@ -119,28 +86,4 @@
         </div>
     </div>
 </div>
-
-<style>
-.card-header {
-    border-radius: 0 !important;
-}
-.input-group-text {
-    border-right: none;
-}
-.form-control {
-    border-left: none;
-    padding-left: 0;
-}
-.bg-gradient-success {
-    background: linear-gradient(135deg, #38ef7d 0%, #11998e 100%);
-}
-.badge.rounded-circle {
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-}
-</style>
 @endsection

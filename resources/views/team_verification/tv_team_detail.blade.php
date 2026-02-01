@@ -824,11 +824,11 @@
                 <div class="logo-column">
                     <div class="logo-box-square" onclick="showLogoPopup()">
                         @if($team->school_logo)
-                            <!-- Logo sekolah dari database -->
-                            <img src="{{ asset('uploads/school_logo/' . $team->school_logo) }}" 
+                            <!-- 🔥 PERBAIKAN: Gunakan storage path yang benar -->
+                            <img src="{{ asset('storage/' . $team->school_logo) }}" 
                                  alt="Logo Sekolah {{ $team->school_name }}"
                                  id="team-logo"
-                                 onerror="this.onerror=null; this.src='{{ asset('uploads/school_logo/default_logo.png') }}'; this.parentElement.innerHTML = '<div class=\"logo-placeholder\"><i class=\"fas fa-school\"></i><span>Logo Tidak Ditemukan</span></div><p>Logo Sekolah</p>';">
+                                 onerror="this.onerror=null; this.parentElement.innerHTML = '<div class=\"logo-placeholder\"><i class=\"fas fa-school\"></i><span>Logo Tidak Ditemukan</span></div><p>Logo Sekolah</p>
                         @else
                             <!-- Logo default jika tidak ada -->
                             <div class="logo-placeholder">
@@ -836,7 +836,6 @@
                                 <span>No Logo</span>
                             </div>
                         @endif
-                        <p>Logo Sekolah</p>
                     </div>
                 </div>
 

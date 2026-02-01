@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\TermConditionController;
 use App\Http\Controllers\Camper\CamperController;
 use App\Http\Controllers\Form\FormTeamController;
 use App\Http\Controllers\Form\FormPlayerController;
+use App\Http\Controllers\Form\FormDancerController;
 use App\Http\Controllers\GoogleController\GoogleController;
 use App\Http\Controllers\Publication\PubMatchDataController;
 use App\Http\Controllers\Publication\PubMatchResult;
@@ -151,37 +152,35 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('/camper/detail/{id}', [CamperController::class, 'camperDetail'])->name('camper.detail');
     Route::post('/camper/detail/update/{id}', [CamperController::class, 'updateCamper'])->name('camper.update');
 
-// ========== PUBLICATION MANAGEMENT ==========
+    // ========== PUBLICATION MANAGEMENT ==========
     
-Route::prefix('pub_schedule')->name('pub_schedule.')->group(function () {
-    Route::get('/', [PubMatchDataController::class, 'index'])->name('index');
-    Route::get('/create/{event_id?}', [PubMatchDataController::class, 'create'])->name('create');
-    Route::post('/', [PubMatchDataController::class, 'store'])->name('store');
-    Route::get('/{id}/edit', [PubMatchDataController::class, 'edit'])->name('edit');
-    Route::put('/{id}', [PubMatchDataController::class, 'update'])->name('update');
-    Route::delete('/{id}', [PubMatchDataController::class, 'destroy'])->name('destroy');
-    Route::post('/bulk-destroy', [PubMatchDataController::class, 'bulkDestroy'])->name('bulk-destroy');
-    Route::post('/{id}/publish', [PubMatchDataController::class, 'publish'])->name('publish');
-    Route::post('/{id}/unpublish', [PubMatchDataController::class, 'unpublish'])->name('unpublish');
-    Route::post('/{id}/done', [PubMatchDataController::class, 'done'])->name('done');
-    // Hapus Route::patch('/{id}', [PubMatchDataController::class, 'update'])->name('update');
-    // karena sudah ada Route::put yang sama
-});
+    Route::prefix('pub_schedule')->name('pub_schedule.')->group(function () {
+        Route::get('/', [PubMatchDataController::class, 'index'])->name('index');
+        Route::get('/create/{event_id?}', [PubMatchDataController::class, 'create'])->name('create');
+        Route::post('/', [PubMatchDataController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [PubMatchDataController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [PubMatchDataController::class, 'update'])->name('update');
+        Route::delete('/{id}', [PubMatchDataController::class, 'destroy'])->name('destroy');
+        Route::post('/bulk-destroy', [PubMatchDataController::class, 'bulkDestroy'])->name('bulk-destroy');
+        Route::post('/{id}/publish', [PubMatchDataController::class, 'publish'])->name('publish');
+        Route::post('/{id}/unpublish', [PubMatchDataController::class, 'unpublish'])->name('unpublish');
+        Route::post('/{id}/done', [PubMatchDataController::class, 'done'])->name('done');
+    });
 
-// **RESULT MANAGEMENT - SEMUA ROUTES**
-Route::prefix('pub_result')->name('pub_result.')->group(function () {
-    Route::get('/', [PubMatchResult::class, 'index'])->name('index');
-    Route::get('/create/{event_id?}', [PubMatchResult::class, 'create'])->name('create');
-    Route::post('/', [PubMatchResult::class, 'store'])->name('store');
-    Route::get('/{id}/edit', [PubMatchResult::class, 'edit'])->name('edit');
-    Route::put('/{id}', [PubMatchResult::class, 'update'])->name('update');
-    Route::delete('/{id}', [PubMatchResult::class, 'destroy'])->name('destroy');
-    Route::post('/bulk-destroy', [PubMatchResult::class, 'bulkDestroy'])->name('bulk-destroy');
-    Route::post('/bulk-publish', [PubMatchResult::class, 'bulkPublish'])->name('bulk-publish'); // Ditambahkan
-    Route::post('/{id}/publish', [PubMatchResult::class, 'publish'])->name('publish');
-    Route::post('/{id}/unpublish', [PubMatchResult::class, 'unpublish'])->name('unpublish');
-    Route::post('/{id}/done', [PubMatchResult::class, 'done'])->name('done');
-});
+    // **RESULT MANAGEMENT - SEMUA ROUTES**
+    Route::prefix('pub_result')->name('pub_result.')->group(function () {
+        Route::get('/', [PubMatchResult::class, 'index'])->name('index');
+        Route::get('/create/{event_id?}', [PubMatchResult::class, 'create'])->name('create');
+        Route::post('/', [PubMatchResult::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [PubMatchResult::class, 'edit'])->name('edit');
+        Route::put('/{id}', [PubMatchResult::class, 'update'])->name('update');
+        Route::delete('/{id}', [PubMatchResult::class, 'destroy'])->name('destroy');
+        Route::post('/bulk-destroy', [PubMatchResult::class, 'bulkDestroy'])->name('bulk-destroy');
+        Route::post('/bulk-publish', [PubMatchResult::class, 'bulkPublish'])->name('bulk-publish');
+        Route::post('/{id}/publish', [PubMatchResult::class, 'publish'])->name('publish');
+        Route::post('/{id}/unpublish', [PubMatchResult::class, 'unpublish'])->name('unpublish');
+        Route::post('/{id}/done', [PubMatchResult::class, 'done'])->name('done');
+    });
 
     // ========== CONTENT MANAGEMENT ==========
     
@@ -282,7 +281,7 @@ Route::prefix('user')->name('user.')->group(function () {
     Route::get('/news/{id}', [NewsController::class, 'show'])->whereNumber('id')->name('news.show');
 
     // Schedules & Results untuk User
-    Route::get('/schedules-results', [UserPublicationController::class, 'scheduleResult'])->name('schedule_result');
+    Route::get('/schedules-results', [PublicationController::class, 'scheduleResult'])->name('schedule_result');
 
     // Videos untuk User
     Route::get('/videos', [UserGalleryController::class, 'videos'])->name('videos');
@@ -300,15 +299,26 @@ Route::prefix('user')->name('user.')->group(function () {
     })->name('download_terms');
 });
 
-
-// routes/web.php - Update bagian form
+/*
+|--------------------------------------------------------------------------
+| 📝 FORM REGISTRATION ROUTES (Public)
+|--------------------------------------------------------------------------
+*/
 Route::prefix('form')->name('form.')->group(function () {
     // Team Registration
     Route::get('/team/choice', [FormTeamController::class, 'showChoiceForm'])->name('team.choice');
     Route::get('/team/create', [FormTeamController::class, 'showCreateForm'])->name('team.create');
     Route::post('/team/create', [FormTeamController::class, 'createTeam'])->name('team.store');
+    
+    // 🔥 JOIN TEAM FLOW (BARU)
     Route::get('/team/join', [FormTeamController::class, 'showJoinForm'])->name('team.join');
     Route::post('/team/join', [FormTeamController::class, 'joinTeam'])->name('team.join.submit');
+    
+    // 🔥 ROLE SELECTION (BARU)
+    Route::get('/team/join/role', [FormTeamController::class, 'showRoleSelectionForm'])
+        ->name('team.join.role');
+    Route::post('/team/join/role', [FormTeamController::class, 'processRoleSelection'])
+        ->name('team.join.select-role');
 
     // School check endpoints
     Route::get('/team/check-school', [FormTeamController::class, 'checkSchool'])->name('team.checkSchool');
@@ -317,6 +327,12 @@ Route::prefix('form')->name('form.')->group(function () {
 
     // Player Registration
     Route::get('/player/create/{team_id}', [FormPlayerController::class, 'showPlayerForm'])->name('player.create');
+    
+    // 🔥 PLAYER REGISTRATION WITH CATEGORY (BARU)
+    Route::get('/player/create/{team_id}/{category}', [FormPlayerController::class, 'showPlayerFormWithCategory'])
+        ->name('player.create.with-category')
+        ->where('category', 'putra|putri|dancer');
+        
     Route::post('/player/store', [FormPlayerController::class, 'storePlayer'])->name('player.store');
     Route::get('/player/success/{team_id}/{player_id}', [FormPlayerController::class, 'showSuccessPage'])->name('player.success');
 
@@ -326,9 +342,21 @@ Route::prefix('form')->name('form.')->group(function () {
     Route::post('/player/check-leader', [FormPlayerController::class, 'checkLeaderExists'])->name('player.checkLeader');
     Route::post('/player/check-team-payment', [FormPlayerController::class, 'checkTeamPayment'])->name('player.checkTeamPayment');
 
-    // ✅ PERBAIKAN: HAPUS ROUTE INI karena tidak digunakan lagi
-    // Route::get('/team/success/{team_id}', [FormTeamController::class, 'showSuccessPage'])->name('team.success');
+    // Dancer Registration
+Route::get('/dancer/create/{team_id}', [FormDancerController::class, 'showDancerForm'])->name('dancer.create');
+Route::get('/dancer/create/{team_id}/{category}', [FormDancerController::class, 'showDancerForm'])
+    ->name('dancer.create.with-category')
+    ->where('category', 'dancer');
+Route::post('/dancer/store', [FormDancerController::class, 'storeDancer'])->name('dancer.store');
+Route::get('/dancer/success/{team_id}/{dancer_id}', [FormDancerController::class, 'showSuccessPage'])->name('dancer.success');
+
+// API Endpoints for Dancer
+Route::post('/dancer/check-nik', [FormDancerController::class, 'checkNik'])->name('dancer.checkNik');
+Route::post('/dancer/check-email', [FormDancerController::class, 'checkEmail'])->name('dancer.checkEmail');
+Route::post('/dancer/check-leader', [FormDancerController::class, 'checkLeaderExists'])->name('dancer.checkLeader');
+Route::post('/dancer/check-team-payment', [FormDancerController::class, 'checkTeamPayment'])->name('dancer.checkTeamPayment');
 });
+
 /*
 |--------------------------------------------------------------------------
 | 🌐 PUBLIC ROUTES (tanpa prefix)
