@@ -68,7 +68,7 @@
                                     required>
                                 <option value="">-- Select Season --</option>
                                 @foreach($seasons as $season)
-                                    <option value="{{ $season->season_name }}" @selected(old('season') == $season->season_name)>
+                                    <option value="{{ $season->season_name }}" {{ old('season') == $season->season_name ? 'selected' : '' }}>
                                         {{ $season->season_name }}
                                     </option>
                                 @endforeach
@@ -79,49 +79,50 @@
                             <small class="text-muted">Select the season</small>
                         </div>
 
-<!-- Team 1 -->
-<div class="mb-3">
-    <label for="team1_id" class="form-label required">
-        <i class="fas fa-users me-1"></i> Team 1
-    </label>
-    <select class="form-select @error('team1_id') is-invalid @enderror" 
-            id="team1_id" 
-            name="team1_id"
-            required>
-        <option value="">-- Select Team 1 --</option>
-        @foreach($teams as $team)
-            <option value="{{ $team->id }}" @selected(old('team1_id') == $team->id)>
-                {{ $team->school_name }}
-            </option>
-        @endforeach
-    </select>
-    @error('team1_id')
-        <div class="invalid-feedback">{{ $message }}</div>
-    @enderror
-    <small class="text-muted">Select first team</small>
-</div>
+                        <!-- Team 1 -->
+                        <div class="mb-3">
+                            <label for="team1_id" class="form-label required">
+                                <i class="fas fa-users me-1"></i> Team 1
+                            </label>
+                            <select class="form-select @error('team1_id') is-invalid @enderror" 
+                                    id="team1_id" 
+                                    name="team1_id"
+                                    required>
+                                <option value="">-- Select Team 1 --</option>
+                                @foreach($teams as $team)
+                                    <option value="{{ $team->team_id }}" {{ old('team1_id') == $team->team_id ? 'selected' : '' }}>
+                                        {{ $team->school_name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('team1_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted">Select first team</small>
+                        </div>
 
-<!-- Team 2 -->
-<div class="mb-3">
-    <label for="team2_id" class="form-label required">
-        <i class="fas fa-users me-1"></i> Team 2
-    </label>
-    <select class="form-select @error('team2_id') is-invalid @enderror" 
-            id="team2_id" 
-            name="team2_id"
-            required>
-        <option value="">-- Select Team 2 --</option>
-        @foreach($teams as $team)
-            <option value="{{ $team->id }}" @selected(old('team2_id') == $team->id)>
-                {{ $team->school_name }}
-            </option>
-        @endforeach
-    </select>
-    @error('team2_id')
-        <div class="invalid-feedback">{{ $message }}</div>
-    @enderror
-    <small class="text-muted">Select second team</small>
-</div>
+                        <!-- Team 2 -->
+                        <div class="mb-3">
+                            <label for="team2_id" class="form-label required">
+                                <i class="fas fa-users me-1"></i> Team 2
+                            </label>
+                            <select class="form-select @error('team2_id') is-invalid @enderror" 
+                                    id="team2_id" 
+                                    name="team2_id"
+                                    required>
+                                <option value="">-- Select Team 2 --</option>
+                                @foreach($teams as $team)
+                                    <option value="{{ $team->team_id }}" {{ old('team2_id') == $team->team_id ? 'selected' : '' }}>
+                                        {{ $team->school_name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('team2_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted">Select second team</small>
+                        </div>
+                    </div>
 
                     <!-- Right Column -->
                     <div class="col-md-6">
@@ -172,7 +173,7 @@
                                     required>
                                 <option value="">-- Select Competition --</option>
                                 @foreach($competitions as $competition)
-                                    <option value="{{ $competition->competition }}" @selected(old('competition') == $competition->competition)>
+                                    <option value="{{ $competition->competition }}" {{ old('competition') == $competition->competition ? 'selected' : '' }}>
                                         {{ $competition->competition }}
                                     </option>
                                 @endforeach
@@ -194,7 +195,7 @@
                                     required>
                                 <option value="">-- Select Competition Type --</option>
                                 @foreach($competitionTypes as $type)
-                                    <option value="{{ $type->competition_type }}" @selected(old('competition_type') == $type->competition_type)>
+                                    <option value="{{ $type->competition_type }}" {{ old('competition_type') == $type->competition_type ? 'selected' : '' }}>
                                         {{ $type->competition_type }}
                                     </option>
                                 @endforeach
@@ -221,7 +222,7 @@
                                     required>
                                 <option value="">-- Select Series --</option>
                                 @foreach($series as $s)
-                                    <option value="{{ $s }}" @selected(old('series') == $s)>
+                                    <option value="{{ $s }}" {{ old('series') == $s ? 'selected' : '' }}>
                                         {{ $s }}
                                     </option>
                                 @endforeach
@@ -244,9 +245,9 @@
                                     name="phase"
                                     required>
                                 <option value="">-- Select Phase --</option>
-                                @foreach($phases as $phase)
-                                    <option value="{{ $phase->phase }}" @selected(old('phase') == $phase->phase)>
-                                        {{ $phase->phase }}
+                                @foreach($phases as $phaseItem)
+                                    <option value="{{ $phaseItem->phase }}" {{ old('phase') == $phaseItem->phase ? 'selected' : '' }}>
+                                        {{ $phaseItem->phase }}
                                     </option>
                                 @endforeach
                             </select>
@@ -510,17 +511,6 @@
             matchDateInput.value = new Date().toISOString().split('T')[0];
         }
         
-        // Remove invalid class on input
-        document.querySelectorAll('.form-control, .form-select').forEach(element => {
-            element.addEventListener('input', function() {
-                this.classList.remove('is-invalid');
-            });
-            
-            element.addEventListener('change', function() {
-                this.classList.remove('is-invalid');
-            });
-        });
-        
         // Validate Team 1 and Team 2 are not the same
         const team1Select = document.getElementById('team1_id');
         const team2Select = document.getElementById('team2_id');
@@ -589,105 +579,37 @@
                 }
             });
         }
+        
+        // Remove invalid class on input
+        document.querySelectorAll('.form-control, .form-select').forEach(element => {
+            element.addEventListener('input', function() {
+                this.classList.remove('is-invalid');
+            });
+            
+            element.addEventListener('change', function() {
+                this.classList.remove('is-invalid');
+            });
+        });
     });
     
-    // Function to submit form with status
+    // Function to submit form with status - VERSI SEDERHANA
     function submitForm(actionType) {
+        console.log('Submitting form with action:', actionType);
+        
         const form = document.getElementById('resultForm');
+        const actionInput = document.getElementById('action_type');
+        
+        // Set action type
+        actionInput.value = actionType;
+        
+        // Validasi sederhana hanya untuk tim yang sama
         const team1 = document.getElementById('team1_id');
         const team2 = document.getElementById('team2_id');
-        const season = document.getElementById('season');
-        const competition = document.getElementById('competition');
-        const competitionType = document.getElementById('competition_type');
-        const series = document.getElementById('series');
-        const phase = document.getElementById('phase');
-        const actionInput = document.getElementById('action_type');
-        const scoresheetInput = document.getElementById('scoresheet');
         
-        let isValid = true;
-        
-        // Validate team 1
-        if (!team1.value) {
-            team1.classList.add('is-invalid');
-            isValid = false;
-        }
-        
-        // Validate team 2
-        if (!team2.value) {
-            team2.classList.add('is-invalid');
-            isValid = false;
-        }
-        
-        // Validate season
-        if (!season.value) {
-            season.classList.add('is-invalid');
-            isValid = false;
-        }
-        
-        // Validate competition
-        if (!competition.value) {
-            competition.classList.add('is-invalid');
-            isValid = false;
-        }
-        
-        // Validate competition type
-        if (!competitionType.value) {
-            competitionType.classList.add('is-invalid');
-            isValid = false;
-        }
-        
-        // Validate series
-        if (!series.value) {
-            series.classList.add('is-invalid');
-            isValid = false;
-        }
-        
-        // Validate phase
-        if (!phase.value) {
-            phase.classList.add('is-invalid');
-            isValid = false;
-        }
-        
-        // Validate file if uploaded
-        if (scoresheetInput && scoresheetInput.files.length > 0) {
-            const file = scoresheetInput.files[0];
-            const maxSize = 10 * 1024 * 1024; // 10MB
-            
-            if (file.size > maxSize) {
-                scoresheetInput.classList.add('is-invalid');
-                Swal.fire({
-                    icon: 'error',
-                    title: 'File Too Large',
-                    text: 'Scoresheet file exceeds 10MB maximum limit!',
-                    timer: 3000,
-                    showConfirmButton: false
-                });
-                return;
-            }
-            
-            // Validate file extension
-            const allowedExtensions = ['.xlsx', '.xls', '.xlsm', '.xlsb', '.csv'];
-            const fileName = file.name.toLowerCase();
-            const isValidExtension = allowedExtensions.some(ext => fileName.endsWith(ext));
-            
-            if (!isValidExtension) {
-                scoresheetInput.classList.add('is-invalid');
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Invalid File Type',
-                    html: 'Please upload only Excel files.<br>Allowed formats: .xlsx, .xls, .xlsm, .xlsb, .csv',
-                    timer: 3000,
-                    showConfirmButton: false
-                });
-                return;
-            }
-        }
-        
-        // Validate teams are not the same
         if (team1.value && team2.value && team1.value === team2.value) {
             Swal.fire({
                 icon: 'error',
-                title: 'Validation Error',
+                title: 'Team Selection Error',
                 text: 'Team 1 and Team 2 cannot be the same!',
                 timer: 3000,
                 showConfirmButton: false
@@ -695,30 +617,7 @@
             return;
         }
         
-        if (!isValid) {
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Validation Error',
-                    text: 'Please fill all required fields',
-                    timer: 3000,
-                    showConfirmButton: false
-                });
-            } else {
-                alert('Please fill all required fields');
-            }
-            return;
-        }
-        
-        // Set action type
-        actionInput.value = actionType;
-        
-        if (typeof Swal === 'undefined') {
-            form.submit();
-            return;
-        }
-        
-        // Show confirmation for publish
+        // Tampilkan konfirmasi
         if (actionType === 'publish') {
             Swal.fire({
                 title: 'Save & Publish Result?',
@@ -732,6 +631,7 @@
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
+                    console.log('Form submitted for publishing');
                     form.submit();
                 }
             });
@@ -748,11 +648,11 @@
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
+                    console.log('Form submitted as draft');
                     form.submit();
                 }
             });
         }
     }
 </script>
-
 @endsection

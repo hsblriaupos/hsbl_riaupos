@@ -16,7 +16,7 @@ class MatchResult extends Model
         'season',
         'competition',
         'competition_type',
-        'series', // Ditambahkan
+        'series',
         'phase',
         'team1_id',
         'team2_id',
@@ -84,16 +84,28 @@ class MatchResult extends Model
         return $query->where('phase', $phase);
     }
 
-    // Relationship dengan School untuk team1
+    // ========== PERBAIKAN RELATIONSHIP ==========
+    
+    // Relationship dengan TeamList untuk team1 dengan fallback
     public function team1()
     {
-        return $this->belongsTo(School::class, 'team1_id');
+        return $this->belongsTo(TeamList::class, 'team1_id', 'team_id')
+                    ->withDefault([
+                        'team_id' => null,
+                        'school_name' => 'Team Not Found',
+                        'school_logo' => null
+                    ]);
     }
 
-    // Relationship dengan School untuk team2
+    // Relationship dengan TeamList untuk team2 dengan fallback
     public function team2()
     {
-        return $this->belongsTo(School::class, 'team2_id');
+        return $this->belongsTo(TeamList::class, 'team2_id', 'team_id')
+                    ->withDefault([
+                        'team_id' => null,
+                        'school_name' => 'Team Not Found',
+                        'school_logo' => null
+                    ]);
     }
 
     // Relationship dengan AddData untuk season
@@ -126,13 +138,15 @@ class MatchResult extends Model
         return $this->belongsTo(AddData::class, 'phase', 'phase');
     }
 
-    // Accessor untuk mendapatkan pemenang
+    // ========== ACCESSOR DENGAN NULL SAFETY ==========
+    
+    // Accessor untuk mendapatkan pemenang dengan null safety
     public function getWinnerAttribute()
     {
         if ($this->score_1 > $this->score_2) {
-            return $this->team1;
+            return $this->team1 ?? null;
         } elseif ($this->score_1 < $this->score_2) {
-            return $this->team2;
+            return $this->team2 ?? null;
         }
         
         return null; // Seri
@@ -166,9 +180,9 @@ class MatchResult extends Model
     public function getMatchStatusAttribute()
     {
         if ($this->score_1 > $this->score_2) {
-            return 'Team 1 Menang';
+            return ($this->team1->school_name ?? 'Team 1') . ' Menang';
         } elseif ($this->score_1 < $this->score_2) {
-            return 'Team 2 Menang';
+            return ($this->team2->school_name ?? 'Team 2') . ' Menang';
         }
         
         return 'Seri';
@@ -225,7 +239,12 @@ class MatchResult extends Model
     // Method untuk mengecek apakah memiliki scoresheet
     public function getHasScoresheetAttribute()
     {
-        return !empty($this->scoresheet) && file_exists(public_path($this->scoresheet));
+        if (empty($this->scoresheet)) {
+            return false;
+        }
+        
+        $path = public_path($this->scoresheet);
+        return file_exists($path) && is_file($path);
     }
 
     // Method untuk mendapatkan format match date
@@ -250,12 +269,12 @@ class MatchResult extends Model
     public function getStatusBadgeAttribute()
     {
         $badges = [
-            'draft' => '<span class="badge bg-warning">Draft</span>',
-            'publish' => '<span class="badge bg-success">Published</span>',
-            'done' => '<span class="badge bg-primary">Done</span>',
+            'draft' => '<span class="badge bg-warning bg-opacity-20 text-warning border border-warning border-opacity-50">Draft</span>',
+            'publish' => '<span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-50">Published</span>',
+            'done' => '<span class="badge bg-primary bg-opacity-20 text-primary border border-primary border-opacity-50">Done</span>',
         ];
         
-        return $badges[$this->status] ?? '<span class="badge bg-secondary">Unknown</span>';
+        return $badges[$this->status] ?? '<span class="badge bg-secondary bg-opacity-10 text-secondary">Unknown</span>';
     }
 
     // Method untuk mendapatkan status text
@@ -288,6 +307,155 @@ class MatchResult extends Model
         return abs($this->score_1 - $this->score_2);
     }
 
+    // ========== METHOD BARU UNTUK TEAM DISPLAY ==========
+    
+    // Method untuk mendapatkan data display team1 dengan fallback icon
+    public function getTeam1DisplayDataAttribute()
+    {
+        return $this->getTeamDisplayData($this->team1, 'team1');
+    }
+
+    // Method untuk mendapatkan data display team2 dengan fallback icon
+    public function getTeam2DisplayDataAttribute()
+    {
+        return $this->getTeamDisplayData($this->team2, 'team2');
+    }
+
+    // Helper method untuk mendapatkan data display team
+    protected function getTeamDisplayData($team, $teamType = 'team1')
+    {
+        if (!$team || !$team->school_name) {
+            return [
+                'id' => null,
+                'name' => 'Team Not Found',
+                'logo' => null,
+                'logo_html' => '<div class="school-logo-placeholder">
+                    <i class="fas fa-school text-secondary"></i>
+                </div>',
+                'display_html' => '<div class="d-flex align-items-center">
+                    <div class="school-logo-placeholder me-2">
+                        <i class="fas fa-school text-secondary"></i>
+                    </div>
+                    <span>Team Not Found</span>
+                </div>',
+                'has_logo' => false,
+                'team_type' => $teamType
+            ];
+        }
+        
+        $hasLogo = !empty($team->school_logo);
+        
+        if ($hasLogo) {
+            $logoHtml = '<img src="' . asset('uploads/school_logo/' . $team->school_logo) . '" 
+                         alt="' . htmlspecialchars($team->school_name) . '" 
+                         class="img-fluid rounded-circle school-logo"
+                         style="width: 40px; height: 40px; object-fit: cover;">';
+            
+            $displayHtml = '<div class="d-flex align-items-center">
+                <div class="school-logo me-2">
+                    <img src="' . asset('uploads/school_logo/' . $team->school_logo) . '" 
+                         alt="' . htmlspecialchars($team->school_name) . '" 
+                         class="img-fluid rounded-circle"
+                         style="width: 30px; height: 30px; object-fit: cover;">
+                </div>
+                <span>' . htmlspecialchars($team->school_name) . '</span>
+            </div>';
+        } else {
+            $logoHtml = '<div class="school-logo-placeholder">
+                <i class="fas fa-school text-secondary"></i>
+            </div>';
+            
+            $displayHtml = '<div class="d-flex align-items-center">
+                <div class="school-logo-placeholder me-2">
+                    <i class="fas fa-school text-secondary"></i>
+                </div>
+                <span>' . htmlspecialchars($team->school_name) . '</span>
+            </div>';
+        }
+        
+        return [
+            'id' => $team->team_id,
+            'name' => $team->school_name,
+            'logo' => $hasLogo ? asset('uploads/school_logo/' . $team->school_logo) : null,
+            'logo_html' => $logoHtml,
+            'display_html' => $displayHtml,
+            'has_logo' => $hasLogo,
+            'team_type' => $teamType
+        ];
+    }
+
+    // Method untuk mendapatkan team logo HTML
+    public function getTeam1LogoHtmlAttribute()
+    {
+        return $this->team1_display_data['logo_html'];
+    }
+
+    public function getTeam2LogoHtmlAttribute()
+    {
+        return $this->team2_display_data['logo_html'];
+    }
+
+    // Method untuk mendapatkan team display HTML
+    public function getTeam1DisplayHtmlAttribute()
+    {
+        return $this->team1_display_data['display_html'];
+    }
+
+    public function getTeam2DisplayHtmlAttribute()
+    {
+        return $this->team2_display_data['display_html'];
+    }
+
+    // Method untuk mendapatkan nama team dengan fallback
+    public function getTeam1NameAttribute()
+    {
+        return $this->team1->school_name ?? 'Team Not Found';
+    }
+
+    public function getTeam2NameAttribute()
+    {
+        return $this->team2->school_name ?? 'Team Not Found';
+    }
+
+    // Method untuk cek apakah team ada logo
+    public function getTeam1HasLogoAttribute()
+    {
+        return !empty($this->team1->school_logo ?? null);
+    }
+
+    public function getTeam2HasLogoAttribute()
+    {
+        return !empty($this->team2->school_logo ?? null);
+    }
+
+    // ========== VALIDATION METHODS ==========
+    
+    // Validasi apakah kedua team berbeda
+    public function validateDifferentTeams()
+    {
+        return $this->team1_id !== $this->team2_id;
+    }
+
+    // Validasi apakah scoresheet valid
+    public function validateScoresheet()
+    {
+        if (empty($this->scoresheet)) {
+            return true; // Tidak wajib
+        }
+        
+        $path = public_path($this->scoresheet);
+        if (!file_exists($path)) {
+            return false;
+        }
+        
+        $allowedExtensions = ['xlsx', 'xls', 'xlsm', 'xlsb', 'csv'];
+        $extension = pathinfo($path, PATHINFO_EXTENSION);
+        
+        return in_array(strtolower($extension), $allowedExtensions);
+    }
+
+    // ========== BOOT METHOD ==========
+    
     // Boot method untuk set default season jika kosong
     protected static function boot()
     {
@@ -304,13 +472,23 @@ class MatchResult extends Model
             if (empty($model->status)) {
                 $model->status = 'draft';
             }
+
+            // Validasi bahwa team1 dan team2 berbeda
+            if ($model->team1_id === $model->team2_id) {
+                throw new \Exception('Team 1 and Team 2 cannot be the same.');
+            }
         });
 
         static::updating(function ($model) {
             // Jika status diubah menjadi done, pastikan tidak ada perubahan lagi
             if ($model->isDirty('status') && $model->status === 'done') {
-                // Log perubahan status ke done
-                // (opsional: bisa menambahkan logging di sini)
+                // Validasi bahwa scoresheet ada jika diperlukan
+                // (opsional: bisa menambahkan validasi tambahan di sini)
+            }
+
+            // Validasi bahwa team1 dan team2 berbeda
+            if ($model->isDirty(['team1_id', 'team2_id']) && $model->team1_id === $model->team2_id) {
+                throw new \Exception('Team 1 and Team 2 cannot be the same.');
             }
         });
     }

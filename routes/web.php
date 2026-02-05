@@ -167,20 +167,25 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         Route::post('/{id}/done', [PubMatchDataController::class, 'done'])->name('done');
     });
 
-    // **RESULT MANAGEMENT - SEMUA ROUTES**
-    Route::prefix('pub_result')->name('pub_result.')->group(function () {
-        Route::get('/', [PubMatchResult::class, 'index'])->name('index');
-        Route::get('/create/{event_id?}', [PubMatchResult::class, 'create'])->name('create');
-        Route::post('/', [PubMatchResult::class, 'store'])->name('store');
-        Route::get('/{id}/edit', [PubMatchResult::class, 'edit'])->name('edit');
-        Route::put('/{id}', [PubMatchResult::class, 'update'])->name('update');
-        Route::delete('/{id}', [PubMatchResult::class, 'destroy'])->name('destroy');
-        Route::post('/bulk-destroy', [PubMatchResult::class, 'bulkDestroy'])->name('bulk-destroy');
-        Route::post('/bulk-publish', [PubMatchResult::class, 'bulkPublish'])->name('bulk-publish');
-        Route::post('/{id}/publish', [PubMatchResult::class, 'publish'])->name('publish');
-        Route::post('/{id}/unpublish', [PubMatchResult::class, 'unpublish'])->name('unpublish');
-        Route::post('/{id}/done', [PubMatchResult::class, 'done'])->name('done');
-    });
+// **RESULT MANAGEMENT - SEMUA ROUTES**
+Route::prefix('pub_result')->name('pub_result.')->group(function () {
+    Route::get('/', [PubMatchResult::class, 'index'])->name('index');
+    Route::get('/create/{event_id?}', [PubMatchResult::class, 'create'])->name('create');
+    Route::post('/', [PubMatchResult::class, 'store'])->name('store');
+    Route::get('/{id}/edit', [PubMatchResult::class, 'edit'])->name('edit');
+    Route::put('/{id}', [PubMatchResult::class, 'update'])->name('update');
+    Route::delete('/{id}', [PubMatchResult::class, 'destroy'])->name('destroy');
+    
+    // Action routes
+    Route::post('/{id}/publish', [PubMatchResult::class, 'publish'])->name('publish');
+    Route::post('/{id}/unpublish', [PubMatchResult::class, 'unpublish'])->name('unpublish');
+    Route::post('/{id}/done', [PubMatchResult::class, 'done'])->name('done');
+    Route::get('/{id}/download-scoresheet', [PubMatchResult::class, 'downloadScoresheet'])->name('download_scoresheet');
+    
+    // Bulk actions
+    Route::post('/bulk-destroy', [PubMatchResult::class, 'bulkDestroy'])->name('bulk-destroy');
+    Route::post('/bulk-publish', [PubMatchResult::class, 'bulkPublish'])->name('bulk-publish');
+});
 
     // ========== CONTENT MANAGEMENT ==========
     

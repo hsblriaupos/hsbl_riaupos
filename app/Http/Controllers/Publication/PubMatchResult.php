@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Publication;
 
 use App\Http\Controllers\Controller;
 use App\Models\MatchResult;
-use App\Models\TeamList; // Ganti School dengan TeamList
+use App\Models\TeamList;
 use App\Models\AddData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class PubMatchResult extends Controller
 {
@@ -121,10 +123,12 @@ class PubMatchResult extends Controller
      */
     public function create()
     {
-        // Ganti School dengan TeamList - ambil data dari tabel team_list
-        $teams = TeamList::orderBy('school_name')->get(); // Menggunakan school_name dari team_list
+        // Ambil data dari tabel team_list - gunakan team_id sebagai value
+        $teams = TeamList::select('team_id', 'school_name')
+                        ->orderBy('school_name')
+                        ->get();
         
-        // Get data dari tabel AddData - TANPA ALIAS
+        // Get data dari tabel AddData
         $seasons = AddData::select('season_name')
             ->distinct()
             ->whereNotNull('season_name')
@@ -165,9 +169,8 @@ class PubMatchResult extends Controller
             ->orderBy('phase')
             ->get();
         
-        // PERUBAHAN DI SINI: Ganti 'schools' dengan 'teams'
         return view('publication.pub_result-create', compact(
-            'teams', // Ganti 'schools' dengan 'teams'
+            'teams',
             'seasons',
             'competitions',
             'competitionTypes',
@@ -181,20 +184,39 @@ class PubMatchResult extends Controller
      */
     public function store(Request $request)
     {
-        // Ganti validasi exists dari schools ke team_lists
-        $request->validate([
-            'match_date' => 'required|date',
-            'season' => 'required|string|max:100',
-            'team1_id' => 'required|exists:team_lists,id', // Ganti schools menjadi team_lists
-            'team2_id' => 'required|exists:team_lists,id|different:team1_id', // Ganti schools menjadi team_lists
-            'score_1' => 'required|integer|min:0',
-            'score_2' => 'required|integer|min:0',
-            'competition' => 'required|string|max:100',
-            'competition_type' => 'required|string|max:100',
-            'series' => 'required|string|max:100',
-            'phase' => 'required|string|max:100',
-            'scoresheet' => 'nullable|file|mimes:xlsx,xls,xlsm,xlsb,csv|max:10240', // 10MB
-        ]);
+        // DEBUG: Log semua input sebelum validasi
+        Log::info('===== STORE METHOD STARTED =====');
+        Log::info('All request data:', $request->all());
+        Log::info('Team 1 ID:', ['value' => $request->team1_id, 'type' => gettype($request->team1_id)]);
+        Log::info('Team 2 ID:', ['value' => $request->team2_id, 'type' => gettype($request->team2_id)]);
+        Log::info('Action Type:', ['value' => $request->action_type]);
+        
+        // Validasi
+        try {
+            $validated = $request->validate([
+                'match_date' => 'required|date',
+                'season' => 'required|string|max:100',
+                'team1_id' => 'required|integer|exists:team_list,team_id',
+                'team2_id' => 'required|integer|exists:team_list,team_id|different:team1_id',
+                'score_1' => 'required|integer|min:0',
+                'score_2' => 'required|integer|min:0',
+                'competition' => 'required|string|max:100',
+                'competition_type' => 'required|string|max:100',
+                'series' => 'required|string|max:100',
+                'phase' => 'required|string|max:100',
+                'scoresheet' => 'nullable|file|mimes:xlsx,xls,xlsm,xlsb,csv|max:10240',
+                'action_type' => 'nullable|string|in:draft,publish',
+            ]);
+            
+            Log::info('Validation passed:', $validated);
+            
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Validation failed:', $e->errors());
+            return redirect()->back()
+                ->withErrors($e->validator)
+                ->withInput()
+                ->with('error', 'Please check the form for errors.');
+        }
         
         try {
             DB::beginTransaction();
@@ -202,8 +224,16 @@ class PubMatchResult extends Controller
             $result = new MatchResult();
             $result->match_date = $request->match_date;
             $result->season = $request->season;
-            $result->team1_id = $request->team1_id;
-            $result->team2_id = $request->team2_id;
+            
+            // Simpan ID tim
+            $result->team1_id = (int)$request->team1_id;
+            $result->team2_id = (int)$request->team2_id;
+            
+            Log::info('Saving team IDs:', [
+                'team1_id' => $result->team1_id,
+                'team2_id' => $result->team2_id
+            ]);
+            
             $result->score_1 = $request->score_1;
             $result->score_2 = $request->score_2;
             $result->competition = $request->competition;
@@ -211,11 +241,13 @@ class PubMatchResult extends Controller
             $result->series = $request->series;
             $result->phase = $request->phase;
             
-            // Set status dari action_type (default draft)
-            $result->status = $request->get('action_type', 'draft');
+            // Set status dari action_type dengan default 'draft'
+            $result->status = $request->input('action_type', 'draft');
             
             // Handle scoresheet upload (Excel)
             if ($request->hasFile('scoresheet')) {
+                Log::info('Processing scoresheet upload');
+                
                 $file = $request->file('scoresheet');
                 $originalName = $file->getClientOriginalName();
                 $fileName = time() . '_' . preg_replace('/[^A-Za-z0-9\-\.]/', '', $originalName);
@@ -226,13 +258,9 @@ class PubMatchResult extends Controller
                     mkdir($directory, 0755, true);
                 }
                 
-                // Pindahkan file ke public/uploads/scoresheets
                 $file->move($directory, $fileName);
                 
-                // Simpan path relatif untuk database
                 $result->scoresheet = 'uploads/scoresheets/' . $fileName;
-                
-                // Simpan juga nama file asli
                 $result->scoresheet_original_name = $originalName;
             }
             
@@ -240,11 +268,22 @@ class PubMatchResult extends Controller
             
             DB::commit();
             
+            $message = $result->status === 'publish' 
+                ? 'Match result created and published successfully.' 
+                : 'Match result saved as draft successfully.';
+            
             return redirect()->route('admin.pub_result.index')
-                ->with('success', 'Match result created successfully.');
+                ->with('success', $message);
                 
         } catch (\Exception $e) {
             DB::rollBack();
+            
+            Log::error('Error creating match result:', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
+            
             return redirect()->back()
                 ->with('error', 'Error creating match result: ' . $e->getMessage())
                 ->withInput();
@@ -256,12 +295,14 @@ class PubMatchResult extends Controller
      */
     public function edit(string $id)
     {
-        $result = MatchResult::findOrFail($id);
+        $result = MatchResult::with(['team1', 'team2'])->findOrFail($id);
         
-        // Ganti School dengan TeamList
-        $teams = TeamList::orderBy('school_name')->get();
+        // Ambil data dari tabel team_list
+        $teams = TeamList::select('team_id', 'school_name')
+                        ->orderBy('school_name')
+                        ->get();
         
-        // Get data dari tabel AddData - TANPA ALIAS
+        // Get data dari tabel AddData
         $seasons = AddData::select('season_name')
             ->distinct()
             ->whereNotNull('season_name')
@@ -280,7 +321,7 @@ class PubMatchResult extends Controller
             ->orderBy('competition_type')
             ->get();
         
-        // Series manual - Kabupaten/Kota di Provinsi Riau
+        // Series manual
         $series = [
             'Pekanbaru Series',
             'Dumai Series',
@@ -302,10 +343,9 @@ class PubMatchResult extends Controller
             ->orderBy('phase')
             ->get();
         
-        // PERUBAHAN DI SINI: Ganti 'schools' dengan 'teams'
         return view('publication.pub_result-edit', compact(
             'result',
-            'teams', // Ganti 'schools' dengan 'teams'
+            'teams',
             'seasons',
             'competitions',
             'competitionTypes',
@@ -319,33 +359,40 @@ class PubMatchResult extends Controller
      */
     public function update(Request $request, string $id)
     {
-        // Ganti validasi exists dari schools ke team_lists
-        $request->validate([
-            'match_date' => 'required|date',
-            'season' => 'required|string|max:100',
-            'team1_id' => 'required|exists:team_lists,id', // Ganti schools menjadi team_lists
-            'team2_id' => 'required|exists:team_lists,id|different:team1_id', // Ganti schools menjadi team_lists
-            'score_1' => 'required|integer|min:0',
-            'score_2' => 'required|integer|min:0',
-            'competition' => 'required|string|max:100',
-            'competition_type' => 'required|string|max:100',
-            'series' => 'required|string|max:100',
-            'phase' => 'required|string|max:100',
-            'scoresheet' => 'nullable|file|mimes:xlsx,xls,xlsm,xlsb,csv|max:10240', // 10MB
-        ]);
+        try {
+            $validated = $request->validate([
+                'match_date' => 'required|date',
+                'season' => 'required|string|max:100',
+                'team1_id' => 'required|integer|exists:team_list,team_id',
+                'team2_id' => 'required|integer|exists:team_list,team_id|different:team1_id',
+                'score_1' => 'required|integer|min:0',
+                'score_2' => 'required|integer|min:0',
+                'competition' => 'required|string|max:100',
+                'competition_type' => 'required|string|max:100',
+                'series' => 'required|string|max:100',
+                'phase' => 'required|string|max:100',
+                'scoresheet' => 'nullable|file|mimes:xlsx,xls,xlsm,xlsb,csv|max:10240',
+                'action_type' => 'nullable|string|in:draft,publish',
+            ]);
+            
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()
+                ->withErrors($e->validator)
+                ->withInput()
+                ->with('error', 'Please check the form for errors.');
+        }
         
         try {
             DB::beginTransaction();
             
             $result = MatchResult::findOrFail($id);
             
-            // Cegah edit jika status done
             if ($result->status === 'done') {
                 return redirect()->back()
                     ->with('error', 'Cannot edit result marked as done.');
             }
             
-            // Handle scoresheet upload (Excel)
+            // Handle scoresheet upload
             if ($request->hasFile('scoresheet')) {
                 // Delete old scoresheet if exists
                 if ($result->scoresheet && file_exists(public_path($result->scoresheet))) {
@@ -356,38 +403,43 @@ class PubMatchResult extends Controller
                 $originalName = $file->getClientOriginalName();
                 $fileName = time() . '_' . preg_replace('/[^A-Za-z0-9\-\.]/', '', $originalName);
                 
-                // Buat folder jika belum ada
                 $directory = public_path('uploads/scoresheets');
                 if (!file_exists($directory)) {
                     mkdir($directory, 0755, true);
                 }
                 
-                // Pindahkan file ke public/uploads/scoresheets
                 $file->move($directory, $fileName);
                 
-                // Simpan path relatif
                 $result->scoresheet = 'uploads/scoresheets/' . $fileName;
-                
-                // Simpan juga nama file asli
                 $result->scoresheet_original_name = $originalName;
             }
             
             $result->match_date = $request->match_date;
             $result->season = $request->season;
-            $result->team1_id = $request->team1_id;
-            $result->team2_id = $request->team2_id;
+            $result->team1_id = (int)$request->team1_id;
+            $result->team2_id = (int)$request->team2_id;
             $result->score_1 = $request->score_1;
             $result->score_2 = $request->score_2;
             $result->competition = $request->competition;
             $result->competition_type = $request->competition_type;
             $result->series = $request->series;
             $result->phase = $request->phase;
+            
+            // Update status jika ada action_type dan bukan done
+            if ($result->status !== 'done' && $request->has('action_type')) {
+                $result->status = $request->action_type;
+            }
+            
             $result->save();
             
             DB::commit();
             
+            $message = $result->status === 'publish' 
+                ? 'Match result updated and published successfully.' 
+                : 'Match result updated as draft successfully.';
+            
             return redirect()->route('admin.pub_result.index')
-                ->with('success', 'Match result updated successfully.');
+                ->with('success', $message);
                 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -442,7 +494,6 @@ class PubMatchResult extends Controller
             $results = MatchResult::whereIn('id', $request->selected)->get();
             
             foreach ($results as $result) {
-                // Delete scoresheet file if exists
                 if ($result->scoresheet && file_exists(public_path($result->scoresheet))) {
                     unlink(public_path($result->scoresheet));
                 }
@@ -558,25 +609,148 @@ class PubMatchResult extends Controller
     }
 
     /**
-     * Get series options
+     * View result details (for API/Modal) - PERBAIKAN UTAMA DI SINI
      */
-    public function getSeriesOptions()
+    public function show($id)
     {
-        $series = [
-            'Pekanbaru Series',
-            'Dumai Series',
-            'Siak Series',
-            'Kampar Series',
-            'Indragiri Hulu Series',
-            'Indragiri Hilir Series',
-            'Pelalawan Series',
-            'Rokan Hulu Series',
-            'Rokan Hilir Series',
-            'Bengkalis Series',
-            'Meranti Islands Series',
-            'Kuantan Singingi Series',
-        ];
+        try {
+            $result = MatchResult::with(['team1', 'team2'])->findOrFail($id);
+            
+            // Gunakan method helper dengan fallback icon
+            $team1Data = $this->getTeamData($result->team1);
+            $team2Data = $this->getTeamData($result->team2);
+            
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'id' => $result->id,
+                    'match_date' => $result->match_date,
+                    'match_date_formatted' => \Carbon\Carbon::parse($result->match_date)->format('d M Y'),
+                    'season' => $result->season,
+                    'team1' => $team1Data,
+                    'team2' => $team2Data,
+                    'score_1' => $result->score_1,
+                    'score_2' => $result->score_2,
+                    'score_formatted' => $result->score_1 . ' - ' . $result->score_2,
+                    'competition' => $result->competition,
+                    'competition_type' => $result->competition_type,
+                    'series' => $result->series,
+                    'phase' => $result->phase,
+                    'status' => $result->status,
+                    'status_badge_class' => $this->getStatusBadgeClass($result->status),
+                    'scoresheet' => $result->scoresheet,
+                    'scoresheet_original_name' => $result->scoresheet_original_name,
+                    'created_at' => $result->created_at,
+                    'updated_at' => $result->updated_at,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in show method:', [
+                'id' => $id,
+                'message' => $e->getMessage()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching result details'
+            ], 500);
+        }
+    }
+    
+    /**
+     * Helper method to get team data safely dengan fallback icon
+     */
+    private function getTeamData($team)
+    {
+        if (!$team) {
+            return [
+                'id' => null,
+                'name' => 'Team Not Found',
+                'logo' => null,
+                'logo_icon' => '<i class="fas fa-school text-secondary fa-2x"></i>',
+                'has_logo' => false
+            ];
+        }
         
-        return $series;
+        $hasLogo = !empty($team->school_logo);
+        
+        return [
+            'id' => $team->team_id ?? $team->id ?? null,
+            'name' => $team->school_name ?? 'N/A',
+            'logo' => $hasLogo ? asset('uploads/school_logo/' . $team->school_logo) : null,
+            'logo_icon' => $hasLogo ? null : '<i class="fas fa-school text-secondary fa-2x"></i>',
+            'has_logo' => $hasLogo
+        ];
+    }
+
+    /**
+     * Get team data for display in views (untuk digunakan di blade)
+     */
+    public static function getTeamDisplayData($team)
+    {
+        if (!$team) {
+            return [
+                'name' => 'Team Not Found',
+                'display_html' => '<div class="d-flex align-items-center">
+                    <div class="school-logo-placeholder me-2">
+                        <i class="fas fa-school text-secondary"></i>
+                    </div>
+                    <span>Team Not Found</span>
+                </div>',
+                'logo_html' => '<i class="fas fa-school text-secondary fa-2x"></i>'
+            ];
+        }
+        
+        $hasLogo = !empty($team->school_logo);
+        
+        if ($hasLogo) {
+            $logoHtml = '<img src="' . asset('uploads/school_logo/' . $team->school_logo) . '" 
+                         alt="' . ($team->school_name ?? 'Team') . '" 
+                         class="img-fluid rounded-circle" 
+                         style="width: 40px; height: 40px; object-fit: cover;">';
+            $displayHtml = '<div class="d-flex align-items-center">
+                <div class="school-logo me-2">
+                    <img src="' . asset('uploads/school_logo/' . $team->school_logo) . '" 
+                         alt="' . ($team->school_name ?? 'Team') . '" 
+                         class="img-fluid rounded-circle" 
+                         style="width: 30px; height: 30px; object-fit: cover;">
+                </div>
+                <span>' . ($team->school_name ?? 'N/A') . '</span>
+            </div>';
+        } else {
+            $logoHtml = '<div class="school-logo-placeholder">
+                <i class="fas fa-school text-secondary fa-2x"></i>
+            </div>';
+            $displayHtml = '<div class="d-flex align-items-center">
+                <div class="school-logo-placeholder me-2">
+                    <i class="fas fa-school text-secondary"></i>
+                </div>
+                <span>' . ($team->school_name ?? 'N/A') . '</span>
+            </div>';
+        }
+        
+        return [
+            'name' => $team->school_name ?? 'N/A',
+            'display_html' => $displayHtml,
+            'logo_html' => $logoHtml,
+            'has_logo' => $hasLogo
+        ];
+    }
+
+    /**
+     * Get status badge class
+     */
+    private function getStatusBadgeClass($status)
+    {
+        switch ($status) {
+            case 'draft':
+                return 'bg-warning bg-opacity-20 text-warning border border-warning border-opacity-50';
+            case 'publish':
+                return 'bg-success bg-opacity-20 text-success border border-success border-opacity-50';
+            case 'done':
+                return 'bg-primary bg-opacity-20 text-primary border border-primary border-opacity-50';
+            default:
+                return 'bg-secondary bg-opacity-10 text-secondary';
+        }
     }
 }
