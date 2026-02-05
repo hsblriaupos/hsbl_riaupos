@@ -15,7 +15,7 @@ class School extends Model
         'city_id', 
         'category_name', 
         'type',
-        'school_logo'  // Tambahkan ini
+        'school_logo'
     ];
 
     protected $appends = [
@@ -30,6 +30,18 @@ class School extends Model
     public function teams()
     {
         return $this->hasMany(TeamList::class, 'school_id');
+    }
+    
+    // 🔥 TAMBAH RELASI KE PLAYER
+    public function players()
+    {
+        return $this->hasMany(PlayerList::class, 'school_id');
+    }
+    
+    // 🔥 TAMBAH RELASI KE DANCER
+    public function dancers()
+    {
+        return $this->hasMany(DancerList::class, 'school_id');
     }
 
     /**
@@ -51,4 +63,18 @@ class School extends Model
     {
         return !empty($this->school_logo);
     }
-}
+    
+    /**
+     * 🔥 STATISTIK SEKOLAH
+     */
+    public function getStatisticsAttribute()
+    {
+        return [
+            'total_teams' => $this->teams()->count(),
+            'total_players' => $this->players()->count(),
+            'total_dancers' => $this->dancers()->count(),
+            'total_leaders' => $this->players()->where('role', 'Leader')->count() + 
+                               $this->dancers()->where('role', 'Leader')->count(),
+        ];
+    }
+} 

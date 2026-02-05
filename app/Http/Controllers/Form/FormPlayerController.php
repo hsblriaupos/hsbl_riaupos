@@ -25,7 +25,7 @@ class FormPlayerController extends Controller
             Log::info('Category from URL: ' . $category);
 
             // Validasi kategori
-            if (!in_array($category, ['putra', 'putri', 'dancer'])) {
+            if (!in_array($category, ['putra', 'putri'])) {
                 return redirect()->route('form.team.choice')
                     ->with('error', 'Kategori tidak valid.');
             }
@@ -33,24 +33,31 @@ class FormPlayerController extends Controller
             // Ambil data tim
             $team = TeamList::findOrFail($team_id);
             
-            // Set session
-            session([
-                'current_team_id' => $team_id,
-                'current_player_category' => $category
+            Log::info('Team info:', [
+                'team_id' => $team->team_id,
+                'school_name' => $team->school_name,
+                'team_category' => $team->team_category,
+                'is_leader_paid' => $team->is_leader_paid,
+                'referral_code' => $team->referral_code
             ]);
 
-            // Tentukan kategori untuk form
-            $formCategory = $category;
-            
-            // Tentukan role berdasarkan kondisi
-            $role = 'Player';
+            // ============================================
+            // 🔥 LOGIC PENENTUAN ROLE YANG LEBIH AKURAT
+            // ============================================
+            $role = 'Player'; // default
             $isCaptain = false;
             
-            // ============================================
-            // 🔥 LOGIC BARU: Tentukan apakah bisa jadi Leader
-            // ============================================
+            // Cek session untuk menentukan apakah user boleh jadi Leader
             $canBeLeader = session('current_can_be_leader', false);
             
+            Log::info('Session check:', [
+                'current_can_be_leader' => session('current_can_be_leader'),
+                'created_team_id' => session('created_team_id'),
+                'join_referral_code' => session('join_referral_code'),
+                'team_id_from_session' => session('current_team_id')
+            ]);
+            
+            // Jika boleh jadi Leader dari session
             if ($canBeLeader) {
                 // Cek apakah sudah ada Leader di kategori ini
                 $existingLeaderCount = PlayerList::where('team_id', $team_id)
@@ -64,15 +71,22 @@ class FormPlayerController extends Controller
                 if ($existingLeaderCount === 0) {
                     $role = 'Leader';
                     $isCaptain = true;
-                    Log::info('✅ User CAN register as Leader (no leader in category yet)');
+                    Log::info('✅ User CAN register as Leader (from session, no leader in category yet)');
                 } else {
                     Log::info('❌ User must register as Player (leader already exists in category)');
                 }
             } else {
-                Log::info('❌ User must register as Player (cannot be leader from session)');
+                Log::info('❌ User cannot be leader from session');
             }
             
             Log::info('Final Role: ' . $role . ', isCaptain: ' . ($isCaptain ? 'true' : 'false'));
+
+            // Set session untuk store method
+            session([
+                'current_team_id' => $team_id,
+                'current_player_category' => $category,
+                'current_can_be_leader' => $isCaptain // 🔥 Simpan status ini untuk store
+            ]);
 
             // Ambil data sekolah
             $school = School::where('school_name', $team->school_name)->first();
@@ -99,7 +113,7 @@ class FormPlayerController extends Controller
             $grades = ['X', 'XI', 'XII'];
 
             // Ambil referral code jika sudah ada
-            $referralCode = ($team->referral_code && $team->referral_code !== '') ? $team->referral_code : null;
+            $referralCode = (!empty($team->referral_code)) ? $team->referral_code : null;
 
             return view('user.form.form_player', compact(
                 'team',
@@ -169,12 +183,42 @@ class FormPlayerController extends Controller
     }
 
     /**
+     * Helper function untuk generate referral code yang unik
+     */
+    private function generateUniqueReferralCode($baseSlug, $teamId = null)
+    {
+        $maxAttempts = 5;
+        
+        for ($i = 0; $i < $maxAttempts; $i++) {
+            $code = strtoupper($baseSlug) . '-' . strtoupper(Str::random(6));
+            
+            $query = TeamList::where('referral_code', $code);
+            
+            if ($teamId) {
+                $query->where('team_id', '!=', $teamId);
+            }
+            
+            if (!$query->exists()) {
+                return $code;
+            }
+            
+            // Last attempt - add timestamp
+            if ($i === $maxAttempts - 1) {
+                return strtoupper($baseSlug) . '-' . strtoupper(Str::random(4)) . '-' . time();
+            }
+        }
+        
+        return strtoupper($baseSlug) . '-' . time();
+    }
+
+    /**
      * Proses pendaftaran player
      */
     public function storePlayer(Request $request)
     {
         try {
             Log::info('=== STORE PLAYER START ===');
+            Log::info('Request data keys:', array_keys($request->all()));
             
             // Ambil team_id
             $teamId = $request->input('team_id') ??
@@ -196,25 +240,43 @@ class FormPlayerController extends Controller
             $category = $request->input('category') ?? session('current_player_category', 'putra');
             
             Log::info('Player category: ' . $category);
-
+            Log::info('Team payment status:', [
+                'is_leader_paid' => $team->is_leader_paid,
+                'referral_code' => $team->referral_code,
+                'team_category' => $team->team_category
+            ]);
+            
             // ============================================
-            // 🔥 PERBAIKAN UTAMA: TENTUKAN ROLE
+            // 🔥 LOGIC PENENTUAN ROLE YANG LEBIH AKURAT
             // ============================================
-            // Cek apakah sudah ada Leader di kategori ini
-            $existingLeaderCount = PlayerList::where('team_id', $teamId)
-                ->where('category', $category)
-                ->where('role', 'Leader')
-                ->count();
-
-            Log::info('Existing Leader count in category: ' . $existingLeaderCount);
-            Log::info('Team payment status: ' . ($team->is_leader_paid ? 'paid' : 'not paid'));
-
-            // Jika tim BELUM bayar dan BELUM ada Leader di kategori ini, maka ini adalah Kapten
-            // Jika tim SUDAH bayar dan BELUM ada Leader di kategori ini, juga bisa jadi Leader
-            $isCaptain = ($existingLeaderCount === 0);
-            $teamRole = $isCaptain ? 'Leader' : 'Player';
-
-            Log::info('🎯 Player role determined as: ' . $teamRole . ', isCaptain: ' . ($isCaptain ? 'true' : 'false'));
+            $teamRole = $request->input('team_role', 'Player');
+            $isCaptain = ($teamRole === 'Leader');
+            
+            Log::info('Role from form: ' . $teamRole . ', isCaptain: ' . ($isCaptain ? 'true' : 'false'));
+            
+            // Validasi: jika mengaku Leader, pastikan memang boleh jadi Leader
+            if ($isCaptain) {
+                // 1. Cek apakah sudah ada Leader di kategori ini
+                $existingLeaderCount = PlayerList::where('team_id', $teamId)
+                    ->where('category', $category)
+                    ->where('role', 'Leader')
+                    ->count();
+                    
+                if ($existingLeaderCount > 0) {
+                    Log::error('❌ ERROR: Trying to register as Leader but leader already exists');
+                    return back()->withErrors(['error' => 'Tim ini sudah memiliki Leader untuk kategori ' . $category . '.'])->withInput();
+                }
+                
+                // 2. Cek apakah ini dari session boleh jadi Leader
+                $canBeLeaderFromSession = session('current_can_be_leader', false);
+                
+                if (!$canBeLeaderFromSession) {
+                    Log::error('❌ ERROR: Trying to register as Leader but not authorized from session');
+                    return back()->withErrors(['error' => 'Anda tidak berhak menjadi Leader.'])->withInput();
+                }
+                
+                Log::info('✅ User authorized to be Leader from session');
+            }
 
             // ============================================
             // VALIDASI RULES
@@ -247,14 +309,13 @@ class FormPlayerController extends Controller
                 'last_report_card' => 'required|file|mimes:pdf|max:1024',
                 'formal_photo' => 'required|file|mimes:jpg,jpeg,png|max:1024',
                 'assignment_letter' => 'nullable|file|mimes:pdf|max:1024',
+                'terms' => 'required|accepted',
             ];
 
-            // 🔥 TAMBAHKAN payment_proof HANYA untuk Leader/Kapten
+            // 🔥 TAMBAHKAN payment_proof HANYA untuk Leader
             if ($isCaptain) {
                 $rules['payment_proof'] = 'required|file|mimes:jpg,jpeg,png,pdf|max:2048';
                 Log::info('💰 PAYMENT PROOF REQUIRED FOR LEADER');
-            } else {
-                Log::info('✅ No payment proof required for Player');
             }
 
             // Tambahkan field basket untuk non-dancer
@@ -315,9 +376,13 @@ class FormPlayerController extends Controller
             Log::info('=== PAYMENT PROCESSING ===');
             Log::info('Is Captain: ' . ($isCaptain ? 'YES' : 'NO'));
             Log::info('Has Payment File: ' . ($request->hasFile('payment_proof') ? 'YES' : 'NO'));
-            Log::info('Current Team Referral Code: ' . ($team->referral_code ?: 'EMPTY'));
             
-            if ($isCaptain && $request->hasFile('payment_proof')) {
+            if ($isCaptain) {
+                if (!$request->hasFile('payment_proof')) {
+                    Log::error('❌ ERROR: Leader but no payment file uploaded!');
+                    return back()->withErrors(['payment_proof' => 'Sebagai Kapten, Anda wajib mengupload bukti pembayaran.'])->withInput();
+                }
+                
                 Log::info('💰 PROCESSING PAYMENT FOR LEADER...');
                 
                 // 1. Simpan bukti pembayaran PLAYER (Leader)
@@ -328,13 +393,17 @@ class FormPlayerController extends Controller
                 $paymentProofPath = $paymentFile->storeAs('payment_proofs', $paymentFilename, 'public');
                 Log::info('✅ Payment proof saved: ' . $paymentProofPath);
                 
-                // 2. GENERATE REFERRAL CODE JIKA MASIH KOSONG
-                if (!$team->referral_code || $team->referral_code === '') {
+                // 2. 🔥 GENERATE REFERRAL CODE JIKA KOSONG/NULL
+                if (empty($team->referral_code)) {
                     Log::info('🔑 GENERATING NEW REFERRAL CODE...');
-                    $baseSlug = Str::slug($team->school_name);
-                    $referralCodeGenerated = strtoupper($baseSlug) . '-' . strtoupper(Str::random(6));
                     
-                    // Update SEMUA tim di sekolah yang sama (season sama) dengan referral code yang sama
+                    // Generate unique referral code
+                    $baseSlug = Str::slug($team->school_name);
+                    $referralCodeGenerated = $this->generateUniqueReferralCode($baseSlug, $teamId);
+                    
+                    Log::info('Generated referral code: ' . $referralCodeGenerated);
+                    
+                    // Update ALL teams from same school & season
                     $updatedCount = TeamList::where('school_name', $team->school_name)
                         ->where('season', $team->season)
                         ->update([
@@ -342,38 +411,40 @@ class FormPlayerController extends Controller
                             'is_leader_paid' => true,
                             'payment_status' => 'paid',
                             'payment_date' => now(),
-                            'payment_proof' => $paymentProofPath // Simpan di team juga
                         ]);
-                        
-                    Log::info('✅ Referral code generated: ' . $referralCodeGenerated);
-                    Log::info('✅ Teams updated with new code: ' . $updatedCount);
                     
-                    // Simpan ke session
+                    // Update current team with payment proof
+                    $team->update(['payment_proof' => $paymentProofPath]);
+                    
+                    Log::info('✅ Teams updated: ' . $updatedCount);
                     session(['player_referral_code' => $referralCodeGenerated]);
-                    Log::info('✅ Referral code saved to session: ' . $referralCodeGenerated);
+                    
                 } else {
+                    // Referral code already exists
                     $referralCodeGenerated = $team->referral_code;
                     session(['player_referral_code' => $referralCodeGenerated]);
                     Log::info('✅ Using existing referral code: ' . $referralCodeGenerated);
                     
-                    // Update payment proof untuk team ini
-                    $team->update([
-                        'payment_proof' => $paymentProofPath,
-                        'is_leader_paid' => true,
-                        'payment_status' => 'paid',
-                        'payment_date' => now(),
-                    ]);
+                    // Update payment status for all teams
+                    TeamList::where('school_name', $team->school_name)
+                        ->where('season', $team->season)
+                        ->update([
+                            'is_leader_paid' => true,
+                            'payment_status' => 'paid',
+                            'payment_date' => now(),
+                        ]);
+                    
+                    // Add payment proof to current team only
+                    $team->update(['payment_proof' => $paymentProofPath]);
                 }
                 
-                Log::info('✅ Team payment status updated to PAID');
+                Log::info('✅ Payment processed successfully');
                 
                 // 3. RELOAD TEAM DATA untuk dapat data terbaru
                 $team = TeamList::find($teamId);
-                Log::info('✅ Team reloaded. New referral code: ' . ($team->referral_code ?: 'EMPTY'));
+                Log::info('✅ Team reloaded. Referral code: ' . ($team->referral_code ?: 'NULL/EMPTY'));
                 Log::info('✅ Team is_leader_paid: ' . ($team->is_leader_paid ? 'YES' : 'NO'));
-            } elseif ($isCaptain) {
-                Log::error('❌ ERROR: Leader but no payment file uploaded!');
-                return back()->withErrors(['payment_proof' => 'Sebagai Kapten, Anda wajib mengupload bukti pembayaran.'])->withInput();
+                
             } else {
                 Log::info('✅ Player registration (no payment required)');
             }
@@ -383,6 +454,7 @@ class FormPlayerController extends Controller
             // ============================================
             $playerData = [
                 'team_id' => $teamId,
+                'school_id' => $school->id,
                 'category' => $category,
                 'role' => $teamRole,
                 'nik' => $validated['nik'],
@@ -391,7 +463,6 @@ class FormPlayerController extends Controller
                 'gender' => $validated['gender'],
                 'email' => $validated['email'],
                 'phone' => $validated['phone'],
-                'school_id' => $school->id,
                 'grade' => $validated['grade'],
                 'sttb_year' => $validated['sttb_year'],
                 'height' => $validated['height'],
@@ -469,7 +540,7 @@ class FormPlayerController extends Controller
             // Ambil referral code terbaru dari TIM yang sudah di-reload
             $referralCodeForSuccess = $team->referral_code;
             
-            if ($referralCodeForSuccess && $referralCodeForSuccess !== '') {
+            if (!empty($referralCodeForSuccess)) {
                 session(['player_referral_code' => $referralCodeForSuccess]);
                 Log::info('✅ Final referral code for success page: ' . $referralCodeForSuccess);
             } else {
@@ -552,10 +623,10 @@ class FormPlayerController extends Controller
             // 🔥 Ambil referral code dari TEAM
             $referralCode = $team->referral_code;
             
-            // Filter empty string
-            if ($referralCode === '' || $referralCode === null) {
+            // Filter menggunakan empty()
+            if (empty($referralCode)) {
                 $referralCode = null;
-                Log::info('ℹ️ Referral code filtered to NULL');
+                Log::info('ℹ️ Referral code is empty or NULL');
             } else {
                 Log::info('✅ Referral code is valid: ' . $referralCode);
             }
@@ -568,7 +639,7 @@ class FormPlayerController extends Controller
             if ($isCaptain) {
                 $successMessage = '🎉 Selamat! Anda telah terdaftar sebagai KAPTEN tim ' . $team->school_name . '.';
                 
-                if ($referralCode && $referralCode !== '') {
+                if (!empty($referralCode)) {
                     $instructions = 'Sebagai Kapten, Anda telah berhasil membayar biaya registrasi tim.';
                     Log::info('✅ Captain WITH referral code: ' . $referralCode);
                 } else {
@@ -703,7 +774,7 @@ class FormPlayerController extends Controller
             }
 
             $hasPaidLeader = $team->is_leader_paid;
-            $referralCode = ($hasPaidLeader && $team->referral_code !== '') ? $team->referral_code : null;
+            $referralCode = ($hasPaidLeader && !empty($team->referral_code)) ? $team->referral_code : null;
 
             return response()->json([
                 'paid' => $hasPaidLeader,

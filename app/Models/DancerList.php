@@ -15,13 +15,14 @@ class DancerList extends Model
 
     protected $fillable = [
         'team_id',
+        'school_id', // 🔥 TAMBAH INI
         'nik',
         'name',
         'birthdate',
         'gender',
         'email',
         'phone',
-        'school_name',
+        'school_name', // Tetap ada untuk backup
         'grade',
         'sttb_year',
         'height',
@@ -58,6 +59,12 @@ class DancerList extends Model
     {
         return $this->belongsTo(TeamList::class, 'team_id', 'team_id');
     }
+    
+    // 🔥 TAMBAH RELASI KE SCHOOL
+    public function school()
+    {
+        return $this->belongsTo(School::class, 'school_id', 'id');
+    }
 
     /* ================= ACCESSORS ================= */
     
@@ -90,6 +97,12 @@ class DancerList extends Model
             'Member' => 'Anggota'
         ][$this->role] ?? $this->role;
     }
+    
+    // 🔥 TAMBAH ACCESSOR UNTUK DAPATKAN NAMA SEKOLAH DARI RELASI
+    public function getSchoolNameFromRelationAttribute()
+    {
+        return $this->school ? $this->school->school_name : $this->school_name;
+    }
 
     /* ================= SCOPES ================= */
     
@@ -111,5 +124,11 @@ class DancerList extends Model
     public function scopeByTeam($query, $teamId)
     {
         return $query->where('team_id', $teamId);
+    }
+    
+    // 🔥 TAMBAH SCOPE UNTUK SEKOLAH
+    public function scopeBySchool($query, $schoolId)
+    {
+        return $query->where('school_id', $schoolId);
     }
 }

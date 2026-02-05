@@ -4,6 +4,20 @@
 
 @section('content')
 <div class="container py-3 px-lg-4 px-md-3 px-sm-2">
+    <!-- Debug Info (Hanya untuk development) -->
+    @php
+        $debugInfo = [
+            'team_id' => $team->team_id ?? 'N/A',
+            'team_category' => $team->team_category ?? 'N/A',
+            'role' => $role ?? 'N/A',
+            'isLeader' => $isLeader ?? false,
+            'session_created_team_id' => session('created_team_id') ?? 'N/A',
+            'session_current_can_be_leader' => session('current_can_be_leader') ?? 'N/A',
+            'session_join_referral_code' => session('join_referral_code') ?? 'N/A',
+        ];
+        // Log::info('Dancer Form Debug Info:', $debugInfo);
+    @endphp
+    
     <!-- Role Indicator -->
     @if($role === 'Leader')
     <div class="alert alert-warning border-warning bg-warning-subtle mb-3 py-2 px-2 shadow-sm mx-auto" style="max-width: 780px;">
@@ -46,9 +60,12 @@
                     </h5>
                     <p class="mb-0 opacity-75" style="font-size: 0.7rem;">
                         {{ $team->school_name }} • Dancer
+                        @if(session('join_referral_code'))
+                        • Kode: {{ session('join_referral_code') }}
+                        @endif
                     </p>
                 </div>
-                <a href="{{ route('form.team.create') }}" class="btn btn-light btn-sm px-2 rounded-pill">
+                <a href="{{ route('form.team.choice') }}" class="btn btn-light btn-sm px-2 rounded-pill">
                     <i class="fas fa-arrow-left"></i>
                 </a>
             </div>
@@ -80,6 +97,9 @@
                                 id="nik" name="nik" value="{{ old('nik') }}" required
                                 placeholder="16 digit" maxlength="16"
                                 oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                            @error('nik')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="col-md-3 mb-1">
@@ -89,6 +109,9 @@
                             <input type="text" class="form-control form-control-sm @error('name') is-invalid @enderror"
                                 id="name" name="name" value="{{ old('name') }}" required
                                 placeholder="Nama lengkap">
+                            @error('name')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="col-md-3 mb-1">
@@ -98,6 +121,9 @@
                             <input type="date" class="form-control form-control-sm @error('birthdate') is-invalid @enderror"
                                 id="birthdate" name="birthdate" value="{{ old('birthdate') }}" required
                                 max="{{ date('Y-m-d', strtotime('-10 years')) }}">
+                            @error('birthdate')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="col-md-3 mb-1">
@@ -110,6 +136,9 @@
                                 <option value="Laki-laki" {{ old('gender') == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
                                 <option value="Perempuan" {{ old('gender') == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
                             </select>
+                            @error('gender')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
 
@@ -123,6 +152,9 @@
                                 id="phone" name="phone" value="{{ old('phone') }}" required
                                 placeholder="081234567890"
                                 oninput="this.value = this.value.replace(/[^0-9+]/g, '')">
+                            @error('phone')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="col-md-3 mb-1">
@@ -132,6 +164,9 @@
                             <input type="email" class="form-control form-control-sm @error('email') is-invalid @enderror"
                                 id="email" name="email" value="{{ old('email') }}" required
                                 placeholder="email@example.com">
+                            @error('email')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="col-md-3 mb-1">
@@ -156,10 +191,13 @@
                                 </option>
                                 @endforeach
                             </select>
+                            @error('grade')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
 
-                    <!-- Row 3: STTB Tahun -->
+                    <!-- Row 3: STTB Tahun & Sosmed -->
                     <div class="row gx-1 gy-1 mb-2">
                         <div class="col-md-3 mb-1">
                             <label class="form-label fw-semibold" style="font-size: 0.75rem;">
@@ -169,6 +207,9 @@
                                 id="sttb_year" name="sttb_year" value="{{ old('sttb_year') }}" required
                                 placeholder="2024" maxlength="4"
                                 oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                            @error('sttb_year')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="col-md-3 mb-1">
@@ -178,6 +219,9 @@
                             <input type="text" class="form-control form-control-sm @error('instagram') is-invalid @enderror"
                                 id="instagram" name="instagram" value="{{ old('instagram') }}"
                                 placeholder="@username">
+                            @error('instagram')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="col-md-3 mb-1">
@@ -187,6 +231,9 @@
                             <input type="text" class="form-control form-control-sm @error('tiktok') is-invalid @enderror"
                                 id="tiktok" name="tiktok" value="{{ old('tiktok') }}"
                                 placeholder="@username">
+                            @error('tiktok')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
                 </div>
@@ -208,6 +255,9 @@
                             <input type="number" class="form-control form-control-sm @error('height') is-invalid @enderror"
                                 id="height" name="height" value="{{ old('height') }}" required
                                 min="100" max="250" step="1" placeholder="170">
+                            @error('height')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="col-md-3 mb-1">
@@ -217,6 +267,9 @@
                             <input type="number" class="form-control form-control-sm @error('weight') is-invalid @enderror"
                                 id="weight" name="weight" value="{{ old('weight') }}" required
                                 min="30" max="150" step="0.5" placeholder="65.5">
+                            @error('weight')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="col-md-3 mb-1">
@@ -232,6 +285,9 @@
                                 </option>
                                 @endforeach
                             </select>
+                            @error('tshirt_size')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="col-md-3 mb-1">
@@ -247,6 +303,9 @@
                                 </option>
                                 @endforeach
                             </select>
+                            @error('shoes_size')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
                 </div>
@@ -271,6 +330,9 @@
                                         </label>
                                         <input type="text" class="form-control form-control-sm @error('father_name') is-invalid @enderror"
                                             name="father_name" value="{{ old('father_name') }}" placeholder="Nama ayah">
+                                        @error('father_name')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label fw-semibold" style="font-size: 0.7rem;">
@@ -279,6 +341,9 @@
                                         <input type="tel" class="form-control form-control-sm @error('father_phone') is-invalid @enderror"
                                             name="father_phone" value="{{ old('father_phone') }}" placeholder="No. telepon"
                                             oninput="this.value = this.value.replace(/[^0-9+]/g, '')">
+                                        @error('father_phone')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                 </div>
                             </div>
@@ -294,6 +359,9 @@
                                         </label>
                                         <input type="text" class="form-control form-control-sm @error('mother_name') is-invalid @enderror"
                                             name="mother_name" value="{{ old('mother_name') }}" placeholder="Nama ibu">
+                                        @error('mother_name')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label fw-semibold" style="font-size: 0.7rem;">
@@ -302,6 +370,9 @@
                                         <input type="tel" class="form-control form-control-sm @error('mother_phone') is-invalid @enderror"
                                             name="mother_phone" value="{{ old('mother_phone') }}" placeholder="No. telepon"
                                             oninput="this.value = this.value.replace(/[^0-9+]/g, '')">
+                                        @error('mother_phone')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                 </div>
                             </div>
@@ -331,6 +402,9 @@
                                 </label>
                                 <input type="file" class="form-control form-control-sm @error('birth_certificate') is-invalid @enderror"
                                     name="birth_certificate" accept=".pdf" required>
+                                @error('birth_certificate')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="col-md-6 mb-1">
@@ -339,6 +413,9 @@
                                 </label>
                                 <input type="file" class="form-control form-control-sm @error('kk') is-invalid @enderror"
                                     name="kk" accept=".pdf" required>
+                                @error('kk')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="col-md-6 mb-1">
@@ -347,6 +424,9 @@
                                 </label>
                                 <input type="file" class="form-control form-control-sm @error('shun') is-invalid @enderror"
                                     name="shun" accept=".pdf" required>
+                                @error('shun')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="col-md-6 mb-1">
@@ -355,6 +435,9 @@
                                 </label>
                                 <input type="file" class="form-control form-control-sm @error('report_identity') is-invalid @enderror"
                                     name="report_identity" accept=".pdf" required>
+                                @error('report_identity')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                     </div>
@@ -370,6 +453,9 @@
                                 </label>
                                 <input type="file" class="form-control form-control-sm @error('last_report_card') is-invalid @enderror"
                                     name="last_report_card" accept=".pdf" required>
+                                @error('last_report_card')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="col-md-6 mb-1">
@@ -378,6 +464,9 @@
                                 </label>
                                 <input type="file" class="form-control form-control-sm @error('formal_photo') is-invalid @enderror"
                                     name="formal_photo" accept=".jpg,.jpeg,.png" required>
+                                @error('formal_photo')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="col-md-6 mb-1">
@@ -386,6 +475,9 @@
                                 </label>
                                 <input type="file" class="form-control form-control-sm @error('assignment_letter') is-invalid @enderror"
                                     name="assignment_letter" accept=".pdf">
+                                @error('assignment_letter')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             @if($role === 'Leader')
@@ -399,6 +491,9 @@
                                     </label>
                                     <input type="file" class="form-control form-control-sm @error('payment_proof') is-invalid @enderror"
                                         name="payment_proof" accept=".jpg,.jpeg,.png,.pdf" required>
+                                    @error('payment_proof')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
                             @else
@@ -423,12 +518,15 @@
                     <label class="form-check-label fw-medium small" for="terms" style="font-size: 0.8rem;">
                         Saya menyetujui Syarat & Ketentuan dan memastikan data benar.
                     </label>
+                    @error('terms')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <!-- Submit Button -->
                 <div class="border-top pt-2 mt-2">
                     <div class="d-flex justify-content-between">
-                        <a href="{{ route('form.team.create') }}" class="btn btn-outline-secondary btn-sm px-3">
+                        <a href="{{ route('form.team.choice') }}" class="btn btn-outline-secondary btn-sm px-3">
                             <i class="fas fa-times me-1"></i>Batal
                         </a>
                         <button type="submit" class="btn btn-primary btn-sm px-3">
@@ -503,6 +601,9 @@ document.addEventListener('DOMContentLoaded', function() {
             submitBtn.disabled = true;
         }
     });
+    
+    // Debug info
+    console.log('Dancer Form Debug:', @json($debugInfo));
 });
 </script>
 

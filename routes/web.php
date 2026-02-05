@@ -310,16 +310,16 @@ Route::prefix('user')->name('user.')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::prefix('form')->name('form.')->group(function () {
-    // Team Registration
+    // ================= TEAM REGISTRATION =================
     Route::get('/team/choice', [FormTeamController::class, 'showChoiceForm'])->name('team.choice');
     Route::get('/team/create', [FormTeamController::class, 'showCreateForm'])->name('team.create');
     Route::post('/team/create', [FormTeamController::class, 'createTeam'])->name('team.store');
 
-    // 🔥 JOIN TEAM FLOW (BARU)
+    // JOIN TEAM FLOW
     Route::get('/team/join', [FormTeamController::class, 'showJoinForm'])->name('team.join');
     Route::post('/team/join', [FormTeamController::class, 'joinTeam'])->name('team.join.submit');
 
-    // 🔥 ROLE SELECTION (BARU)
+    // ROLE SELECTION
     Route::get('/team/join/role', [FormTeamController::class, 'showRoleSelectionForm'])
         ->name('team.join.role');
     Route::post('/team/join/role', [FormTeamController::class, 'processRoleSelection'])
@@ -330,41 +330,86 @@ Route::prefix('form')->name('form.')->group(function () {
     Route::post('/team/check-school-exists', [FormTeamController::class, 'checkSchoolExists'])->name('team.checkSchoolExists');
     Route::post('/team/check-existing', [FormTeamController::class, 'checkExistingTeam'])->name('team.checkExisting');
 
-    // Player Registration
+    // ================= PLAYER REGISTRATION =================
+    // 🔥 Route yang lebih jelas dan terstruktur
+    
+    // PLAYER REGISTRATION FLOW
     Route::get('/player/create/{team_id}', [FormPlayerController::class, 'showPlayerForm'])->name('player.create');
-
-    // 🔥 PLAYER REGISTRATION WITH CATEGORY (BARU)
+    
+    // PLAYER REGISTRATION WITH CATEGORY (versi baru yang lebih spesifik)
     Route::get('/player/create/{team_id}/{category}', [FormPlayerController::class, 'showPlayerFormWithCategory'])
         ->name('player.create.with-category')
-        ->where('category', 'putra|putri|dancer');
+        ->where('category', 'putra|putri'); // hanya putra/putri untuk player
 
     Route::post('/player/store', [FormPlayerController::class, 'storePlayer'])->name('player.store');
     Route::get('/player/success/{team_id}/{player_id}', [FormPlayerController::class, 'showSuccessPage'])->name('player.success');
 
-    // API Endpoints
-    Route::post('/player/check-nik', [FormPlayerController::class, 'checkNik'])->name('player.checkNik');
-    Route::post('/player/check-email', [FormPlayerController::class, 'checkEmail'])->name('player.checkEmail');
-    Route::post('/player/check-leader', [FormPlayerController::class, 'checkLeaderExists'])->name('player.checkLeader');
-    Route::post('/player/check-team-payment', [FormPlayerController::class, 'checkTeamPayment'])->name('player.checkTeamPayment');
+    // API Endpoints for Player
+    Route::prefix('player')->name('player.')->group(function () {
+        Route::post('/check-nik', [FormPlayerController::class, 'checkNik'])->name('checkNik');
+        Route::post('/check-email', [FormPlayerController::class, 'checkEmail'])->name('checkEmail');
+        Route::post('/check-leader', [FormPlayerController::class, 'checkLeaderExists'])->name('checkLeader');
+        Route::post('/check-team-payment', [FormPlayerController::class, 'checkTeamPayment'])->name('checkTeamPayment');
+    });
 
-    // ========== DANCER ROUTES ==========
-    // 🎯 DANCER FORM
+    // ================= DANCER REGISTRATION =================
+    // DANCER FORM
     Route::get('/dancer/create/{team_id}', [FormDancerController::class, 'showDancerForm'])
         ->name('dancer.create');
 
-    // 🎯 DANCER STORE
+    // DANCER STORE
     Route::post('/dancer/store', [FormDancerController::class, 'storeDancer'])
         ->name('dancer.store');
 
-    // 🎯 DANCER SUCCESS
+    // DANCER SUCCESS
     Route::get('/dancer/success/{team_id}/{dancer_id}', [FormDancerController::class, 'showSuccessPage'])
         ->name('dancer.success');
 
-    // API endpoints
-    Route::post('/dancer/check-nik', [FormDancerController::class, 'checkNik'])->name('dancer.checkNik');
-    Route::post('/dancer/check-email', [FormDancerController::class, 'checkEmail'])->name('dancer.checkEmail');
-    Route::post('/dancer/check-leader', [FormDancerController::class, 'checkLeaderExists'])->name('dancer.checkLeader');
-    Route::post('/dancer/check-team-payment', [FormDancerController::class, 'checkTeamPayment'])->name('dancer.checkTeamPayment');
+    // API endpoints for Dancer
+    Route::prefix('dancer')->name('dancer.')->group(function () {
+        Route::post('/check-nik', [FormDancerController::class, 'checkNik'])->name('checkNik');
+        Route::post('/check-email', [FormDancerController::class, 'checkEmail'])->name('checkEmail');
+        Route::post('/check-leader', [FormDancerController::class, 'checkLeaderExists'])->name('checkLeader');
+        Route::post('/check-team-payment', [FormDancerController::class, 'checkTeamPayment'])->name('checkTeamPayment');
+    });
+
+    // ================= FIX REFERRAL CODES (Development Only) =================
+    if (app()->environment('local')) {
+        Route::get('/fix-referral-codes', function () {
+            // Konversi empty string ke NULL
+            \DB::table('team_list')
+                ->where('referral_code', '')
+                ->orWhere('referral_code', 'NULL')
+                ->orWhereRaw('TRIM(referral_code) = ""')
+                ->update(['referral_code' => null]);
+                
+            return 'Referral codes fixed! Empty strings converted to NULL.';
+        })->name('fix.referral.codes');
+        
+        Route::get('/check-referral-codes', function () {
+            $nullCount = \DB::table('team_list')->whereNull('referral_code')->count();
+            $emptyCount = \DB::table('team_list')->where('referral_code', '')->count();
+            $total = \DB::table('team_list')->count();
+            
+            return response()->json([
+                'total_teams' => $total,
+                'null_referral_codes' => $nullCount,
+                'empty_referral_codes' => $emptyCount,
+                'percentage_null' => $total > 0 ? round(($nullCount / $total) * 100, 2) : 0
+            ]);
+        })->name('check.referral.codes');
+    }
+});
+
+// ================= DASHBOARD REDIRECT =================
+// Redirect dari halaman utama ke form choice
+Route::get('/', function () {
+    return redirect()->route('form.team.choice');
+})->name('home');
+
+// ================= FALLBACK ROUTE =================
+Route::fallback(function () {
+    return redirect()->route('form.team.choice')->with('error', 'Halaman tidak ditemukan.');
 });
 
 /*
