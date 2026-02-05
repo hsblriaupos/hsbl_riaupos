@@ -3,45 +3,49 @@
 @section('title', 'Form Pendaftaran Pemain - HSBL')
 
 @section('content')
-<div class="container py-3">
-    <!-- Role Indicator -->
+<div class="container py-3 px-lg-4 px-md-3 px-sm-2"> <!-- Tambah padding horizontal -->
+    <!-- Role Indicator - Compact -->
     @if($role === 'Leader')
-    <div class="alert alert-warning mb-3 py-2">
+    <div class="alert alert-warning border-warning bg-warning-subtle mb-3 py-2 px-2 shadow-sm mx-auto" style="max-width: 780px;">
         <div class="d-flex align-items-center">
-            <i class="fas fa-crown me-2"></i>
-            <div>
-                <h6 class="mb-1 fw-bold">🏆 Anda adalah Leader Tim!</h6>
-                <p class="mb-0 small">Anda bertanggung jawab untuk pembayaran tim.</p>
+            <div class="bg-warning text-white rounded-circle p-1 me-2" style="width: 30px; height: 30px;">
+                <i class="fas fa-crown"></i>
+            </div>
+            <div class="flex-grow-1">
+                <h6 class="mb-0 fw-bold small text-dark">Anda adalah Leader Tim!</h6>
+                <p class="mb-0 text-muted" style="font-size: 0.75rem;">Bertanggung jawab untuk pembayaran tim</p>
             </div>
         </div>
     </div>
     @else
-    <div class="alert alert-info mb-3 py-2">
+    <div class="alert alert-info border-info bg-info-subtle mb-3 py-2 px-2 shadow-sm mx-auto" style="max-width: 780px;">
         <div class="d-flex align-items-center">
-            <i class="fas fa-users me-2"></i>
-            <div>
-                <h6 class="mb-1 fw-bold">🤝 Anda adalah Member Tim</h6>
-                <p class="mb-0 small">Anda bergabung dengan tim menggunakan referral code.</p>
+            <div class="bg-info text-white rounded-circle p-1 me-2" style="width: 30px; height: 30px;">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="flex-grow-1">
+                <h6 class="mb-0 fw-bold small text-dark">Anda adalah Member Tim</h6>
+                <p class="mb-0 text-muted" style="font-size: 0.75rem;">Bergabung dengan referral code</p>
             </div>
         </div>
+    </div>
     @endif
 
-    <!-- Main Form Card -->
-    <div class="card shadow-sm mx-auto" style="max-width: 800px;">
-        <!-- Card Header -->
-        <div class="card-header bg-white py-3">
+    <!-- Main Form Card - Tambah sedikit lebar -->
+    <div class="card border-0 shadow-sm mx-auto" style="max-width: 800px; border-radius: 8px; width: 100%;">
+        <!-- Card Header - Compact -->
+        <div class="card-header bg-gradient-primary text-white py-2 px-3 border-0">
             <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h5 class="mb-1 fw-bold">
+                <div class="flex-grow-1">
+                    <h5 class="mb-0 fw-bold small">
                         @if($role === 'Leader')
-                        <i class="fas fa-crown me-2 text-warning"></i>Form Leader
+                        <i class="fas fa-crown me-1"></i>Form Leader {{ ucfirst($category) }}
                         @else
-                        <i class="fas fa-user me-2 text-primary"></i>Form Pemain
+                        <i class="fas fa-user me-1"></i>Form Pemain {{ ucfirst($category) }}
                         @endif
-                        {{ ucfirst($category) }}
                     </h5>
-                    <p class="text-muted mb-0 small">
-                        {{ $team->school_name }} | 
+                    <p class="mb-0 opacity-75" style="font-size: 0.7rem;">
+                        {{ $team->school_name }} • 
                         @php
                             $displayCategory = $team->team_category;
                             if (str_contains(strtolower($displayCategory), 'basket')) {
@@ -51,76 +55,61 @@
                         {{ $displayCategory }}
                     </p>
                 </div>
-                <a href="{{ route('form.team.create') }}" class="btn btn-outline-secondary btn-sm">
-                    <i class="fas fa-arrow-left me-1"></i>Kembali
+                <a href="{{ route('form.team.create') }}" class="btn btn-light btn-sm px-2 rounded-pill">
+                    <i class="fas fa-arrow-left"></i>
                 </a>
             </div>
         </div>
 
-        <!-- Form Content -->
-        <div class="card-body p-3">
+        <!-- Form Content - Compact dengan sedikit lebih lega -->
+        <div class="card-body p-3 px-md-3 px-sm-2">
             <form id="playerForm" action="{{ route('form.player.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-
-                <!-- Hidden Fields -->
                 <input type="hidden" name="team_id" value="{{ $team->team_id }}">
                 <input type="hidden" name="category" value="{{ $category }}">
                 <input type="hidden" name="team_role" value="{{ $role }}">
 
-                <!-- Section 1: Data Pribadi (3 Rows) -->
+                <!-- Section 1: Data Pribadi dengan sedikit spacing -->
                 <div class="mb-3">
-                    <h6 class="mb-2 pb-1 border-bottom fw-bold small">
-                        <i class="fas fa-id-card me-1"></i>Data Pribadi
-                    </h6>
-
-                    <div class="row g-2 mb-2">
-                        <!-- Row 1 -->
-                        <div class="col-md-4">
-                            <label for="nik" class="form-label small fw-medium mb-1">
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="icon-wrapper bg-primary bg-opacity-10 p-1 rounded me-2" style="width: 28px; height: 28px;">
+                            <i class="fas fa-id-card text-primary" style="font-size: 0.8rem;"></i>
+                        </div>
+                        <h6 class="mb-0 fw-bold text-dark small">Data Pribadi</h6>
+                    </div>
+                    
+                    <!-- Row 1: 4 Kolom Compact dengan sedikit gap -->
+                    <div class="row gx-1 gy-1 mb-2">
+                        <div class="col-md-3 mb-1">
+                            <label class="form-label fw-semibold" style="font-size: 0.75rem;">
                                 NIK <span class="text-danger">*</span>
                             </label>
-                            <input type="text"
-                                class="form-control form-control-sm @error('nik') is-invalid @enderror"
-                                id="nik"
-                                name="nik"
-                                value="{{ old('nik') }}"
-                                required
-                                placeholder="16 digit"
-                                maxlength="16"
+                            <input type="text" class="form-control form-control-sm @error('nik') is-invalid @enderror"
+                                id="nik" name="nik" value="{{ old('nik') }}" required
+                                placeholder="16 digit" maxlength="16"
                                 oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                         </div>
 
-                        <div class="col-md-4">
-                            <label for="name" class="form-label small fw-medium mb-1">
-                                Nama Lengkap <span class="text-danger">*</span>
+                        <div class="col-md-3 mb-1">
+                            <label class="form-label fw-semibold" style="font-size: 0.75rem;">
+                                Nama <span class="text-danger">*</span>
                             </label>
-                            <input type="text"
-                                class="form-control form-control-sm @error('name') is-invalid @enderror"
-                                id="name"
-                                name="name"
-                                value="{{ old('name') }}"
-                                required
+                            <input type="text" class="form-control form-control-sm @error('name') is-invalid @enderror"
+                                id="name" name="name" value="{{ old('name') }}" required
                                 placeholder="Nama lengkap">
                         </div>
 
-                        <div class="col-md-4">
-                            <label for="birthdate" class="form-label small fw-medium mb-1">
+                        <div class="col-md-3 mb-1">
+                            <label class="form-label fw-semibold" style="font-size: 0.75rem;">
                                 Tgl Lahir <span class="text-danger">*</span>
                             </label>
-                            <input type="date"
-                                class="form-control form-control-sm @error('birthdate') is-invalid @enderror"
-                                id="birthdate"
-                                name="birthdate"
-                                value="{{ old('birthdate') }}"
-                                required
+                            <input type="date" class="form-control form-control-sm @error('birthdate') is-invalid @enderror"
+                                id="birthdate" name="birthdate" value="{{ old('birthdate') }}" required
                                 max="{{ date('Y-m-d', strtotime('-10 years')) }}">
                         </div>
-                    </div>
 
-                    <div class="row g-2 mb-2">
-                        <!-- Row 2 -->
-                        <div class="col-md-4">
-                            <label for="gender" class="form-label small fw-medium mb-1">
+                        <div class="col-md-3 mb-1">
+                            <label class="form-label fw-semibold" style="font-size: 0.75rem;">
                                 Jenis Kelamin <span class="text-danger">*</span>
                             </label>
                             <select class="form-select form-select-sm @error('gender') is-invalid @enderror"
@@ -133,51 +122,40 @@
                                 @endforeach
                             </select>
                         </div>
+                    </div>
 
-                        <div class="col-md-4">
-                            <label for="phone" class="form-label small fw-medium mb-1">
+                    <!-- Row 2: 4 Kolom Compact -->
+                    <div class="row gx-1 gy-1 mb-2">
+                        <div class="col-md-3 mb-1">
+                            <label class="form-label fw-semibold" style="font-size: 0.75rem;">
                                 WhatsApp <span class="text-danger">*</span>
                             </label>
-                            <input type="tel"
-                                class="form-control form-control-sm @error('phone') is-invalid @enderror"
-                                id="phone"
-                                name="phone"
-                                value="{{ old('phone') }}"
-                                required
+                            <input type="tel" class="form-control form-control-sm @error('phone') is-invalid @enderror"
+                                id="phone" name="phone" value="{{ old('phone') }}" required
                                 placeholder="081234567890"
                                 oninput="this.value = this.value.replace(/[^0-9+]/g, '')">
                         </div>
 
-                        <div class="col-md-4">
-                            <label for="email" class="form-label small fw-medium mb-1">
+                        <div class="col-md-3 mb-1">
+                            <label class="form-label fw-semibold" style="font-size: 0.75rem;">
                                 Email <span class="text-danger">*</span>
                             </label>
-                            <input type="email"
-                                class="form-control form-control-sm @error('email') is-invalid @enderror"
-                                id="email"
-                                name="email"
-                                value="{{ old('email') }}"
-                                required
+                            <input type="email" class="form-control form-control-sm @error('email') is-invalid @enderror"
+                                id="email" name="email" value="{{ old('email') }}" required
                                 placeholder="email@example.com">
                         </div>
-                    </div>
 
-                    <div class="row g-2">
-                        <!-- Row 3 -->
-                        <div class="col-md-6">
-                            <label for="school" class="form-label small fw-medium mb-1">
+                        <div class="col-md-3 mb-1">
+                            <label class="form-label fw-semibold" style="font-size: 0.75rem;">
                                 Sekolah <span class="text-danger">*</span>
                             </label>
-                            <input type="text"
-                                class="form-control form-control-sm bg-light"
-                                id="school"
-                                value="{{ $team->school_name }}"
-                                readonly>
+                            <input type="text" class="form-control form-control-sm bg-light-subtle"
+                                value="{{ $team->school_name }}" readonly>
                             <input type="hidden" name="school_name" value="{{ $team->school_name }}">
                         </div>
 
-                        <div class="col-md-3">
-                            <label for="grade" class="form-label small fw-medium mb-1">
+                        <div class="col-md-3 mb-1">
+                            <label class="form-label fw-semibold" style="font-size: 0.75rem;">
                                 Kelas <span class="text-danger">*</span>
                             </label>
                             <select class="form-select form-select-sm @error('grade') is-invalid @enderror"
@@ -190,62 +168,52 @@
                                 @endforeach
                             </select>
                         </div>
+                    </div>
 
-                        <div class="col-md-3">
-                            <label for="sttb_year" class="form-label small fw-medium mb-1">
+                    <!-- Row 3: STTB Tahun -->
+                    <div class="row gx-1 gy-1">
+                        <div class="col-md-3 mb-1">
+                            <label class="form-label fw-semibold" style="font-size: 0.75rem;">
                                 Tahun STTB <span class="text-danger">*</span>
                             </label>
-                            <input type="text"
-                                class="form-control form-control-sm @error('sttb_year') is-invalid @enderror"
-                                id="sttb_year"
-                                name="sttb_year"
-                                value="{{ old('sttb_year') }}"
-                                required
-                                placeholder="2024"
-                                maxlength="4"
+                            <input type="text" class="form-control form-control-sm @error('sttb_year') is-invalid @enderror"
+                                id="sttb_year" name="sttb_year" value="{{ old('sttb_year') }}" required
+                                placeholder="2024" maxlength="4"
                                 oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                         </div>
                     </div>
                 </div>
 
-                <!-- Section 2: Data Fisik (3 Rows) -->
+                <!-- Section 2: Data Fisik -->
                 <div class="mb-3">
-                    <h6 class="mb-2 pb-1 border-bottom fw-bold small">
-                        <i class="fas fa-running me-1"></i>Data Fisik
-                    </h6>
-
-                    <div class="row g-2 mb-2">
-                        <!-- Row 1 -->
-                        <div class="col-md-3">
-                            <label for="height" class="form-label small fw-medium mb-1">
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="icon-wrapper bg-success bg-opacity-10 p-1 rounded me-2" style="width: 28px; height: 28px;">
+                            <i class="fas fa-running text-success" style="font-size: 0.8rem;"></i>
+                        </div>
+                        <h6 class="mb-0 fw-bold text-dark small">Data Fisik</h6>
+                    </div>
+                    
+                    <div class="row gx-1 gy-1 mb-2">
+                        <div class="col-md-3 mb-1">
+                            <label class="form-label fw-semibold" style="font-size: 0.75rem;">
                                 Tinggi (cm) <span class="text-danger">*</span>
                             </label>
-                            <input type="number"
-                                class="form-control form-control-sm @error('height') is-invalid @enderror"
-                                id="height"
-                                name="height"
-                                value="{{ old('height') }}"
-                                required
-                                min="100" max="250" step="1"
-                                placeholder="170">
+                            <input type="number" class="form-control form-control-sm @error('height') is-invalid @enderror"
+                                id="height" name="height" value="{{ old('height') }}" required
+                                min="100" max="250" step="1" placeholder="170">
                         </div>
 
-                        <div class="col-md-3">
-                            <label for="weight" class="form-label small fw-medium mb-1">
+                        <div class="col-md-3 mb-1">
+                            <label class="form-label fw-semibold" style="font-size: 0.75rem;">
                                 Berat (kg) <span class="text-danger">*</span>
                             </label>
-                            <input type="number"
-                                class="form-control form-control-sm @error('weight') is-invalid @enderror"
-                                id="weight"
-                                name="weight"
-                                value="{{ old('weight') }}"
-                                required
-                                min="30" max="150" step="0.5"
-                                placeholder="65.5">
+                            <input type="number" class="form-control form-control-sm @error('weight') is-invalid @enderror"
+                                id="weight" name="weight" value="{{ old('weight') }}" required
+                                min="30" max="150" step="0.5" placeholder="65.5">
                         </div>
 
-                        <div class="col-md-3">
-                            <label for="tshirt_size" class="form-label small fw-medium mb-1">
+                        <div class="col-md-3 mb-1">
+                            <label class="form-label fw-semibold" style="font-size: 0.75rem;">
                                 Uk. Kaos <span class="text-danger">*</span>
                             </label>
                             <select class="form-select form-select-sm @error('tshirt_size') is-invalid @enderror"
@@ -259,8 +227,8 @@
                             </select>
                         </div>
 
-                        <div class="col-md-3">
-                            <label for="shoes_size" class="form-label small fw-medium mb-1">
+                        <div class="col-md-3 mb-1">
+                            <label class="form-label fw-semibold" style="font-size: 0.75rem;">
                                 Uk. Sepatu <span class="text-danger">*</span>
                             </label>
                             <select class="form-select form-select-sm @error('shoes_size') is-invalid @enderror"
@@ -275,12 +243,11 @@
                         </div>
                     </div>
 
-                    <div class="row g-2">
-                        <!-- Row 2 - Basketball Position -->
-                        @if($category !== 'dancer')
-                        <div class="col-md-6">
-                            <label for="basketball_position" class="form-label small fw-medium mb-1">
-                                Posisi Basket <span class="text-muted">(Opsional)</span>
+                    @if($category !== 'dancer')
+                    <div class="row gx-1 gy-1">
+                        <div class="col-md-4 mb-1">
+                            <label class="form-label fw-semibold" style="font-size: 0.75rem;">
+                                Posisi Basket <small class="text-muted">(Opsional)</small>
                             </label>
                             <select class="form-select form-select-sm @error('basketball_position') is-invalid @enderror"
                                 id="basketball_position" name="basketball_position">
@@ -292,284 +259,154 @@
                                 @endforeach
                             </select>
                         </div>
-                        @endif
                     </div>
+                    @endif
                 </div>
 
-                <!-- Section 3: Orang Tua (2 Rows) -->
+                <!-- Section 3: Data Orang Tua - Compact -->
                 <div class="mb-3">
-                    <h6 class="mb-2 pb-1 border-bottom fw-bold small">
-                        <i class="fas fa-users me-1"></i>Data Orang Tua
-                    </h6>
-
-                    <div class="row g-2 mb-2">
-                        <!-- Ayah -->
-                        <div class="col-md-6">
-                            <div class="row g-1">
-                                <div class="col-12">
-                                    <label class="form-label small fw-medium mb-1">Ayah</label>
-                                </div>
-                                <div class="col-md-6">
-                                    <input type="text"
-                                        class="form-control form-control-sm @error('father_name') is-invalid @enderror"
-                                        id="father_name"
-                                        name="father_name"
-                                        value="{{ old('father_name') }}"
-                                        placeholder="Nama ayah">
-                                </div>
-                                <div class="col-md-6">
-                                    <input type="tel"
-                                        class="form-control form-control-sm @error('father_phone') is-invalid @enderror"
-                                        id="father_phone"
-                                        name="father_phone"
-                                        value="{{ old('father_phone') }}"
-                                        placeholder="No. telepon"
-                                        oninput="this.value = this.value.replace(/[^0-9+]/g, '')">
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="icon-wrapper bg-info bg-opacity-10 p-1 rounded me-2" style="width: 28px; height: 28px;">
+                            <i class="fas fa-users text-info" style="font-size: 0.8rem;"></i>
+                        </div>
+                        <h6 class="mb-0 fw-bold text-dark small">Data Orang Tua</h6>
+                    </div>
+                    
+                    <div class="row gx-1 gy-1">
+                        <div class="col-md-6 mb-1">
+                            <div class="card border h-100 p-2">
+                                <label class="form-label fw-semibold small mb-1">Ayah</label>
+                                <div class="row gx-1 gy-1">
+                                    <div class="col-md-6">
+                                        <input type="text" class="form-control form-control-sm @error('father_name') is-invalid @enderror"
+                                            name="father_name" value="{{ old('father_name') }}" placeholder="Nama ayah">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input type="tel" class="form-control form-control-sm @error('father_phone') is-invalid @enderror"
+                                            name="father_phone" value="{{ old('father_phone') }}" placeholder="No. telepon"
+                                            oninput="this.value = this.value.replace(/[^0-9+]/g, '')">
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Ibu -->
-                        <div class="col-md-6">
-                            <div class="row g-1">
-                                <div class="col-12">
-                                    <label class="form-label small fw-medium mb-1">Ibu</label>
-                                </div>
-                                <div class="col-md-6">
-                                    <input type="text"
-                                        class="form-control form-control-sm @error('mother_name') is-invalid @enderror"
-                                        id="mother_name"
-                                        name="mother_name"
-                                        value="{{ old('mother_name') }}"
-                                        placeholder="Nama ibu">
-                                </div>
-                                <div class="col-md-6">
-                                    <input type="tel"
-                                        class="form-control form-control-sm @error('mother_phone') is-invalid @enderror"
-                                        id="mother_phone"
-                                        name="mother_phone"
-                                        value="{{ old('mother_phone') }}"
-                                        placeholder="No. telepon"
-                                        oninput="this.value = this.value.replace(/[^0-9+]/g, '')">
+                        <div class="col-md-6 mb-1">
+                            <div class="card border h-100 p-2">
+                                <label class="form-label fw-semibold small mb-1">Ibu</label>
+                                <div class="row gx-1 gy-1">
+                                    <div class="col-md-6">
+                                        <input type="text" class="form-control form-control-sm @error('mother_name') is-invalid @enderror"
+                                            name="mother_name" value="{{ old('mother_name') }}" placeholder="Nama ibu">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input type="tel" class="form-control form-control-sm @error('mother_phone') is-invalid @enderror"
+                                            name="mother_phone" value="{{ old('mother_phone') }}" placeholder="No. telepon"
+                                            oninput="this.value = this.value.replace(/[^0-9+]/g, '')">
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Section 4: Dokumen dengan Grid Card -->
+                <!-- Section 4: Dokumen - Compact -->
                 <div class="mb-3">
-                    <h6 class="mb-2 pb-1 border-bottom fw-bold small">
-                        <i class="fas fa-file-upload me-1"></i>Dokumen
-                    </h6>
-
-                    <!-- Dokumen Wajib - Grid 2x2 -->
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="icon-wrapper bg-danger bg-opacity-10 p-1 rounded me-2" style="width: 28px; height: 28px;">
+                            <i class="fas fa-file-upload text-danger" style="font-size: 0.8rem;"></i>
+                        </div>
+                        <h6 class="mb-0 fw-bold text-dark small">Upload Dokumen</h6>
+                    </div>
+                    
+                    <!-- Dokumen Wajib -->
                     <div class="mb-3">
-                        <h6 class="mb-2 small fw-bold text-success">Dokumen Wajib (PDF)</h6>
-                        <div class="row g-2">
-                            <!-- Row 1 -->
-                            <div class="col-md-6">
-                                <div class="card border h-100">
-                                    <div class="card-body p-2">
-                                        <label for="birth_certificate" class="form-label small fw-medium mb-1">
-                                            Akta Kelahiran <span class="text-danger">*</span>
-                                        </label>
-                                        <input type="file"
-                                            class="form-control form-control-sm @error('birth_certificate') is-invalid @enderror"
-                                            id="birth_certificate"
-                                            name="birth_certificate"
-                                            accept=".pdf"
-                                            required>
-                                        <div class="form-text small">PDF, maks. 1MB</div>
-                                        <div class="preview-container mt-1" id="birth_preview" style="display: none;">
-                                            <small class="text-muted">Preview:</small>
-                                            <div class="preview-box small bg-light p-1 rounded mt-1"></div>
-                                        </div>
-                                    </div>
-                                </div>
+                        <h6 class="fw-bold mb-2 small text-success">
+                            Dokumen Wajib <span class="badge bg-success ms-1 small">WAJIB</span>
+                        </h6>
+                        
+                        <div class="row gx-1 gy-1 mb-2">
+                            <div class="col-md-6 mb-1">
+                                <label class="form-label fw-semibold small mb-1">
+                                    Akta Kelahiran <span class="text-danger">*</span>
+                                </label>
+                                <input type="file" class="form-control form-control-sm @error('birth_certificate') is-invalid @enderror"
+                                    name="birth_certificate" accept=".pdf" required>
                             </div>
 
-                            <div class="col-md-6">
-                                <div class="card border h-100">
-                                    <div class="card-body p-2">
-                                        <label for="kk" class="form-label small fw-medium mb-1">
-                                            Kartu Keluarga (KK) <span class="text-danger">*</span>
-                                        </label>
-                                        <input type="file"
-                                            class="form-control form-control-sm @error('kk') is-invalid @enderror"
-                                            id="kk"
-                                            name="kk"
-                                            accept=".pdf"
-                                            required>
-                                        <div class="form-text small">PDF, maks. 1MB</div>
-                                        <div class="preview-container mt-1" id="kk_preview" style="display: none;">
-                                            <small class="text-muted">Preview:</small>
-                                            <div class="preview-box small bg-light p-1 rounded mt-1"></div>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="col-md-6 mb-1">
+                                <label class="form-label fw-semibold small mb-1">
+                                    Kartu Keluarga <span class="text-danger">*</span>
+                                </label>
+                                <input type="file" class="form-control form-control-sm @error('kk') is-invalid @enderror"
+                                    name="kk" accept=".pdf" required>
                             </div>
 
-                            <!-- Row 2 -->
-                            <div class="col-md-6">
-                                <div class="card border h-100">
-                                    <div class="card-body p-2">
-                                        <label for="shun" class="form-label small fw-medium mb-1">
-                                            SHUN <span class="text-danger">*</span>
-                                        </label>
-                                        <input type="file"
-                                            class="form-control form-control-sm @error('shun') is-invalid @enderror"
-                                            id="shun"
-                                            name="shun"
-                                            accept=".pdf"
-                                            required>
-                                        <div class="form-text small">Surat Hasil Ujian Nasional</div>
-                                        <div class="preview-container mt-1" id="shun_preview" style="display: none;">
-                                            <small class="text-muted">Preview:</small>
-                                            <div class="preview-box small bg-light p-1 rounded mt-1"></div>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="col-md-6 mb-1">
+                                <label class="form-label fw-semibold small mb-1">
+                                    SHUN <span class="text-danger">*</span>
+                                </label>
+                                <input type="file" class="form-control form-control-sm @error('shun') is-invalid @enderror"
+                                    name="shun" accept=".pdf" required>
                             </div>
 
-                            <div class="col-md-6">
-                                <div class="card border h-100">
-                                    <div class="card-body p-2">
-                                        <label for="report_identity" class="form-label small fw-medium mb-1">
-                                            Laporan Identitas <span class="text-danger">*</span>
-                                        </label>
-                                        <input type="file"
-                                            class="form-control form-control-sm @error('report_identity') is-invalid @enderror"
-                                            id="report_identity"
-                                            name="report_identity"
-                                            accept=".pdf"
-                                            required>
-                                        <div class="form-text small">PDF, maks. 1MB</div>
-                                        <div class="preview-container mt-1" id="report_preview" style="display: none;">
-                                            <small class="text-muted">Preview:</small>
-                                            <div class="preview-box small bg-light p-1 rounded mt-1"></div>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="col-md-6 mb-1">
+                                <label class="form-label fw-semibold small mb-1">
+                                    Laporan Identitas <span class="text-danger">*</span>
+                                </label>
+                                <input type="file" class="form-control form-control-sm @error('report_identity') is-invalid @enderror"
+                                    name="report_identity" accept=".pdf" required>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Dokumen Tambahan - Grid 2x1 -->
+                    <!-- Dokumen Tambahan -->
                     <div class="mb-3">
-                        <h6 class="mb-2 small fw-bold text-primary">Dokumen Tambahan</h6>
-                        <div class="row g-2">
-                            <div class="col-md-6">
-                                <div class="card border h-100">
-                                    <div class="card-body p-2">
-                                        <label for="last_report_card" class="form-label small fw-medium mb-1">
-                                            Raport Terakhir <span class="text-danger">*</span>
-                                        </label>
-                                        <input type="file"
-                                            class="form-control form-control-sm @error('last_report_card') is-invalid @enderror"
-                                            id="last_report_card"
-                                            name="last_report_card"
-                                            accept=".pdf"
-                                            required>
-                                        <div class="form-text small">PDF, maks. 1MB</div>
-                                        <div class="preview-container mt-1" id="reportcard_preview" style="display: none;">
-                                            <small class="text-muted">Preview:</small>
-                                            <div class="preview-box small bg-light p-1 rounded mt-1"></div>
-                                        </div>
-                                    </div>
-                                </div>
+                        <h6 class="fw-bold mb-2 small text-primary">Dokumen Tambahan</h6>
+                        
+                        <div class="row gx-1 gy-1 mb-2">
+                            <div class="col-md-6 mb-1">
+                                <label class="form-label fw-semibold small mb-1">
+                                    Raport Terakhir <span class="text-danger">*</span>
+                                </label>
+                                <input type="file" class="form-control form-control-sm @error('last_report_card') is-invalid @enderror"
+                                    name="last_report_card" accept=".pdf" required>
                             </div>
 
-                            <div class="col-md-6">
-                                <div class="card border h-100">
-                                    <div class="card-body p-2">
-                                        <label for="formal_photo" class="form-label small fw-medium mb-1">
-                                            Foto Formal <span class="text-danger">*</span>
-                                        </label>
-                                        <input type="file"
-                                            class="form-control form-control-sm @error('formal_photo') is-invalid @enderror"
-                                            id="formal_photo"
-                                            name="formal_photo"
-                                            accept=".jpg,.jpeg,.png"
-                                            required>
-                                        <div class="form-text small">JPG/PNG, maks. 1MB</div>
-                                        <div class="preview-container mt-1" id="photo_preview" style="display: none;">
-                                            <small class="text-muted">Preview:</small>
-                                            <img class="preview-img mt-1 rounded" style="max-width: 60px; max-height: 60px;">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Assignment Letter -->
-                        <div class="row g-2 mt-2">
-                            <div class="col-md-6">
-                                <div class="card border h-100">
-                                    <div class="card-body p-2">
-                                        <label for="assignment_letter" class="form-label small fw-medium mb-1">
-                                            Surat Penugasan <span class="text-muted">(Opsional)</span>
-                                        </label>
-                                        <input type="file"
-                                            class="form-control form-control-sm @error('assignment_letter') is-invalid @enderror"
-                                            id="assignment_letter"
-                                            name="assignment_letter"
-                                            accept=".pdf">
-                                        <div class="form-text small">PDF, maks. 1MB</div>
-                                        <div class="preview-container mt-1" id="assignment_preview" style="display: none;">
-                                            <small class="text-muted">Preview:</small>
-                                            <div class="preview-box small bg-light p-1 rounded mt-1"></div>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="col-md-6 mb-1">
+                                <label class="form-label fw-semibold small mb-1">
+                                    Foto Formal <span class="text-danger">*</span>
+                                </label>
+                                <input type="file" class="form-control form-control-sm @error('formal_photo') is-invalid @enderror"
+                                    name="formal_photo" accept=".jpg,.jpeg,.png" required>
                             </div>
 
-                            <!-- PAYMENT PROOF (HANYA UNTUK LEADER) -->
+                            <div class="col-md-6 mb-1">
+                                <label class="form-label fw-semibold small mb-1">
+                                    Surat Penugasan <small class="text-muted">(Opsional)</small>
+                                </label>
+                                <input type="file" class="form-control form-control-sm @error('assignment_letter') is-invalid @enderror"
+                                    name="assignment_letter" accept=".pdf">
+                            </div>
+
                             @if($role === 'Leader')
-                            <div class="col-md-6">
-                                <div class="card border-warning border h-100">
-                                    <div class="card-body p-2">
-                                        <h6 class="mb-1 small fw-bold text-warning">
-                                            <i class="fas fa-money-bill-wave me-1"></i>Bukti Pembayaran
-                                            <span class="badge bg-danger ms-1">WAJIB</span>
-                                        </h6>
-                                        
-                                        <div class="alert alert-warning small mb-1 py-1">
-                                            <i class="fas fa-exclamation-triangle me-1"></i>
-                                            Anda wajib membayar.
-                                        </div>
-
-                                        <label for="payment_proof" class="form-label small fw-medium mb-1">
-                                            Upload Bukti <span class="text-danger">*</span>
-                                        </label>
-                                        <input type="file"
-                                            class="form-control form-control-sm @error('payment_proof') is-invalid @enderror"
-                                            id="payment_proof"
-                                            name="payment_proof"
-                                            accept=".jpg,.jpeg,.png,.pdf"
-                                            required>
-                                        <div class="form-text small">JPG/PNG/PDF, maks. 2MB</div>
-                                        <div class="preview-container mt-1" id="payment_preview" style="display: none;">
-                                            <small class="text-muted">Preview:</small>
-                                            <div class="preview-box small bg-light p-1 rounded mt-1" id="payment_text_preview"></div>
-                                            <img class="preview-img mt-1 rounded d-none" style="max-width: 60px; max-height: 60px;">
-                                        </div>
-                                    </div>
+                            <div class="col-md-6 mb-1">
+                                <div class="card border-warning h-100 p-2">
+                                    <h6 class="fw-bold text-warning mb-1 small">
+                                        Bukti Pembayaran <span class="badge bg-danger ms-1 small">WAJIB</span>
+                                    </h6>
+                                    <label class="form-label fw-semibold small mb-1">
+                                        Upload Bukti <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="file" class="form-control form-control-sm @error('payment_proof') is-invalid @enderror"
+                                        name="payment_proof" accept=".jpg,.jpeg,.png,.pdf" required>
                                 </div>
                             </div>
                             @else
-                            <div class="col-md-6">
-                                <div class="card border-success border h-100">
-                                    <div class="card-body p-2">
-                                        <div class="alert alert-success small p-2">
-                                            <div class="d-flex">
-                                                <i class="fas fa-check-circle me-2"></i>
-                                                <div>
-                                                    <div class="fw-medium">✅ Biaya Sudah Dibayar</div>
-                                                    <div class="small">Anda bergabung sebagai anggota tim.</div>
-                                                </div>
-                                            </div>
-                                        </div>
+                            <div class="col-md-6 mb-1">
+                                <div class="card border-success h-100 p-2">
+                                    <div class="text-center p-1">
+                                        <i class="fas fa-check-circle text-success"></i>
+                                        <p class="mb-0 small fw-bold">Biaya Sudah Dibayar</p>
                                     </div>
                                 </div>
                             </div>
@@ -581,26 +418,23 @@
                 <!-- Terms Agreement -->
                 <div class="form-check mb-3">
                     <input class="form-check-input @error('terms') is-invalid @enderror"
-                        type="checkbox"
-                        id="terms"
-                        name="terms"
-                        required>
-                    <label class="form-check-label small" for="terms">
+                        type="checkbox" id="terms" name="terms" required>
+                    <label class="form-check-label fw-medium small" for="terms" style="font-size: 0.8rem;">
                         Saya menyetujui Syarat & Ketentuan dan memastikan data benar.
                     </label>
                 </div>
 
                 <!-- Submit Button -->
-                <div class="border-top pt-3 mt-3">
+                <div class="border-top pt-2 mt-2">
                     <div class="d-flex justify-content-between">
-                        <a href="{{ route('form.team.create') }}" class="btn btn-outline-secondary btn-sm">
+                        <a href="{{ route('form.team.create') }}" class="btn btn-outline-secondary btn-sm px-3">
                             <i class="fas fa-times me-1"></i>Batal
                         </a>
                         <button type="submit" class="btn btn-primary btn-sm px-3">
                             @if($role === 'Leader')
-                            <i class="fas fa-crown me-1"></i>Daftar sebagai Leader
+                            <i class="fas fa-crown me-1"></i>Daftar
                             @else
-                            <i class="fas fa-paper-plane me-1"></i>Kirim Pendaftaran
+                            <i class="fas fa-paper-plane me-1"></i>Kirim
                             @endif
                         </button>
                     </div>
@@ -612,246 +446,274 @@
 
 @push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Setup preview for all file inputs
-        const fileInputs = [
-            { id: 'birth_certificate', previewId: 'birth_preview' },
-            { id: 'kk', previewId: 'kk_preview' },
-            { id: 'shun', previewId: 'shun_preview' },
-            { id: 'report_identity', previewId: 'report_preview' },
-            { id: 'last_report_card', previewId: 'reportcard_preview' },
-            { id: 'formal_photo', previewId: 'photo_preview', isImage: true },
-            { id: 'assignment_letter', previewId: 'assignment_preview' },
-            { id: 'payment_proof', previewId: 'payment_preview', isPayment: true }
-        ];
-
-        fileInputs.forEach(fileConfig => {
-            const input = document.getElementById(fileConfig.id);
-            const previewContainer = document.getElementById(fileConfig.previewId);
-            
-            if (input && previewContainer) {
-                input.addEventListener('change', function(e) {
-                    const file = e.target.files[0];
-                    if (!file) {
-                        previewContainer.style.display = 'none';
-                        return;
-                    }
-
-                    // Validate file size
-                    let maxSize;
-                    if (fileConfig.id === 'payment_proof') {
-                        maxSize = 2 * 1024 * 1024; // 2MB
-                    } else if (file.type.includes('image')) {
-                        maxSize = 1 * 1024 * 1024; // 1MB
-                    } else {
-                        maxSize = 1 * 1024 * 1024; // 1MB for PDF
-                    }
-
-                    if (file.size > maxSize) {
-                        alert(`File terlalu besar! Maksimal ${maxSize / (1024 * 1024)}MB`);
-                        this.value = '';
-                        previewContainer.style.display = 'none';
-                        return;
-                    }
-
-                    // Show preview
-                    if (fileConfig.isImage || (fileConfig.isPayment && file.type.includes('image'))) {
-                        // Image preview
-                        const img = previewContainer.querySelector('.preview-img');
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            img.src = e.target.result;
-                            previewContainer.style.display = 'block';
-                        };
-                        reader.readAsDataURL(file);
-                        
-                        if (fileConfig.isPayment) {
-                            const textPreview = previewContainer.querySelector('#payment_text_preview');
-                            textPreview.style.display = 'none';
-                            img.classList.remove('d-none');
-                        }
-                    } else {
-                        // Text preview for PDF
-                        const previewBox = previewContainer.querySelector('.preview-box');
-                        previewBox.textContent = `📄 ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
-                        previewContainer.style.display = 'block';
-                        
-                        if (fileConfig.isPayment) {
-                            const img = previewContainer.querySelector('.preview-img');
-                            img.classList.add('d-none');
-                            const textPreview = previewContainer.querySelector('#payment_text_preview');
-                            textPreview.style.display = 'block';
-                            textPreview.textContent = `📄 ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
-                        }
-                    }
-                });
+document.addEventListener('DOMContentLoaded', function() {
+    // NIK validation
+    const nikInput = document.getElementById('nik');
+    if (nikInput) {
+        nikInput.addEventListener('blur', function() {
+            if (this.value.length !== 16 && this.value.length > 0) {
+                alert('NIK harus 16 digit');
+                this.focus();
             }
         });
+    }
 
-        // NIK validation
-        const nikInput = document.getElementById('nik');
-        if (nikInput) {
-            nikInput.addEventListener('blur', function() {
-                if (this.value.length !== 16 && this.value.length > 0) {
-                    alert('NIK harus 16 digit');
-                    this.focus();
-                }
-            });
-        }
+    // File size validation
+    const fileInputs = document.querySelectorAll('input[type="file"]');
+    fileInputs.forEach(input => {
+        input.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
 
-        // Form validation
-        const form = document.getElementById('playerForm');
-        form.addEventListener('submit', function(e) {
-            let isValid = true;
-            const requiredInputs = this.querySelectorAll('[required]');
+            let maxSize = this.name === 'payment_proof' ? 2 * 1024 * 1024 : 1 * 1024 * 1024;
             
-            requiredInputs.forEach(input => {
-                if (!input.value.trim() && input.type !== 'file' && input.type !== 'checkbox') {
-                    isValid = false;
-                    input.classList.add('is-invalid');
-                } else if (input.type === 'checkbox' && !input.checked) {
-                    isValid = false;
-                    input.classList.add('is-invalid');
-                } else {
-                    input.classList.remove('is-invalid');
-                }
-            });
-
-            if (!isValid) {
-                e.preventDefault();
-                alert('Harap lengkapi semua data yang wajib diisi.');
-            } else {
-                const role = "{{ $role }}";
-                const submitBtn = this.querySelector('button[type="submit"]');
-                if (role === 'Leader') {
-                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Memproses...';
-                } else {
-                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Mengirim...';
-                }
-                submitBtn.disabled = true;
+            if (file.size > maxSize) {
+                alert(`File terlalu besar! Maksimal ${maxSize / (1024 * 1024)}MB`);
+                this.value = '';
             }
         });
     });
+
+    // Form validation
+    const form = document.getElementById('playerForm');
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        const requiredInputs = this.querySelectorAll('[required]');
+        
+        requiredInputs.forEach(input => {
+            if (!input.value.trim() && input.type !== 'file' && input.type !== 'checkbox') {
+                isValid = false;
+                input.classList.add('is-invalid');
+            } else if (input.type === 'checkbox' && !input.checked) {
+                isValid = false;
+                input.classList.add('is-invalid');
+            } else {
+                input.classList.remove('is-invalid');
+            }
+        });
+
+        if (!isValid) {
+            e.preventDefault();
+            alert('Harap lengkapi semua data yang wajib diisi.');
+        } else {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Memproses...';
+            submitBtn.disabled = true;
+        }
+    });
+});
 </script>
 
 <style>
-    .card {
-        border-radius: 6px;
-        border: 1px solid #ddd;
+/* Lebih lega sedikit di kanan kiri */
+.container { 
+    padding-top: 0.5rem !important;
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+}
+
+/* Card lebih lebar sedikit */
+.card { 
+    border-radius: 8px; 
+    max-width: 800px !important;
+    margin: 0 auto;
+}
+
+.card-header { 
+    border-radius: 8px 8px 0 0 !important; 
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+/* Form controls sedikit lebih lega */
+.form-control-sm, .form-select-sm {
+    padding: 0.3rem 0.6rem !important;
+    font-size: 0.8rem !important;
+    height: calc(1.5em + 0.6rem + 2px) !important;
+    border-radius: 4px !important;
+}
+
+/* Labels sedikit lebih lega */
+.form-label {
+    font-size: 0.75rem !important;
+    margin-bottom: 0.15rem !important;
+    font-weight: 600;
+}
+
+/* Spacing sedikit lebih longgar */
+.mb-1 { margin-bottom: 0.3rem !important; }
+.mb-2 { margin-bottom: 0.6rem !important; }
+.mb-3 { margin-bottom: 1rem !important; }
+.p-2 { padding: 0.5rem !important; }
+.p-3 { padding: 0.8rem !important; }
+
+/* Grid dengan ruang sedikit lebih banyak */
+.row.gx-1 {
+    --bs-gutter-x: 0.4rem;
+}
+.row.gy-1 {
+    --bs-gutter-y: 0.4rem;
+}
+
+/* Alert sedikit lebih lebar */
+.alert {
+    padding: 0.6rem !important;
+    margin-bottom: 0.8rem !important;
+    font-size: 0.8rem !important;
+}
+
+/* Button sedikit lebih lebar */
+.btn-sm {
+    padding: 0.3rem 0.8rem !important;
+    font-size: 0.8rem !important;
+    border-radius: 4px !important;
+}
+
+/* Card body dengan sedikit lebih banyak ruang */
+.card-body {
+    padding: 1rem !important;
+}
+
+@media (min-width: 768px) {
+    .card-body {
+        padding: 1.25rem !important;
+    }
+}
+
+/* Badge sedikit lebih besar */
+.badge.small {
+    font-size: 0.7rem !important;
+    padding: 0.2rem 0.4rem !important;
+}
+
+/* Card dalam card sedikit lebih banyak ruang */
+.card .card {
+    padding: 0.5rem !important;
+}
+
+/* Responsive - lebih lega di desktop */
+@media (min-width: 992px) {
+    .container {
+        padding-left: 1.5rem !important;
+        padding-right: 1.5rem !important;
     }
     
-    .card-header {
-        background: #f8f9fa;
-        border-bottom: 1px solid #ddd;
-        padding: 0.75rem 1rem;
+    .card {
+        max-width: 820px !important;
+    }
+}
+
+/* Responsive - mobile masih compact tapi dengan sedikit breathing room */
+@media (max-width: 768px) {
+    .container {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
     }
     
     .card-body {
-        padding: 0.75rem;
+        padding: 0.75rem !important;
     }
     
-    .form-label {
-        font-size: 0.8rem;
-        margin-bottom: 0.2rem;
+    .col-md-3, .col-md-6 {
+        margin-bottom: 0.4rem !important;
+    }
+    
+    .row.gx-1 {
+        --bs-gutter-x: 0.3rem;
+    }
+    .row.gy-1 {
+        --bs-gutter-y: 0.3rem;
     }
     
     .form-control-sm, .form-select-sm {
-        font-size: 0.85rem;
-        padding: 0.25rem 0.5rem;
-        height: calc(1.5em + 0.5rem + 2px);
+        padding: 0.25rem 0.5rem !important;
+        font-size: 0.75rem !important;
     }
     
     .btn-sm {
-        font-size: 0.85rem;
-        padding: 0.25rem 0.5rem;
+        padding: 0.25rem 0.6rem !important;
+        font-size: 0.75rem !important;
     }
     
-    .small {
-        font-size: 0.8rem;
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 0.5rem;
     }
     
-    .alert {
-        padding: 0.5rem;
-        font-size: 0.85rem;
-        margin-bottom: 0.5rem;
+    .btn-sm {
+        width: 100%;
+        margin-bottom: 0.25rem;
     }
-    
-    h6 {
-        font-size: 0.9rem;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #667eea;
+    border-radius: 3px;
+}
+
+/* Focus states */
+.form-control:focus, .form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    outline: none;
+}
+
+/* File input styling */
+input[type="file"] {
+    font-size: 0.75rem !important;
+}
+
+/* Checkbox sizing */
+.form-check-input {
+    width: 0.9em;
+    height: 0.9em;
+    margin-top: 0.15em;
+}
+
+.form-check-label {
+    font-size: 0.8rem !important;
+}
+
+/* Section headers */
+h6.small {
+    font-size: 0.85rem !important;
+    font-weight: 600;
+}
+
+/* Card hover effect minimal */
+.card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: box-shadow 0.2s ease;
+}
+
+/* Border top dengan sedikit lebih banyak ruang */
+.border-top {
+    border-top: 1px solid #dee2e6 !important;
+    padding-top: 0.75rem !important;
+    margin-top: 0.75rem !important;
+}
+
+/* Container max-width untuk sangat besar screen */
+@media (min-width: 1400px) {
+    .container {
+        max-width: 900px;
+        margin: 0 auto;
     }
-    
-    h5 {
-        font-size: 1rem;
-    }
-    
-    .mb-1 {
-        margin-bottom: 0.25rem !important;
-    }
-    
-    .mb-2 {
-        margin-bottom: 0.5rem !important;
-    }
-    
-    .mb-3 {
-        margin-bottom: 0.75rem !important;
-    }
-    
-    .mt-2 {
-        margin-top: 0.5rem !important;
-    }
-    
-    .border-bottom {
-        border-bottom-width: 1px !important;
-    }
-    
-    .border-top {
-        border-top-width: 1px !important;
-    }
-    
-    .form-text {
-        font-size: 0.75rem;
-        margin-top: 0.2rem;
-    }
-    
-    .preview-container {
-        border-top: 1px solid #eee;
-        padding-top: 0.5rem;
-    }
-    
-    .preview-box {
-        background: #f8f9fa;
-        border: 1px solid #dee2e6;
-        border-radius: 4px;
-    }
-    
-    .badge {
-        font-size: 0.7rem;
-        padding: 0.2rem 0.4rem;
-    }
-    
-    /* Responsive */
-    @media (max-width: 768px) {
-        .card-body {
-            padding: 0.5rem !important;
-        }
-        
-        .d-flex.justify-content-between {
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-        
-        .btn-sm {
-            width: 100%;
-        }
-        
-        .row > div {
-            margin-bottom: 0.5rem;
-        }
-        
-        .col-md-6, .col-md-3, .col-md-4 {
-            margin-bottom: 0.5rem;
-        }
-    }
+}
 </style>
 @endpush
 @endsection

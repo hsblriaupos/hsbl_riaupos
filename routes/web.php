@@ -64,18 +64,18 @@ Route::prefix('student')->name('student.')->group(function () {
     Route::get('/login', function () {
         return redirect()->route('login.form')->with('active_tab', 'student');
     })->name('login');
-    
+
     // Login Process
     Route::post('/login', [StudentAuthController::class, 'login'])->name('login.submit');
-    
+
     // Registration
     Route::get('/register', [StudentAuthController::class, 'showRegisterForm'])->name('register');
     Route::post('/register', [StudentAuthController::class, 'register'])->name('register.submit');
-    
+
     // Forgot Password
     Route::get('/forgot-password', [StudentAuthController::class, 'showForgotPasswordForm'])->name('password.request');
     Route::post('/forgot-password', [StudentAuthController::class, 'forgotPassword'])->name('password.email');
-    
+
     // Student-specific logout
     Route::post('/logout', [StudentAuthController::class, 'logout'])->name('logout');
 });
@@ -153,7 +153,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::post('/camper/detail/update/{id}', [CamperController::class, 'updateCamper'])->name('camper.update');
 
     // ========== PUBLICATION MANAGEMENT ==========
-    
+
     Route::prefix('pub_schedule')->name('pub_schedule.')->group(function () {
         Route::get('/', [PubMatchDataController::class, 'index'])->name('index');
         Route::get('/create/{event_id?}', [PubMatchDataController::class, 'create'])->name('create');
@@ -183,7 +183,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     });
 
     // ========== CONTENT MANAGEMENT ==========
-    
+
     // Sponsor Management
     Route::get('/sponsor', [SponsorController::class, 'sponsor'])->name('sponsor.sponsor');
     Route::get('/sponsor/create', [SponsorController::class, 'create'])->name('sponsor.create');
@@ -227,41 +227,41 @@ Route::prefix('student')->name('student.')->middleware(['auth'])->group(function
     Route::get('/dashboard', function () {
         return view('user.form.form_team');
     })->name('dashboard');
-    
+
     // Notifikasi
     Route::get('/notifications', function () {
         return view('student.notifications');
     })->name('notifications');
-    
+
     // Edit Profil
     Route::get('/profile/edit', function () {
         return view('student.profile_edit');
     })->name('profile.edit');
-    
+
     // Tim Saya
     Route::get('/my-team', function () {
         return view('student.my_team');
     })->name('team');
-    
+
     // ========== SCHOOL DATA MANAGEMENT ==========
     // Edit Data Sekolah (Route yang ditambahkan)
     Route::get('/school/edit', function () {
         return view('student.school_edit');
     })->name('school.edit');
-    
+
     // ========== PROFILE MANAGEMENT ==========
     // Profile Management
     Route::get('/profile', [StudentProfileController::class, 'index'])->name('profile');
     Route::put('/profile', [StudentProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [StudentProfileController::class, 'updatePassword'])->name('profile.password');
-    
+
     // Team Management (jika siswa punya tim)
     Route::get('/team/players', [StudentDashboardController::class, 'teamPlayers'])->name('team.players');
-    
+
     // Schedule & Results
     Route::get('/schedules', [StudentDashboardController::class, 'schedules'])->name('schedules');
     Route::get('/results', [StudentDashboardController::class, 'results'])->name('results');
-    
+
     // Documents
     Route::get('/documents', [StudentDashboardController::class, 'documents'])->name('documents');
     Route::get('/documents/download/{id}', [StudentDashboardController::class, 'downloadDocument'])->name('documents.download');
@@ -309,11 +309,11 @@ Route::prefix('form')->name('form.')->group(function () {
     Route::get('/team/choice', [FormTeamController::class, 'showChoiceForm'])->name('team.choice');
     Route::get('/team/create', [FormTeamController::class, 'showCreateForm'])->name('team.create');
     Route::post('/team/create', [FormTeamController::class, 'createTeam'])->name('team.store');
-    
+
     // 🔥 JOIN TEAM FLOW (BARU)
     Route::get('/team/join', [FormTeamController::class, 'showJoinForm'])->name('team.join');
     Route::post('/team/join', [FormTeamController::class, 'joinTeam'])->name('team.join.submit');
-    
+
     // 🔥 ROLE SELECTION (BARU)
     Route::get('/team/join/role', [FormTeamController::class, 'showRoleSelectionForm'])
         ->name('team.join.role');
@@ -327,12 +327,12 @@ Route::prefix('form')->name('form.')->group(function () {
 
     // Player Registration
     Route::get('/player/create/{team_id}', [FormPlayerController::class, 'showPlayerForm'])->name('player.create');
-    
+
     // 🔥 PLAYER REGISTRATION WITH CATEGORY (BARU)
     Route::get('/player/create/{team_id}/{category}', [FormPlayerController::class, 'showPlayerFormWithCategory'])
         ->name('player.create.with-category')
         ->where('category', 'putra|putri|dancer');
-        
+
     Route::post('/player/store', [FormPlayerController::class, 'storePlayer'])->name('player.store');
     Route::get('/player/success/{team_id}/{player_id}', [FormPlayerController::class, 'showSuccessPage'])->name('player.success');
 
@@ -342,19 +342,24 @@ Route::prefix('form')->name('form.')->group(function () {
     Route::post('/player/check-leader', [FormPlayerController::class, 'checkLeaderExists'])->name('player.checkLeader');
     Route::post('/player/check-team-payment', [FormPlayerController::class, 'checkTeamPayment'])->name('player.checkTeamPayment');
 
-    // Dancer Registration
-Route::get('/dancer/create/{team_id}', [FormDancerController::class, 'showDancerForm'])->name('dancer.create');
-Route::get('/dancer/create/{team_id}/{category}', [FormDancerController::class, 'showDancerForm'])
-    ->name('dancer.create.with-category')
-    ->where('category', 'dancer');
-Route::post('/dancer/store', [FormDancerController::class, 'storeDancer'])->name('dancer.store');
-Route::get('/dancer/success/{team_id}/{dancer_id}', [FormDancerController::class, 'showSuccessPage'])->name('dancer.success');
+    // ========== DANCER ROUTES ==========
+    // 🎯 DANCER FORM
+    Route::get('/dancer/create/{team_id}', [FormDancerController::class, 'showDancerForm'])
+        ->name('dancer.create');
 
-// API Endpoints for Dancer
-Route::post('/dancer/check-nik', [FormDancerController::class, 'checkNik'])->name('dancer.checkNik');
-Route::post('/dancer/check-email', [FormDancerController::class, 'checkEmail'])->name('dancer.checkEmail');
-Route::post('/dancer/check-leader', [FormDancerController::class, 'checkLeaderExists'])->name('dancer.checkLeader');
-Route::post('/dancer/check-team-payment', [FormDancerController::class, 'checkTeamPayment'])->name('dancer.checkTeamPayment');
+    // 🎯 DANCER STORE
+    Route::post('/dancer/store', [FormDancerController::class, 'storeDancer'])
+        ->name('dancer.store');
+
+    // 🎯 DANCER SUCCESS
+    Route::get('/dancer/success/{team_id}/{dancer_id}', [FormDancerController::class, 'showSuccessPage'])
+        ->name('dancer.success');
+
+    // API endpoints
+    Route::post('/dancer/check-nik', [FormDancerController::class, 'checkNik'])->name('dancer.checkNik');
+    Route::post('/dancer/check-email', [FormDancerController::class, 'checkEmail'])->name('dancer.checkEmail');
+    Route::post('/dancer/check-leader', [FormDancerController::class, 'checkLeaderExists'])->name('dancer.checkLeader');
+    Route::post('/dancer/check-team-payment', [FormDancerController::class, 'checkTeamPayment'])->name('dancer.checkTeamPayment');
 });
 
 /*

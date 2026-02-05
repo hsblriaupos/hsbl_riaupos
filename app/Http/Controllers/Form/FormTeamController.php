@@ -7,7 +7,7 @@ use App\Models\School;
 use App\Models\TeamList;
 use App\Models\City;
 use App\Models\PlayerList;
-use App\Models\DancerList; // Tambahkan ini
+use App\Models\DancerList;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -161,7 +161,7 @@ class FormTeamController extends Controller
     }
 
     /**
-     * Proses pemilihan role dan redirect ke form yang sesuai (VERSI BARU UNTUK DANCER)
+     * Proses pemilihan role dan redirect ke form yang sesuai
      */
     public function processRoleSelection(Request $request)
     {
@@ -180,34 +180,14 @@ class FormTeamController extends Controller
         // Normalisasi kategori
         $playerCategory = $this->normalizeCategory($request->team_category);
 
-        // ============================================
-        // 🔥 LOGIC PENTING: Tentukan apakah user bisa jadi Leader
-        // ============================================
+        Log::info('Role Selection:', [
+            'team_id' => $team->team_id,
+            'team_category' => $request->team_category,
+            'player_category' => $playerCategory,
+            'is_leader_paid' => $team->is_leader_paid
+        ]);
 
-        // Untuk Basket: cek di PlayerList
-        // Untuk Dancer: cek di DancerList (jika sudah ada modelnya)
-        $existingLeaderCount = 0;
-        
-        if ($playerCategory === 'dancer') {
-            // Cek apakah sudah ada Leader dancer di tim ini
-            if (class_exists(DancerList::class)) {
-                $existingLeaderCount = DancerList::where('team_id', $team->team_id)
-                    ->where('role', 'Leader')
-                    ->count();
-            }
-        } else {
-            // Cek apakah sudah ada Leader basket di tim ini
-            $existingLeaderCount = PlayerList::where('team_id', $team->team_id)
-                ->where('category', $playerCategory)
-                ->where('role', 'Leader')
-                ->count();
-        }
-
-        // 🔥 LOGIC: Jika tim SUDAH bayar dan BELUM ada Leader di kategori ini, bisa jadi Leader
-        // Jika tim SUDAH bayar dan SUDAH ada Leader di kategori ini, jadi Player/Member saja
-        $canBeLeader = ($team->is_leader_paid && $existingLeaderCount === 0);
-
-        // Jika tim BELUM bayar, semua kategori belum bisa daftar (harus ada Leader yang bayar dulu)
+        // Jika tim BELUM bayar, semua kategori belum bisa daftar
         if (!$team->is_leader_paid) {
             return redirect()->back()
                 ->withErrors([
@@ -215,32 +195,22 @@ class FormTeamController extends Controller
                 ])->withInput();
         }
 
-        // Simpan ke session untuk digunakan di form
+        // Simpan ke session
         session([
             'current_team_id' => $team->team_id,
             'current_team_category' => $request->team_category,
             'current_player_category' => $playerCategory,
-            'current_can_be_leader' => $canBeLeader,
             'join_referral_code' => $request->referral_code,
-        ]);
-
-        // Debug info
-        Log::info('Role Selection Processed:', [
-            'team_id' => $team->team_id,
-            'team_category' => $request->team_category,
-            'player_category' => $playerCategory,
-            'can_be_leader' => $canBeLeader,
-            'existing_leader_count' => $existingLeaderCount,
-            'team_is_leader_paid' => $team->is_leader_paid
         ]);
 
         // Redirect ke form yang sesuai berdasarkan kategori
         if ($playerCategory === 'dancer') {
-            return redirect()->route('form.dancer.create.with-category', [
-                'team_id' => $team->team_id,
-                'category' => 'dancer'
+            Log::info('Redirecting to dancer form for team: ' . $team->team_id);
+            return redirect()->route('form.dancer.create', [
+                'team_id' => $team->team_id
             ]);
         } else {
+            Log::info('Redirecting to player form for team: ' . $team->team_id . ' category: ' . $playerCategory);
             return redirect()->route('form.player.create.with-category', [
                 'team_id' => $team->team_id,
                 'category' => $playerCategory
@@ -249,7 +219,7 @@ class FormTeamController extends Controller
     }
 
     /**
-     * Normalisasi kategori dari team_list ke player_list/dancer_list (SATU VERSI SAJA)
+     * Normalisasi kategori dari team_list ke player_list/dancer_list
      */
     private function normalizeCategory($teamCategory)
     {
@@ -358,9 +328,8 @@ class FormTeamController extends Controller
             }
 
             // CEK TIM YANG SUDAH ADA
-            // Tentukan kategori team yang akan disimpan
             $normalizedCategory = $this->normalizeCategory($validated['team_category']);
-            $specificTeamCategory = $validated['team_category']; // Gunakan kategori asli
+            $specificTeamCategory = $validated['team_category'];
 
             $existingTeamSameCategory = TeamList::where('school_name', $schoolName)
                 ->where('team_category', $specificTeamCategory)
@@ -434,18 +403,19 @@ class FormTeamController extends Controller
                 'is_first_team_for_school' => $isFirstTeamForSchool,
                 'registered_by_name' => $validated['registered_by'],
                 'team_paid' => false,
-                'current_can_be_leader' => true, // Creator otomatis bisa jadi Leader
+                'current_can_be_leader' => true,
                 'current_player_category' => $normalizedCategory,
             ]);
 
-            // Redirect ke form yang sesuai berdasarkan kategori
+            // Redirect ke form yang sesuai
             if ($normalizedCategory === 'dancer') {
-                return redirect()->route('form.dancer.create.with-category', [
-                    'team_id' => $team->team_id,
-                    'category' => 'dancer'
+                Log::info('Redirecting creator to dancer form for team: ' . $team->team_id);
+                return redirect()->route('form.dancer.create', [
+                    'team_id' => $team->team_id
                 ])->with('success', 'Tim berhasil dibuat! Sekarang lengkapi data diri Anda sebagai Kapten Dancer.')
                     ->with('info', 'Sebagai Kapten, Anda perlu upload bukti pembayaran di langkah berikutnya.');
             } else {
+                Log::info('Redirecting creator to player form for team: ' . $team->team_id . ' category: ' . $normalizedCategory);
                 return redirect()->route('form.player.create.with-category', [
                     'team_id' => $team->team_id,
                     'category' => $normalizedCategory
@@ -471,11 +441,9 @@ class FormTeamController extends Controller
         $timestamp = time();
         $extension = $file->extension();
 
-        // Tambahkan kategori tim ke nama file jika ada
         $categorySuffix = $teamCategory ? '_' . Str::slug($teamCategory) : '';
         $filename = "{$baseSlug}{$categorySuffix}_logo_{$timestamp}.{$extension}";
 
-        // Simpan ke folder school_logos di storage public
         $path = $file->storeAs('school_logos', $filename, 'public');
 
         return $path;
@@ -526,7 +494,6 @@ class FormTeamController extends Controller
             'season' => 'required'
         ]);
 
-        // Gunakan kategori yang sama untuk pengecekan
         $specificTeamCategory = $request->team_category;
 
         $existingTeam = TeamList::where('school_name', $request->school_name)
