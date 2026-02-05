@@ -221,7 +221,7 @@
                                 </td>
                                 <td class="px-1 py-1 text-center">
                                     @if($result->scoresheet)
-                                        <a href="{{ asset($result->scoresheet) }}" 
+                                        <a href="{{ route('admin.pub_result.download_scoresheet', $result->id) }}" 
                                            target="_blank" 
                                            class="btn btn-sm btn-outline-success border-1"
                                            data-bs-toggle="tooltip" 
@@ -261,9 +261,16 @@
                                         <button type="button" 
                                                 class="btn btn-outline-info border-1 view-details-btn"
                                                 data-bs-toggle="tooltip" 
-                                                data-bs-title="View Type & Phase"
+                                                data-bs-title="View Details"
+                                                data-result-id="{{ $result->id }}"
+                                                data-team1-name="{{ $result->team1->school_name ?? 'N/A' }}"
+                                                data-team2-name="{{ $result->team2->school_name ?? 'N/A' }}"
+                                                data-team1-logo="{{ $result->team1->school_logo ? asset('uploads/school_logo/' . $result->team1->school_logo) : asset('assets/img/default-school.png') }}"
+                                                data-team2-logo="{{ $result->team2->school_logo ? asset('uploads/school_logo/' . $result->team2->school_logo) : asset('assets/img/default-school.png') }}"
                                                 data-competition-type="{{ $result->competition_type ?? 'N/A' }}"
-                                                data-phase="{{ $result->phase ?? 'N/A' }}">
+                                                data-phase="{{ $result->phase ?? 'N/A' }}"
+                                                data-match-date="{{ \Carbon\Carbon::parse($result->match_date)->format('d M Y') }}"
+                                                data-score="{{ $result->score_1 ?? '0' }} - {{ $result->score_2 ?? '0' }}">
                                             <i class="fas fa-eye" style="font-size: 0.65rem;"></i>
                                         </button>
                                         
@@ -284,35 +291,28 @@
                                             </button>
                                         @endif
                                         
-                                        <!-- Delete Form -->
-                                        <form action="{{ route('admin.pub_result.destroy', $result->id) }}" 
-                                              method="POST" 
-                                              class="d-inline delete-form"
-                                              data-title="{{ $result->team1->school_name ?? 'Team 1' }} vs {{ $result->team2->school_name ?? 'Team 2' }}">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" 
-                                                    class="btn btn-outline-danger border-1"
-                                                    data-bs-toggle="tooltip" 
-                                                    data-bs-title="Delete">
-                                                <i class="fas fa-trash" style="font-size: 0.65rem;"></i>
-                                            </button>
-                                        </form>
+                                        <!-- Delete Button (Direct SweetAlert) -->
+                                        <button type="button" 
+                                                class="btn btn-outline-danger border-1 delete-btn"
+                                                data-bs-toggle="tooltip" 
+                                                data-bs-title="Delete"
+                                                data-result-id="{{ $result->id }}"
+                                                data-team1-name="{{ $result->team1->school_name ?? 'Team 1' }}"
+                                                data-team2-name="{{ $result->team2->school_name ?? 'Team 2' }}">
+                                            <i class="fas fa-trash" style="font-size: 0.65rem;"></i>
+                                        </button>
                                         
                                         @if ($result->status === 'draft')
-                                            <!-- Publish Form -->
-                                            <form action="{{ route('admin.pub_result.publish', $result->id) }}" 
-                                                  method="POST" 
-                                                  class="d-inline publish-form"
-                                                  data-title="{{ $result->team1->school_name ?? 'Team 1' }} vs {{ $result->team2->school_name ?? 'Team 2' }}">
-                                                @csrf
-                                                <button type="submit" 
-                                                        class="btn btn-outline-success border-1"
-                                                        data-bs-toggle="tooltip" 
-                                                        data-bs-title="Publish">
-                                                    <i class="fas fa-paper-plane" style="font-size: 0.65rem;"></i>
-                                                </button>
-                                            </form>
+                                            <!-- Publish Button (Direct SweetAlert) -->
+                                            <button type="button" 
+                                                    class="btn btn-outline-success border-1 publish-btn"
+                                                    data-bs-toggle="tooltip" 
+                                                    data-bs-title="Publish"
+                                                    data-result-id="{{ $result->id }}"
+                                                    data-team1-name="{{ $result->team1->school_name ?? 'Team 1' }}"
+                                                    data-team2-name="{{ $result->team2->school_name ?? 'Team 2' }}">
+                                                <i class="fas fa-paper-plane" style="font-size: 0.65rem;"></i>
+                                            </button>
                                         @endif
                                     </div>
                                 </td>
@@ -405,26 +405,103 @@
 
 {{-- Modal for Viewing Details --}}
 <div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-sm">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header py-2">
-                <h6 class="modal-title" id="detailsModalLabel">Result Details</h6>
+                <h6 class="modal-title fw-semibold" id="detailsModalLabel">Match Details</h6>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-0">
-                <div class="list-group list-group-flush">
-                    <div class="list-group-item d-flex justify-content-between align-items-center py-2">
-                        <span class="small text-muted">Competition Type:</span>
-                        <span class="small fw-semibold" id="detailCompetitionType"></span>
+                <div class="row g-0">
+                    <!-- Team 1 -->
+                    <div class="col-md-5 border-end">
+                        <div class="text-center py-4">
+                            <div class="mb-3">
+                                <img id="team1Logo" src="" alt="Team 1 Logo" 
+                                     class="img-fluid rounded-circle border" 
+                                     style="width: 80px; height: 80px; object-fit: cover; background-color: #f8f9fa;">
+                            </div>
+                            <h6 class="fw-bold mb-1" id="team1Name"></h6>
+                            <div class="badge bg-primary bg-opacity-10 text-primary py-1 px-3 mt-2">
+                                Team 1
+                            </div>
+                        </div>
                     </div>
-                    <div class="list-group-item d-flex justify-content-between align-items-center py-2">
-                        <span class="small text-muted">Phase:</span>
-                        <span class="small fw-semibold" id="detailPhase"></span>
+                    
+                    <!-- Match Info -->
+                    <div class="col-md-2">
+                        <div class="text-center h-100 d-flex flex-column justify-content-center">
+                            <div class="mb-2">
+                                <span class="badge bg-dark text-white fs-6 py-2 px-3" id="matchScore">0-0</span>
+                            </div>
+                            <div class="text-muted small mt-2">
+                                <i class="fas fa-calendar-alt me-1"></i>
+                                <span id="matchDate">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Team 2 -->
+                    <div class="col-md-5 border-start">
+                        <div class="text-center py-4">
+                            <div class="mb-3">
+                                <img id="team2Logo" src="" alt="Team 2 Logo" 
+                                     class="img-fluid rounded-circle border" 
+                                     style="width: 80px; height: 80px; object-fit: cover; background-color: #f8f9fa;">
+                            </div>
+                            <h6 class="fw-bold mb-1" id="team2Name"></h6>
+                            <div class="badge bg-danger bg-opacity-10 text-danger py-1 px-3 mt-2">
+                                Team 2
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Additional Details -->
+                <div class="border-top">
+                    <div class="row g-0">
+                        <div class="col-md-6 border-end">
+                            <div class="p-3">
+                                <h6 class="fw-semibold small text-muted mb-2">Competition Details</h6>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-muted small">Type:</span>
+                                    <span class="fw-semibold small" id="detailCompetitionType">-</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-muted small">Phase:</span>
+                                    <span class="fw-semibold small" id="detailPhase">-</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted small">Series:</span>
+                                    <span class="badge bg-purple bg-opacity-10 text-purple" id="detailSeries">-</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3">
+                                <h6 class="fw-semibold small text-muted mb-2">Match Info</h6>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-muted small">Season:</span>
+                                    <span class="badge bg-teal bg-opacity-10 text-teal" id="detailSeason">-</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-muted small">Competition:</span>
+                                    <span class="badge bg-info bg-opacity-10 text-info" id="detailCompetition">-</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted small">Status:</span>
+                                    <span class="badge" id="detailStatus">-</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer py-2">
                 <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="#" id="editLink" class="btn btn-sm btn-primary">
+                    <i class="fas fa-edit me-1"></i> Edit Result
+                </a>
             </div>
         </div>
     </div>
@@ -559,8 +636,8 @@
     }
 
     /* Modal styling */
-    .modal-sm {
-        max-width: 250px;
+    .modal-lg {
+        max-width: 700px;
     }
     
     .modal-header {
@@ -570,19 +647,6 @@
     
     .modal-footer {
         border-top: 1px solid #dee2e6;
-    }
-    
-    .list-group-item {
-        border-left: 0;
-        border-right: 0;
-    }
-    
-    .list-group-item:first-child {
-        border-top: 0;
-    }
-    
-    .list-group-item:last-child {
-        border-bottom: 0;
     }
 
     /* Responsive adjustments */
@@ -646,6 +710,27 @@
         .table th:nth-child(8) {
             display: none;
         }
+        
+        /* Modal responsive */
+        .modal-dialog {
+            margin: 10px;
+        }
+        
+        .modal-body .row.g-0 {
+            flex-direction: column;
+        }
+        
+        .modal-body .col-md-5,
+        .modal-body .col-md-2,
+        .modal-body .col-md-6 {
+            width: 100% !important;
+            border: none !important;
+        }
+        
+        .modal-body .col-md-2 {
+            order: 3;
+            margin-top: 20px;
+        }
     }
     
     @media (max-width: 576px) {
@@ -682,12 +767,18 @@
         .table th:nth-child(7) {
             display: none;
         }
+        
+        /* Modal responsive */
+        .modal-body img {
+            width: 60px !important;
+            height: 60px !important;
+        }
     }
 </style>
 
 <script>
-    // Initialize Bootstrap tooltips
     document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Bootstrap tooltips
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl)
@@ -738,28 +829,69 @@
             });
         });
         
-        // Handle View Details button click
+        // Handle View Details button click - MUCH FASTER
         document.querySelectorAll('.view-details-btn').forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Get data from button attributes
+                const team1Name = this.getAttribute('data-team1-name');
+                const team2Name = this.getAttribute('data-team2-name');
+                const team1Logo = this.getAttribute('data-team1-logo');
+                const team2Logo = this.getAttribute('data-team2-logo');
                 const competitionType = this.getAttribute('data-competition-type');
                 const phase = this.getAttribute('data-phase');
+                const matchDate = this.getAttribute('data-match-date');
+                const score = this.getAttribute('data-score');
+                const resultId = this.getAttribute('data-result-id');
+                
+                // Get data from table row
+                const row = this.closest('tr');
+                const season = row.querySelector('td:nth-child(7) .badge')?.textContent || '-';
+                const competition = row.querySelector('td:nth-child(8) .badge')?.textContent || '-';
+                const series = row.querySelector('td:nth-child(9) .badge')?.textContent || '-';
+                const statusBadge = row.querySelector('td:nth-child(11) .badge');
+                const status = statusBadge ? statusBadge.getAttribute('data-bs-title') : '-';
+                const statusClass = statusBadge ? statusBadge.className : 'badge bg-secondary';
                 
                 // Set modal content
+                document.getElementById('team1Name').textContent = team1Name;
+                document.getElementById('team2Name').textContent = team2Name;
+                document.getElementById('team1Logo').src = team1Logo;
+                document.getElementById('team2Logo').src = team2Logo;
                 document.getElementById('detailCompetitionType').textContent = competitionType;
                 document.getElementById('detailPhase').textContent = phase;
+                document.getElementById('matchScore').textContent = score;
+                document.getElementById('matchDate').textContent = matchDate;
+                document.getElementById('detailSeason').textContent = season;
+                document.getElementById('detailCompetition').textContent = competition;
+                document.getElementById('detailSeries').textContent = series;
                 
-                // Show modal
+                // Set status badge
+                const detailStatus = document.getElementById('detailStatus');
+                detailStatus.textContent = status;
+                detailStatus.className = statusClass + ' px-2 py-1';
+                
+                // Set edit link
+                document.getElementById('editLink').href = `/admin/pub_result/${resultId}/edit`;
+                
+                // Show modal immediately
                 const detailsModal = new bootstrap.Modal(document.getElementById('detailsModal'));
                 detailsModal.show();
             });
         });
         
-        // Handle delete forms - SweetAlert sederhana
-        document.querySelectorAll('.delete-form').forEach(form => {
-            form.addEventListener('submit', function(e) {
+        // Handle delete buttons - MUCH FASTER
+        document.querySelectorAll('.delete-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
                 e.preventDefault();
-                const form = this;
-                const title = form.getAttribute('data-title');
+                e.stopPropagation();
+                
+                const resultId = this.getAttribute('data-result-id');
+                const team1Name = this.getAttribute('data-team1-name');
+                const team2Name = this.getAttribute('data-team2-name');
+                const title = `${team1Name} vs ${team2Name}`;
                 
                 Swal.fire({
                     title: 'Delete Result?',
@@ -770,21 +902,49 @@
                     cancelButtonColor: '#3085d6',
                     confirmButtonText: 'Yes, delete it!',
                     cancelButtonText: 'Cancel',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
+                    reverseButtons: true,
+                    showLoaderOnConfirm: true,
+                    preConfirm: () => {
+                        // Create form and submit immediately
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = `/admin/pub_result/${resultId}`;
+                        form.style.display = 'none';
+                        
+                        // Add CSRF token
+                        const csrfInput = document.createElement('input');
+                        csrfInput.type = 'hidden';
+                        csrfInput.name = '_token';
+                        csrfInput.value = "{{ csrf_token() }}";
+                        form.appendChild(csrfInput);
+                        
+                        // Add method spoofing for DELETE
+                        const methodInput = document.createElement('input');
+                        methodInput.type = 'hidden';
+                        methodInput.name = '_method';
+                        methodInput.value = 'DELETE';
+                        form.appendChild(methodInput);
+                        
+                        // Append form to body and submit
+                        document.body.appendChild(form);
                         form.submit();
+                        
+                        return false; // Prevent SweetAlert from closing automatically
                     }
                 });
             });
         });
         
-        // Handle publish forms
-        document.querySelectorAll('.publish-form').forEach(form => {
-            form.addEventListener('submit', function(e) {
+        // Handle publish buttons - MUCH FASTER
+        document.querySelectorAll('.publish-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
                 e.preventDefault();
-                const form = this;
-                const title = form.getAttribute('data-title');
+                e.stopPropagation();
+                
+                const resultId = this.getAttribute('data-result-id');
+                const team1Name = this.getAttribute('data-team1-name');
+                const team2Name = this.getAttribute('data-team2-name');
+                const title = `${team1Name} vs ${team2Name}`;
                 
                 Swal.fire({
                     title: 'Publish Result?',
@@ -795,10 +955,27 @@
                     cancelButtonColor: '#6c757d',
                     confirmButtonText: 'Yes, publish it!',
                     cancelButtonText: 'Cancel',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
+                    reverseButtons: true,
+                    showLoaderOnConfirm: true,
+                    preConfirm: () => {
+                        // Create form and submit immediately
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = `/admin/pub_result/${resultId}/publish`;
+                        form.style.display = 'none';
+                        
+                        // Add CSRF token
+                        const csrfInput = document.createElement('input');
+                        csrfInput.type = 'hidden';
+                        csrfInput.name = '_token';
+                        csrfInput.value = "{{ csrf_token() }}";
+                        form.appendChild(csrfInput);
+                        
+                        // Append form to body and submit
+                        document.body.appendChild(form);
                         form.submit();
+                        
+                        return false; // Prevent SweetAlert from closing automatically
                     }
                 });
             });
@@ -831,9 +1008,9 @@
                     cancelButtonColor: '#3085d6',
                     confirmButtonText: 'Yes, delete them!',
                     cancelButtonText: 'Cancel',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
+                    reverseButtons: true,
+                    showLoaderOnConfirm: true,
+                    preConfirm: () => {
                         const bulkDeleteForm = document.getElementById('bulkDeleteForm');
                         const selectedIds = selectedItems.map(item => item.value);
                         
@@ -850,6 +1027,8 @@
                         });
                         
                         bulkDeleteForm.submit();
+                        
+                        return false; // Prevent SweetAlert from closing automatically
                     }
                 });
             });
@@ -874,6 +1053,21 @@
                     this.closest('form').submit();
                 }
             });
+        });
+        
+        // Handle logo error - show default image if logo fails to load
+        document.getElementById('detailsModal').addEventListener('show.bs.modal', function() {
+            const team1Logo = document.getElementById('team1Logo');
+            const team2Logo = document.getElementById('team2Logo');
+            const defaultLogo = "{{ asset('assets/img/default-school.png') }}";
+            
+            team1Logo.onerror = function() {
+                this.src = defaultLogo;
+            };
+            
+            team2Logo.onerror = function() {
+                this.src = defaultLogo;
+            };
         });
     });
 </script>

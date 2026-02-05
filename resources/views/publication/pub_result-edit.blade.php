@@ -90,9 +90,9 @@
                                     name="team1_id"
                                     required>
                                 <option value="">-- Select Team 1 --</option>
-                                @foreach($schools as $school)
-                                    <option value="{{ $school->id }}" @selected(old('team1_id', $result->team1_id) == $school->id)>
-                                        {{ $school->school_name }}
+                                @foreach($teams as $team)
+                                    <option value="{{ $team->id }}" @selected(old('team1_id', $result->team1_id) == $team->id)>
+                                        {{ $team->school_name }}
                                     </option>
                                 @endforeach
                             </select>
@@ -112,9 +112,9 @@
                                     name="team2_id"
                                     required>
                                 <option value="">-- Select Team 2 --</option>
-                                @foreach($schools as $school)
-                                    <option value="{{ $school->id }}" @selected(old('team2_id', $result->team2_id) == $school->id)>
-                                        {{ $school->school_name }}
+                                @foreach($teams as $team)
+                                    <option value="{{ $team->id }}" @selected(old('team2_id', $result->team2_id) == $team->id)>
+                                        {{ $team->school_name }}
                                     </option>
                                 @endforeach
                             </select>
@@ -173,9 +173,9 @@
                                     name="competition"
                                     required>
                                 <option value="">-- Select Competition --</option>
-                                @foreach($competitions as $competition)
-                                    <option value="{{ $competition->competition }}" @selected(old('competition', $result->competition) == $competition->competition)>
-                                        {{ $competition->competition }}
+                                @foreach($competitions as $comp)
+                                    <option value="{{ $comp->competition }}" @selected(old('competition', $result->competition) == $comp->competition)>
+                                        {{ $comp->competition }}
                                     </option>
                                 @endforeach
                             </select>
@@ -285,7 +285,7 @@
                                     </small>
                                 </div>
                                 <div>
-                                    <a href="{{ asset('storage/' . $result->scoresheet) }}" 
+                                    <a href="{{ route('admin.pub_result.download_scoresheet', $result->id) }}" 
                                        class="btn btn-sm btn-outline-success" 
                                        target="_blank">
                                         <i class="fas fa-download me-1"></i> Download
