@@ -12,17 +12,20 @@ class PlayerList extends Model
     protected $table = 'player_list';
     protected $primaryKey = 'id';
 
+    // ✅ Eager load school relationship
+    protected $with = ['school'];
+
     protected $fillable = [
         'team_id',
-        'category',  // 🔥 FIX: 'category' bukan 'team_category'
-        'role',      // 🔥 FIX: 'role' bukan 'team_role'
+        'category',
+        'role',
         'nik',
         'name',
         'birthdate',
         'gender',
         'email',
         'phone',
-        'school_id', // 🔥 FIX: 'school_id' bukan 'school'
+        'school_id', // ✅ Pastikan ini ada
         'grade',
         'sttb_year',
         'height',
@@ -44,7 +47,7 @@ class PlayerList extends Model
         'last_report_card',
         'formal_photo',
         'assignment_letter',
-        'payment_proof', // 🔥 TAMBAH field payment_proof
+        'payment_proof',
         'is_finalized',
         'finalized_at',
         'unlocked_by_admin',
@@ -68,6 +71,61 @@ class PlayerList extends Model
         'jersey_number' => 'integer',
     ];
 
+    // ✅ Boot method untuk validasi school_id
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Validasi sebelum create
+        static::creating(function ($player) {
+            // Jika school_id kosong, cari dari team
+            if (empty($player->school_id) && $player->team_id) {
+                $team = TeamList::find($player->team_id);
+                if ($team) {
+                    // Cari school berdasarkan school_id di team
+                    if ($team->school_id) {
+                        $school = School::find($team->school_id);
+                        if ($school) {
+                            $player->school_id = $school->id;
+                        }
+                    }
+                    
+                    // Jika masih kosong, cari berdasarkan nama sekolah
+                    if (empty($player->school_id)) {
+                        $school = School::where('school_name', $team->school_name)->first();
+                        if ($school) {
+                            $player->school_id = $school->id;
+                            // Update team juga
+                            $team->update(['school_id' => $school->id]);
+                        }
+                    }
+                    
+                    // Jika masih kosong, buat sekolah baru
+                    if (empty($player->school_id)) {
+                        $school = School::create([
+                            'school_name' => $team->school_name,
+                            'category_name' => 'SMA',
+                            'type' => 'SWASTA',
+                            'city_id' => 1,
+                        ]);
+                        $player->school_id = $school->id;
+                        $team->update(['school_id' => $school->id]);
+                    }
+                }
+            }
+        });
+
+        // Setelah create, verifikasi school_id
+        static::created(function ($player) {
+            if (empty($player->school_id)) {
+                \Log::error('Player created without school_id!', [
+                    'player_id' => $player->id,
+                    'team_id' => $player->team_id
+                ]);
+            }
+        });
+    }
+
     /**
      * Relasi ke TeamList
      */
@@ -77,7 +135,7 @@ class PlayerList extends Model
     }
 
     /**
-     * Relasi ke School (karena school_id adalah foreign key)
+     * Relasi ke School
      */
     public function school()
     {
@@ -89,7 +147,7 @@ class PlayerList extends Model
      */
     public function scopeLeader($query)
     {
-        return $query->where('role', 'Leader'); // 🔥 FIX: 'role' bukan 'team_role'
+        return $query->where('role', 'Leader');
     }
 
     /**
@@ -97,7 +155,7 @@ class PlayerList extends Model
      */
     public function scopePlayer($query)
     {
-        return $query->where('role', 'Player'); // 🔥 FIX: 'role' bukan 'team_role'
+        return $query->where('role', 'Player');
     }
 
     /**
@@ -117,11 +175,19 @@ class PlayerList extends Model
     }
 
     /**
-     * Accessor untuk nama sekolah
+     * Scope untuk sekolah tertentu
+     */
+    public function scopeBySchool($query, $schoolId)
+    {
+        return $query->where('school_id', $schoolId);
+    }
+
+    /**
+     * Accessor untuk nama sekolah (dari relasi)
      */
     public function getSchoolNameAttribute()
     {
-        return $this->school ? $this->school->school_name : 'Tidak diketahui';
+        return $this->school ? $this->school->school_name : ($this->team ? $this->team->school_name : 'Tidak diketahui');
     }
 
     /**
@@ -156,7 +222,7 @@ class PlayerList extends Model
      */
     public function isLeader()
     {
-        return $this->role === 'Leader'; // 🔥 FIX: 'role' bukan 'team_role'
+        return $this->role === 'Leader';
     }
 
     /**
@@ -164,7 +230,7 @@ class PlayerList extends Model
      */
     public function isRegularPlayer()
     {
-        return $this->role === 'Player'; // 🔥 FIX: 'role' bukan 'team_role'
+        return $this->role === 'Player';
     }
 
     /**
@@ -189,5 +255,13 @@ class PlayerList extends Model
     public function hasPaymentProof()
     {
         return !empty($this->payment_proof);
+    }
+
+    /**
+     * Cek apakah player memiliki school_id yang valid
+     */
+    public function hasValidSchool()
+    {
+        return !empty($this->school_id) && $this->school;
     }
 }

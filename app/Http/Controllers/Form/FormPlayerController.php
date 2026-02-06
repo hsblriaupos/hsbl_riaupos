@@ -38,7 +38,8 @@ class FormPlayerController extends Controller
                 'school_name' => $team->school_name,
                 'team_category' => $team->team_category,
                 'is_leader_paid' => $team->is_leader_paid,
-                'referral_code' => $team->referral_code
+                'referral_code' => $team->referral_code,
+                'school_id' => $team->school_id
             ]);
 
             // ============================================
@@ -88,8 +89,18 @@ class FormPlayerController extends Controller
                 'current_can_be_leader' => $isCaptain // 🔥 Simpan status ini untuk store
             ]);
 
-            // Ambil data sekolah
-            $school = School::where('school_name', $team->school_name)->first();
+            // Ambil data sekolah dari team.school_id
+            $school = null;
+            if ($team->school_id) {
+                $school = School::find($team->school_id);
+                Log::info('Found school by team.school_id: ' . $team->school_id);
+            }
+            
+            // Jika tidak ditemukan, cari berdasarkan nama
+            if (!$school) {
+                $school = School::where('school_name', $team->school_name)->first();
+                Log::info('Found school by name: ' . ($school ? $school->id : 'NOT FOUND'));
+            }
 
             // Ambil enum gender
             try {
@@ -212,7 +223,7 @@ class FormPlayerController extends Controller
     }
 
     /**
-     * Proses pendaftaran player
+     * Proses pendaftaran player (DIPERBAIKI UNTUK SCHOOL_ID)
      */
     public function storePlayer(Request $request)
     {
@@ -243,7 +254,9 @@ class FormPlayerController extends Controller
             Log::info('Team payment status:', [
                 'is_leader_paid' => $team->is_leader_paid,
                 'referral_code' => $team->referral_code,
-                'team_category' => $team->team_category
+                'team_category' => $team->team_category,
+                'school_name' => $team->school_name,
+                'school_id' => $team->school_id
             ]);
             
             // ============================================
@@ -329,18 +342,53 @@ class FormPlayerController extends Controller
             Log::info('✅ Player validation passed');
 
             // ============================================
-            // AMBIL DATA SEKOLAH
+            // AMBIL DATA SEKOLAH DENGAN BENAR
             // ============================================
-            $school = School::where('school_name', $team->school_name)->first();
-
+            Log::info('🔍 Looking for school: ' . $team->school_name);
+            
+            // Cari sekolah berdasarkan school_id di team_list (jika ada)
+            $school = null;
+            if ($team->school_id) {
+                $school = School::find($team->school_id);
+                if ($school) {
+                    Log::info('✅ Found school by team.school_id: ' . $team->school_id . ' - ' . $school->school_name);
+                } else {
+                    Log::warning('⚠️ Team.school_id (' . $team->school_id . ') not found in schools table');
+                }
+            }
+            
+            // Jika tidak ditemukan, cari berdasarkan nama sekolah
             if (!$school) {
+                $school = School::where('school_name', $team->school_name)->first();
+                if ($school) {
+                    Log::info('✅ Found school by name: ' . $school->id . ' - ' . $school->school_name);
+                    
+                    // Update team_list dengan school_id yang benar
+                    if (!$team->school_id) {
+                        $team->update(['school_id' => $school->id]);
+                        Log::info('✅ Updated team.school_id to: ' . $school->id);
+                    }
+                } else {
+                    Log::info('❌ School not found by name, will create new one');
+                }
+            }
+        
+            // Jika masih tidak ditemukan, buat sekolah baru
+            if (!$school) {
+                Log::info('📝 Creating new school: ' . $team->school_name);
                 $school = School::create([
                     'school_name' => $team->school_name,
                     'category_name' => 'SMA',
                     'type' => 'SWASTA',
                     'city_id' => 1,
                 ]);
+                
+                // Update team_list dengan school_id yang baru
+                $team->update(['school_id' => $school->id]);
+                Log::info('✅ Created new school with ID: ' . $school->id . ' and updated team.school_id');
             }
+            
+            Log::info('🎯 Final school for player: ID=' . $school->id . ', Name=' . $school->school_name);
 
             // ============================================
             // GENERATE NAMA FILE
@@ -450,11 +498,11 @@ class FormPlayerController extends Controller
             }
 
             // ============================================
-            // SIMPAN DATA PLAYER
+            // SIMPAN DATA PLAYER DENGAN SCHOOL_ID YANG BENAR
             // ============================================
             $playerData = [
                 'team_id' => $teamId,
-                'school_id' => $school->id,
+                'school_id' => $school->id,  // ✅ PASTIKAN INI SATU-SATUNYA & BENAR
                 'category' => $category,
                 'role' => $teamRole,
                 'nik' => $validated['nik'],
@@ -494,8 +542,11 @@ class FormPlayerController extends Controller
             }
 
             // Simpan data player
+            Log::info('📝 Saving player data with school_id: ' . $school->id);
             $player = PlayerList::create($playerData);
-            Log::info('✅ Player created with ID: ' . $player->id . ', Role: ' . $teamRole);
+            Log::info('✅ Player created with ID: ' . $player->id . 
+                     ', Role: ' . $teamRole . 
+                     ', School ID: ' . $player->school_id);
 
             // ============================================
             // UPDATE NAMA REGISTERED_BY DI TIM (jika Leader)
@@ -551,6 +602,7 @@ class FormPlayerController extends Controller
             Log::info('Team ID: ' . $teamId);
             Log::info('Player ID: ' . $player->id);
             Log::info('Player Role: ' . $teamRole);
+            Log::info('Player School ID: ' . $player->school_id);
             Log::info('Referral Code: ' . ($team->referral_code ?: 'EMPTY'));
             Log::info('Is Captain: ' . ($isCaptain ? 'YES' : 'NO'));
 
@@ -573,7 +625,7 @@ class FormPlayerController extends Controller
     }
 
     /**
-     * Halaman sukses pendaftaran player
+     * Halaman sukses pendaftaran player (DIPERBAIKI)
      */
     public function showSuccessPage($team_id, $player_id)
     {
@@ -598,13 +650,14 @@ class FormPlayerController extends Controller
                     ->with('error', 'Data pemain tidak ditemukan.');
             }
             
-            Log::info('✅ Team found: ' . $team->school_name);
-            Log::info('✅ Player found: ' . $player->name);
+            Log::info('✅ Team found: ' . $team->school_name . ' (ID: ' . $team->team_id . ')');
+            Log::info('✅ Player found: ' . $player->name . ' (ID: ' . $player->id . ')');
             Log::info('✅ Player Role from DB: ' . $player->role);
             
             // DEBUG DETAIL
             Log::info('=== SUCCESS PAGE DEBUG ===');
             Log::info('Player Role from DB: ' . $player->role);
+            Log::info('Player School ID: ' . $player->school_id);
             Log::info('Team Referral Code: ' . ($team->referral_code ?: 'EMPTY/NULL'));
             Log::info('Team is_leader_paid: ' . ($team->is_leader_paid ? 'YES' : 'NO'));
             Log::info('Team payment_proof: ' . ($team->payment_proof ? 'EXISTS' : 'NULL'));
@@ -617,8 +670,49 @@ class FormPlayerController extends Controller
                 
             Log::info('Other Leaders in team: ' . $otherLeaders);
             
-            // Ambil data sekolah
-            $school = School::find($player->school_id);
+            // Ambil data sekolah DARI PLAYER.SCHOOL_ID
+            $school = null;
+            if ($player->school_id) {
+                $school = School::find($player->school_id);
+                if ($school) {
+                    Log::info('✅ Found school from player.school_id: ' . $school->school_name);
+                } else {
+                    Log::warning('⚠️ Player.school_id (' . $player->school_id . ') not found in schools table');
+                    // Fallback: cari dari team
+                    $school = School::where('school_name', $team->school_name)->first();
+                    if ($school) {
+                        Log::info('✅ Found school from team.school_name: ' . $school->school_name);
+                        // Update player dengan school_id yang benar
+                        $player->update(['school_id' => $school->id]);
+                        Log::info('✅ Updated player.school_id to: ' . $school->id);
+                    }
+                }
+            } else {
+                // Jika player tidak punya school_id, cari dari team
+                $school = School::where('school_name', $team->school_name)->first();
+                if ($school) {
+                    Log::info('✅ Found school for player from team: ' . $school->school_name);
+                    // Update player dengan school_id
+                    $player->update(['school_id' => $school->id]);
+                    Log::info('✅ Set player.school_id to: ' . $school->id);
+                }
+            }
+            
+            // Jika masih tidak ditemukan, buat sekolah baru
+            if (!$school) {
+                Log::info('📝 Creating new school for player: ' . $team->school_name);
+                $school = School::create([
+                    'school_name' => $team->school_name,
+                    'category_name' => 'SMA',
+                    'type' => 'SWASTA',
+                    'city_id' => 1,
+                ]);
+                
+                // Update player dan team dengan school_id yang baru
+                $player->update(['school_id' => $school->id]);
+                $team->update(['school_id' => $school->id]);
+                Log::info('✅ Created new school and updated IDs');
+            }
             
             // 🔥 Ambil referral code dari TEAM
             $referralCode = $team->referral_code;
@@ -651,6 +745,7 @@ class FormPlayerController extends Controller
                 $instructions = 'Anda telah terdaftar sebagai anggota tim. Biaya sudah ditanggung oleh Kapten.';
             }
             
+            Log::info('✅ Success page ready with school: ' . ($school ? $school->school_name : 'NOT FOUND'));
             Log::info('=== SHOW SUCCESS PAGE END ===');
 
             return view('user.form.form_player_success', compact(

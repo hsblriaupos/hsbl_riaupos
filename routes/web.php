@@ -10,6 +10,7 @@ use App\Http\Controllers\Camper\CamperController;
 use App\Http\Controllers\Form\FormTeamController;
 use App\Http\Controllers\Form\FormPlayerController;
 use App\Http\Controllers\Form\FormDancerController;
+use App\Http\Controllers\Form\FormOfficialController;
 use App\Http\Controllers\GoogleController\GoogleController;
 use App\Http\Controllers\Publication\PubMatchDataController;
 use App\Http\Controllers\Publication\PubMatchResult;
@@ -167,25 +168,25 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         Route::post('/{id}/done', [PubMatchDataController::class, 'done'])->name('done');
     });
 
-// **RESULT MANAGEMENT - SEMUA ROUTES**
-Route::prefix('pub_result')->name('pub_result.')->group(function () {
-    Route::get('/', [PubMatchResult::class, 'index'])->name('index');
-    Route::get('/create/{event_id?}', [PubMatchResult::class, 'create'])->name('create');
-    Route::post('/', [PubMatchResult::class, 'store'])->name('store');
-    Route::get('/{id}/edit', [PubMatchResult::class, 'edit'])->name('edit');
-    Route::put('/{id}', [PubMatchResult::class, 'update'])->name('update');
-    Route::delete('/{id}', [PubMatchResult::class, 'destroy'])->name('destroy');
-    
-    // Action routes
-    Route::post('/{id}/publish', [PubMatchResult::class, 'publish'])->name('publish');
-    Route::post('/{id}/unpublish', [PubMatchResult::class, 'unpublish'])->name('unpublish');
-    Route::post('/{id}/done', [PubMatchResult::class, 'done'])->name('done');
-    Route::get('/{id}/download-scoresheet', [PubMatchResult::class, 'downloadScoresheet'])->name('download_scoresheet');
-    
-    // Bulk actions
-    Route::post('/bulk-destroy', [PubMatchResult::class, 'bulkDestroy'])->name('bulk-destroy');
-    Route::post('/bulk-publish', [PubMatchResult::class, 'bulkPublish'])->name('bulk-publish');
-});
+    // **RESULT MANAGEMENT - SEMUA ROUTES**
+    Route::prefix('pub_result')->name('pub_result.')->group(function () {
+        Route::get('/', [PubMatchResult::class, 'index'])->name('index');
+        Route::get('/create/{event_id?}', [PubMatchResult::class, 'create'])->name('create');
+        Route::post('/', [PubMatchResult::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [PubMatchResult::class, 'edit'])->name('edit');
+        Route::put('/{id}', [PubMatchResult::class, 'update'])->name('update');
+        Route::delete('/{id}', [PubMatchResult::class, 'destroy'])->name('destroy');
+
+        // Action routes
+        Route::post('/{id}/publish', [PubMatchResult::class, 'publish'])->name('publish');
+        Route::post('/{id}/unpublish', [PubMatchResult::class, 'unpublish'])->name('unpublish');
+        Route::post('/{id}/done', [PubMatchResult::class, 'done'])->name('done');
+        Route::get('/{id}/download-scoresheet', [PubMatchResult::class, 'downloadScoresheet'])->name('download_scoresheet');
+
+        // Bulk actions
+        Route::post('/bulk-destroy', [PubMatchResult::class, 'bulkDestroy'])->name('bulk-destroy');
+        Route::post('/bulk-publish', [PubMatchResult::class, 'bulkPublish'])->name('bulk-publish');
+    });
 
     // ========== CONTENT MANAGEMENT ==========
 
@@ -332,10 +333,10 @@ Route::prefix('form')->name('form.')->group(function () {
 
     // ================= PLAYER REGISTRATION =================
     // 🔥 Route yang lebih jelas dan terstruktur
-    
+
     // PLAYER REGISTRATION FLOW
     Route::get('/player/create/{team_id}', [FormPlayerController::class, 'showPlayerForm'])->name('player.create');
-    
+
     // PLAYER REGISTRATION WITH CATEGORY (versi baru yang lebih spesifik)
     Route::get('/player/create/{team_id}/{category}', [FormPlayerController::class, 'showPlayerFormWithCategory'])
         ->name('player.create.with-category')
@@ -373,6 +374,27 @@ Route::prefix('form')->name('form.')->group(function () {
         Route::post('/check-team-payment', [FormDancerController::class, 'checkTeamPayment'])->name('checkTeamPayment');
     });
 
+    // ================= OFFICIAL REGISTRATION =================
+    // OFFICIAL FORM
+    Route::get('/official/create/{team_id}', [FormOfficialController::class, 'showOfficialForm'])
+        ->name('official.create');
+
+    // OFFICIAL STORE
+    Route::post('/official/store', [FormOfficialController::class, 'storeOfficial'])
+        ->name('official.store');
+
+    // OFFICIAL SUCCESS
+    Route::get('/official/success/{team_id}/{official_id}', [FormOfficialController::class, 'showSuccessPage'])
+        ->name('official.success');
+
+    // API endpoints for Official
+    Route::prefix('official')->name('official.')->group(function () {
+        Route::post('/check-nik', [FormOfficialController::class, 'checkNik'])->name('checkNik');
+        Route::post('/check-email', [FormOfficialController::class, 'checkEmail'])->name('checkEmail');
+        Route::post('/check-leader', [FormOfficialController::class, 'checkLeaderExists'])->name('checkLeader');
+        Route::post('/check-team-payment', [FormOfficialController::class, 'checkTeamPayment'])->name('checkTeamPayment');
+    });
+
     // ================= FIX REFERRAL CODES (Development Only) =================
     if (app()->environment('local')) {
         Route::get('/fix-referral-codes', function () {
@@ -382,15 +404,15 @@ Route::prefix('form')->name('form.')->group(function () {
                 ->orWhere('referral_code', 'NULL')
                 ->orWhereRaw('TRIM(referral_code) = ""')
                 ->update(['referral_code' => null]);
-                
+
             return 'Referral codes fixed! Empty strings converted to NULL.';
         })->name('fix.referral.codes');
-        
+
         Route::get('/check-referral-codes', function () {
             $nullCount = \DB::table('team_list')->whereNull('referral_code')->count();
             $emptyCount = \DB::table('team_list')->where('referral_code', '')->count();
             $total = \DB::table('team_list')->count();
-            
+
             return response()->json([
                 'total_teams' => $total,
                 'null_referral_codes' => $nullCount,

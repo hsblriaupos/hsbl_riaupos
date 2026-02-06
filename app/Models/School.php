@@ -11,9 +11,9 @@ class School extends Model
     use HasFactory;
 
     protected $fillable = [
-        'school_name', 
-        'city_id', 
-        'category_name', 
+        'school_name',
+        'city_id',
+        'category_name',
         'type',
         'school_logo'
     ];
@@ -31,13 +31,13 @@ class School extends Model
     {
         return $this->hasMany(TeamList::class, 'school_id');
     }
-    
+
     // 🔥 TAMBAH RELASI KE PLAYER
     public function players()
     {
         return $this->hasMany(PlayerList::class, 'school_id');
     }
-    
+
     // 🔥 TAMBAH RELASI KE DANCER
     public function dancers()
     {
@@ -52,7 +52,7 @@ class School extends Model
         if ($this->school_logo) {
             return Storage::url($this->school_logo);
         }
-        
+
         return asset('images/default-school-logo.png');
     }
 
@@ -63,18 +63,24 @@ class School extends Model
     {
         return !empty($this->school_logo);
     }
-    
-    /**
-     * 🔥 STATISTIK SEKOLAH
-     */
+
+    // Di dalam class School, tambahkan:
+    public function officials()
+    {
+        return $this->hasMany(OfficialList::class, 'school_id');
+    }
+
+    // Update statistics:
     public function getStatisticsAttribute()
     {
         return [
             'total_teams' => $this->teams()->count(),
             'total_players' => $this->players()->count(),
             'total_dancers' => $this->dancers()->count(),
-            'total_leaders' => $this->players()->where('role', 'Leader')->count() + 
-                               $this->dancers()->where('role', 'Leader')->count(),
+            'total_officials' => $this->officials()->count(), // 🔥 TAMBAH INI
+            'total_leaders' => $this->players()->where('role', 'Leader')->count() +
+                $this->dancers()->where('role', 'Leader')->count() +
+                $this->officials()->where('role', 'Leader')->count(), // 🔥 TAMBAH INI
         ];
     }
-} 
+}
