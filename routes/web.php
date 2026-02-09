@@ -19,7 +19,8 @@ use App\Http\Controllers\TeamVerification\TeamController;
 use App\Http\Controllers\User\GalleryController as UserGalleryController;
 use App\Http\Controllers\User\HomeController;
 use App\Http\Controllers\User\NewsController;
-use App\Http\Controllers\User\PublicationController;
+use App\Http\Controllers\User\ScheduleController;
+use App\Http\Controllers\User\ResultController;
 use App\Http\Controllers\Student\StudentAuthController;
 use App\Http\Controllers\Student\StudentDashboardController;
 use App\Http\Controllers\Student\StudentProfileController;
@@ -176,13 +177,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         Route::get('/{id}/edit', [PubMatchResult::class, 'edit'])->name('edit');
         Route::put('/{id}', [PubMatchResult::class, 'update'])->name('update');
         Route::delete('/{id}', [PubMatchResult::class, 'destroy'])->name('destroy');
-
+        
         // Action routes
         Route::post('/{id}/publish', [PubMatchResult::class, 'publish'])->name('publish');
         Route::post('/{id}/unpublish', [PubMatchResult::class, 'unpublish'])->name('unpublish');
         Route::post('/{id}/done', [PubMatchResult::class, 'done'])->name('done');
         Route::get('/{id}/download-scoresheet', [PubMatchResult::class, 'downloadScoresheet'])->name('download_scoresheet');
-
+        
         // Bulk actions
         Route::post('/bulk-destroy', [PubMatchResult::class, 'bulkDestroy'])->name('bulk-destroy');
         Route::post('/bulk-publish', [PubMatchResult::class, 'bulkPublish'])->name('bulk-publish');
@@ -286,8 +287,32 @@ Route::prefix('user')->name('user.')->group(function () {
     Route::get('/news', [NewsController::class, 'index'])->name('news.index');
     Route::get('/news/{id}', [NewsController::class, 'show'])->whereNumber('id')->name('news.show');
 
-    // Schedules & Results untuk User
-    Route::get('/schedules-results', [PublicationController::class, 'scheduleResult'])->name('schedule_result');
+    // ========== SCHEDULE & RESULTS ROUTES ==========
+    // Combined schedule & results page - FIX: Ganti ke /schedules-results
+    Route::get('/schedules-results', [ScheduleController::class, 'index'])->name('schedule_result');
+    
+    // Redirect untuk backward compatibility
+    Route::get('/schedule-result', function() {
+        return redirect()->route('user.schedule_result');
+    });
+    
+    // Individual Schedule Routes
+    Route::prefix('schedule')->name('schedule.')->group(function () {
+        Route::get('/', [ScheduleController::class, 'index'])->name('index');
+        Route::get('/{id}', [ScheduleController::class, 'show'])->name('show');
+        Route::get('/ajax/get-schedule', [ScheduleController::class, 'getSchedule'])->name('ajax.get');
+        Route::get('/today', [ScheduleController::class, 'getTodayMatches'])->name('today');
+        Route::get('/calendar', [ScheduleController::class, 'getCalendar'])->name('calendar');
+        Route::post('/{id}/reminder', [ScheduleController::class, 'setReminder'])->name('reminder');
+    });
+    
+    // Individual Results Routes
+    Route::prefix('results')->name('results.')->group(function () {
+        Route::get('/', [ResultController::class, 'index'])->name('index');
+        Route::get('/{id}', [ResultController::class, 'show'])->name('show');
+        Route::get('/ajax/get-results', [ResultController::class, 'getResults'])->name('ajax.get');
+        Route::get('/{id}/download-scoresheet', [ResultController::class, 'downloadScoresheet'])->name('download.scoresheet');
+    });
 
     // Videos untuk User
     Route::get('/videos', [UserGalleryController::class, 'videos'])->name('videos');

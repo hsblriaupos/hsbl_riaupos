@@ -300,13 +300,13 @@
                         ['label' => 'Home', 'url' => 'user/dashboard', 'icon' => 'fas fa-home text-sm'],
                         ['label' => 'News', 'url' => 'user/news', 'icon' => 'fas fa-newspaper text-sm'],
                         ['label' => 'Schedules & Results', 'url' => route('user.schedule_result'), 'icon' => 'fas fa-calendar-alt text-sm'],
-                        ['label' => 'Statistics', 'url' => '/statistics_0301', 'icon' => 'fas fa-chart-bar text-sm'],
+                        ['label' => 'Statistics', 'url' => '#', 'icon' => 'fas fa-chart-bar text-sm'],
                         ['label' => 'Gallery', 'url' => '#', 'icon' => 'fas fa-images text-sm', 'submenu' => [
                             ['label' => 'Videos', 'url' => 'user/videos', 'icon' => 'fas fa-video text-xs'],
-                            ['label' => 'Photos', 'url' => '/photos_0501', 'icon' => 'fas fa-camera text-xs'],
+                            ['label' => 'Photos', 'url' => '#', 'icon' => 'fas fa-camera text-xs'],
                         ]],
-                        ['label' => 'About', 'url' => '/Riau-Pos-Honda-HSBL-History_0601', 'icon' => 'fas fa-history text-sm'],
-                        ['label' => 'Developer', 'url' => '/Developer_0601', 'icon' => 'fas fa-code text-sm'],
+                        ['label' => 'About', 'url' => '#', 'icon' => 'fas fa-history text-sm'],
+                        ['label' => 'Developer', 'url' => '#', 'icon' => 'fas fa-code text-sm'],
                     ];
                     @endphp
 

@@ -166,6 +166,60 @@
                     </thead>
                     <tbody>
                         @forelse($results as $index => $result)
+                            @php
+                                // Helper function untuk mendapatkan data logo untuk tabel
+                                function getTeamLogoForTable($team) {
+                                    if (!$team) {
+                                        return [
+                                            'has_logo' => false,
+                                            'logo_url' => null,
+                                            'logo_html_sm' => '<div class="school-logo-placeholder school-logo-sm">
+                                                <i class="fas fa-school text-secondary"></i>
+                                            </div>',
+                                            'logo_html_md' => '<div class="school-logo-placeholder school-logo-md">
+                                                <i class="fas fa-school text-secondary"></i>
+                                            </div>',
+                                            'name' => 'Team Not Found'
+                                        ];
+                                    }
+                                    
+                                    $hasLogo = !empty($team->school_logo);
+                                    $logoUrl = $hasLogo ? asset('uploads/school_logo/' . $team->school_logo) : null;
+                                    $schoolName = htmlspecialchars($team->school_name ?? 'N/A');
+                                    
+                                    if ($hasLogo) {
+                                        $logoHtmlSm = '<img src="' . $logoUrl . '" 
+                                                         alt="' . $schoolName . '" 
+                                                         class="school-logo-sm rounded-circle border"
+                                                         onerror="this.onerror=null; this.src=\'' . asset('assets/img/default-school.png') . '\'">';
+                                        
+                                        $logoHtmlMd = '<img src="' . $logoUrl . '" 
+                                                         alt="' . $schoolName . '" 
+                                                         class="school-logo-md rounded-circle border"
+                                                         onerror="this.onerror=null; this.src=\'' . asset('assets/img/default-school.png') . '\'">';
+                                    } else {
+                                        $logoHtmlSm = '<div class="school-logo-placeholder school-logo-sm">
+                                            <i class="fas fa-school text-secondary"></i>
+                                        </div>';
+                                        
+                                        $logoHtmlMd = '<div class="school-logo-placeholder school-logo-md">
+                                            <i class="fas fa-school text-secondary"></i>
+                                        </div>';
+                                    }
+                                    
+                                    return [
+                                        'has_logo' => $hasLogo,
+                                        'logo_url' => $logoUrl,
+                                        'logo_html_sm' => $logoHtmlSm,
+                                        'logo_html_md' => $logoHtmlMd,
+                                        'name' => $schoolName
+                                    ];
+                                }
+                                
+                                // Data untuk team1 dan team2
+                                $team1Data = getTeamLogoForTable($result->team1);
+                                $team2Data = getTeamLogoForTable($result->team2);
+                            @endphp
                             <tr>
                                 <td class="px-1 py-1">
                                     <input type="checkbox" 
@@ -182,9 +236,12 @@
                                     </div>
                                 </td>
                                 <td class="px-1 py-1">
-                                    <div class="fw-semibold text-dark text-truncate" style="max-width: 70px;" 
-                                         data-bs-toggle="tooltip" data-bs-title="{{ $result->team1->school_name ?? 'N/A' }}">
-                                        {{ $result->team1->school_name ?? 'N/A' }}
+                                    <div class="d-flex align-items-center">
+                                        {!! $team1Data['logo_html_sm'] !!}
+                                        <div class="fw-semibold text-dark text-truncate" style="max-width: 70px;" 
+                                             data-bs-toggle="tooltip" data-bs-title="{{ $team1Data['name'] }}">
+                                            {{ $team1Data['name'] }}
+                                        </div>
                                     </div>
                                 </td>
                                 <td class="px-1 py-1 text-center">
@@ -193,9 +250,12 @@
                                     </span>
                                 </td>
                                 <td class="px-1 py-1">
-                                    <div class="fw-semibold text-dark text-truncate" style="max-width: 70px;" 
-                                         data-bs-toggle="tooltip" data-bs-title="{{ $result->team2->school_name ?? 'N/A' }}">
-                                        {{ $result->team2->school_name ?? 'N/A' }}
+                                    <div class="d-flex align-items-center">
+                                        {!! $team2Data['logo_html_sm'] !!}
+                                        <div class="fw-semibold text-dark text-truncate" style="max-width: 70px;" 
+                                             data-bs-toggle="tooltip" data-bs-title="{{ $team2Data['name'] }}">
+                                            {{ $team2Data['name'] }}
+                                        </div>
                                     </div>
                                 </td>
                                 <td class="px-1 py-1 text-center">
@@ -263,10 +323,14 @@
                                                 data-bs-toggle="tooltip" 
                                                 data-bs-title="View Details"
                                                 data-result-id="{{ $result->id }}"
-                                                data-team1-name="{{ $result->team1->school_name ?? 'N/A' }}"
-                                                data-team2-name="{{ $result->team2->school_name ?? 'N/A' }}"
-                                                data-team1-logo="{{ $result->team1->school_logo ? asset('uploads/school_logo/' . $result->team1->school_logo) : asset('assets/img/default-school.png') }}"
-                                                data-team2-logo="{{ $result->team2->school_logo ? asset('uploads/school_logo/' . $result->team2->school_logo) : asset('assets/img/default-school.png') }}"
+                                                data-team1-name="{{ $team1Data['name'] }}"
+                                                data-team2-name="{{ $team2Data['name'] }}"
+                                                data-team1-logo-html="{{ htmlspecialchars($team1Data['logo_html_md']) }}"
+                                                data-team2-logo-html="{{ htmlspecialchars($team2Data['logo_html_md']) }}"
+                                                data-team1-has-logo="{{ $team1Data['has_logo'] ? 'true' : 'false' }}"
+                                                data-team2-has-logo="{{ $team2Data['has_logo'] ? 'true' : 'false' }}"
+                                                data-team1-logo-url="{{ $team1Data['logo_url'] ?? '' }}"
+                                                data-team2-logo-url="{{ $team2Data['logo_url'] ?? '' }}"
                                                 data-competition-type="{{ $result->competition_type ?? 'N/A' }}"
                                                 data-phase="{{ $result->phase ?? 'N/A' }}"
                                                 data-match-date="{{ \Carbon\Carbon::parse($result->match_date)->format('d M Y') }}"
@@ -297,8 +361,8 @@
                                                 data-bs-toggle="tooltip" 
                                                 data-bs-title="Delete"
                                                 data-result-id="{{ $result->id }}"
-                                                data-team1-name="{{ $result->team1->school_name ?? 'Team 1' }}"
-                                                data-team2-name="{{ $result->team2->school_name ?? 'Team 2' }}">
+                                                data-team1-name="{{ $team1Data['name'] }}"
+                                                data-team2-name="{{ $team2Data['name'] }}">
                                             <i class="fas fa-trash" style="font-size: 0.65rem;"></i>
                                         </button>
                                         
@@ -309,8 +373,8 @@
                                                     data-bs-toggle="tooltip" 
                                                     data-bs-title="Publish"
                                                     data-result-id="{{ $result->id }}"
-                                                    data-team1-name="{{ $result->team1->school_name ?? 'Team 1' }}"
-                                                    data-team2-name="{{ $result->team2->school_name ?? 'Team 2' }}">
+                                                    data-team1-name="{{ $team1Data['name'] }}"
+                                                    data-team2-name="{{ $team2Data['name'] }}">
                                                 <i class="fas fa-paper-plane" style="font-size: 0.65rem;"></i>
                                             </button>
                                         @endif
@@ -416,10 +480,10 @@
                     <!-- Team 1 -->
                     <div class="col-md-5 border-end">
                         <div class="text-center py-4">
-                            <div class="mb-3">
-                                <img id="team1Logo" src="" alt="Team 1 Logo" 
-                                     class="img-fluid rounded-circle border" 
-                                     style="width: 80px; height: 80px; object-fit: cover; background-color: #f8f9fa;">
+                            <div class="d-flex justify-content-center align-items-center mb-3" style="height: 100px;">
+                                <div id="team1LogoContainer" class="d-flex justify-content-center align-items-center w-100">
+                                    <!-- Logo akan diisi oleh JavaScript -->
+                                </div>
                             </div>
                             <h6 class="fw-bold mb-1" id="team1Name"></h6>
                             <div class="badge bg-primary bg-opacity-10 text-primary py-1 px-3 mt-2">
@@ -444,10 +508,10 @@
                     <!-- Team 2 -->
                     <div class="col-md-5 border-start">
                         <div class="text-center py-4">
-                            <div class="mb-3">
-                                <img id="team2Logo" src="" alt="Team 2 Logo" 
-                                     class="img-fluid rounded-circle border" 
-                                     style="width: 80px; height: 80px; object-fit: cover; background-color: #f8f9fa;">
+                            <div class="d-flex justify-content-center align-items-center mb-3" style="height: 100px;">
+                                <div id="team2LogoContainer" class="d-flex justify-content-center align-items-center w-100">
+                                    <!-- Logo akan diisi oleh JavaScript -->
+                                </div>
                             </div>
                             <h6 class="fw-bold mb-1" id="team2Name"></h6>
                             <div class="badge bg-danger bg-opacity-10 text-danger py-1 px-3 mt-2">
@@ -580,6 +644,100 @@
         border: 1px solid transparent;
     }
 
+    /* Styling untuk logo sekolah di tabel */
+    .school-logo-placeholder {
+        border-radius: 50%;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .school-logo-placeholder i {
+        color: #6c757d;
+    }
+
+    .school-logo-sm {
+        width: 30px;
+        height: 30px;
+    }
+
+    .school-logo-sm i {
+        font-size: 0.8rem;
+    }
+
+    .school-logo-md {
+        width: 80px;
+        height: 80px;
+    }
+
+    .school-logo-md i {
+        font-size: 2rem;
+    }
+
+    img.school-logo-sm {
+        width: 30px;
+        height: 30px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 1px solid #dee2e6;
+    }
+
+    img.school-logo-md {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 2px solid #dee2e6;
+        display: block;
+        margin: 0 auto;
+    }
+
+    /* Styling khusus untuk logo di modal */
+    .modal-logo-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100px;
+    }
+    
+    .modal-logo-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+    }
+    
+    .modal-logo-img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 2px solid #dee2e6;
+        display: block;
+        margin: 0 auto;
+    }
+    
+    .modal-logo-placeholder {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background-color: #f8f9fa;
+        border: 2px solid #dee2e6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+    }
+    
+    .modal-logo-placeholder i {
+        color: #6c757d;
+        font-size: 2rem;
+    }
+
     /* Warna custom untuk badge season */
     .bg-teal {
         background-color: #20c997 !important;
@@ -647,6 +805,13 @@
     
     .modal-footer {
         border-top: 1px solid #dee2e6;
+    }
+    
+    /* Pastikan semua elemen di dalam modal logo container rata tengah */
+    #team1LogoContainer > *,
+    #team2LogoContainer > * {
+        margin: 0 auto !important;
+        display: block !important;
     }
 
     /* Responsive adjustments */
@@ -731,6 +896,18 @@
             order: 3;
             margin-top: 20px;
         }
+        
+        .school-logo-md,
+        .modal-logo-img,
+        .modal-logo-placeholder {
+            width: 60px !important;
+            height: 60px !important;
+        }
+        
+        .school-logo-md i,
+        .modal-logo-placeholder i {
+            font-size: 1.5rem;
+        }
     }
     
     @media (max-width: 576px) {
@@ -769,9 +946,16 @@
         }
         
         /* Modal responsive */
-        .modal-body img {
-            width: 60px !important;
-            height: 60px !important;
+        .school-logo-md,
+        .modal-logo-img,
+        .modal-logo-placeholder {
+            width: 50px !important;
+            height: 50px !important;
+        }
+        
+        .school-logo-md i,
+        .modal-logo-placeholder i {
+            font-size: 1.2rem;
         }
     }
 </style>
@@ -829,7 +1013,65 @@
             });
         });
         
-        // Handle View Details button click - MUCH FASTER
+        // Helper function to decode HTML entities
+        function decodeHtmlEntities(text) {
+            const textArea = document.createElement('textarea');
+            textArea.innerHTML = text;
+            return textArea.value;
+        }
+        
+        // Function to set logo centered in modal
+        function setModalLogoCentered(containerId, logoHtml) {
+            const container = document.getElementById(containerId);
+            
+            // Clear container
+            container.innerHTML = '';
+            
+            // Create centered wrapper
+            const wrapper = document.createElement('div');
+            wrapper.className = 'modal-logo-wrapper';
+            
+            // Decode HTML and add to wrapper
+            wrapper.innerHTML = decodeHtmlEntities(logoHtml);
+            
+            // Ensure all elements inside are centered
+            const elements = wrapper.children;
+            for (let element of elements) {
+                // Add centering styles
+                element.style.margin = '0 auto';
+                element.style.display = 'block';
+                
+                // For placeholders, ensure flex centering
+                if (element.classList.contains('school-logo-placeholder') || 
+                    element.classList.contains('modal-logo-placeholder') ||
+                    element.classList.contains('school-logo-md')) {
+                    element.style.display = 'flex';
+                    element.style.justifyContent = 'center';
+                    element.style.alignItems = 'center';
+                    element.style.margin = '0 auto';
+                }
+                
+                // For images, ensure proper styling
+                if (element.tagName === 'IMG') {
+                    element.style.display = 'block';
+                    element.style.margin = '0 auto';
+                    element.className = element.className + ' modal-logo-img';
+                    
+                    // Add error handler
+                    element.onerror = function() {
+                        this.onerror = null;
+                        this.src = "{{ asset('assets/img/default-school.png') }}";
+                        this.style.margin = '0 auto';
+                        this.style.display = 'block';
+                    };
+                }
+            }
+            
+            // Add wrapper to container
+            container.appendChild(wrapper);
+        }
+        
+        // Handle View Details button click
         document.querySelectorAll('.view-details-btn').forEach(button => {
             button.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -838,8 +1080,8 @@
                 // Get data from button attributes
                 const team1Name = this.getAttribute('data-team1-name');
                 const team2Name = this.getAttribute('data-team2-name');
-                const team1Logo = this.getAttribute('data-team1-logo');
-                const team2Logo = this.getAttribute('data-team2-logo');
+                const team1LogoHtml = this.getAttribute('data-team1-logo-html');
+                const team2LogoHtml = this.getAttribute('data-team2-logo-html');
                 const competitionType = this.getAttribute('data-competition-type');
                 const phase = this.getAttribute('data-phase');
                 const matchDate = this.getAttribute('data-match-date');
@@ -858,8 +1100,12 @@
                 // Set modal content
                 document.getElementById('team1Name').textContent = team1Name;
                 document.getElementById('team2Name').textContent = team2Name;
-                document.getElementById('team1Logo').src = team1Logo;
-                document.getElementById('team2Logo').src = team2Logo;
+                
+                // Set logos centered
+                setModalLogoCentered('team1LogoContainer', team1LogoHtml);
+                setModalLogoCentered('team2LogoContainer', team2LogoHtml);
+                
+                // Set other details
                 document.getElementById('detailCompetitionType').textContent = competitionType;
                 document.getElementById('detailPhase').textContent = phase;
                 document.getElementById('matchScore').textContent = score;
@@ -876,13 +1122,13 @@
                 // Set edit link
                 document.getElementById('editLink').href = `/admin/pub_result/${resultId}/edit`;
                 
-                // Show modal immediately
+                // Show modal
                 const detailsModal = new bootstrap.Modal(document.getElementById('detailsModal'));
                 detailsModal.show();
             });
         });
         
-        // Handle delete buttons - MUCH FASTER
+        // Handle delete buttons
         document.querySelectorAll('.delete-btn').forEach(button => {
             button.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -935,7 +1181,7 @@
             });
         });
         
-        // Handle publish buttons - MUCH FASTER
+        // Handle publish buttons
         document.querySelectorAll('.publish-btn').forEach(button => {
             button.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -1053,21 +1299,6 @@
                     this.closest('form').submit();
                 }
             });
-        });
-        
-        // Handle logo error - show default image if logo fails to load
-        document.getElementById('detailsModal').addEventListener('show.bs.modal', function() {
-            const team1Logo = document.getElementById('team1Logo');
-            const team2Logo = document.getElementById('team2Logo');
-            const defaultLogo = "{{ asset('assets/img/default-school.png') }}";
-            
-            team1Logo.onerror = function() {
-                this.src = defaultLogo;
-            };
-            
-            team2Logo.onerror = function() {
-                this.src = defaultLogo;
-            };
         });
     });
 </script>

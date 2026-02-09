@@ -25,6 +25,7 @@ class MatchResult extends Model
         'status',
         'scoresheet',
         'scoresheet_original_name',
+        'match_data_id', // Tambahkan untuk relationship dengan MatchData
     ];
 
     // Casting untuk memastikan tipe data
@@ -43,67 +44,32 @@ class MatchResult extends Model
         'score_2' => 0,
     ];
 
-    // Scope untuk memfilter berdasarkan status
-    public function scopePublished($query)
+    // ========== RELATIONSHIPS ==========
+
+    // Relationship dengan MatchData
+    public function matchData()
     {
-        return $query->where('status', 'publish');
+        return $this->belongsTo(MatchData::class, 'match_data_id');
     }
 
-    public function scopeDraft($query)
-    {
-        return $query->where('status', 'draft');
-    }
-
-    public function scopeDone($query)
-    {
-        return $query->where('status', 'done');
-    }
-
-    public function scopeBySeason($query, $season)
-    {
-        return $query->where('season', $season);
-    }
-
-    public function scopeByCompetition($query, $competition)
-    {
-        return $query->where('competition', $competition);
-    }
-
-    public function scopeByCompetitionType($query, $competitionType)
-    {
-        return $query->where('competition_type', $competitionType);
-    }
-
-    public function scopeBySeries($query, $series)
-    {
-        return $query->where('series', $series);
-    }
-
-    public function scopeByPhase($query, $phase)
-    {
-        return $query->where('phase', $phase);
-    }
-
-    // ========== PERBAIKAN RELATIONSHIP ==========
-    
-    // Relationship dengan TeamList untuk team1 dengan fallback
+    // Relationship dengan TeamList untuk team1
     public function team1()
     {
         return $this->belongsTo(TeamList::class, 'team1_id', 'team_id')
                     ->withDefault([
                         'team_id' => null,
-                        'school_name' => 'Team Not Found',
+                        'school_name' => 'Team A',
                         'school_logo' => null
                     ]);
     }
 
-    // Relationship dengan TeamList untuk team2 dengan fallback
+    // Relationship dengan TeamList untuk team2
     public function team2()
     {
         return $this->belongsTo(TeamList::class, 'team2_id', 'team_id')
                     ->withDefault([
                         'team_id' => null,
-                        'school_name' => 'Team Not Found',
+                        'school_name' => 'Team B',
                         'school_logo' => null
                     ]);
     }
@@ -138,9 +104,92 @@ class MatchResult extends Model
         return $this->belongsTo(AddData::class, 'phase', 'phase');
     }
 
-    // ========== ACCESSOR DENGAN NULL SAFETY ==========
-    
-    // Accessor untuk mendapatkan pemenang dengan null safety
+    // ========== SCOPES ==========
+
+    // Scope untuk memfilter berdasarkan status
+    public function scopePublished($query)
+    {
+        return $query->where('status', 'publish');
+    }
+
+    public function scopeDraft($query)
+    {
+        return $query->where('status', 'draft');
+    }
+
+    public function scopeDone($query)
+    {
+        return $query->where('status', 'done');
+    }
+
+    public function scopeUpcoming($query)
+    {
+        return $query->where('status', 'upcoming');
+    }
+
+    public function scopeLive($query)
+    {
+        return $query->where('status', 'live');
+    }
+
+    public function scopeCompleted($query)
+    {
+        return $query->where('status', 'completed');
+    }
+
+    public function scopeScheduled($query)
+    {
+        return $query->where('status', 'scheduled');
+    }
+
+    public function scopeBySeason($query, $season)
+    {
+        return $query->where('season', $season);
+    }
+
+    public function scopeByCompetition($query, $competition)
+    {
+        return $query->where('competition', $competition);
+    }
+
+    public function scopeByCompetitionType($query, $competitionType)
+    {
+        return $query->where('competition_type', $competitionType);
+    }
+
+    public function scopeBySeries($query, $series)
+    {
+        return $query->where('series', $series);
+    }
+
+    public function scopeByPhase($query, $phase)
+    {
+        return $query->where('phase', $phase);
+    }
+
+    public function scopeUpcomingMatches($query)
+    {
+        return $query->whereIn('status', ['scheduled', 'upcoming'])
+                     ->whereDate('match_date', '>=', now())
+                     ->orderBy('match_date', 'asc');
+    }
+
+    public function scopeRecentMatches($query, $limit = 10)
+    {
+        return $query->where('status', 'completed')
+                     ->orderBy('match_date', 'desc')
+                     ->limit($limit);
+    }
+
+    public function scopeTodayMatches($query)
+    {
+        return $query->whereDate('match_date', today())
+                     ->orderBy('match_date', 'asc');
+    }
+
+    // ========== ACCESSORS ==========
+
+    // Accessor untuk mendapatkan pemenang
     public function getWinnerAttribute()
     {
         if ($this->score_1 > $this->score_2) {
@@ -152,7 +201,7 @@ class MatchResult extends Model
         return null; // Seri
     }
 
-    // Accessor untuk mendapatkan winner_id
+    // Accessor untuk winner_id
     public function getWinnerIdAttribute()
     {
         if ($this->score_1 > $this->score_2) {
@@ -164,7 +213,7 @@ class MatchResult extends Model
         return null; // Seri
     }
 
-    // Accessor untuk mendapatkan loser_id
+    // Accessor untuk loser_id
     public function getLoserIdAttribute()
     {
         if ($this->score_1 > $this->score_2) {
@@ -176,43 +225,141 @@ class MatchResult extends Model
         return null; // Seri
     }
 
-    // Accessor untuk mendapatkan status match
+    // Accessor untuk match status
     public function getMatchStatusAttribute()
     {
         if ($this->score_1 > $this->score_2) {
-            return ($this->team1->school_name ?? 'Team 1') . ' Menang';
+            return ($this->team1_name) . ' Menang';
         } elseif ($this->score_1 < $this->score_2) {
-            return ($this->team2->school_name ?? 'Team 2') . ' Menang';
+            return ($this->team2_name) . ' Menang';
         }
         
         return 'Seri';
     }
 
-    // Method untuk mengecek apakah bisa diedit
+    // Accessor untuk nama team1
+    public function getTeam1NameAttribute()
+    {
+        return $this->team1->school_name ?? 'Team A';
+    }
+
+    // Accessor untuk nama team2
+    public function getTeam2NameAttribute()
+    {
+        return $this->team2->school_name ?? 'Team B';
+    }
+
+    // Accessor untuk logo team1
+    public function getTeam1LogoAttribute()
+    {
+        return $this->team1->school_logo ?? null;
+    }
+
+    // Accessor untuk logo team2
+    public function getTeam2LogoAttribute()
+    {
+        return $this->team2->school_logo ?? null;
+    }
+
+    // Accessor untuk formatted match date
+    public function getFormattedMatchDateAttribute()
+    {
+        return $this->match_date ? $this->match_date->format('d F Y') : '-';
+    }
+
+    // Accessor untuk short match date
+    public function getShortMatchDateAttribute()
+    {
+        return $this->match_date ? $this->match_date->format('d/m/Y') : '-';
+    }
+
+    // Accessor untuk match time
+    public function getMatchTimeAttribute()
+    {
+        return $this->match_date ? $this->match_date->format('H:i') : '-';
+    }
+
+    // Accessor untuk score format
+    public function getScoreFormatAttribute()
+    {
+        return "{$this->score_1} - {$this->score_2}";
+    }
+
+    // Accessor untuk status badge
+    public function getStatusBadgeAttribute()
+    {
+        $badges = [
+            'draft' => '<span class="badge bg-secondary">Draft</span>',
+            'publish' => '<span class="badge bg-success">Published</span>',
+            'done' => '<span class="badge bg-primary">Done</span>',
+            'scheduled' => '<span class="badge bg-info">Scheduled</span>',
+            'upcoming' => '<span class="badge bg-warning">Upcoming</span>',
+            'live' => '<span class="badge bg-danger">Live</span>',
+            'completed' => '<span class="badge bg-success">Completed</span>',
+        ];
+        
+        return $badges[$this->status] ?? '<span class="badge bg-dark">Unknown</span>';
+    }
+
+    // Accessor untuk status text
+    public function getStatusTextAttribute()
+    {
+        $texts = [
+            'draft' => 'Draft',
+            'publish' => 'Published',
+            'done' => 'Done',
+            'scheduled' => 'Scheduled',
+            'upcoming' => 'Upcoming',
+            'live' => 'Live',
+            'completed' => 'Completed',
+        ];
+        
+        return $texts[$this->status] ?? 'Unknown';
+    }
+
+    // Accessor untuk cek apakah seri
+    public function getIsDrawAttribute()
+    {
+        return $this->score_1 === $this->score_2;
+    }
+
+    // Accessor untuk total score
+    public function getTotalScoreAttribute()
+    {
+        return $this->score_1 + $this->score_2;
+    }
+
+    // Accessor untuk score difference
+    public function getScoreDifferenceAttribute()
+    {
+        return abs($this->score_1 - $this->score_2);
+    }
+
+    // Accessor untuk cek apakah bisa diedit
     public function getCanEditAttribute()
     {
-        return $this->status !== 'done';
+        return in_array($this->status, ['draft', 'publish', 'scheduled', 'upcoming']);
     }
 
-    // Method untuk mengecek apakah bisa dipublish
+    // Accessor untuk cek apakah bisa dipublish
     public function getCanPublishAttribute()
     {
-        return $this->status !== 'done';
+        return in_array($this->status, ['draft', 'scheduled', 'upcoming']);
     }
 
-    // Method untuk mengecek apakah bisa diunpublish
+    // Accessor untuk cek apakah bisa diunpublish
     public function getCanUnpublishAttribute()
     {
         return $this->status === 'publish';
     }
 
-    // Method untuk mengecek apakah bisa di-mark as done
+    // Accessor untuk cek apakah bisa di-mark as done
     public function getCanMarkAsDoneAttribute()
     {
-        return in_array($this->status, ['draft', 'publish']);
+        return in_array($this->status, ['draft', 'publish', 'completed']);
     }
 
-    // Method untuk mendapatkan nama file scoresheet
+    // Accessor untuk scoresheet file name
     public function getScoresheetFileNameAttribute()
     {
         if ($this->scoresheet_original_name) {
@@ -226,237 +373,112 @@ class MatchResult extends Model
         return null;
     }
 
-    // Method untuk mendapatkan path lengkap scoresheet
+    // Accessor untuk scoresheet path
     public function getScoresheetPathAttribute()
     {
         if ($this->scoresheet) {
-            return public_path($this->scoresheet);
+            return public_path('uploads/scoresheets/' . $this->scoresheet);
         }
         
         return null;
     }
 
-    // Method untuk mengecek apakah memiliki scoresheet
+    // Accessor untuk cek apakah memiliki scoresheet
     public function getHasScoresheetAttribute()
     {
         if (empty($this->scoresheet)) {
             return false;
         }
         
-        $path = public_path($this->scoresheet);
+        $path = $this->scoresheet_path;
         return file_exists($path) && is_file($path);
     }
 
-    // Method untuk mendapatkan format match date
-    public function getFormattedMatchDateAttribute()
+    // Accessor untuk scoresheet URL
+    public function getScoresheetUrlAttribute()
     {
-        return $this->match_date ? $this->match_date->format('d F Y') : '-';
-    }
-
-    // Method untuk mendapatkan tanggal dalam format singkat
-    public function getShortMatchDateAttribute()
-    {
-        return $this->match_date ? $this->match_date->format('d/m/Y') : '-';
-    }
-
-    // Method untuk mendapatkan score dalam format
-    public function getScoreFormatAttribute()
-    {
-        return "{$this->score_1} - {$this->score_2}";
-    }
-
-    // Method untuk mendapatkan nama status dengan format
-    public function getStatusBadgeAttribute()
-    {
-        $badges = [
-            'draft' => '<span class="badge bg-warning bg-opacity-20 text-warning border border-warning border-opacity-50">Draft</span>',
-            'publish' => '<span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-50">Published</span>',
-            'done' => '<span class="badge bg-primary bg-opacity-20 text-primary border border-primary border-opacity-50">Done</span>',
-        ];
-        
-        return $badges[$this->status] ?? '<span class="badge bg-secondary bg-opacity-10 text-secondary">Unknown</span>';
-    }
-
-    // Method untuk mendapatkan status text
-    public function getStatusTextAttribute()
-    {
-        $texts = [
-            'draft' => 'Draft',
-            'publish' => 'Published',
-            'done' => 'Done',
-        ];
-        
-        return $texts[$this->status] ?? 'Unknown';
-    }
-
-    // Method untuk mengecek apakah hasil seri
-    public function getIsDrawAttribute()
-    {
-        return $this->score_1 === $this->score_2;
-    }
-
-    // Method untuk mendapatkan total score
-    public function getTotalScoreAttribute()
-    {
-        return $this->score_1 + $this->score_2;
-    }
-
-    // Method untuk mendapatkan selisih score
-    public function getScoreDifferenceAttribute()
-    {
-        return abs($this->score_1 - $this->score_2);
-    }
-
-    // ========== METHOD BARU UNTUK TEAM DISPLAY ==========
-    
-    // Method untuk mendapatkan data display team1 dengan fallback icon
-    public function getTeam1DisplayDataAttribute()
-    {
-        return $this->getTeamDisplayData($this->team1, 'team1');
-    }
-
-    // Method untuk mendapatkan data display team2 dengan fallback icon
-    public function getTeam2DisplayDataAttribute()
-    {
-        return $this->getTeamDisplayData($this->team2, 'team2');
-    }
-
-    // Helper method untuk mendapatkan data display team
-    protected function getTeamDisplayData($team, $teamType = 'team1')
-    {
-        if (!$team || !$team->school_name) {
-            return [
-                'id' => null,
-                'name' => 'Team Not Found',
-                'logo' => null,
-                'logo_html' => '<div class="school-logo-placeholder">
-                    <i class="fas fa-school text-secondary"></i>
-                </div>',
-                'display_html' => '<div class="d-flex align-items-center">
-                    <div class="school-logo-placeholder me-2">
-                        <i class="fas fa-school text-secondary"></i>
-                    </div>
-                    <span>Team Not Found</span>
-                </div>',
-                'has_logo' => false,
-                'team_type' => $teamType
-            ];
+        if ($this->has_scoresheet) {
+            return asset('uploads/scoresheets/' . $this->scoresheet);
         }
-        
-        $hasLogo = !empty($team->school_logo);
-        
-        if ($hasLogo) {
-            $logoHtml = '<img src="' . asset('uploads/school_logo/' . $team->school_logo) . '" 
-                         alt="' . htmlspecialchars($team->school_name) . '" 
-                         class="img-fluid rounded-circle school-logo"
-                         style="width: 40px; height: 40px; object-fit: cover;">';
-            
-            $displayHtml = '<div class="d-flex align-items-center">
-                <div class="school-logo me-2">
-                    <img src="' . asset('uploads/school_logo/' . $team->school_logo) . '" 
-                         alt="' . htmlspecialchars($team->school_name) . '" 
-                         class="img-fluid rounded-circle"
-                         style="width: 30px; height: 30px; object-fit: cover;">
-                </div>
-                <span>' . htmlspecialchars($team->school_name) . '</span>
-            </div>';
-        } else {
-            $logoHtml = '<div class="school-logo-placeholder">
-                <i class="fas fa-school text-secondary"></i>
-            </div>';
-            
-            $displayHtml = '<div class="d-flex align-items-center">
-                <div class="school-logo-placeholder me-2">
-                    <i class="fas fa-school text-secondary"></i>
-                </div>
-                <span>' . htmlspecialchars($team->school_name) . '</span>
-            </div>';
+        return null;
+    }
+
+    // Accessor untuk venue (dari match_data jika ada)
+    public function getVenueAttribute()
+    {
+        if ($this->matchData && $this->matchData->venue) {
+            return $this->matchData->venue;
         }
-        
-        return [
-            'id' => $team->team_id,
-            'name' => $team->school_name,
-            'logo' => $hasLogo ? asset('uploads/school_logo/' . $team->school_logo) : null,
-            'logo_html' => $logoHtml,
-            'display_html' => $displayHtml,
-            'has_logo' => $hasLogo,
-            'team_type' => $teamType
-        ];
+        return 'TBD';
     }
 
-    // Method untuk mendapatkan team logo HTML
-    public function getTeam1LogoHtmlAttribute()
+    // Accessor untuk match title (dari match_data jika ada)
+    public function getMatchTitleAttribute()
     {
-        return $this->team1_display_data['logo_html'];
+        if ($this->matchData && $this->matchData->main_title) {
+            return $this->matchData->main_title;
+        }
+        return "{$this->team1_name} vs {$this->team2_name}";
     }
 
-    public function getTeam2LogoHtmlAttribute()
-    {
-        return $this->team2_display_data['logo_html'];
-    }
+    // ========== METHODS ==========
 
-    // Method untuk mendapatkan team display HTML
-    public function getTeam1DisplayHtmlAttribute()
-    {
-        return $this->team1_display_data['display_html'];
-    }
-
-    public function getTeam2DisplayHtmlAttribute()
-    {
-        return $this->team2_display_data['display_html'];
-    }
-
-    // Method untuk mendapatkan nama team dengan fallback
-    public function getTeam1NameAttribute()
-    {
-        return $this->team1->school_name ?? 'Team Not Found';
-    }
-
-    public function getTeam2NameAttribute()
-    {
-        return $this->team2->school_name ?? 'Team Not Found';
-    }
-
-    // Method untuk cek apakah team ada logo
-    public function getTeam1HasLogoAttribute()
-    {
-        return !empty($this->team1->school_logo ?? null);
-    }
-
-    public function getTeam2HasLogoAttribute()
-    {
-        return !empty($this->team2->school_logo ?? null);
-    }
-
-    // ========== VALIDATION METHODS ==========
-    
-    // Validasi apakah kedua team berbeda
+    // Method untuk validasi teams berbeda
     public function validateDifferentTeams()
     {
         return $this->team1_id !== $this->team2_id;
     }
 
-    // Validasi apakah scoresheet valid
+    // Method untuk validasi scoresheet
     public function validateScoresheet()
     {
         if (empty($this->scoresheet)) {
             return true; // Tidak wajib
         }
         
-        $path = public_path($this->scoresheet);
+        $path = $this->scoresheet_path;
         if (!file_exists($path)) {
             return false;
         }
         
-        $allowedExtensions = ['xlsx', 'xls', 'xlsm', 'xlsb', 'csv'];
+        $allowedExtensions = ['xlsx', 'xls', 'xlsm', 'xlsb', 'csv', 'pdf'];
         $extension = pathinfo($path, PATHINFO_EXTENSION);
         
         return in_array(strtolower($extension), $allowedExtensions);
     }
 
+    // Method untuk mendapatkan match status untuk display
+    public function getDisplayStatus()
+    {
+        $statusMap = [
+            'draft' => ['label' => 'Draft', 'class' => 'bg-gray-100 text-gray-800'],
+            'publish' => ['label' => 'Published', 'class' => 'bg-green-100 text-green-800'],
+            'done' => ['label' => 'Done', 'class' => 'bg-blue-100 text-blue-800'],
+            'scheduled' => ['label' => 'Scheduled', 'class' => 'bg-yellow-100 text-yellow-800'],
+            'upcoming' => ['label' => 'Upcoming', 'class' => 'bg-orange-100 text-orange-800'],
+            'live' => ['label' => 'Live', 'class' => 'bg-red-100 text-red-800'],
+            'completed' => ['label' => 'Completed', 'class' => 'bg-green-100 text-green-800'],
+        ];
+
+        return $statusMap[$this->status] ?? ['label' => 'Unknown', 'class' => 'bg-gray-100 text-gray-800'];
+    }
+
+    // Method untuk update score
+    public function updateScore($score1, $score2)
+    {
+        $this->score_1 = $score1;
+        $this->score_2 = $score2;
+        
+        // Jika ada score, ubah status menjadi completed
+        if ($score1 !== null && $score2 !== null) {
+            $this->status = 'completed';
+        }
+        
+        return $this->save();
+    }
+
     // ========== BOOT METHOD ==========
-    
-    // Boot method untuk set default season jika kosong
+
     protected static function boot()
     {
         parent::boot();
@@ -483,7 +505,6 @@ class MatchResult extends Model
             // Jika status diubah menjadi done, pastikan tidak ada perubahan lagi
             if ($model->isDirty('status') && $model->status === 'done') {
                 // Validasi bahwa scoresheet ada jika diperlukan
-                // (opsional: bisa menambahkan validasi tambahan di sini)
             }
 
             // Validasi bahwa team1 dan team2 berbeda
