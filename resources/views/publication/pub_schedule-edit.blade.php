@@ -47,7 +47,7 @@
                                    class="form-control @error('upload_date') is-invalid @enderror" 
                                    id="upload_date" 
                                    name="upload_date" 
-                                   value="{{ old('upload_date', $schedule->upload_date) }}"
+                                   value="{{ old('upload_date', \Carbon\Carbon::parse($schedule->upload_date)->format('Y-m-d')) }}"
                                    required>
                             @error('upload_date')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -170,43 +170,37 @@
                             </div>
                         </div>
 
-                        <!-- Status Info -->
+                        <!-- Status Display (Read-only) -->
                         <div class="mb-3">
                             <label class="form-label">
-                                <i class="fas fa-info-circle me-1"></i> Status Information
+                                <i class="fas fa-info-circle me-1"></i> Current Status
                             </label>
-                            <div class="alert alert-light border">
-                                <div class="mb-2">
-                                    <span class="badge bg-warning bg-opacity-20 text-warning d-inline-flex align-items-center">
-                                        <i class="fas fa-edit me-1"></i> Draft
-                                    </span>
-                                    <small class="ms-2">Only visible to admins</small>
-                                </div>
-                                <div class="mb-2">
-                                    <span class="badge bg-success bg-opacity-20 text-success d-inline-flex align-items-center">
-                                        <i class="fas fa-globe me-1"></i> Published
-                                    </span>
-                                    <small class="ms-2">Visible to public</small>
-                                </div>
-                                <div>
-                                    <span class="badge bg-primary bg-opacity-20 text-primary d-inline-flex align-items-center">
-                                        <i class="fas fa-check-double me-1"></i> Done
-                                    </span>
-                                    <small class="ms-2">Cannot be edited</small>
-                                </div>
-                            </div>
-                            <div class="alert alert-info">
-                                <i class="fas fa-exclamation-circle me-1"></i>
-                                <strong>Current Status: 
+                            <div class="alert 
+                                @if($schedule->status === 'draft') alert-warning
+                                @elseif($schedule->status === 'publish') alert-success
+                                @elseif($schedule->status === 'done') alert-primary
+                                @else alert-secondary @endif">
+                                <div class="d-flex align-items-center">
                                     @if($schedule->status === 'draft')
-                                        <span class="badge bg-warning">Draft</span>
+                                        <i class="fas fa-edit me-2"></i>
+                                        <strong>Draft</strong>
+                                        <span class="ms-2 small">- Only visible to admins</span>
                                     @elseif($schedule->status === 'publish')
-                                        <span class="badge bg-success">Published</span>
+                                        <i class="fas fa-globe me-2"></i>
+                                        <strong>Published</strong>
+                                        <span class="ms-2 small">- Visible to public</span>
                                     @elseif($schedule->status === 'done')
-                                        <span class="badge bg-primary">Done</span>
+                                        <i class="fas fa-check-double me-2"></i>
+                                        <strong>Done</strong>
+                                        <span class="ms-2 small">- Cannot be edited</span>
                                     @endif
-                                </strong>
-                                <div class="small mt-1">Status can be changed from the schedule list.</div>
+                                </div>
+                                @if($schedule->status === 'done')
+                                    <div class="small mt-1">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                        This schedule is marked as "Done" and cannot be edited.
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -221,9 +215,15 @@
                                 <i class="fas fa-times me-2"></i> Cancel
                             </a>
                             <div class="d-flex gap-2">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save me-2"></i> Update Schedule
-                                </button>
+                                @if($schedule->status !== 'done')
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i> Update Schedule
+                                    </button>
+                                @else
+                                    <button type="button" class="btn btn-secondary" disabled>
+                                        <i class="fas fa-ban me-2"></i> Cannot Edit (Done Status)
+                                    </button>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -287,12 +287,25 @@
     .alert {
         border-radius: 6px;
         font-size: 0.9rem;
+        border: 1px solid transparent;
     }
 
-    .badge {
-        padding: 0.3em 0.6em;
-        font-weight: 500;
-        font-size: 0.75em;
+    .alert-warning {
+        background-color: #fff3cd;
+        border-color: #ffecb5;
+        color: #856404;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+        color: #155724;
+    }
+
+    .alert-primary {
+        background-color: #d1ecf1;
+        border-color: #bee5eb;
+        color: #0c5460;
     }
 
     .btn {
@@ -317,10 +330,20 @@
         color: #6c757d;
     }
 
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+    }
+
     .img-thumbnail {
         padding: 4px;
         border-radius: 4px;
         border: 1px solid #dee2e6;
+    }
+
+    .form-check-input:checked {
+        background-color: #3498db;
+        border-color: #3498db;
     }
 
     @media (max-width: 768px) {
@@ -408,37 +431,72 @@
             });
         });
         
-        // Form validation before submit
+        // Form validation and status check before submit
         const form = document.getElementById('scheduleForm');
-        form.addEventListener('submit', function(e) {
-            const title = document.getElementById('main_title');
-            const series = document.getElementById('series_name');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                @if($schedule->status === 'done')
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Cannot Edit',
+                        text: 'This schedule is marked as "Done" and cannot be edited.',
+                        confirmButtonColor: '#3498db'
+                    });
+                    return false;
+                @endif
+                
+                const title = document.getElementById('main_title');
+                const series = document.getElementById('series_name');
+                const uploadDate = document.getElementById('upload_date');
+                
+                let isValid = true;
+                
+                // Validate title
+                if (!title.value.trim()) {
+                    title.classList.add('is-invalid');
+                    isValid = false;
+                }
+                
+                // Validate series
+                if (!series.value) {
+                    series.classList.add('is-invalid');
+                    isValid = false;
+                }
+                
+                // Validate upload date
+                if (!uploadDate.value) {
+                    uploadDate.classList.add('is-invalid');
+                    isValid = false;
+                }
+                
+                if (!isValid) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validation Error',
+                        text: 'Please fill all required fields',
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                }
+            });
+        }
+        
+        // Disable form inputs if status is 'done'
+        @if($schedule->status === 'done')
+            document.querySelectorAll('#scheduleForm input, #scheduleForm select, #scheduleForm textarea, #scheduleForm button[type="submit"]').forEach(element => {
+                if (element.id !== 'remove_image') {
+                    element.disabled = true;
+                }
+            });
             
-            let isValid = true;
-            
-            // Validate title
-            if (!title.value.trim()) {
-                title.classList.add('is-invalid');
-                isValid = false;
+            // Also disable the remove image checkbox
+            const removeImageCheckbox = document.getElementById('remove_image');
+            if (removeImageCheckbox) {
+                removeImageCheckbox.disabled = true;
             }
-            
-            // Validate series
-            if (!series.value) {
-                series.classList.add('is-invalid');
-                isValid = false;
-            }
-            
-            if (!isValid) {
-                e.preventDefault();
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Validation Error',
-                    text: 'Please fill all required fields',
-                    timer: 3000,
-                    showConfirmButton: false
-                });
-            }
-        });
+        @endif
     });
 </script>
 

@@ -1,890 +1,1059 @@
 @extends('user.layouts.app')
 
-@section('title', 'Schedule - HSBL Riau Pos')
-
-@section('styles')
-<style>
-    /* Tab Styles */
-    .schedule-tabs {
-        border-bottom: 2px solid #e5e7eb;
-        margin-bottom: 2rem;
-    }
-    
-    .tab-btn {
-        padding: 0.75rem 1.5rem;
-        font-weight: 500;
-        color: #6b7280;
-        border-bottom: 3px solid transparent;
-        transition: all 0.3s ease;
-        font-size: 0.9375rem;
-        background: none;
-        border: none;
-        cursor: pointer;
-    }
-    
-    .tab-btn:hover {
-        color: #3b82f6;
-    }
-    
-    .tab-btn.active {
-        color: #3b82f6;
-        border-bottom-color: #3b82f6;
-        background-color: #eff6ff;
-    }
-    
-    /* Enhanced Match Card Styles */
-    .match-card {
-        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-        border-radius: 1.25rem;
-        padding: 1.75rem;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
-        border: 1px solid #f1f5f9;
-        height: 100%;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .match-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
-    }
-    
-    .match-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 20px 40px -10px rgba(59, 130, 246, 0.15);
-    }
-    
-    .match-card.live {
-        background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
-        border-left: 4px solid #ef4444;
-        animation: pulse 2s infinite;
-    }
-    
-    .match-card.live::before {
-        background: linear-gradient(90deg, #ef4444 0%, #f87171 100%);
-    }
-    
-    .match-card.upcoming {
-        background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
-    }
-    
-    .match-card.upcoming::before {
-        background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
-    }
-    
-    @keyframes pulse {
-        0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.2); }
-        50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-    }
-    
-    /* Enhanced Team Badge */
-    .team-badge {
-        width: 80px;
-        height: 80px;
-        border-radius: 16px;
-        background: linear-gradient(135deg, #ffffff, #f3f4f6);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        color: #1f2937;
-        font-size: 1.5rem;
-        margin: 0 auto;
-        border: 3px solid white;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
-    }
-    
-    .team-badge:hover {
-        transform: scale(1.05);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-    }
-    
-    .team-badge img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 13px;
-    }
-    
-    /* Series Badge Enhanced */
-    .series-badge {
-        display: inline-block;
-        padding: 0.375rem 1rem;
-        border-radius: 1rem;
-        font-size: 0.75rem;
-        font-weight: 600;
-        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-        color: #1d4ed8;
-        border: 1px solid #bfdbfe;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    /* Date Header */
-    .date-header {
-        background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
-        color: white;
-        padding: 0.75rem 1.5rem;
-        border-radius: 0.75rem;
-        margin-bottom: 1.5rem;
-        display: inline-flex;
-        align-items: center;
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
-    }
-    
-    .date-header i {
-        font-size: 1.25rem;
-        margin-right: 0.75rem;
-    }
-    
-    /* Match Count Badge */
-    .match-count-badge {
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(10px);
-        padding: 0.25rem 0.75rem;
-        border-radius: 9999px;
-        font-size: 0.875rem;
-        font-weight: 500;
-        margin-left: 1rem;
-    }
-    
-    /* Status Badge Enhanced */
-    .status-badge {
-        display: inline-flex;
-        align-items: center;
-        padding: 0.375rem 1rem;
-        border-radius: 9999px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .status-upcoming {
-        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-        color: #1d4ed8;
-    }
-    
-    .status-live {
-        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-        color: #dc2626;
-        animation: pulse 1.5s infinite;
-    }
-    
-    /* Venue Badge - Since no venue column, using competition_type */
-    .venue-badge {
-        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-        color: #0369a1;
-        padding: 0.5rem 1rem;
-        border-radius: 0.75rem;
-        font-size: 0.75rem;
-        font-weight: 500;
-        border: 1px solid #bae6fd;
-        margin-top: 0.5rem;
-        display: inline-block;
-    }
-    
-    /* Empty State Enhanced */
-    .empty-state {
-        text-align: center;
-        padding: 5rem 2rem;
-        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-        border-radius: 1.5rem;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-        border: 2px dashed #e5e7eb;
-    }
-    
-    .empty-state i {
-        font-size: 4rem;
-        background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-bottom: 1.5rem;
-    }
-    
-    /* Loading Animation */
-    .loading-skeleton {
-        animation: shimmer 1.5s infinite linear;
-        background: linear-gradient(90deg, #f3f4f6 0%, #e5e7eb 50%, #f3f4f6 100%);
-        background-size: 200% 100%;
-    }
-    
-    @keyframes shimmer {
-        0% { background-position: -200% 0; }
-        100% { background-position: 200% 0; }
-    }
-    
-    /* Action Buttons */
-    .action-buttons {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-top: 1rem;
-        margin-top: 1rem;
-        border-top: 1px solid #f1f5f9;
-    }
-    
-    .btn-details {
-        background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
-        color: white;
-        padding: 0.5rem 1.25rem;
-        border-radius: 0.75rem;
-        font-size: 0.875rem;
-        font-weight: 500;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        border: none;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .btn-details:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
-    }
-    
-    .btn-reminder {
-        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-        color: #0369a1;
-        padding: 0.5rem 1.25rem;
-        border-radius: 0.75rem;
-        font-size: 0.875rem;
-        font-weight: 500;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        border: 1px solid #bae6fd;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .btn-reminder:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(2, 132, 199, 0.15);
-        background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
-    }
-</style>
-@endsection
+@section('title', 'Schedules & Results - HSBL Riau Pos')
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    {{-- Page Header --}}
-    <div class="mb-8 text-center">
-        <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Match Schedule</h1>
-        <p class="text-gray-600 max-w-2xl mx-auto">Stay updated with upcoming matches, live games, and never miss an exciting moment of Honda Student Basketball League</p>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <!-- Page Header -->
+    <div class="text-center mb-8 md:mb-10">
+        <div class="inline-block px-5 py-1.5 bg-gradient-to-r from-blue-600 to-blue-500 rounded-full mb-3 shadow-sm">
+            <span class="text-white text-xs font-semibold">TRACK PROGRESS</span>
+        </div>
+        <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Schedules & Results</h1>
+        <p class="text-gray-600 max-w-2xl mx-auto text-sm">
+            Follow match schedules and view real-time results from Honda Student Basketball League
+        </p>
     </div>
 
-    {{-- Include Tabs Partial --}}
-    @include('partials.tabs-schresult')
-
-    {{-- Filters & Search --}}
-    <div class="mb-8 bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div class="flex flex-wrap gap-3">
-                <select id="seriesFilter" class="px-5 py-3 border border-gray-300 rounded-xl focus:ring-3 focus:ring-blue-500/30 focus:border-blue-500 outline-none text-sm transition-all duration-200 hover:border-blue-400">
-                    <option value="">All Series</option>
-                    @if(isset($seriesList) && count($seriesList) > 0)
-                        @foreach($seriesList as $series)
-                            <option value="{{ $series }}" {{ request('series') == $series ? 'selected' : '' }}>
-                                {{ $series }}
-                            </option>
-                        @endforeach
-                    @endif
-                </select>
-                
-                <select id="seasonFilter" class="px-5 py-3 border border-gray-300 rounded-xl focus:ring-3 focus:ring-blue-500/30 focus:border-blue-500 outline-none text-sm transition-all duration-200 hover:border-blue-400">
-                    <option value="">All Seasons</option>
-                    @if(isset($seasons) && count($seasons) > 0)
-                        @foreach($seasons as $season)
-                            <option value="{{ $season }}" {{ request('season') == $season ? 'selected' : '' }}>
-                                {{ $season }}
-                            </option>
-                        @endforeach
-                    @endif
-                </select>
-                
-                @if(isset($phases) && count($phases) > 0)
-                <select id="phaseFilter" class="px-5 py-3 border border-gray-300 rounded-xl focus:ring-3 focus:ring-blue-500/30 focus:border-blue-500 outline-none text-sm transition-all duration-200 hover:border-blue-400">
-                    <option value="">All Phases</option>
-                    @foreach($phases as $phase)
-                        <option value="{{ $phase }}" {{ request('phase') == $phase ? 'selected' : '' }}>
-                            {{ $phase }}
-                        </option>
-                    @endforeach
-                </select>
-                @endif
-            </div>
-            
-            <div class="relative w-full md:w-80">
-                <input type="text" 
-                       id="searchInput" 
-                       placeholder="Search matches, teams..." 
-                       value="{{ request('search') }}"
-                       class="w-full px-5 py-3 pl-12 border border-gray-300 rounded-xl focus:ring-3 focus:ring-blue-500/30 focus:border-blue-500 outline-none text-sm transition-all duration-200 hover:border-blue-400"
-                >
-                <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-            </div>
-        </div>
+    <!-- Tabs Navigation -->
+    <div class="flex space-x-1 bg-white rounded-xl shadow-sm p-1 mb-6 border border-gray-200">
+        <button id="schedulesTab" 
+                class="flex-1 py-2.5 px-4 text-sm font-medium rounded-lg transition-all duration-200 bg-blue-500 text-white"
+                onclick="showSection('schedules')">
+            <i class="fas fa-calendar-alt mr-2"></i>
+            Schedules
+        </button>
+        <button id="resultsTab" 
+                class="flex-1 py-2.5 px-4 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 hover:text-blue-600"
+                onclick="showSection('results')">
+            <i class="fas fa-trophy mr-2"></i>
+            Results
+        </button>
     </div>
 
-    {{-- Live Matches Section --}}
-    @if(isset($liveMatches) && $liveMatches->count() > 0)
-        <div class="mb-10">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-2xl font-bold text-gray-900">
-                    <i class="fas fa-broadcast-tower text-red-500 mr-3"></i>
-                    Live Now
-                </h2>
-                <span class="flex items-center space-x-2 px-4 py-2 bg-red-50 text-red-700 rounded-full">
-                    <span class="h-2 w-2 bg-red-500 rounded-full animate-pulse"></span>
-                    <span class="text-sm font-semibold">LIVE</span>
-                </span>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                @foreach($liveMatches as $match)
-                    <div class="match-card live">
-                        <div class="absolute top-4 right-4">
-                            <span class="status-badge status-live">
-                                <i class="fas fa-broadcast-tower mr-2"></i>
-                                LIVE NOW
-                            </span>
-                        </div>
-                        
-                        <div class="text-center mb-6">
-                            <h3 class="font-bold text-gray-900 text-lg mb-1">{{ $match->competition ?? 'HSBL Match' }}</h3>
-                            <div class="flex items-center justify-center space-x-4 text-sm text-gray-600">
-                                <span><i class="far fa-clock mr-1"></i> {{ \Carbon\Carbon::parse($match->match_date)->format('h:i A') }}</span>
-                                <span class="series-badge">{{ $match->series ?? 'Regular Series' }}</span>
-                            </div>
-                            @if($match->phase)
-                                <div class="mt-2">
-                                    <span class="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-xs font-medium">{{ $match->phase }}</span>
-                                </div>
-                            @endif
-                        </div>
-                        
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="text-center flex-1">
-                                <div class="team-badge mb-3">
-                                    @if($match->team1 && $match->team1->logo)
-                                        <img src="{{ asset('uploads/teams/' . $match->team1->logo) }}" 
-                                             alt="{{ $match->team1->name }}" 
-                                             class="w-full h-full rounded-lg object-cover">
-                                    @else
-                                        <div class="text-2xl font-bold text-red-600">
-                                            {{ substr($match->team1->name ?? 'T1', 0, 2) }}
-                                        </div>
-                                    @endif
-                                </div>
-                                <p class="font-semibold text-gray-900">{{ $match->team1->name ?? 'Team A' }}</p>
-                            </div>
-                            
-                            <div class="text-center mx-4">
-                                <div class="text-4xl font-bold text-red-600 mb-2">
-                                    {{ $match->score_1 ?? '0' }} - {{ $match->score_2 ?? '0' }}
-                                </div>
-                                <div class="venue-badge">
-                                    <i class="fas fa-basketball-ball mr-1"></i> 
-                                    {{ $match->competition_type ?? 'Basketball' }}
-                                </div>
-                            </div>
-                            
-                            <div class="text-center flex-1">
-                                <div class="team-badge mb-3">
-                                    @if($match->team2 && $match->team2->logo)
-                                        <img src="{{ asset('uploads/teams/' . $match->team2->logo) }}" 
-                                             alt="{{ $match->team2->name }}" 
-                                             class="w-full h-full rounded-lg object-cover">
-                                    @else
-                                        <div class="text-2xl font-bold text-red-600">
-                                            {{ substr($match->team2->name ?? 'T2', 0, 2) }}
-                                        </div>
-                                    @endif
-                                </div>
-                                <p class="font-semibold text-gray-900">{{ $match->team2->name ?? 'Team B' }}</p>
-                            </div>
-                        </div>
-                        
-                        <div class="action-buttons">
-                            <a href="{{ route('user.schedule.show', $match->id) }}" 
-                               class="btn-details">
-                                <i class="fas fa-info-circle mr-2"></i> Match Details
-                            </a>
-                            <a href="#" class="btn-reminder">
-                                <i class="fas fa-play-circle mr-2"></i> Watch Live
-                            </a>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-    @endif
-
-    {{-- Loading State --}}
-    <div id="loadingState" class="hidden">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            @for($i = 0; $i < 6; $i++)
-                <div class="match-card">
-                    <div class="loading-skeleton h-6 w-40 rounded-lg mb-4"></div>
-                    <div class="loading-skeleton h-4 w-32 rounded mb-6"></div>
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="loading-skeleton h-20 w-20 rounded-2xl"></div>
-                        <div class="loading-skeleton h-10 w-24 rounded-lg"></div>
-                        <div class="loading-skeleton h-20 w-20 rounded-2xl"></div>
-                    </div>
-                    <div class="loading-skeleton h-10 w-full rounded-lg"></div>
-                </div>
-            @endfor
-        </div>
-    </div>
-
-    {{-- Schedule Content --}}
-    <div id="scheduleContent" class="tab-content {{ ($activeTab ?? 'schedule') == 'schedule' ? '' : 'hidden' }}">
-        @if(isset($groupedMatches) && count($groupedMatches) > 0)
-            @foreach($groupedMatches as $date => $matches)
-                <div class="mb-12">
-                    <div class="flex items-center mb-6">
-                        <div class="date-header">
-                            <i class="far fa-calendar-alt"></i>
-                            <div>
-                                <h3 class="text-lg font-bold">{{ \Carbon\Carbon::parse($date)->format('l, F j, Y') }}</h3>
-                                <div class="text-sm opacity-90">{{ \Carbon\Carbon::parse($date)->diffForHumans() }}</div>
-                            </div>
-                            <span class="match-count-badge">{{ $matches->count() }} {{ $matches->count() == 1 ? 'Match' : 'Matches' }}</span>
-                        </div>
-                    </div>
+    <!-- Schedules Section -->
+    <section id="schedulesSection" class="section-content">
+        <!-- FILTER BAR UNTUK SCHEDULES -->
+        <form id="scheduleFilterForm" method="GET" action="{{ route('user.schedule_result') }}" class="bg-white rounded-xl shadow-sm p-4 mb-6 border border-gray-200">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <!-- Filter Section -->
+                <div class="flex flex-wrap gap-3 w-full md:w-auto">
+                    <!-- Series Filter -->
+                    <select name="series" id="scheduleSeriesFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white min-w-[120px]">
+                        <option value="">All Series</option>
+                        @if(isset($seriesList) && count($seriesList) > 0)
+                            @foreach($seriesList as $series)
+                                <option value="{{ $series }}" {{ request('series') == $series ? 'selected' : '' }}>{{ $series }}</option>
+                            @endforeach
+                        @endif
+                    </select>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        @foreach($matches as $match)
-                            <div class="match-card upcoming" 
-                                 data-series="{{ $match->series ?? '' }}" 
-                                 data-season="{{ $match->season ?? '' }}"
-                                 data-phase="{{ $match->phase ?? '' }}">
-                                
-                                <div class="flex items-center justify-between mb-4">
-                                    <span class="series-badge">{{ $match->series ?? 'Regular Series' }}</span>
-                                    <span class="status-badge status-upcoming">
-                                        <i class="far fa-clock mr-2"></i>
-                                        UPCOMING
-                                    </span>
-                                </div>
-                                
-                                <div class="text-center mb-6">
-                                    <h3 class="font-bold text-gray-900 text-lg mb-2">{{ $match->competition ?? 'HSBL Match' }}</h3>
-                                    <div class="flex items-center justify-center space-x-3 text-sm text-gray-600">
-                                        <span><i class="far fa-clock mr-1"></i> {{ \Carbon\Carbon::parse($match->match_date)->format('h:i A') }}</span>
-                                        @if($match->phase)
-                                            <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded-full text-xs font-medium">{{ $match->phase }}</span>
-                                        @endif
-                                    </div>
-                                    <div class="mt-2 text-xs text-gray-500">
-                                        Season: {{ $match->season ?? 'N/A' }}
-                                    </div>
-                                </div>
-                                
-                                <div class="flex items-center justify-between mb-6">
-                                    <div class="text-center flex-1">
-                                        <div class="team-badge mb-4">
-                                            @if($match->team1 && $match->team1->logo)
-                                                <img src="{{ asset('uploads/teams/' . $match->team1->logo) }}" 
-                                                     alt="{{ $match->team1->name }}" 
-                                                     class="w-full h-full rounded-lg object-cover">
-                                            @else
-                                                <div class="text-2xl font-bold text-blue-600">
-                                                    {{ substr($match->team1->name ?? 'T1', 0, 2) }}
-                                                </div>
-                                            @endif
-                                        </div>
-                                        <p class="font-semibold text-gray-900">{{ $match->team1->name ?? 'Team A' }}</p>
-                                    </div>
-                                    
-                                    <div class="text-center mx-4">
-                                        <div class="text-2xl font-bold text-blue-600 mb-2">VS</div>
-                                        <div class="venue-badge">
-                                            <i class="fas fa-basketball-ball mr-1"></i> 
-                                            {{ $match->competition_type ?? 'Basketball' }}
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="text-center flex-1">
-                                        <div class="team-badge mb-4">
-                                            @if($match->team2 && $match->team2->logo)
-                                                <img src="{{ asset('uploads/teams/' . $match->team2->logo) }}" 
-                                                     alt="{{ $match->team2->name }}" 
-                                                     class="w-full h-full rounded-lg object-cover">
-                                            @else
-                                                <div class="text-2xl font-bold text-blue-600">
-                                                    {{ substr($match->team2->name ?? 'T2', 0, 2) }}
-                                                </div>
-                                            @endif
-                                        </div>
-                                        <p class="font-semibold text-gray-900">{{ $match->team2->name ?? 'Team B' }}</p>
-                                    </div>
-                                </div>
-                                
-                                <div class="action-buttons">
-                                    <a href="{{ route('user.schedule.show', $match->id) }}" 
-                                       class="btn-details">
-                                        <i class="fas fa-info-circle mr-2"></i> Match Details
-                                    </a>
-                                    <button onclick="setReminder({{ $match->id }})" 
-                                            class="btn-reminder">
-                                        <i class="far fa-bell mr-2"></i> Set Reminder
-                                    </button>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
+                    <!-- Year Filter -->
+                    <select name="year" id="scheduleYearFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white min-w-[100px]">
+                        <option value="">All Years</option>
+                        @if(isset($years) && count($years) > 0)
+                            @foreach($years as $year)
+                                <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>{{ $year }}</option>
+                            @endforeach
+                        @else
+                            @for($year = date('Y'); $year >= 2020; $year--)
+                                <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>{{ $year }}</option>
+                            @endfor
+                        @endif
+                    </select>
                 </div>
-            @endforeach
-        @elseif(isset($upcomingMatches) && $upcomingMatches->count() > 0)
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                @foreach($upcomingMatches as $match)
-                    <div class="match-card upcoming" 
-                         data-series="{{ $match->series ?? '' }}" 
-                         data-season="{{ $match->season ?? '' }}"
-                         data-phase="{{ $match->phase ?? '' }}">
-                        
-                        <div class="flex items-center justify-between mb-4">
-                            <span class="series-badge">{{ $match->series ?? 'Regular Series' }}</span>
-                            <span class="status-badge status-upcoming">
-                                <i class="far fa-clock mr-2"></i>
-                                UPCOMING
-                            </span>
-                        </div>
-                        
-                        <div class="text-center mb-6">
-                            <h3 class="font-bold text-gray-900 text-lg mb-2">{{ $match->competition ?? 'HSBL Match' }}</h3>
-                            <div class="flex items-center justify-center space-x-3 text-sm text-gray-600">
-                                <span><i class="far fa-calendar mr-1"></i> {{ \Carbon\Carbon::parse($match->match_date)->format('d M Y') }}</span>
-                                <span><i class="far fa-clock mr-1"></i> {{ \Carbon\Carbon::parse($match->match_date)->format('h:i A') }}</span>
-                            </div>
-                            @if($match->phase)
-                                <div class="mt-2">
-                                    <span class="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-xs font-medium">{{ $match->phase }}</span>
-                                </div>
-                            @endif
-                            <div class="mt-1 text-xs text-gray-500">
-                                Season: {{ $match->season ?? 'N/A' }}
-                            </div>
-                        </div>
-                        
-                        <div class="flex items-center justify-between mb-6">
-                            <div class="text-center flex-1">
-                                <div class="team-badge mb-4">
-                                    @if($match->team1 && $match->team1->logo)
-                                        <img src="{{ asset('uploads/teams/' . $match->team1->logo) }}" 
-                                             alt="{{ $match->team1->name }}" 
-                                             class="w-full h-full rounded-lg object-cover">
-                                    @else
-                                        <div class="text-2xl font-bold text-blue-600">
-                                            {{ substr($match->team1->name ?? 'T1', 0, 2) }}
-                                        </div>
-                                    @endif
-                                </div>
-                                <p class="font-semibold text-gray-900">{{ $match->team1->name ?? 'Team A' }}</p>
-                            </div>
-                            
-                            <div class="text-center mx-4">
-                                <div class="text-2xl font-bold text-blue-600 mb-2">VS</div>
-                                <div class="venue-badge">
-                                    <i class="fas fa-basketball-ball mr-1"></i> 
-                                    {{ $match->competition_type ?? 'Basketball' }}
-                                </div>
-                            </div>
-                            
-                            <div class="text-center flex-1">
-                                <div class="team-badge mb-4">
-                                    @if($match->team2 && $match->team2->logo)
-                                        <img src="{{ asset('uploads/teams/' . $match->team2->logo) }}" 
-                                             alt="{{ $match->team2->name }}" 
-                                             class="w-full h-full rounded-lg object-cover">
-                                    @else
-                                        <div class="text-2xl font-bold text-blue-600">
-                                            {{ substr($match->team2->name ?? 'T2', 0, 2) }}
-                                        </div>
-                                    @endif
-                                </div>
-                                <p class="font-semibold text-gray-900">{{ $match->team2->name ?? 'Team B' }}</p>
-                            </div>
-                        </div>
-                        
-                        <div class="action-buttons">
-                            <a href="{{ route('user.schedule.show', $match->id) }}" 
-                               class="btn-details">
-                                <i class="fas fa-info-circle mr-2"></i> Match Details
-                            </a>
-                            <button onclick="setReminder({{ $match->id }})" 
-                                    class="btn-reminder">
-                                <i class="far fa-bell mr-2"></i> Set Reminder
-                            </button>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-            
-            {{-- Pagination for Schedule --}}
-            @if($upcomingMatches instanceof \Illuminate\Pagination\LengthAwarePaginator && $upcomingMatches->hasPages())
-                <div class="pagination-container mt-10">
-                    {{ $upcomingMatches->appends(request()->except('page'))->links('vendor.pagination.tailwind') }}
-                </div>
-            @endif
-        @else
-            <div class="col-span-full">
-                <div class="empty-state">
-                    <i class="fas fa-calendar-plus"></i>
-                    <h3 class="text-xl font-bold text-gray-800 mb-3">No Upcoming Matches Scheduled</h3>
-                    <p class="text-gray-600 mb-6 max-w-md mx-auto">The schedule for upcoming matches is being prepared. Check back soon for exciting basketball action!</p>
-                    <button class="btn-details px-6" onclick="loadMatches('schedule')">
-                        <i class="fas fa-sync-alt mr-2"></i> Refresh Schedule
+                
+                <!-- Action Buttons - SELALU TAMPIL -->
+                <div class="flex gap-2">
+                    <!-- Apply Button -->
+                    <button type="submit" 
+                            class="px-4 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-sm hover:shadow text-sm font-medium flex items-center">
+                        <i class="fas fa-filter mr-1.5"></i> Apply
+                    </button>
+                    
+                    <!-- Reset Button -->
+                    <button type="button" 
+                            onclick="resetScheduleFilters()" 
+                            class="px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors flex items-center">
+                        <i class="fas fa-redo mr-1.5"></i> Reset
                     </button>
                 </div>
             </div>
-        @endif
-    </div>
-</div>
-@endsection
+            
+            <!-- Hidden fields untuk menjaga tab state -->
+            <input type="hidden" name="tab" value="schedules">
+        </form>
 
-@section('scripts')
-<script>
-    // Set active tab from URL parameter or controller
-    document.addEventListener('DOMContentLoaded', function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const activeTab = urlParams.get('tab') || '{{ $activeTab ?? "schedule" }}';
-        switchTab(activeTab);
-        
-        // Initialize filters with current values
-        document.getElementById('seriesFilter').addEventListener('change', filterMatches);
-        document.getElementById('seasonFilter').addEventListener('change', filterMatches);
-        document.getElementById('searchInput').addEventListener('input', debounce(filterMatches, 300));
-        
-        if (document.getElementById('phaseFilter')) {
-            document.getElementById('phaseFilter').addEventListener('change', filterMatches);
-        }
-    });
+        <div class="bg-white rounded-xl shadow-lg p-5 mb-6 border border-gray-100">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-gray-900 mb-2 md:mb-0">
+                    <i class="fas fa-calendar-alt text-blue-500 mr-2"></i>
+                    Upcoming Matches
+                </h2>
+                <div class="text-xs text-blue-600 font-medium">
+                    <i class="fas fa-clock mr-1.5"></i>
+                    All times in WIB
+                </div>
+            </div>
 
-    // Tab Switching Function
-    function switchTab(tab) {
-        // Update active tab button
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        
-        if(tab === 'schedule') {
-            document.getElementById('scheduleTab').classList.add('active');
-            document.getElementById('scheduleContent').classList.remove('hidden');
-            
-            // Update URL without reload if not initial load
-            if (!window.history.state || window.history.state.tab !== tab) {
-                history.pushState({tab: tab}, '', `?tab=${tab}`);
-            }
-        } else {
-            // Redirect to results page
-            window.location.href = '{{ route("user.results") }}?tab=results';
-        }
-        
-        // Update filters based on active tab
-        updateFiltersForTab(tab);
-    }
-    
-    // Debounce function for search input
-    function debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    }
-    
-    // Filter Matches
-    function filterMatches() {
-        const seriesFilter = document.getElementById('seriesFilter').value.toLowerCase();
-        const seasonFilter = document.getElementById('seasonFilter').value.toLowerCase();
-        const searchQuery = document.getElementById('searchInput').value.toLowerCase();
-        const phaseFilter = document.getElementById('phaseFilter') ? 
-            document.getElementById('phaseFilter').value.toLowerCase() : '';
-        
-        const matchCards = document.querySelectorAll('#scheduleContent .match-card');
-        let visibleCount = 0;
-        
-        matchCards.forEach(card => {
-            const series = card.getAttribute('data-series')?.toLowerCase() || '';
-            const season = card.getAttribute('data-season')?.toLowerCase() || '';
-            const phase = card.getAttribute('data-phase')?.toLowerCase() || '';
-            const textContent = card.textContent.toLowerCase();
-            
-            const matchesSeries = !seriesFilter || series.includes(seriesFilter);
-            const matchesSeason = !seasonFilter || season.includes(seasonFilter);
-            const matchesPhase = !phaseFilter || phase.includes(phaseFilter);
-            const matchesSearch = !searchQuery || textContent.includes(searchQuery);
-            
-            if(matchesSeries && matchesSeason && matchesPhase && matchesSearch) {
-                card.classList.remove('hidden');
-                visibleCount++;
-            } else {
-                card.classList.add('hidden');
-            }
-        });
-        
-        // Show empty state if no matches visible
-        const emptyState = document.querySelector('#scheduleContent .empty-state');
-        if (emptyState && visibleCount === 0 && matchCards.length > 0) {
-            emptyState.classList.remove('hidden');
-        } else if (emptyState) {
-            emptyState.classList.add('hidden');
-        }
-    }
-    
-    // Load Matches via AJAX
-    function loadMatches(type) {
-        const loadingState = document.getElementById('loadingState');
-        const contentDiv = document.getElementById('scheduleContent');
-        
-        // Show loading
-        loadingState.classList.remove('hidden');
-        contentDiv.classList.add('hidden');
-        
-        // Get current filter values
-        const series = document.getElementById('seriesFilter').value;
-        const season = document.getElementById('seasonFilter').value;
-        const search = document.getElementById('searchInput').value;
-        const phase = document.getElementById('phaseFilter') ? 
-            document.getElementById('phaseFilter').value : '';
-        
-        // Make AJAX request
-        fetch('{{ route("user.schedule.ajax.get") }}' + `?series=${series}&season=${season}&search=${search}&phase=${phase}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    contentDiv.innerHTML = data.html;
-                    loadingState.classList.add('hidden');
-                    contentDiv.classList.remove('hidden');
-                    
-                    // Re-attach event listeners to new elements
-                    reattachEventListeners();
-                    
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Updated!',
-                        text: `Schedule has been refreshed`,
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                loadingState.classList.add('hidden');
-                contentDiv.classList.remove('hidden');
+            @if(isset($schedules) && count($schedules) > 0)
+                <!-- Mobile View - Simple List -->
+                <div class="lg:hidden space-y-4">
+                    @foreach($schedules as $schedule)
+                        @php
+                            // FIX: Gunakan path yang benar sesuai controller awal
+                            $imageUrl = $schedule->image_url ?? 
+                                (isset($schedule->layout_image) ? 
+                                    (str_starts_with($schedule->layout_image, 'http') ? 
+                                        $schedule->layout_image : 
+                                        asset('images/schedule/' . basename($schedule->layout_image))
+                                    ) : 
+                                    asset('images/default-schedule.jpg')
+                                );
+                            
+                            // Pastikan URL valid
+                            if (!filter_var($imageUrl, FILTER_VALIDATE_URL)) {
+                                $imageUrl = asset('images/default-schedule.jpg');
+                            }
+                            
+                            // Generate nama file untuk download
+                            $fileName = Str::slug($schedule->main_title ?? 'schedule') . '-' . date('Ymd', strtotime($schedule->match_date ?? now())) . '.jpg';
+                        @endphp
+                        <div class="border border-gray-200 rounded-lg overflow-hidden hover:border-blue-300 transition-colors">
+                            <!-- Image Clickable untuk modal -->
+                            <div class="relative h-40 cursor-pointer group" onclick="openImageModal('{{ $imageUrl }}', '{{ $schedule->main_title ?? 'Match Schedule' }}', '{{ $schedule->caption ?? '' }}')">
+                                <img src="{{ $imageUrl }}" 
+                                     alt="{{ $schedule->main_title ?? 'Match Schedule' }}" 
+                                     class="w-full h-full object-cover"
+                                     onerror="this.src='{{ asset('images/default-schedule.jpg') }}'">
+                                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
+                                    <!-- Download Button Overlay -->
+                                    <button onclick="event.stopPropagation(); downloadScheduleImage('{{ $imageUrl }}', '{{ $fileName }}')"
+                                            class="absolute bottom-3 right-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-full p-2.5 shadow-lg hover:shadow-xl hover:scale-110 active:scale-95 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-300 focus:ring-offset-2 z-10">
+                                        <i class="fas fa-download text-sm"></i>
+                                    </button>
+                                    <!-- Zoom Icon -->
+                                    <div class="bg-white/90 rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <i class="fas fa-expand text-blue-600"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <div class="flex items-start justify-between mb-2">
+                                    <div>
+                                        <h3 class="font-semibold text-gray-900">{{ $schedule->main_title ?? 'Match Schedule' }}</h3>
+                                    </div>
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-600">
+                                        {{ $schedule->series_name ?? 'HSBL' }}
+                                    </span>
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <i class="far fa-clock mr-2 text-blue-500"></i>
+                                    {{ $schedule->formatted_date ?? 'Date TBD' }}
+                                </div>
+                                <!-- Download Button for Mobile -->
+                                <div class="mt-3">
+                                    <button onclick="downloadScheduleImage('{{ $imageUrl }}', '{{ $fileName }}')"
+                                            class="w-full py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-sm hover:shadow text-sm font-medium flex items-center justify-center">
+                                        <i class="fas fa-download mr-2"></i> Download Schedule
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <!-- Desktop View - Grid 4 Kolom -->
+                <div class="hidden lg:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    @foreach($schedules as $schedule)
+                        @php
+                            // FIX: Gunakan path yang benar sesuai controller awal
+                            $imageUrl = $schedule->image_url ?? 
+                                (isset($schedule->layout_image) ? 
+                                    (str_starts_with($schedule->layout_image, 'http') ? 
+                                        $schedule->layout_image : 
+                                        asset('images/schedule/' . basename($schedule->layout_image))
+                                    ) : 
+                                    asset('images/default-schedule.jpg')
+                                );
+                            
+                            // Pastikan URL valid
+                            if (!filter_var($imageUrl, FILTER_VALIDATE_URL)) {
+                                $imageUrl = asset('images/default-schedule.jpg');
+                            }
+                            
+                            // Generate nama file untuk download
+                            $fileName = Str::slug($schedule->main_title ?? 'schedule') . '-' . date('Ymd', strtotime($schedule->match_date ?? now())) . '.jpg';
+                        @endphp
+                        <div class="bg-gradient-to-br from-white to-blue-50 border border-blue-100 rounded-xl overflow-hidden hover:shadow-md transition-shadow duration-300">
+                            <!-- Image Clickable untuk modal -->
+                            <div class="relative h-40 cursor-pointer group" onclick="openImageModal('{{ $imageUrl }}', '{{ $schedule->main_title ?? 'Match Schedule' }}', '{{ $schedule->caption ?? '' }}')">
+                                <img src="{{ $imageUrl }}" 
+                                     alt="{{ $schedule->main_title ?? 'Match Schedule' }}"
+                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                     onerror="this.src='{{ asset('images/default-schedule.jpg') }}'">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    <!-- Download Button -->
+                                    <button onclick="event.stopPropagation(); downloadScheduleImage('{{ $imageUrl }}', '{{ $fileName }}')"
+                                            class="absolute bottom-3 right-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-full p-2.5 shadow-lg hover:shadow-xl hover:scale-110 active:scale-95 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-300 focus:ring-offset-2 z-10">
+                                        <i class="fas fa-download text-sm"></i>
+                                    </button>
+                                    <!-- Zoom Icon -->
+                                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <i class="fas fa-expand-alt text-blue-600 text-sm"></i>
+                                    </div>
+                                </div>
+                                <div class="absolute top-2 right-2">
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-sm">
+                                        {{ $schedule->series_name ?? 'HSBL' }}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div class="p-3">
+                                <div class="mb-2">
+                                    <h3 class="font-bold text-gray-900 text-sm mb-1 line-clamp-2">{{ $schedule->main_title ?? 'Match Schedule' }}</h3>
+                                    <div class="flex items-center text-xs text-gray-600 mb-1">
+                                        <i class="fas fa-calendar-day mr-1.5 text-blue-500"></i>
+                                        {{ $schedule->formatted_date ?? 'Date TBD' }}
+                                    </div>
+                                </div>
+                                
+                                <!-- HAPUS TULISAN "Preliminary Round" -->
+                                
+                                <!-- Download Button for Desktop -->
+                                <button onclick="downloadScheduleImage('{{ $imageUrl }}', '{{ $fileName }}')"
+                                        class="w-full mt-3 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-sm hover:shadow text-xs font-medium flex items-center justify-center">
+                                    <i class="fas fa-download mr-1.5"></i> Download Image
+                                </button>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
                 
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Failed to load schedule. Please try again.',
-                });
-            });
-    }
-    
-    // Set match reminder
-    function setReminder(matchId) {
-        Swal.fire({
-            title: 'Set Match Reminder',
-            html: `
-                <div class="text-left space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                        <input type="email" id="reminderEmail" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
-                               placeholder="your@email.com" value="{{ auth()->user()->email ?? '' }}">
+                {{-- Pagination --}}
+                @if(isset($schedules) && method_exists($schedules, 'hasPages') && $schedules->hasPages())
+                    <div class="mt-8 flex justify-center">
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-2">
+                            {{ $schedules->appends(request()->except('page'))->links('vendor.pagination.tailwind') }}
+                        </div>
                     </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Remind me before match</label>
-                        <select id="reminderTime" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            <option value="15">15 minutes before</option>
-                            <option value="30" selected>30 minutes before</option>
-                            <option value="60">1 hour before</option>
-                            <option value="120">2 hours before</option>
-                            <option value="1440">1 day before</option>
-                        </select>
+                @endif
+            @else
+                <!-- Empty State -->
+                <div class="text-center py-12 bg-gradient-to-br from-blue-50 to-white rounded-2xl border-2 border-dashed border-blue-200">
+                    <div class="max-w-md mx-auto">
+                        <div class="w-16 h-16 mx-auto mb-4 text-blue-200">
+                            <i class="fas fa-calendar-alt text-4xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-700 mb-2">No Schedules Available</h3>
+                        <p class="text-gray-500 mb-4 text-sm">
+                            @if(request()->hasAny(['series', 'year']))
+                                No schedules found matching your filters. Try different criteria.
+                            @else
+                                Match schedules will be posted here soon.
+                            @endif
+                        </p>
+                        @if(request()->hasAny(['series', 'year']))
+                        <button onclick="resetScheduleFilters()" 
+                                class="inline-flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm">
+                            <i class="fas fa-redo mr-2"></i>
+                            Clear Filters
+                        </button>
+                        @endif
                     </div>
                 </div>
-            `,
-            showCancelButton: true,
-            confirmButtonText: 'Set Reminder',
-            confirmButtonColor: '#3b82f6',
-            cancelButtonText: 'Cancel',
-            showLoaderOnConfirm: true,
-            preConfirm: () => {
-                const email = document.getElementById('reminderEmail').value;
-                const time = document.getElementById('reminderTime').value;
+            @endif
+        </div>
+        
+        <!-- ✅ FLOATING BUTTON UNTUK SCHEDULES SECTION -->
+        <div class="fixed bottom-6 right-6 z-40 group" id="schedulesFloatingBtn">
+            <button onclick="downloadTermsAndConditions()"
+                    class="flex items-center justify-center w-14 h-14 md:w-16 md:h-16 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                    title="Download Term and Condition">
+                <i class="fas fa-file-contract text-lg md:text-xl"></i>
+            </button>
+            
+            <!-- ✅ Tooltip -->
+            <div class="absolute bottom-full right-0 mb-2 hidden md:block opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                <div class="bg-gray-800 text-white text-xs font-medium px-3 py-1.5 rounded-lg whitespace-nowrap shadow-lg">
+                    Download Term and Condition
+                    <div class="absolute top-full right-3 -mt-1 border-4 border-transparent border-t-gray-800"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section id="resultsSection" class="section-content hidden">
+        <!-- FILTER BAR UNTUK RESULTS -->
+        <form id="resultsFilterForm" method="GET" action="{{ route('user.schedule_result') }}" class="bg-white rounded-xl shadow-sm p-4 mb-6 border border-gray-200">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <!-- Filter Section -->
+                <div class="flex flex-wrap gap-3 w-full md:w-auto">
+                    <!-- Series Filter -->
+                    <select name="results_series" id="resultsSeriesFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white min-w-[120px]">
+                        <option value="">All Series</option>
+                        @if(isset($seriesListResults) && count($seriesListResults) > 0)
+                            @foreach($seriesListResults as $series)
+                                <option value="{{ $series }}" {{ request('results_series') == $series ? 'selected' : '' }}>{{ $series }}</option>
+                            @endforeach
+                        @endif
+                    </select>
+                    
+                    <!-- Season Filter -->
+                    <select name="results_season" id="resultsSeasonFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white min-w-[100px]">
+                        <option value="">All Seasons</option>
+                        @if(isset($seasons) && count($seasons) > 0)
+                            @foreach($seasons as $season)
+                                <option value="{{ $season }}" {{ request('results_season') == $season ? 'selected' : '' }}>{{ $season }}</option>
+                            @endforeach
+                        @else
+                            @for($year = date('Y'); $year >= 2020; $year--)
+                                <option value="{{ $year }}" {{ request('results_season') == $year ? 'selected' : '' }}>{{ $year }}</option>
+                            @endfor
+                        @endif
+                    </select>
+                </div>
                 
-                if (!email) {
-                    Swal.showValidationMessage('Please enter your email address');
-                    return false;
-                }
+                <!-- Action Buttons - SELALU TAMPIL -->
+                <div class="flex gap-2">
+                    <!-- Reset Button -->
+                    <button type="button" 
+                            onclick="resetResultsFilters()" 
+                            class="px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors flex items-center">
+                        <i class="fas fa-redo mr-1.5"></i> Reset
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Hidden fields untuk menjaga tab state -->
+            <input type="hidden" name="tab" value="results">
+        </form>
+
+        <div class="bg-gradient-to-r from-blue-600 to-blue-500 rounded-xl shadow-lg p-5 mb-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-white mb-2 md:mb-0">
+                    <i class="fas fa-trophy mr-2"></i>
+                    Match Results
+                </h2>
+                <div class="text-xs text-blue-100 font-medium">
+                    <i class="fas fa-sync-alt mr-1.5"></i>
+                    Updated in real-time
+                </div>
+            </div>
+
+            @if(isset($results) && count($results) > 0)
+                <div class="space-y-3">
+                    @foreach($results as $result)
+                        @php
+                            // Determine status
+                            $statusConfig = [
+                                'completed' => ['class' => 'bg-green-100 text-green-800', 'icon' => 'fas fa-check-circle', 'text' => 'Completed'],
+                                'upcoming' => ['class' => 'bg-yellow-100 text-yellow-800', 'icon' => 'fas fa-clock', 'text' => 'Upcoming'],
+                                'live' => ['class' => 'bg-red-100 text-red-800', 'icon' => 'fas fa-play-circle', 'text' => 'Live'],
+                                'publish' => ['class' => 'bg-purple-100 text-purple-800', 'icon' => 'fas fa-upload', 'text' => 'Published'],
+                                'scheduled' => ['class' => 'bg-blue-100 text-blue-800', 'icon' => 'fas fa-calendar-check', 'text' => 'Scheduled']
+                            ];
+                            
+                            $status = $result->status ?? 'scheduled';
+                            $statusInfo = $statusConfig[$status] ?? $statusConfig['scheduled'];
+                            
+                            // Filter out unwanted data
+                            $matchTime = !empty($result->match_time) && $result->match_time !== '00:00' ? $result->match_time . ' WIB' : null;
+                            $showStatus = !in_array($status, ['publish']) && (!isset($result->status_text) || $result->status_text !== 'Published');
+                            
+                            // Format match date jika ada
+                            $matchDate = null;
+                            if (isset($result->match_date) && $result->match_date) {
+                                try {
+                                    $matchDate = \Carbon\Carbon::parse($result->match_date)->format('d M Y');
+                                } catch (Exception $e) {
+                                    $matchDate = $result->match_date;
+                                }
+                            }
+                            
+                            // FIXED: Path logo yang benar - gunakan path dari controller awal
+                            $team1Logo = null;
+                            $team2Logo = null;
+                            
+                            if (isset($result->team1_logo) && $result->team1_logo) {
+                                $team1Logo = str_starts_with($result->team1_logo, 'http') 
+                                    ? $result->team1_logo 
+                                    : (str_contains($result->team1_logo, 'storage/') 
+                                        ? asset($result->team1_logo) 
+                                        : asset('storage/school_logos/' . basename($result->team1_logo))
+                                    );
+                            }
+                            
+                            if (isset($result->team2_logo) && $result->team2_logo) {
+                                $team2Logo = str_starts_with($result->team2_logo, 'http') 
+                                    ? $result->team2_logo 
+                                    : (str_contains($result->team2_logo, 'storage/') 
+                                        ? asset($result->team2_logo) 
+                                        : asset('storage/school_logos/' . basename($result->team2_logo))
+                                    );
+                            }
+                            
+                            // Pastikan URL logo valid
+                            if ($team1Logo && !filter_var($team1Logo, FILTER_VALIDATE_URL)) {
+                                $team1Logo = null;
+                            }
+                            
+                            if ($team2Logo && !filter_var($team2Logo, FILTER_VALIDATE_URL)) {
+                                $team2Logo = null;
+                            }
+                        @endphp
+                        
+                        <div class="bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-md hover:shadow-lg transition-all duration-300">
+                            <!-- Match Header - Compact -->
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-3 pb-2 border-b border-gray-200">
+                                <div class="mb-2 sm:mb-0">
+                                    <div class="flex items-center text-xs text-gray-600 mb-1">
+                                        <i class="fas fa-basketball-ball mr-1.5 text-blue-500"></i>
+                                        <span class="font-medium truncate">{{ $result->competition ?? 'HSBL Honda' }}</span>
+                                    </div>
+                                    <div class="flex flex-wrap items-center gap-1">
+                                        @if(isset($result->series) && $result->series)
+                                        <div class="flex items-center bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs font-semibold">
+                                            <i class="fas fa-layer-group mr-1 text-blue-500 text-xs"></i>
+                                            {{ $result->series }}
+                                        </div>
+                                        @endif
+                                        
+                                        @if(isset($result->season) && $result->season)
+                                        <div class="flex items-center bg-amber-50 text-amber-700 px-2 py-1 rounded text-xs font-semibold">
+                                            <i class="fas fa-calendar-star mr-1 text-amber-500 text-xs"></i>
+                                            {{ $result->season }}
+                                        </div>
+                                        @endif
+                                        
+                                        @if(isset($result->phase) && $result->phase)
+                                        <div class="flex items-center bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs font-semibold">
+                                            <i class="fas fa-flag mr-1 text-gray-500 text-xs"></i>
+                                            {{ $result->phase }}
+                                        </div>
+                                        @endif
+                                        
+                                        @if(isset($result->competition_type) && $result->competition_type)
+                                        <div class="flex items-center bg-gradient-to-r from-green-500 to-green-600 text-white px-2 py-1 rounded text-xs font-semibold">
+                                            <i class="fas fa-tag mr-1.5 text-xs"></i>
+                                            {{ $result->competition_type }}
+                                        </div>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="text-right text-xs">
+                                    @if($matchDate)
+                                        <div class="flex items-center justify-end text-gray-600 mb-1">
+                                            <i class="far fa-calendar-alt mr-1.5 text-blue-500"></i>
+                                            <span>{{ $matchDate }}</span>
+                                        </div>
+                                    @endif
+                                    @if($matchTime)
+                                        <div class="flex items-center justify-end text-gray-600">
+                                            <i class="far fa-clock mr-1.5 text-blue-500"></i>
+                                            <span>{{ $matchTime }}</span>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                            
+                            <!-- Teams and Score - Compact -->
+                            <div class="grid grid-cols-3 gap-3 mb-3">
+                                <!-- Team 1 -->
+                                <div class="flex flex-col items-center text-center">
+                                    <div class="w-12 h-12 mb-2 flex items-center justify-center bg-white shadow-sm border border-gray-200 p-1">
+                                        @if($team1Logo)
+                                            <img src="{{ $team1Logo }}" 
+                                                 alt="{{ $result->team1_name ?? 'Team 1' }}"
+                                                 class="max-w-full max-h-full object-contain"
+                                                 onerror="this.onerror=null;this.src='{{ asset('images/default-team-logo.png') }}'">
+                                            <div class="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 hidden items-center justify-center p-1">
+                                                <i class="fas fa-school text-white text-sm"></i>
+                                            </div>
+                                        @else
+                                            <div class="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center p-1">
+                                                <i class="fas fa-school text-white text-sm"></i>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div>
+                                        <div class="font-bold text-gray-900 text-xs mb-0.5 truncate">{{ $result->team1_name ?? 'SEKOLAH CITRA KASIH' }}</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- VS and Score -->
+                                <div class="flex flex-col items-center justify-center">
+                                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center mb-1 shadow-sm">
+                                        <span class="text-white font-bold text-xs">VS</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-xl font-bold text-gray-900">{{ $result->score_1 ?? '0' }}</span>
+                                        <span class="text-lg text-gray-500 font-bold">:</span>
+                                        <span class="text-xl font-bold text-gray-900">{{ $result->score_2 ?? '0' }}</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Team 2 -->
+                                <div class="flex flex-col items-center text-center">
+                                    <div class="w-12 h-12 mb-2 flex items-center justify-center bg-white shadow-sm border border-gray-200 p-1">
+                                        @if($team2Logo)
+                                            <img src="{{ $team2Logo }}" 
+                                                 alt="{{ $result->team2_name ?? 'Team 2' }}"
+                                                 class="max-w-full max-h-full object-contain"
+                                                 onerror="this.onerror=null;this.src='{{ asset('images/default-team-logo.png') }}'">
+                                            <div class="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 hidden items-center justify-center p-1">
+                                                <i class="fas fa-school text-white text-sm"></i>
+                                            </div>
+                                        @else
+                                            <div class="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center p-1">
+                                                <i class="fas fa-school text-white text-sm"></i>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div>
+                                        <div class="font-bold text-gray-900 text-xs mb-0.5 truncate">{{ $result->team2_name ?? 'SMA PATRA DHARMA' }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Match Footer - Compact -->
+                            <div class="flex flex-col items-center justify-center pt-2 border-t border-gray-200">
+                                @if(isset($result->has_scoresheet) && $result->has_scoresheet)
+                                    <a href="{{ route('user.results.download.scoresheet', ['id' => $result->id]) }}" 
+                                       class="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-sm hover:shadow text-xs mb-2"
+                                       target="_blank"
+                                       download>
+                                        <i class="fas fa-download mr-1.5 text-xs"></i>
+                                        Scoresheet
+                                    </a>
+                                @else
+                                    <div class="text-center mb-2">
+                                        <span class="inline-flex items-center px-2 py-1 bg-gray-100 text-gray-500 rounded text-xs">
+                                            <i class="fas fa-times-circle mr-1 text-xs"></i>
+                                            No Scoresheet
+                                        </span>
+                                    </div>
+                                @endif
+                                
+                                @if($showStatus)
+                                    <div class="flex items-center">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold {{ $statusInfo['class'] }}">
+                                            <i class="{{ $statusInfo['icon'] }} mr-1 text-xs"></i>
+                                            {{ $result->status_text ?? $statusInfo['text'] }}
+                                        </span>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
                 
-                return fetch(`/user/schedule/${matchId}/reminder`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({
-                        email: email,
-                        reminder_time: time
-                    })
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(response.statusText);
-                    }
-                    return response.json();
-                })
-                .catch(error => {
-                    Swal.showValidationMessage(`Request failed: ${error}`);
-                });
-            },
-            allowOutsideClick: () => !Swal.isLoading()
-        }).then((result) => {
-            if (result.isConfirmed) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Reminder Set Successfully!',
-                    text: 'You will receive an email reminder before the match starts.',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
+                {{-- Pagination --}}
+                @if(isset($results) && method_exists($results, 'hasPages') && $results->hasPages())
+                    <div class="mt-6 flex justify-center">
+                        <div class="bg-white/95 backdrop-blur-sm rounded-lg shadow-sm border border-gray-200 p-2">
+                            {{ $results->appends(request()->except('page'))->links('vendor.pagination.tailwind') }}
+                        </div>
+                    </div>
+                @endif
+            @else
+                <!-- Empty State for Results -->
+                <div class="bg-white/95 backdrop-blur-sm rounded-xl p-6 text-center">
+                    <div class="w-12 h-12 mx-auto mb-3 text-blue-400">
+                        <i class="fas fa-trophy text-3xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">No Results Available</h3>
+                    <p class="text-gray-600 mb-3 text-sm">
+                        @if(request()->hasAny(['results_series', 'results_season']))
+                            No results found matching your filters. Try different criteria.
+                        @else
+                            Match results will be displayed here after the games.
+                        @endif
+                    </p>
+                    @if(request()->hasAny(['results_series', 'results_season']))
+                    <button onclick="resetResultsFilters()" 
+                            class="inline-flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm">
+                        <i class="fas fa-redo mr-2"></i>
+                        Clear Filters
+                    </button>
+                    @endif
+                </div>
+            @endif
+        </div>
+    </section>
+</div>
+
+<!-- Image Modal -->
+<div id="imageModal" class="fixed inset-0 z-50 hidden bg-black/90 flex items-center justify-center p-4">
+    <div class="relative max-w-4xl max-h-[90vh] w-full">
+        <!-- Close Button -->
+        <button onclick="closeImageModal()" 
+                class="absolute -top-12 right-0 text-white hover:text-blue-300 text-2xl transition-colors focus:outline-none">
+            <i class="fas fa-times-circle bg-black/50 rounded-full p-1"></i>
+        </button>
+        
+        <!-- Image Container -->
+        <div class="bg-white rounded-lg overflow-hidden shadow-2xl">
+            <!-- Image -->
+            <div class="max-h-[70vh] overflow-auto">
+                <img id="modalImage" src="" alt="" class="w-full h-auto object-contain">
+            </div>
+            
+            <!-- Caption Section -->
+            <div id="modalContent" class="p-4 bg-white">
+                <div id="modalTitle" class="font-bold text-gray-900 text-lg mb-2"></div>
+                <div id="modalCaption" class="text-gray-600 text-sm"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-submit saat filter diubah
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Schedule Result Page Loaded');
+    
+    // Check if there's a tab parameter in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
+    
+    // Initialize with correct tab based on URL or default to schedules
+    if (tabParam === 'results') {
+        showSection('results');
+    } else {
+        showSection('schedules');
+    }
+    
+    // Auto-submit saat filter diubah
+    const scheduleSeriesFilter = document.getElementById('scheduleSeriesFilter');
+    const scheduleYearFilter = document.getElementById('scheduleYearFilter');
+    const resultsSeriesFilter = document.getElementById('resultsSeriesFilter');
+    const resultsSeasonFilter = document.getElementById('resultsSeasonFilter');
+    
+    if (scheduleSeriesFilter) {
+        scheduleSeriesFilter.addEventListener('change', function() {
+            // Submit form jika ada nilai yang dipilih
+            if (this.value !== '') {
+                document.getElementById('scheduleFilterForm').submit();
             }
         });
     }
     
-    // Re-attach event listeners after AJAX load
-    function reattachEventListeners() {
-        document.querySelectorAll('.btn-reminder').forEach(button => {
-            const onclickAttr = button.getAttribute('onclick');
-            if (onclickAttr) {
-                const matchId = onclickAttr.match(/setReminder\((\d+)\)/)[1];
-                button.onclick = () => setReminder(matchId);
+    if (scheduleYearFilter) {
+        scheduleYearFilter.addEventListener('change', function() {
+            // Submit form jika ada nilai yang dipilih
+            if (this.value !== '') {
+                document.getElementById('scheduleFilterForm').submit();
             }
         });
-        
-        // Re-attach filter listeners to new match cards
-        filterMatches();
     }
+    
+    if (resultsSeriesFilter) {
+        resultsSeriesFilter.addEventListener('change', function() {
+            // Submit form jika ada nilai yang dipilih
+            if (this.value !== '') {
+                document.getElementById('resultsFilterForm').submit();
+            }
+        });
+    }
+    
+    if (resultsSeasonFilter) {
+        resultsSeasonFilter.addEventListener('change', function() {
+            // Submit form jika ada nilai yang dipilih
+            if (this.value !== '') {
+                document.getElementById('resultsFilterForm').submit();
+            }
+        });
+    }
+    
+    // Clean up any problematic intervals
+    clearAllIntervals();
+});
+
+function clearAllIntervals() {
+    // Clear any existing intervals
+    const highestIntervalId = setInterval(() => {}, 9999);
+    for (let i = 1; i < highestIntervalId; i++) {
+        clearInterval(i);
+    }
+}
+
+function resetScheduleFilters() {
+    // Reset form values
+    document.getElementById('scheduleSeriesFilter').value = '';
+    document.getElementById('scheduleYearFilter').value = '';
+    
+    // Submit the form to reload page with empty filters
+    document.getElementById('scheduleFilterForm').submit();
+}
+
+function resetResultsFilters() {
+    // Reset form values
+    document.getElementById('resultsSeriesFilter').value = '';
+    document.getElementById('resultsSeasonFilter').value = '';
+    
+    // Submit the form to reload page with empty filters
+    document.getElementById('resultsFilterForm').submit();
+}
+
+function showSection(section) {
+    console.log('Showing section:', section);
+    
+    // Hide all sections
+    document.querySelectorAll('.section-content').forEach(el => {
+        el.classList.add('hidden');
+    });
+    
+    // Show selected section
+    const targetSection = document.getElementById(section + 'Section');
+    if (targetSection) {
+        targetSection.classList.remove('hidden');
+    }
+    
+    // Update tab styles
+    const tabs = ['schedules', 'results'];
+    tabs.forEach(tab => {
+        const tabBtn = document.getElementById(tab + 'Tab');
+        if (tabBtn) {
+            if (tab === section) {
+                tabBtn.classList.add('bg-blue-500', 'text-white');
+                tabBtn.classList.remove('text-gray-700', 'hover:text-blue-600');
+            } else {
+                tabBtn.classList.remove('bg-blue-500', 'text-white');
+                tabBtn.classList.add('text-gray-700', 'hover:text-blue-600');
+            }
+        }
+    });
+    
+    // Show/hide floating button
+    const floatingBtn = document.getElementById('schedulesFloatingBtn');
+    if (floatingBtn) {
+        if (section === 'schedules') {
+            floatingBtn.style.display = 'block';
+        } else {
+            floatingBtn.style.display = 'none';
+        }
+    }
+    
+    // Update URL without page reload (for bookmarking)
+    const url = new URL(window.location);
+    url.searchParams.set('tab', section);
+    window.history.pushState({}, '', url);
+}
+
+// ✅ Fungsi untuk download Schedule Image
+function downloadScheduleImage(imageUrl, fileName) {
+    console.log('Downloading schedule image:', imageUrl);
+    
+    // Tampilkan loading indicator pada button yang diklik
+    const button = event.currentTarget;
+    const originalContent = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    button.disabled = true;
+    
+    // Buat elemen anchor untuk download
+    const a = document.createElement('a');
+    a.href = imageUrl;
+    a.download = fileName || 'schedule.jpg';
+    
+    // Trigger download
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    
+    // Reset button setelah 2 detik
+    setTimeout(() => {
+        button.innerHTML = originalContent;
+        button.disabled = false;
+    }, 2000);
+}
+
+// ✅ Fungsi untuk download Terms and Conditions
+function downloadTermsAndConditions() {
+    console.log('Downloading terms and conditions');
+    
+    // Tampilkan loading indicator
+    const button = event.currentTarget;
+    const originalContent = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    button.disabled = true;
+    
+    // Redirect ke route download terms
+    window.location.href = "{{ route('user.download_terms') }}";
+    
+    // Reset button setelah 3 detik
+    setTimeout(() => {
+        button.innerHTML = originalContent;
+        button.disabled = false;
+    }, 3000);
+}
+
+// Image Modal Functions
+function openImageModal(imageUrl, title, caption) {
+    console.log('Opening image modal:', imageUrl);
+    
+    const modal = document.getElementById('imageModal');
+    const modalImage = document.getElementById('modalImage');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalCaption = document.getElementById('modalCaption');
+    
+    if (!modal || !modalImage) {
+        console.error('Image modal elements not found');
+        return;
+    }
+    
+    // Set image source
+    modalImage.src = imageUrl;
+    
+    // Set title
+    if (modalTitle) {
+        modalTitle.textContent = title || 'Schedule Image';
+    }
+    
+    // Set caption (jika ada)
+    if (modalCaption) {
+        if (caption && caption.trim() !== '') {
+            modalCaption.textContent = caption;
+            modalCaption.style.display = 'block';
+        } else {
+            modalCaption.textContent = 'No caption available';
+            modalCaption.style.display = 'block';
+        }
+    }
+    
+    // Show modal
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    
+    // Focus on close button for accessibility
+    setTimeout(() => {
+        const closeBtn = modal.querySelector('button');
+        if (closeBtn) closeBtn.focus();
+    }, 100);
+}
+
+function closeImageModal() {
+    const modal = document.getElementById('imageModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+        
+        // Clear modal content
+        const modalImage = document.getElementById('modalImage');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalCaption = document.getElementById('modalCaption');
+        
+        if (modalImage) modalImage.src = '';
+        if (modalTitle) modalTitle.textContent = '';
+        if (modalCaption) modalCaption.textContent = '';
+    }
+}
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeImageModal();
+    }
+});
+
+// Close modal when clicking outside image
+document.getElementById('imageModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeImageModal();
+    }
+});
+
+// Handle browser back/forward buttons for tab state
+window.addEventListener('popstate', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
+    
+    if (tabParam === 'results') {
+        showSection('results');
+    } else {
+        showSection('schedules');
+    }
+});
 </script>
+
+<style>
+/* Smooth transitions */
+.section-content {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Image modal animations */
+#imageModal {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#imageModal:not(.hidden) {
+    opacity: 1;
+}
+
+#imageModal img {
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+}
+
+#imageModal:not(.hidden) img {
+    transform: scale(1);
+}
+
+/* Image modal styling */
+#imageModal .bg-white {
+    border-radius: 12px;
+    max-height: 85vh;
+}
+
+#modalContent {
+    border-top: 1px solid #e5e7eb;
+    max-width: 100%;
+}
+
+#modalTitle {
+    font-size: 1.125rem;
+    line-height: 1.5rem;
+    font-weight: 600;
+}
+
+#modalCaption {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: #6b7280;
+}
+
+/* Fix for image display */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* ✅ Floating Button Styles */
+#schedulesFloatingBtn {
+    transition: all 0.3s ease;
+}
+
+/* Tooltip dengan transisi smooth */
+#schedulesFloatingBtn .group-hover\:opacity-100 {
+    transition: opacity 0.3s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #schedulesFloatingBtn {
+        bottom: 5rem;
+        right: 1rem;
+    }
+    
+    #schedulesFloatingBtn button {
+        width: 3.5rem;
+        height: 3.5rem;
+    }
+    
+    /* Image modal untuk mobile */
+    #imageModal {
+        padding: 1rem;
+    }
+    
+    #imageModal .max-w-4xl {
+        max-width: 100%;
+    }
+    
+    #modalContent {
+        padding: 1rem;
+    }
+    
+    #modalTitle {
+        font-size: 1rem;
+    }
+    
+    #modalCaption {
+        font-size: 0.8125rem;
+    }
+    
+    /* Better mobile layout for filter buttons */
+    .flex-wrap {
+        gap: 0.5rem;
+    }
+    
+    .flex-wrap > * {
+        flex: 1 1 calc(50% - 0.5rem);
+        min-width: auto;
+    }
+    
+    .flex-wrap .flex.gap-2 {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .flex-wrap .flex.gap-2 button {
+        flex: 1;
+    }
+}
+
+/* Grid untuk 4 kolom */
+@media (min-width: 1024px) {
+    .lg\:grid-cols-4 {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+/* Button styles */
+button[type="submit"] {
+    transition: all 0.2s ease;
+}
+
+button[type="submit"]:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+button[type="submit"]:active {
+    transform: translateY(0);
+}
+
+/* Form styles */
+form input:focus, form select:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Download button overlay styles */
+.group:hover .group-hover\:opacity-100 {
+    opacity: 1;
+}
+
+/* Cursor pointer untuk elemen yang bisa diklik */
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.cursor-pointer:hover {
+    opacity: 0.9;
+}
+
+/* Animasi hover untuk image container */
+.group:hover .group-hover\:opacity-100 {
+    opacity: 1;
+}
+
+.group:hover .group-hover\:scale-105 {
+    transform: scale(1.05);
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+</style>
 @endsection

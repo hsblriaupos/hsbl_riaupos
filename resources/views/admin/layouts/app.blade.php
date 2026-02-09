@@ -381,17 +381,6 @@
 
         /* ... rest of tabs styles tetap sama ... */
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .admin-content-with-tabs {
-                padding: 15px;
-            }
-
-            .admin-tabs-container {
-                padding: 0 15px;
-            }
-        }
-
         /* ================================
            TABS STYLES (FIXED - tidak menimpa konten)
            ================================ */
@@ -645,8 +634,8 @@
                     <ul class="admin-submenu">
                         <!-- REVISI: Mengarah ke route admin.pub_schedule.index -->
                         <li><a href="{{ route('admin.pub_schedule.index') }}" class="{{ request()->routeIs('admin.pub_schedule.*') ? 'active' : '' }}">Schedules and Results</a></li>
-                        <li><a href="#">Statistics (Optional)</a></li>
-                        <li><a href="{{ route('admin.sponsor.sponsor') }}">Sponsor</a></li>
+                        <li><a href="{{ route('admin.statistics') }}">Statistics</a></li>
+                         <li><a href="{{ route('admin.sponsor.sponsor') }}">Sponsor</a></li>
                     </ul>
                 </li>
 
@@ -657,7 +646,11 @@
                     <ul class="admin-submenu">
                         <li><a href="{{ route('admin.news.index') }}">News</a></li>
                         <li><a href="{{ route('admin.videos.index') }}">Videos</a></li>
-                        <li><a href="#">Gallery</a></li>
+                        <!-- REVISI: Menu Gallery mengarah ke halaman photos_list -->
+                        <li><a href="{{ route('admin.gallery.photos.index') }}" 
+                               class="{{ request()->routeIs('admin.gallery.*') ? 'active' : '' }}">
+                            Gallery
+                        </a></li>
                     </ul>
                 </li>
             </ul>
@@ -723,8 +716,8 @@
             'admin.all_data', 
             'admin.tv_team_verification',
             'admin.tv_team_list',
-            'admin.pub_schedule.index', // Ditambahkan route baru
-            'admin.pub_result.index'
+            'admin.pub_schedule.index',
+            'admin.gallery.photos.index' // Ditambahkan gallery ke auto-refresh
         ];
         
         // Cek route saat ini

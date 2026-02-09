@@ -383,25 +383,29 @@ class MatchResult extends Model
         return null;
     }
 
-    // Accessor untuk cek apakah memiliki scoresheet
-    public function getHasScoresheetAttribute()
-    {
-        if (empty($this->scoresheet)) {
-            return false;
-        }
-        
-        $path = $this->scoresheet_path;
-        return file_exists($path) && is_file($path);
+// Di model MatchResult
+public function getHasScoresheetAttribute()
+{
+    if (empty($this->scoresheet)) {
+        return false;
     }
-
-    // Accessor untuk scoresheet URL
-    public function getScoresheetUrlAttribute()
-    {
-        if ($this->has_scoresheet) {
-            return asset('uploads/scoresheets/' . $this->scoresheet);
+    
+    // Cek berbagai lokasi file
+    $possiblePaths = [
+        public_path('uploads/scoresheets/' . $this->scoresheet),
+        storage_path('app/public/uploads/scoresheets/' . $this->scoresheet),
+        public_path($this->scoresheet),
+        storage_path('app/public/' . $this->scoresheet),
+    ];
+    
+    foreach ($possiblePaths as $path) {
+        if (file_exists($path)) {
+            return true;
         }
-        return null;
     }
+    
+    return false;
+}
 
     // Accessor untuk venue (dari match_data jika ada)
     public function getVenueAttribute()

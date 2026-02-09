@@ -609,16 +609,16 @@ class PubMatchResult extends Controller
     }
 
     /**
-     * View result details (for API/Modal) - PERBAIKAN UTAMA DI SINI
+     * View result details (for API/Modal)
      */
     public function show($id)
     {
         try {
             $result = MatchResult::with(['team1', 'team2'])->findOrFail($id);
             
-            // Gunakan method helper dengan fallback icon
-            $team1Data = $this->getTeamData($result->team1);
-            $team2Data = $this->getTeamData($result->team2);
+            // Gunakan method helper baru yang lebih baik
+            $team1Data = $this->getTeamDisplayDataForModal($result->team1);
+            $team2Data = $this->getTeamDisplayDataForModal($result->team2);
             
             return response()->json([
                 'success' => true,
@@ -658,7 +658,7 @@ class PubMatchResult extends Controller
     }
     
     /**
-     * Helper method to get team data safely dengan fallback icon
+     * Helper method to get team data safely dengan path logo yang benar
      */
     private function getTeamData($team)
     {
@@ -667,24 +667,124 @@ class PubMatchResult extends Controller
                 'id' => null,
                 'name' => 'Team Not Found',
                 'logo' => null,
+                'logo_url' => null,
                 'logo_icon' => '<i class="fas fa-school text-secondary fa-2x"></i>',
                 'has_logo' => false
             ];
         }
         
-        $hasLogo = !empty($team->school_logo);
+        $schoolLogo = $team->school_logo ?? null;
+        $hasLogo = !empty($schoolLogo);
+        $logoUrl = null;
+        
+        if ($hasLogo) {
+            $logoUrl = $this->getLogoUrl($schoolLogo);
+        }
         
         return [
             'id' => $team->team_id ?? $team->id ?? null,
             'name' => $team->school_name ?? 'N/A',
-            'logo' => $hasLogo ? asset('uploads/school_logo/' . $team->school_logo) : null,
+            'logo' => $schoolLogo,
+            'logo_url' => $logoUrl,
             'logo_icon' => $hasLogo ? null : '<i class="fas fa-school text-secondary fa-2x"></i>',
             'has_logo' => $hasLogo
         ];
     }
 
     /**
-     * Get team data for display in views (untuk digunakan di blade)
+     * Get team display data for modal (HTML ready)
+     */
+    private function getTeamDisplayDataForModal($team)
+    {
+        if (!$team) {
+            return [
+                'name' => 'Team Not Found',
+                'logo_html_sm' => '<div class="school-logo-placeholder school-logo-sm">
+                    <i class="fas fa-school text-secondary"></i>
+                </div>',
+                'logo_html_md' => '<div class="school-logo-placeholder school-logo-md">
+                    <i class="fas fa-school text-secondary"></i>
+                </div>',
+                'logo_url' => null,
+                'has_logo' => false
+            ];
+        }
+        
+        $schoolLogo = $team->school_logo ?? null;
+        $hasLogo = !empty($schoolLogo);
+        $logoUrl = $hasLogo ? $this->getLogoUrl($schoolLogo) : null;
+        $schoolName = htmlspecialchars($team->school_name ?? 'N/A');
+        $defaultLogoUrl = asset('assets/img/default-school.png');
+        
+        if ($hasLogo && $logoUrl) {
+            $logoHtmlSm = '<img src="' . $logoUrl . '" 
+                             alt="' . $schoolName . '" 
+                             class="school-logo-sm rounded-circle border"
+                             onerror="this.onerror=null; this.src=\'' . $defaultLogoUrl . '\'">';
+            
+            $logoHtmlMd = '<img src="' . $logoUrl . '" 
+                             alt="' . $schoolName . '" 
+                             class="school-logo-md rounded-circle border"
+                             onerror="this.onerror=null; this.src=\'' . $defaultLogoUrl . '\'">';
+        } else {
+            $logoHtmlSm = '<div class="school-logo-placeholder school-logo-sm">
+                <i class="fas fa-school text-secondary"></i>
+            </div>';
+            
+            $logoHtmlMd = '<div class="school-logo-placeholder school-logo-md">
+                <i class="fas fa-school text-secondary"></i>
+            </div>';
+        }
+        
+        return [
+            'name' => $schoolName,
+            'logo_html_sm' => $logoHtmlSm,
+            'logo_html_md' => $logoHtmlMd,
+            'logo_url' => $logoUrl,
+            'has_logo' => $hasLogo
+        ];
+    }
+
+    /**
+     * Get correct logo URL based on stored path
+     */
+    private function getLogoUrl($logoPath)
+    {
+        if (!$logoPath) {
+            return null;
+        }
+        
+        // Jika path sudah full URL
+        if (str_starts_with($logoPath, 'http://') || str_starts_with($logoPath, 'https://')) {
+            return $logoPath;
+        }
+        
+        // Jika path menggunakan storage Laravel (storage/school_logos/...)
+        if (str_starts_with($logoPath, 'storage/')) {
+            return asset($logoPath);
+        }
+        
+        // Jika path relatif (school_logos/...)
+        if (str_starts_with($logoPath, 'school_logos/')) {
+            return asset('storage/' . $logoPath);
+        }
+        
+        // Jika hanya nama file
+        if (strpos($logoPath, '/') === false) {
+            return asset('storage/school_logos/' . $logoPath);
+        }
+        
+        // Fallback untuk path lama (uploads/school_logo/...)
+        if (str_starts_with($logoPath, 'uploads/school_logo/')) {
+            return asset($logoPath);
+        }
+        
+        // Default return dengan storage path
+        return asset('storage/school_logos/' . basename($logoPath));
+    }
+
+    /**
+     * Get team data for display in views (untuk digunakan di blade) - PERBAIKAN
      */
     public static function getTeamDisplayData($team)
     {
@@ -692,47 +792,54 @@ class PubMatchResult extends Controller
             return [
                 'name' => 'Team Not Found',
                 'display_html' => '<div class="d-flex align-items-center">
-                    <div class="school-logo-placeholder me-2">
+                    <div class="school-logo-placeholder school-logo-sm me-2">
                         <i class="fas fa-school text-secondary"></i>
                     </div>
-                    <span>Team Not Found</span>
+                    <span class="text-truncate">Team Not Found</span>
                 </div>',
-                'logo_html' => '<i class="fas fa-school text-secondary fa-2x"></i>'
+                'logo_html' => '<div class="school-logo-placeholder school-logo-sm">
+                    <i class="fas fa-school text-secondary"></i>
+                </div>',
+                'logo_url' => null,
+                'has_logo' => false
             ];
         }
         
-        $hasLogo = !empty($team->school_logo);
+        $schoolLogo = $team->school_logo ?? null;
+        $hasLogo = !empty($schoolLogo);
+        $self = new self();
+        $logoUrl = $hasLogo ? $self->getLogoUrl($schoolLogo) : null;
+        $schoolName = htmlspecialchars($team->school_name ?? 'N/A');
+        $defaultLogoUrl = asset('assets/img/default-school.png');
         
-        if ($hasLogo) {
-            $logoHtml = '<img src="' . asset('uploads/school_logo/' . $team->school_logo) . '" 
-                         alt="' . ($team->school_name ?? 'Team') . '" 
-                         class="img-fluid rounded-circle" 
-                         style="width: 40px; height: 40px; object-fit: cover;">';
+        if ($hasLogo && $logoUrl) {
+            $logoHtml = '<img src="' . $logoUrl . '" 
+                         alt="' . $schoolName . '" 
+                         class="school-logo-sm rounded-circle border"
+                         onerror="this.onerror=null; this.src=\'' . $defaultLogoUrl . '\'">';
+            
             $displayHtml = '<div class="d-flex align-items-center">
-                <div class="school-logo me-2">
-                    <img src="' . asset('uploads/school_logo/' . $team->school_logo) . '" 
-                         alt="' . ($team->school_name ?? 'Team') . '" 
-                         class="img-fluid rounded-circle" 
-                         style="width: 30px; height: 30px; object-fit: cover;">
-                </div>
-                <span>' . ($team->school_name ?? 'N/A') . '</span>
+                <div class="me-2">' . $logoHtml . '</div>
+                <span class="text-truncate" style="max-width: 150px;">' . $schoolName . '</span>
             </div>';
         } else {
-            $logoHtml = '<div class="school-logo-placeholder">
-                <i class="fas fa-school text-secondary fa-2x"></i>
+            $logoHtml = '<div class="school-logo-placeholder school-logo-sm">
+                <i class="fas fa-school text-secondary"></i>
             </div>';
+            
             $displayHtml = '<div class="d-flex align-items-center">
-                <div class="school-logo-placeholder me-2">
+                <div class="school-logo-placeholder school-logo-sm me-2">
                     <i class="fas fa-school text-secondary"></i>
                 </div>
-                <span>' . ($team->school_name ?? 'N/A') . '</span>
+                <span class="text-truncate" style="max-width: 150px;">' . $schoolName . '</span>
             </div>';
         }
         
         return [
-            'name' => $team->school_name ?? 'N/A',
+            'name' => $schoolName,
             'display_html' => $displayHtml,
             'logo_html' => $logoHtml,
+            'logo_url' => $logoUrl,
             'has_logo' => $hasLogo
         ];
     }

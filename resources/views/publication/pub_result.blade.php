@@ -9,6 +9,83 @@
 {{-- Include SweetAlert2 --}}
 @include('partials.sweetalert')
 
+@php
+    // Helper function untuk mendapatkan data logo untuk tabel
+    if (!function_exists('getTeamLogoForTable')) {
+        function getTeamLogoForTable($team) {
+            if (!$team) {
+                return [
+                    'has_logo' => false,
+                    'logo_url' => null,
+                    'logo_html_sm' => '<div class="school-logo-placeholder school-logo-sm">
+                        <i class="fas fa-school text-secondary"></i>
+                    </div>',
+                    'logo_html_md' => '<div class="school-logo-placeholder school-logo-md">
+                        <i class="fas fa-school text-secondary"></i>
+                    </div>',
+                    'name' => 'Team Not Found'
+                ];
+            }
+            
+            // PERBAIKAN DI SINI:
+            // Cek format path logo dari database
+            $schoolLogo = $team->school_logo ?? null;
+            $hasLogo = !empty($schoolLogo);
+            
+            // Generate URL yang benar berdasarkan format path
+            $logoUrl = null;
+            if ($hasLogo) {
+                // Jika path sudah dimulai dengan http atau https, gunakan langsung
+                if (str_starts_with($schoolLogo, 'http://') || str_starts_with($schoolLogo, 'https://')) {
+                    $logoUrl = $schoolLogo;
+                } 
+                // Jika path relatif (school_logos/...)
+                else if (str_starts_with($schoolLogo, 'school_logos/')) {
+                    // Gunakan storage URL untuk file di storage
+                    $logoUrl = asset('storage/' . $schoolLogo);
+                }
+                // Jika hanya nama file
+                else {
+                    // Asumsi file disimpan di storage/app/public/school_logos/
+                    $logoUrl = asset('storage/school_logos/' . $schoolLogo);
+                }
+            }
+            
+            $schoolName = htmlspecialchars($team->school_name ?? 'N/A');
+            $defaultLogoUrl = asset('assets/img/default-school.png');
+            
+            // Generate HTML untuk logo
+            if ($hasLogo && $logoUrl) {
+                $logoHtmlSm = '<img src="' . $logoUrl . '" 
+                                 alt="' . $schoolName . '" 
+                                 class="school-logo-sm rounded-circle border"
+                                 onerror="this.onerror=null; this.src=\'' . $defaultLogoUrl . '\'">';
+                
+                $logoHtmlMd = '<img src="' . $logoUrl . '" 
+                                 alt="' . $schoolName . '" 
+                                 class="school-logo-md rounded-circle border"
+                                 onerror="this.onerror=null; this.src=\'' . $defaultLogoUrl . '\'">';
+            } else {
+                $logoHtmlSm = '<div class="school-logo-placeholder school-logo-sm">
+                    <i class="fas fa-school text-secondary"></i>
+                </div>';
+                
+                $logoHtmlMd = '<div class="school-logo-placeholder school-logo-md">
+                    <i class="fas fa-school text-secondary"></i>
+                </div>';
+            }
+            
+            return [
+                'has_logo' => $hasLogo,
+                'logo_url' => $logoUrl,
+                'logo_html_sm' => $logoHtmlSm,
+                'logo_html_md' => $logoHtmlMd,
+                'name' => $schoolName
+            ];
+        }
+    }
+@endphp
+
 <div class="container mt-4">
     <!-- Page Header with Action Buttons -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
@@ -167,55 +244,6 @@
                     <tbody>
                         @forelse($results as $index => $result)
                             @php
-                                // Helper function untuk mendapatkan data logo untuk tabel
-                                function getTeamLogoForTable($team) {
-                                    if (!$team) {
-                                        return [
-                                            'has_logo' => false,
-                                            'logo_url' => null,
-                                            'logo_html_sm' => '<div class="school-logo-placeholder school-logo-sm">
-                                                <i class="fas fa-school text-secondary"></i>
-                                            </div>',
-                                            'logo_html_md' => '<div class="school-logo-placeholder school-logo-md">
-                                                <i class="fas fa-school text-secondary"></i>
-                                            </div>',
-                                            'name' => 'Team Not Found'
-                                        ];
-                                    }
-                                    
-                                    $hasLogo = !empty($team->school_logo);
-                                    $logoUrl = $hasLogo ? asset('uploads/school_logo/' . $team->school_logo) : null;
-                                    $schoolName = htmlspecialchars($team->school_name ?? 'N/A');
-                                    
-                                    if ($hasLogo) {
-                                        $logoHtmlSm = '<img src="' . $logoUrl . '" 
-                                                         alt="' . $schoolName . '" 
-                                                         class="school-logo-sm rounded-circle border"
-                                                         onerror="this.onerror=null; this.src=\'' . asset('assets/img/default-school.png') . '\'">';
-                                        
-                                        $logoHtmlMd = '<img src="' . $logoUrl . '" 
-                                                         alt="' . $schoolName . '" 
-                                                         class="school-logo-md rounded-circle border"
-                                                         onerror="this.onerror=null; this.src=\'' . asset('assets/img/default-school.png') . '\'">';
-                                    } else {
-                                        $logoHtmlSm = '<div class="school-logo-placeholder school-logo-sm">
-                                            <i class="fas fa-school text-secondary"></i>
-                                        </div>';
-                                        
-                                        $logoHtmlMd = '<div class="school-logo-placeholder school-logo-md">
-                                            <i class="fas fa-school text-secondary"></i>
-                                        </div>';
-                                    }
-                                    
-                                    return [
-                                        'has_logo' => $hasLogo,
-                                        'logo_url' => $logoUrl,
-                                        'logo_html_sm' => $logoHtmlSm,
-                                        'logo_html_md' => $logoHtmlMd,
-                                        'name' => $schoolName
-                                    ];
-                                }
-                                
                                 // Data untuk team1 dan team2
                                 $team1Data = getTeamLogoForTable($result->team1);
                                 $team2Data = getTeamLogoForTable($result->team2);
@@ -1057,7 +1085,7 @@
                     element.style.margin = '0 auto';
                     element.className = element.className + ' modal-logo-img';
                     
-                    // Add error handler
+                    // Add error handler for images
                     element.onerror = function() {
                         this.onerror = null;
                         this.src = "{{ asset('assets/img/default-school.png') }}";

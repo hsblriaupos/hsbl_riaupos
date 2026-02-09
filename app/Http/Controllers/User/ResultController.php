@@ -3,148 +3,145 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Models\MatchData;
 use App\Models\MatchResult;
-use App\Models\Team;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ResultController extends Controller
 {
     /**
-     * Display match results page
+     * Menampilkan halaman results dengan pagination dan filter
+     * UNTUK API ENDPOINT SAJA - untuk digunakan oleh halaman schedule_result
      */
     public function index(Request $request)
     {
-        // Get filter parameters
-        $series = $request->input('series');
-        $season = $request->input('season');
-        $phase = $request->input('phase');
-        
-        // Base query for completed matches
-        $query = MatchResult::query()
-            ->where('status', 'completed')
-            ->with(['team1', 'team2'])
-            ->orderBy('match_date', 'desc');
-        
-        // Apply filters
-        if ($series) {
-            $query->where('series', 'like', '%' . $series . '%');
-        }
-        
-        if ($season) {
-            $query->where('season', $season);
-        }
-        
-        if ($phase) {
-            $query->where('phase', $phase);
-        }
-        
-        // Get paginated results
-        $matches = $query->paginate(12);
-        
-        // Get filter options
-        $seriesList = MatchResult::distinct()->whereNotNull('series')->pluck('series');
-        $seasons = MatchResult::distinct()->whereNotNull('season')->orderBy('season', 'desc')->pluck('season');
-        $phases = MatchResult::distinct()->whereNotNull('phase')->pluck('phase');
-        
-        // Calculate statistics
-        $totalMatches = MatchResult::where('status', 'completed')->count();
-        $highestScoring = MatchResult::where('status', 'completed')
-            ->orderBy(DB::raw('score_1 + score_2'), 'desc')
-            ->first();
-        
-        return view('user.publication.schedule_result', [
-            'completedMatches' => $matches,
-            'upcomingMatches' => collect(), // Empty for results tab
-            'liveMatches' => collect(), // Empty for results tab
-            'seriesList' => $seriesList,
-            'seasons' => $seasons,
-            'phases' => $phases,
-            'totalMatches' => $totalMatches,
-            'highestScoring' => $highestScoring,
-            'activeTab' => 'results', // Set results as active
-        ]);
-    }
-    
-    /**
-     * Display match result details
-     */
-    public function show($id)
-    {
-        $match = MatchResult::with(['team1', 'team2'])->findOrFail($id);
-        
-        // Get related matches (same series/season)
-        $relatedMatches = MatchResult::where('id', '!=', $id)
-            ->where('series', $match->series)
-            ->where('season', $match->season)
-            ->where('status', 'completed')
-            ->orderBy('match_date', 'desc')
-            ->limit(4)
-            ->get();
-        
-        // Calculate head-to-head stats
-        $headToHead = MatchResult::where('status', 'completed')
-            ->where(function($query) use ($match) {
-                $query->where('team1_id', $match->team1_id)
-                      ->where('team2_id', $match->team2_id)
-                      ->orWhere('team1_id', $match->team2_id)
-                      ->where('team2_id', $match->team1_id);
-            })
-            ->get();
-        
-        return view('user.publication.result_detail', [
-            'match' => $match,
-            'relatedMatches' => $relatedMatches,
-            'headToHead' => $headToHead,
-        ]);
-    }
-    
-    /**
-     * Get match results via AJAX
-     */
-    public function getResults(Request $request)
-    {
-        $query = MatchResult::query()
-            ->where('status', 'completed')
-            ->with(['team1', 'team2'])
-            ->orderBy('match_date', 'desc');
-        
-        // Apply search filter
-        if ($request->has('search')) {
-            $search = $request->input('search');
-            $query->where(function($q) use ($search) {
-                $q->whereHas('team1', function($q) use ($search) {
-                    $q->where('name', 'like', '%' . $search . '%');
-                })->orWhereHas('team2', function($q) use ($search) {
-                    $q->where('name', 'like', '%' . $search . '%');
-                })->orWhere('series', 'like', '%' . $search . '%')
-                  ->orWhere('competition', 'like', '%' . $search . '%')
-                  ->orWhere('phase', 'like', '%' . $search . '%');
-            });
-        }
-        
-        // Apply series filter
-        if ($request->has('series') && $request->input('series') !== 'all') {
-            $query->where('series', $request->input('series'));
-        }
-        
-        // Apply season filter
-        if ($request->has('season') && $request->input('season') !== 'all') {
-            $query->where('season', $request->input('season'));
-        }
-        
-        $matches = $query->paginate(9);
-        
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'matches' => $matches,
-                'html' => view('user.publication.partials.result_cards', ['matches' => $matches])->render()
+        try {
+            Log::info('ResultController: Fetching results with filters', [
+                'results_series' => $request->input('results_series'),
+                'results_season' => $request->input('results_season'),
+                'status' => $request->input('status')
             ]);
+            
+            // Query dasar
+            $query = MatchResult::orderBy('match_date', 'desc');
+            
+            // Filter berdasarkan status (selalu aktif untuk tampilan di schedule_result)
+            $query->whereIn('status', ['completed', 'done', 'publish', 'live']);
+            
+            // Filter berdasarkan series (gunakan results_series untuk menghindari conflict dengan schedules)
+            if ($request->filled('results_series')) {
+                $query->where('series', $request->input('results_series'));
+            } elseif ($request->filled('series')) {
+                // Fallback untuk backward compatibility
+                $query->where('series', $request->input('series'));
+            }
+            
+            // Filter berdasarkan season
+            if ($request->filled('results_season')) {
+                $query->where('season', $request->input('results_season'));
+            } elseif ($request->filled('year')) {
+                // Fallback untuk backward compatibility
+                $query->where('season', $request->input('year'));
+            }
+            
+            // Pagination dengan nama page khusus untuk results
+            $perPage = 10;
+            $results = $query->paginate($perPage, ['*'], 'results_page');
+            
+            Log::info("ResultController: Found {$results->total()} results, showing {$results->count()} per page");
+            
+            // Format data untuk response
+            $results->getCollection()->transform(function ($result) {
+                return $this->formatResultData($result);
+            });
+            
+            // Untuk request dari halaman schedule_result (non-AJAX)
+            // Return array data untuk digunakan di view
+            return [
+                'results' => $results,
+                'seasons' => $this->getSeasonsList(),
+                'series' => $this->getSeriesList(),
+            ];
+            
+        } catch (\Exception $e) {
+            Log::error('ResultController: Error fetching results: ' . $e->getMessage());
+            
+            // Return array kosong jika error
+            return [
+                'results' => collect([])->paginate(10),
+                'seasons' => collect([date('Y'), date('Y') - 1]),
+                'series' => collect([]),
+            ];
+        }
+    }
+    
+    /**
+     * Format data result (untuk digunakan di schedule_result view)
+     */
+    private function formatResultData($result)
+    {
+        // Format tanggal match
+        if ($result->match_date) {
+            try {
+                $result->match_date_formatted = \Carbon\Carbon::parse($result->match_date)
+                    ->locale('id')
+                    ->translatedFormat('l, j F Y');
+                $result->match_time = \Carbon\Carbon::parse($result->match_date)->format('H:i');
+            } catch (\Exception $e) {
+                $result->match_date_formatted = $result->match_date;
+                $result->match_time = '00:00';
+            }
+        } else {
+            $result->match_date_formatted = 'Date TBD';
+            $result->match_time = '00:00';
         }
         
-        return view('user.publication.partials.result_cards', ['matches' => $matches]);
+        // Format scoresheet
+        $result->has_scoresheet = !empty($result->scoresheet);
+        
+        // Format score dengan null coalescing
+        $result->score_1 = isset($result->score_1) ? (int) $result->score_1 : 0;
+        $result->score_2 = isset($result->score_2) ? (int) $result->score_2 : 0;
+        
+        // Format logo paths (untuk view schedule_result)
+        $result->team1_logo = $this->formatLogoPath($result->team1_logo);
+        $result->team2_logo = $this->formatLogoPath($result->team2_logo);
+        
+        // Status text untuk display (sesuai dengan view schedule_result)
+        $statusConfig = [
+            'completed' => ['text' => 'Completed', 'class' => 'bg-green-100 text-green-800', 'icon' => 'fas fa-check-circle'],
+            'done' => ['text' => 'Completed', 'class' => 'bg-green-100 text-green-800', 'icon' => 'fas fa-check-circle'],
+            'publish' => ['text' => 'Published', 'class' => 'bg-purple-100 text-purple-800', 'icon' => 'fas fa-upload'],
+            'live' => ['text' => 'Live', 'class' => 'bg-red-100 text-red-800', 'icon' => 'fas fa-play-circle'],
+            'upcoming' => ['text' => 'Upcoming', 'class' => 'bg-yellow-100 text-yellow-800', 'icon' => 'fas fa-clock'],
+            'scheduled' => ['text' => 'Scheduled', 'class' => 'bg-blue-100 text-blue-800', 'icon' => 'fas fa-calendar-check']
+        ];
+        
+        $status = isset($result->status) ? $result->status : 'scheduled';
+        $result->status_info = isset($statusConfig[$status]) ? $statusConfig[$status] : $statusConfig['scheduled'];
+        $result->status_text = isset($result->status_info['text']) ? $result->status_info['text'] : 'Scheduled';
+        $result->status_class = isset($result->status_info['class']) ? $result->status_info['class'] : 'bg-blue-100 text-blue-800';
+        $result->status_icon = isset($result->status_info['icon']) ? $result->status_info['icon'] : 'fas fa-calendar-check';
+        
+        return $result;
+    }
+    
+    /**
+     * Format logo path
+     */
+    private function formatLogoPath($logoPath)
+    {
+        if (!$logoPath) {
+            return null;
+        }
+        
+        if (str_starts_with($logoPath, 'http')) {
+            return $logoPath;
+        } elseif (!str_contains($logoPath, '/')) {
+            return asset('storage/school_logos/' . $logoPath);
+        } else {
+            return asset($logoPath);
+        }
     }
     
     /**
@@ -152,18 +149,137 @@ class ResultController extends Controller
      */
     public function downloadScoresheet($id)
     {
-        $match = MatchResult::findOrFail($id);
-        
-        if (!$match->scoresheet) {
-            return redirect()->back()->with('error', 'Scoresheet not available.');
+        try {
+            $result = MatchResult::findOrFail($id);
+            
+            if (!$result->scoresheet) {
+                return redirect()->back()->with('error', 'Scoresheet not available');
+            }
+            
+            // Cek berbagai kemungkinan path
+            $filePath = null;
+            $possiblePaths = [
+                public_path('uploads/scoresheets/' . $result->scoresheet),
+                storage_path('app/public/uploads/scoresheets/' . $result->scoresheet),
+                public_path($result->scoresheet),
+                storage_path('app/public/' . $result->scoresheet),
+            ];
+            
+            foreach ($possiblePaths as $path) {
+                if (file_exists($path)) {
+                    $filePath = $path;
+                    break;
+                }
+            }
+            
+            if (!$filePath) {
+                Log::error('Scoresheet file not found in any path for result: ' . $id);
+                return redirect()->back()->with('error', 'Scoresheet file not found');
+            }
+            
+            $originalName = isset($result->scoresheet_original_name) ? $result->scoresheet_original_name : 
+                           'scoresheet_' . $result->id . '_' . date('Ymd') . '.xlsx';
+            
+            return response()->download($filePath, $originalName, [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition' => 'attachment; filename="' . $originalName . '"'
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error downloading scoresheet: ' . $e->getMessage());
+            
+            return redirect()->back()->with('error', 'Failed to download scoresheet');
         }
-        
-        $path = storage_path('app/public/uploads/scoresheets/' . $match->scoresheet);
-        
-        if (!file_exists($path)) {
-            return redirect()->back()->with('error', 'File not found.');
+    }
+    
+    /**
+     * Get unique seasons untuk filter dropdown (digunakan di controller utama)
+     */
+    private function getSeasonsList()
+    {
+        try {
+            $seasons = MatchResult::select('season')
+                ->distinct()
+                ->whereNotNull('season')
+                ->where('season', '!=', '')
+                ->orderBy('season', 'desc')
+                ->pluck('season')
+                ->values();
+            
+            // Jika tidak ada season, buat default
+            if ($seasons->isEmpty()) {
+                $seasons = collect([date('Y'), date('Y') - 1]);
+            }
+            
+            return $seasons;
+            
+        } catch (\Exception $e) {
+            Log::error('Error fetching seasons: ' . $e->getMessage());
+            return collect([date('Y'), date('Y') - 1]);
         }
-        
-        return response()->download($path, "scoresheet-{$match->id}.pdf");
+    }
+    
+    /**
+     * Get unique series untuk filter dropdown (digunakan di controller utama)
+     */
+    private function getSeriesList()
+    {
+        try {
+            $series = MatchResult::select('series')
+                ->distinct()
+                ->whereNotNull('series')
+                ->where('series', '!=', '')
+                ->orderBy('series')
+                ->pluck('series')
+                ->values();
+            
+            return $series;
+            
+        } catch (\Exception $e) {
+            Log::error('Error fetching series: ' . $e->getMessage());
+            return collect([]);
+        }
+    }
+    
+    /**
+     * API Endpoint untuk AJAX requests (jika diperlukan)
+     */
+    public function apiIndex(Request $request)
+    {
+        try {
+            $result = $this->index($request);
+            
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'data' => $result['results'],
+                    'metadata' => [
+                        'total' => $result['results']->total(),
+                        'current_page' => $result['results']->currentPage(),
+                        'last_page' => $result['results']->lastPage(),
+                    ]
+                ]);
+            }
+            
+            // Untuk non-AJAX, redirect ke schedule_result page
+            return redirect()->route('user.schedule_result', [
+                'tab' => 'results',
+                'results_series' => $request->input('results_series'),
+                'results_season' => $request->input('results_season')
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('ResultController API Error: ' . $e->getMessage());
+            
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to load results'
+                ], 500);
+            }
+            
+            return redirect()->route('user.schedule_result')
+                ->with('error', 'Failed to load results');
+        }
     }
 }

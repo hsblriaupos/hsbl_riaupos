@@ -1,5 +1,5 @@
 @extends('admin.layouts.app')
-@section('title', 'Add Video - Administrator')
+@section('title', 'Edit Video - Administrator')
 
 @section('content')
 
@@ -28,9 +28,9 @@
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
         <div class="mb-3 mb-md-0">
             <h1 class="page-title">
-                <i class="fas fa-video text-primary me-2"></i> Add New Video
+                <i class="fas fa-edit text-primary me-2"></i> Edit Video
             </h1>
-            <p class="page-subtitle">Upload new video content or live stream</p>
+            <p class="page-subtitle">Update video information and settings</p>
         </div>
         
         <!-- Action Buttons -->
@@ -62,13 +62,12 @@
     <!-- Form Container -->
     <div class="card">
         <div class="card-body">
-            <form method="POST" action="{{ route('admin.videos.store') }}" enctype="multipart/form-data" id="videoForm">
+            <form method="POST" action="{{ route('admin.videos.update', $video->id) }}" enctype="multipart/form-data" id="videoForm">
                 @csrf
+                @method('PUT')
 
-                <!-- Hidden field for action type -->
-                <input type="hidden" name="status" id="formStatus" value="view">
-                <!-- Hidden field untuk auto-generated video code -->
-                <input type="hidden" name="video_code" id="video_code" value="{{ 'VID-' . time() . rand(100, 999) }}">
+                <!-- Hidden field untuk video code -->
+                <input type="hidden" name="video_code" id="video_code" value="{{ $video->video_code }}">
 
                 <div class="row g-4">
                     {{-- Left Column --}}
@@ -82,7 +81,7 @@
                             <input id="title" 
                                    name="title" 
                                    type="text"
-                                   value="{{ old('title') }}"
+                                   value="{{ old('title', $video->title) }}"
                                    class="form-control"
                                    placeholder="Enter video title..."
                                    required
@@ -105,7 +104,7 @@
                                 <input id="youtube_link" 
                                        name="youtube_link" 
                                        type="url"
-                                       value="{{ old('youtube_link') }}"
+                                       value="{{ old('youtube_link', $video->youtube_link) }}"
                                        class="form-control"
                                        placeholder="https://www.youtube.com/watch?v=..."
                                        required>
@@ -131,7 +130,7 @@
                                           name="description" 
                                           rows="8"
                                           class="form-control"
-                                          placeholder="Describe the video content...">{{ old('description') }}</textarea>
+                                          placeholder="Describe the video content...">{{ old('description', $video->description) }}</textarea>
                             </div>
                             <div class="form-text">
                                 <small class="text-muted">
@@ -159,7 +158,7 @@
                                 <input type="text" 
                                        class="form-control bg-light"
                                        id="video_code_display"
-                                       value="{{ 'VID-' . time() . rand(100, 999) }}"
+                                       value="{{ $video->video_code }}"
                                        readonly
                                        style="cursor: not-allowed;">
                                 <button type="button" 
@@ -173,7 +172,7 @@
                             <div class="form-text">
                                 <small class="text-muted">
                                     <i class="fas fa-info-circle me-1"></i>
-                                    Auto-generated unique identifier
+                                    Auto-generated unique identifier (cannot be changed)
                                 </small>
                             </div>
                         </div>
@@ -189,8 +188,8 @@
                                     required 
                                     class="form-select">
                                 <option value="">-- Select Type --</option>
-                                <option value="video" {{ old('type') == 'video' ? 'selected' : '' }}>Video</option>
-                                <option value="live" {{ old('type') == 'live' ? 'selected' : '' }}>Live Stream</option>
+                                <option value="video" {{ old('type', $video->type) == 'video' ? 'selected' : '' }}>Video</option>
+                                <option value="live" {{ old('type', $video->type) == 'live' ? 'selected' : '' }}>Live Stream</option>
                             </select>
                             @error('type')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -201,6 +200,7 @@
                         <div class="mb-4">
                             <label for="slug" class="form-label fw-semibold">
                                 <i class="fas fa-link text-primary me-2"></i> URL Slug
+                                <span class="text-danger">*</span>
                             </label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light">
@@ -209,14 +209,15 @@
                                 <input id="slug" 
                                        name="slug" 
                                        type="text"
-                                       value="{{ old('slug') }}"
+                                       value="{{ old('slug', $video->slug) }}"
                                        class="form-control"
-                                       placeholder="video-title-url">
+                                       placeholder="video-title-url"
+                                       required>
                             </div>
                             <div class="form-text">
                                 <small class="text-muted">
                                     <i class="fas fa-info-circle me-1"></i>
-                                    Leave blank to auto-generate from title
+                                    URL-friendly identifier for the video
                                 </small>
                             </div>
                             @error('slug')
@@ -228,42 +229,37 @@
                         <div class="mb-4">
                             <label for="thumbnail" class="form-label fw-semibold">
                                 <i class="fas fa-image text-primary me-2"></i> Custom Thumbnail
-                                <span class="text-danger">*</span> {{-- TAMBAHKAN ASTERISK MERAH --}}
                             </label>
-                            
-                            {{-- Warning Alert for Thumbnail --}}
-                            <div id="thumbnailWarning" class="alert alert-danger border-danger bg-danger bg-opacity-10 d-none mb-3">
-                                <div class="d-flex align-items-center">
-                                    <i class="fas fa-exclamation-circle me-2"></i>
-                                    <span>Thumbnail is required. Please upload a custom thumbnail.</span>
-                                </div>
-                            </div>
-                            
-                            <div class="card border-dashed" id="thumbnailContainer">
+                            <div class="card border-dashed">
                                 <div class="card-body text-center p-4">
-                                    {{-- Thumbnail Preview --}}
-                                    <div id="thumbnailPreview" class="mb-3 d-none">
-                                        <img src="" 
-                                             alt="Preview" 
-                                             class="img-fluid rounded mb-3"
-                                             style="max-height: 150px; object-fit: cover;">
-                                        <button type="button" 
-                                                class="btn btn-sm btn-danger"
-                                                onclick="removeThumbnail()">
-                                            <i class="fas fa-trash me-1"></i> Remove
-                                        </button>
-                                    </div>
-
-                                    {{-- YouTube Thumbnail Preview --}}
-                                    <div id="youtubeThumbnailPreview" class="mb-3 d-none">
-                                        <div class="alert alert-info bg-info bg-opacity-10 border-info border-opacity-25">
-                                            <i class="fas fa-info-circle me-2"></i>
-                                            <small>Using YouTube thumbnail</small>
-                                        </div>
+                                    {{-- Current Thumbnail Preview --}}
+                                    <div id="currentThumbnail" class="mb-3">
+                                        @if($video->thumbnail)
+                                            <img src="{{ asset($video->thumbnail) }}" 
+                                                 alt="Current Thumbnail" 
+                                                 class="img-fluid rounded mb-3"
+                                                 style="max-height: 150px; object-fit: cover;">
+                                            <div class="d-flex justify-content-center gap-2">
+                                                <button type="button" 
+                                                        class="btn btn-sm btn-danger"
+                                                        onclick="removeThumbnail()">
+                                                    <i class="fas fa-trash me-1"></i> Remove
+                                                </button>
+                                            </div>
+                                            <input type="hidden" name="remove_thumbnail" id="remove_thumbnail" value="0">
+                                        @else
+                                            {{-- YouTube Thumbnail Preview --}}
+                                            <div id="youtubeThumbnailPreview" class="mb-3">
+                                                <div class="alert alert-info bg-info bg-opacity-10 border-info border-opacity-25">
+                                                    <i class="fas fa-info-circle me-2"></i>
+                                                    <small>Using YouTube thumbnail</small>
+                                                </div>
+                                            </div>
+                                        @endif
                                     </div>
 
                                     {{-- Upload Area --}}
-                                    <div id="uploadArea" class="{{ old('thumbnail') ? 'd-none' : '' }}">
+                                    <div id="uploadArea" class="{{ $video->thumbnail ? 'd-none' : '' }}">
                                         <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-3"></i>
                                         <p class="small text-muted mb-3">Click to upload custom thumbnail</p>
                                         <input id="thumbnail" 
@@ -277,15 +273,46 @@
                                             <i class="fas fa-upload me-2"></i> Choose Thumbnail
                                         </label>
                                     </div>
+                                    
+                                    {{-- New Thumbnail Preview --}}
+                                    <div id="thumbnailPreview" class="mb-3 d-none">
+                                        <img src="" 
+                                             alt="New Thumbnail Preview" 
+                                             class="img-fluid rounded mb-3"
+                                             style="max-height: 150px; object-fit: cover;">
+                                        <button type="button" 
+                                                class="btn btn-sm btn-danger"
+                                                onclick="cancelThumbnailUpload()">
+                                            <i class="fas fa-times me-1"></i> Cancel
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-text">
                                 <small class="text-muted">
                                     <i class="fas fa-info-circle me-1"></i>
-                                    Max 1MB, JPG/PNG/GIF/WebP. Thumbnail is required for better preview
+                                    Max 1MB, JPG/PNG/GIF/WebP. Leave empty to use YouTube thumbnail
                                 </small>
                             </div>
                             @error('thumbnail')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        {{-- Status --}}
+                        <div class="mb-4">
+                            <label for="status" class="form-label fw-semibold">
+                                <i class="fas fa-flag text-primary me-2"></i> Status
+                                <span class="text-danger">*</span>
+                            </label>
+                            <select id="status" 
+                                    name="status" 
+                                    required 
+                                    class="form-select">
+                                <option value="draft" {{ old('status', $video->status) == 'draft' ? 'selected' : '' }}>Draft</option>
+                                <option value="view" {{ old('status', $video->status) == 'view' ? 'selected' : '' }}>View</option>
+                            </select>
+                            @error('status')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
                         </div>
@@ -322,15 +349,9 @@
                                class="btn btn-outline-secondary">
                                 <i class="fas fa-times me-2"></i> Cancel
                             </a>
-                            <button type="button" 
-                                    onclick="saveAsDraft()"
-                                    class="btn btn-outline-warning">
-                                <i class="fas fa-save me-2"></i> Save as Draft
-                            </button>
-                            <button type="button" 
-                                    onclick="publishNow()"
+                            <button type="submit" 
                                     class="btn btn-primary">
-                                <i class="fas fa-upload me-2"></i> Publish Now
+                                <i class="fas fa-save me-2"></i> Update Video
                             </button>
                         </div>
                     </div>
@@ -343,28 +364,28 @@
     <div class="card mt-4">
         <div class="card-body">
             <h6 class="card-title mb-3">
-                <i class="fas fa-lightbulb text-warning me-2"></i> Tips for Video Upload
+                <i class="fas fa-lightbulb text-warning me-2"></i> Video Update Tips
             </h6>
             <ul class="list-unstyled mb-0">
                 <li class="mb-2">
                     <i class="fas fa-check-circle text-success me-2"></i>
-                    <small>Video code is auto-generated for unique identification</small>
+                    <small>Video code cannot be changed as it's a unique identifier</small>
                 </li>
                 <li class="mb-2">
                     <i class="fas fa-check-circle text-success me-2"></i>
-                    <small>Choose "Video" for recorded content, "Live Stream" for live broadcasts</small>
+                    <small>Update the slug if you change the title to maintain SEO-friendly URLs</small>
                 </li>
                 <li class="mb-2">
                     <i class="fas fa-check-circle text-success me-2"></i>
-                    <small><span class="text-danger fw-bold">Thumbnail is required</span> - upload a custom thumbnail (max 1MB) for better preview (16:9 aspect ratio recommended)</small>
+                    <small>Upload a new custom thumbnail (max 1MB) or remove to use YouTube thumbnail</small>
                 </li>
                 <li class="mb-2">
                     <i class="fas fa-check-circle text-success me-2"></i>
-                    <small>For YouTube links, make sure the video is set to "Public" or "Unlisted"</small>
+                    <small>Set to "Draft" to work on it privately, "View" to make it public</small>
                 </li>
                 <li>
                     <i class="fas fa-check-circle text-success me-2"></i>
-                    <small>Save as Draft to work on it later, Publish to make it visible immediately</small>
+                    <small>Always test the YouTube link after updating to ensure it works correctly</small>
                 </li>
             </ul>
         </div>
@@ -404,26 +425,6 @@
     .card.border-dashed:hover {
         border-color: #6c757d;
         background-color: #e9ecef;
-    }
-
-    .card.border-danger {
-        border-color: #dc3545 !important;
-        animation: pulse-border 1.5s infinite;
-    }
-
-    @keyframes pulse-border {
-        0% {
-            border-color: #dc3545;
-            box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4);
-        }
-        70% {
-            border-color: #dc3545;
-            box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
-        }
-        100% {
-            border-color: #dc3545;
-            box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
-        }
     }
 
     .cursor-pointer {
@@ -525,17 +526,12 @@
 </style>
 
 <script>
-    // Track if thumbnail is uploaded
-    let thumbnailUploaded = false;
-    
     // Thumbnail Preview Functionality
     function previewThumbnail(event) {
         const input = event.target;
         const preview = document.getElementById('thumbnailPreview');
-        const youtubePreview = document.getElementById('youtubeThumbnailPreview');
+        const currentThumbnail = document.getElementById('currentThumbnail');
         const uploadArea = document.getElementById('uploadArea');
-        const thumbnailWarning = document.getElementById('thumbnailWarning');
-        const thumbnailContainer = document.getElementById('thumbnailContainer');
         
         if (input.files && input.files[0]) {
             const file = input.files[0];
@@ -558,13 +554,8 @@
             reader.onload = function(e) {
                 preview.querySelector('img').src = e.target.result;
                 preview.classList.remove('d-none');
-                youtubePreview.classList.add('d-none');
+                currentThumbnail.classList.add('d-none');
                 uploadArea.classList.add('d-none');
-                
-                // Hide warning and remove error border
-                thumbnailWarning.classList.add('d-none');
-                thumbnailContainer.classList.remove('border-danger');
-                thumbnailUploaded = true;
             }
             
             reader.readAsDataURL(file);
@@ -572,28 +563,45 @@
     }
     
     function removeThumbnail() {
-        const preview = document.getElementById('thumbnailPreview');
-        const youtubePreview = document.getElementById('youtubeThumbnailPreview');
-        const uploadArea = document.getElementById('uploadArea');
-        const fileInput = document.getElementById('thumbnail');
-        const thumbnailWarning = document.getElementById('thumbnailWarning');
-        const thumbnailContainer = document.getElementById('thumbnailContainer');
+        Swal.fire({
+            title: 'Remove Thumbnail?',
+            text: 'Are you sure you want to remove the current thumbnail?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, remove it',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('remove_thumbnail').value = '1';
+                document.getElementById('currentThumbnail').classList.add('d-none');
+                document.getElementById('uploadArea').classList.remove('d-none');
+                document.getElementById('thumbnailPreview').classList.add('d-none');
+            }
+        });
+    }
+    
+    function cancelThumbnailUpload() {
+        document.getElementById('thumbnail').value = '';
+        document.getElementById('thumbnailPreview').classList.add('d-none');
         
-        preview.classList.add('d-none');
-        youtubePreview.classList.remove('d-none');
-        uploadArea.classList.remove('d-none');
-        fileInput.value = '';
-        
-        // Show warning and add error border
-        thumbnailWarning.classList.remove('d-none');
-        thumbnailContainer.classList.add('border-danger');
-        thumbnailUploaded = false;
+        if (document.getElementById('remove_thumbnail').value === '1') {
+            document.getElementById('uploadArea').classList.remove('d-none');
+        } else {
+            document.getElementById('currentThumbnail').classList.remove('d-none');
+            document.getElementById('uploadArea').classList.add('d-none');
+        }
     }
     
     // Auto-generate slug from title
     document.getElementById('title').addEventListener('input', function() {
         const slugInput = document.getElementById('slug');
-        if (!slugInput.value) {
+        const currentSlug = '{{ $video->slug }}';
+        
+        // Only auto-generate if slug hasn't been manually changed from original
+        if (slugInput.value === currentSlug || slugInput.value === '') {
             const title = this.value.trim();
             const slug = title
                 .toLowerCase()
@@ -605,63 +613,77 @@
         }
     });
     
-    // Generate new video code
-    function generateVideoCode() {
-        const timestamp = Date.now();
-        const random = Math.floor(Math.random() * 900) + 100; // 100-999
-        const videoCode = `VID-${timestamp}${random}`;
-        
-        document.getElementById('video_code').value = videoCode;
-        document.getElementById('video_code_display').value = videoCode;
-        
-        return videoCode;
-    }
-    
     // Copy video code to clipboard
     function copyVideoCode() {
         const videoCode = document.getElementById('video_code_display').value;
         navigator.clipboard.writeText(videoCode).then(() => {
             // Show tooltip feedback
-            const tooltip = new bootstrap.Tooltip(document.querySelector('[data-bs-title="Copy to clipboard"]'), {
+            const tooltipElement = document.querySelector('[data-bs-title="Copy to clipboard"]');
+            const originalTitle = tooltipElement.getAttribute('data-bs-original-title') || tooltipElement.getAttribute('data-bs-title');
+            
+            // Create new tooltip with success message
+            const tooltip = new bootstrap.Tooltip(tooltipElement, {
                 title: 'Copied!',
                 trigger: 'manual'
             });
             tooltip.show();
             
+            // Restore original tooltip after 1.5 seconds
             setTimeout(() => {
                 tooltip.hide();
+                // Re-initialize with original title
+                new bootstrap.Tooltip(tooltipElement, {
+                    title: originalTitle,
+                    trigger: 'hover focus'
+                });
             }, 1500);
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
         });
     }
     
-    // Reset form with new video code
+    // Reset form
     function resetForm() {
-        document.getElementById('videoForm').reset();
-        generateVideoCode();
-        removeThumbnail();
-        
-        // Reset preview containers
-        const thumbnailWarning = document.getElementById('thumbnailWarning');
-        const thumbnailContainer = document.getElementById('thumbnailContainer');
-        
-        thumbnailWarning.classList.remove('d-none');
-        thumbnailContainer.classList.add('border-danger');
-        thumbnailUploaded = false;
-        
-        // Reset YouTube preview
-        document.getElementById('youtubePreviewContainer').innerHTML = `
-            <label class="form-label fw-semibold">
-                <i class="fab fa-youtube text-danger me-2"></i> YouTube Preview
-            </label>
-            <div class="card">
-                <div class="card-body text-center p-3">
-                    <i class="fab fa-youtube fa-2x text-danger mb-2"></i>
-                    <p class="small text-muted mb-0">
-                        Preview will appear when you enter a valid YouTube URL
-                    </p>
-                </div>
-            </div>
-        `;
+        Swal.fire({
+            title: 'Reset Form?',
+            text: 'Are you sure you want to reset all changes?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#6c757d',
+            cancelButtonColor: '#3498db',
+            confirmButtonText: 'Yes, reset',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('videoForm').reset();
+                
+                // Reset thumbnail previews
+                document.getElementById('thumbnail').value = '';
+                document.getElementById('thumbnailPreview').classList.add('d-none');
+                document.getElementById('currentThumbnail').classList.remove('d-none');
+                document.getElementById('uploadArea').classList.add('d-none');
+                document.getElementById('remove_thumbnail').value = '0';
+                
+                // Reset YouTube preview
+                document.getElementById('youtubePreviewContainer').innerHTML = `
+                    <label class="form-label fw-semibold">
+                        <i class="fab fa-youtube text-danger me-2"></i> YouTube Preview
+                    </label>
+                    <div class="card">
+                        <div class="card-body text-center p-3">
+                            <i class="fab fa-youtube fa-2x text-danger mb-2"></i>
+                            <p class="small text-muted mb-0">
+                                Preview will appear when you enter a valid YouTube URL
+                            </p>
+                        </div>
+                    </div>
+                `;
+                
+                // Trigger input event for YouTube link
+                document.getElementById('youtube_link').dispatchEvent(new Event('input'));
+            }
+        });
     }
     
     // Extract YouTube video ID and show preview
@@ -673,16 +695,6 @@
             const videoId = extractYouTubeId(url);
             if (videoId) {
                 const youtubeThumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-                
-                // Show YouTube thumbnail preview
-                const youtubePreview = document.getElementById('youtubeThumbnailPreview');
-                const thumbnailPreview = document.getElementById('thumbnailPreview');
-                
-                if (!thumbnailPreview.classList.contains('d-none')) {
-                    youtubePreview.classList.add('d-none');
-                } else {
-                    youtubePreview.classList.remove('d-none');
-                }
                 
                 // Update preview container
                 container.innerHTML = `
@@ -726,6 +738,20 @@
                     </div>
                 `;
             }
+        } else {
+            container.innerHTML = `
+                <label class="form-label fw-semibold">
+                    <i class="fab fa-youtube text-danger me-2"></i> YouTube Preview
+                </label>
+                <div class="card">
+                    <div class="card-body text-center p-3">
+                        <i class="fab fa-youtube fa-2x text-danger mb-2"></i>
+                        <p class="small text-muted mb-0">
+                            Preview will appear when you enter a valid YouTube URL
+                        </p>
+                    </div>
+                </div>
+            `;
         }
     });
     
@@ -745,107 +771,18 @@
         return null;
     }
     
-    // Function to validate thumbnail
-    function validateThumbnail() {
-        const thumbnailInput = document.getElementById('thumbnail');
-        const thumbnailWarning = document.getElementById('thumbnailWarning');
-        const thumbnailContainer = document.getElementById('thumbnailContainer');
-        
-        // Check if thumbnail is uploaded
-        if (!thumbnailUploaded && thumbnailInput.files.length === 0) {
-            // Show warning and highlight
-            thumbnailWarning.classList.remove('d-none');
-            thumbnailContainer.classList.add('border-danger');
-            
-            // Scroll to thumbnail section
-            thumbnailContainer.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'center'
-            });
-            
-            // Shake animation for attention
-            thumbnailContainer.style.animation = 'shake 0.5s';
-            setTimeout(() => {
-                thumbnailContainer.style.animation = '';
-            }, 500);
-            
-            return false;
-        }
-        
-        // Hide warning if thumbnail exists
-        thumbnailWarning.classList.add('d-none');
-        thumbnailContainer.classList.remove('border-danger');
-        return true;
-    }
-    
-    // Save as Draft Function
-    function saveAsDraft() {
-        console.log('Save as Draft clicked');
+    // Form validation and submission
+    document.getElementById('videoForm').addEventListener('submit', function(e) {
+        e.preventDefault();
         
         // Validate required fields
         const title = document.getElementById('title').value.trim();
         const youtubeLink = document.getElementById('youtube_link').value.trim();
         const type = document.getElementById('type').value;
+        const slug = document.getElementById('slug').value.trim();
+        const status = document.getElementById('status').value;
         
-        if (!title || !youtubeLink || !type) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Validation Error',
-                text: 'Please fill in all required fields marked with *',
-                confirmButtonColor: '#3498db'
-            });
-            return false;
-        }
-        
-        // Validate thumbnail (required even for draft)
-        if (!validateThumbnail()) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Thumbnail Required',
-                html: '<div class="text-start">' +
-                      '<p class="mb-2">Thumbnail is required for all videos.</p>' +
-                      '<p class="mb-0"><i class="fas fa-info-circle me-1"></i> Please upload a custom thumbnail image.</p>' +
-                      '</div>',
-                confirmButtonColor: '#3498db'
-            });
-            return false;
-        }
-        
-        // Set status to draft
-        document.getElementById('formStatus').value = 'draft';
-        
-        // Show confirmation
-        Swal.fire({
-            title: 'Save as Draft?',
-            html: 'Your video will be saved as draft and can be published later.',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#ffc107',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Yes, save as draft',
-            cancelButtonText: 'Cancel',
-            reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById('videoForm').submit();
-            } else {
-                document.getElementById('formStatus').value = 'view';
-            }
-        });
-        
-        return false;
-    }
-    
-    // Publish Now Function
-    function publishNow() {
-        console.log('Publish Now clicked');
-        
-        // Validate required fields
-        const title = document.getElementById('title').value.trim();
-        const youtubeLink = document.getElementById('youtube_link').value.trim();
-        const type = document.getElementById('type').value;
-        
-        if (!title || !youtubeLink || !type) {
+        if (!title || !youtubeLink || !type || !slug || !status) {
             Swal.fire({
                 icon: 'error',
                 title: 'Validation Error',
@@ -862,20 +799,6 @@
                 icon: 'error',
                 title: 'Invalid YouTube URL',
                 text: 'Please enter a valid YouTube video URL',
-                confirmButtonColor: '#3498db'
-            });
-            return false;
-        }
-        
-        // Validate thumbnail
-        if (!validateThumbnail()) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Thumbnail Required',
-                html: '<div class="text-start">' +
-                      '<p class="mb-2">Thumbnail is required for all videos.</p>' +
-                      '<p class="mb-0"><i class="fas fa-info-circle me-1"></i> Please upload a custom thumbnail image.</p>' +
-                      '</div>',
                 confirmButtonColor: '#3498db'
             });
             return false;
@@ -898,35 +821,28 @@
             }
         }
         
-        // Set status to published
-        document.getElementById('formStatus').value = 'view';
-        
         // Show confirmation
         Swal.fire({
-            title: 'Publish Video?',
-            html: 'Your video will be published immediately and visible to visitors.',
+            title: 'Update Video?',
+            html: 'Are you sure you want to update this video?',
             icon: 'question',
             showCancelButton: true,
             confirmButtonColor: '#3498db',
             cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Yes, publish now',
+            confirmButtonText: 'Yes, update it',
             cancelButtonText: 'Cancel',
             reverseButtons: true
         }).then((result) => {
             if (result.isConfirmed) {
-                document.getElementById('videoForm').submit();
+                // Submit the form
+                this.submit();
             }
         });
         
         return false;
-    }
-    
-    // Prevent default form submission
-    document.getElementById('videoForm').addEventListener('submit', function(e) {
-        e.preventDefault();
     });
 
-    // Initialize
+    // Initialize with YouTube preview check
     document.addEventListener('DOMContentLoaded', function() {
         // Initialize tooltips
         const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -934,20 +850,11 @@
             return new bootstrap.Tooltip(tooltipTriggerEl);
         });
         
-        // Generate initial video code
-        generateVideoCode();
-        
         // Check existing YouTube link
         const youtubeLink = document.getElementById('youtube_link').value;
         if (youtubeLink) {
             document.getElementById('youtube_link').dispatchEvent(new Event('input'));
         }
-        
-        // Show thumbnail warning initially
-        const thumbnailWarning = document.getElementById('thumbnailWarning');
-        const thumbnailContainer = document.getElementById('thumbnailContainer');
-        thumbnailWarning.classList.remove('d-none');
-        thumbnailContainer.classList.add('border-danger');
     });
 </script>
 

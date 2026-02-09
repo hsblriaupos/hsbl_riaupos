@@ -5,471 +5,354 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\MatchData;
 use App\Models\MatchResult;
-use App\Models\Team;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class ScheduleController extends Controller
 {
     /**
-     * Display match schedule page - AMBIL DATA DARI match_data
+     * Menampilkan halaman schedule_result dengan semua data
      */
     public function index(Request $request)
     {
-        // Get filter parameters
-        $series = $request->input('series');
-        $season = $request->input('season');
-        $date = $request->input('date');
-        
-        // ========== BASE QUERY: AMBIL DATA DARI match_data ==========
-        $query = MatchData::query()
-            ->whereIn('status', ['published', 'active', 'publish'])
-            ->orderBy('upload_date', 'asc');
-        
-        // Apply filters
-        if ($series) {
-            $query->where('series_name', 'like', '%' . $series . '%');
-        }
-        
-        if ($season) {
-            // Jika match_data tidak punya season, kita bisa filter berdasarkan tahun dari upload_date
-            $query->whereYear('upload_date', $season);
-        }
-        
-        if ($date) {
-            $query->whereDate('upload_date', $date);
-        }
-        
-        // Get matches
-        $matches = $query->get();
-        
-        // Transform data untuk ditampilkan seperti format match_result
-        $transformedMatches = $matches->map(function($match) {
-            return (object) [
-                'id' => $match->id,
-                'match_data_id' => $match->id,
-                'match_date' => $match->upload_date,
-                'season' => $match->upload_date ? $match->upload_date->format('Y') : date('Y'),
-                'competition' => $match->main_title ?? 'HSBL Match',
-                'competition_type' => 'Basketball',
-                'series' => $match->series_name ?? 'Regular Series',
-                'phase' => 'Group Stage',
-                'team1_id' => null,
-                'team2_id' => null,
-                'team1_name' => $this->extractTeamName($match->main_title ?? '', 1),
-                'team2_name' => $this->extractTeamName($match->main_title ?? '', 2),
-                'score_1' => null,
-                'score_2' => null,
-                'status' => $this->mapStatus($match->status),
-                'scoresheet' => null,
-                'venue' => $this->extractVenue($match->caption ?? ''),
-                'created_at' => $match->created_at,
-                'updated_at' => $match->updated_at,
-                'team1' => null,
-                'team2' => null,
-                'source' => 'match_data',
-                'has_layout_image' => !empty($match->layout_image),
-                'layout_image_url' => $match->layout_image ? 
-                    asset('uploads/layouts/' . $match->layout_image) : null,
-                'caption' => $match->caption,
-            ];
-        });
-        
-        // Group matches by date
-        $groupedMatches = $transformedMatches->groupBy(function($item) {
-            return Carbon::parse($item->match_date)->format('Y-m-d');
-        });
-        
-        // Get filter options dari match_data
-        $seriesList = MatchData::distinct()
-            ->whereNotNull('series_name')
-            ->where('series_name', '!=', '')
-            ->pluck('series_name');
+        try {
+            // Determine active tab from request
+            $activeTab = $request->get('tab', 'schedules');
             
-        // Seasons dari tahun upload_date
-        $seasons = MatchData::selectRaw('YEAR(upload_date) as year')
-            ->distinct()
-            ->whereNotNull('upload_date')
-            ->orderBy('year', 'desc')
-            ->pluck('year');
-        
-        // Get current and next 7 days for date filter
-        $dates = [];
-        for ($i = 0; $i < 7; $i++) {
-            $date = Carbon::now()->addDays($i);
-            $dates[$date->format('Y-m-d')] = $date->format('D, j M');
-        }
-        
-        // Get live matches dari match_result (jika ada)
-        $liveMatches = MatchResult::where('status', 'live')
-            ->with(['team1', 'team2'])
-            ->orderBy('match_date', 'desc')
-            ->get();
-        
-        return view('user.publication.schedule_result', [
-            'upcomingMatches' => $transformedMatches,
-            'completedMatches' => collect(), // Empty for schedule tab
-            'liveMatches' => $liveMatches,
-            'groupedMatches' => $groupedMatches,
-            'seriesList' => $seriesList,
-            'seasons' => $seasons,
-            'dates' => $dates,
-            'activeTab' => 'schedule',
-            'totalMatches' => $transformedMatches->count(),
-        ]);
-    }
-    
-    /**
-     * Display match schedule details
-     */
-    public function show($id)
-    {
-        // Coba ambil dari match_data terlebih dahulu
-        $matchData = MatchData::find($id);
-        
-        if ($matchData) {
-            // Transform data dari match_data
-            $match = (object) [
-                'id' => $matchData->id,
-                'match_data_id' => $matchData->id,
-                'match_date' => $matchData->upload_date,
-                'season' => $matchData->upload_date ? $matchData->upload_date->format('Y') : date('Y'),
-                'competition' => $matchData->main_title ?? 'HSBL Match',
-                'competition_type' => 'Basketball',
-                'series' => $matchData->series_name ?? 'Regular Series',
-                'phase' => 'Group Stage',
-                'team1_id' => null,
-                'team2_id' => null,
-                'team1_name' => $this->extractTeamName($matchData->main_title ?? '', 1),
-                'team2_name' => $this->extractTeamName($matchData->main_title ?? '', 2),
-                'score_1' => null,
-                'score_2' => null,
-                'status' => $this->mapStatus($matchData->status),
-                'scoresheet' => null,
-                'venue' => $this->extractVenue($matchData->caption ?? ''),
-                'created_at' => $matchData->created_at,
-                'updated_at' => $matchData->updated_at,
-                'team1' => null,
-                'team2' => null,
-                'source' => 'match_data',
-                'has_layout_image' => !empty($matchData->layout_image),
-                'layout_image_url' => $matchData->layout_image ? 
-                    asset('uploads/layouts/' . $matchData->layout_image) : null,
-                'caption' => $matchData->caption,
-            ];
-            
-            // Get related matches (same series)
-            $upcomingSeriesMatches = MatchData::where('id', '!=', $id)
-                ->where('series_name', $matchData->series_name)
-                ->whereIn('status', ['published', 'active', 'publish'])
-                ->orderBy('upload_date', 'asc')
-                ->limit(6)
-                ->get()
-                ->map(function($relatedMatch) {
-                    return (object) [
-                        'id' => $relatedMatch->id,
-                        'match_date' => $relatedMatch->upload_date,
-                        'competition' => $relatedMatch->main_title,
-                        'team1_name' => $this->extractTeamName($relatedMatch->main_title ?? '', 1),
-                        'team2_name' => $this->extractTeamName($relatedMatch->main_title ?? '', 2),
-                        'venue' => $this->extractVenue($relatedMatch->caption ?? ''),
-                    ];
-                });
-            
-            return view('user.publication.schedule_detail', [
-                'match' => $match,
-                'matchData' => $matchData,
-                'upcomingSeriesMatches' => $upcomingSeriesMatches,
+            // Log minimal
+            Log::info('Loading schedule_result page', [
+                'tab' => $activeTab,
+                'series' => $request->input('series'),
+                'year' => $request->input('year'),
+                'results_series' => $request->input('results_series'),
+                'results_season' => $request->input('results_season')
             ]);
-        }
-        
-        // Jika tidak ditemukan di match_data, coba dari match_result
-        $match = MatchResult::with(['team1', 'team2'])->findOrFail($id);
-        
-        // Get venue information from match_data if available
-        $matchData = MatchData::where('id', $match->match_data_id)->first();
-        
-        // Get upcoming matches in same series
-        $upcomingSeriesMatches = MatchResult::where('id', '!=', $id)
-            ->where('series', $match->series)
-            ->where('status', 'scheduled')
-            ->orderBy('match_date', 'asc')
-            ->limit(6)
-            ->get();
-        
-        return view('user.publication.schedule_detail', [
-            'match' => $match,
-            'matchData' => $matchData,
-            'upcomingSeriesMatches' => $upcomingSeriesMatches,
-        ]);
-    }
-    
-    /**
-     * Get schedule via AJAX - AMBIL DARI match_data
-     */
-    public function getSchedule(Request $request)
-    {
-        $query = MatchData::query()
-            ->whereIn('status', ['published', 'active', 'publish'])
-            ->orderBy('upload_date', 'asc');
-        
-        // Apply search filter
-        if ($request->has('search')) {
-            $search = $request->input('search');
-            $query->where(function($q) use ($search) {
-                $q->where('main_title', 'like', '%' . $search . '%')
-                  ->orWhere('series_name', 'like', '%' . $search . '%')
-                  ->orWhere('caption', 'like', '%' . $search . '%');
+            
+            // Initialize variables
+            $schedules = null;
+            $results = null;
+            $seriesList = collect();
+            $seriesListResults = collect();
+            $years = collect();
+            $seasons = collect();
+            
+            // 1. GET SCHEDULES dengan pagination
+            $schedulesQuery = MatchData::where(function($query) {
+                $query->where('status', 'active')
+                      ->orWhere('status', 'published')
+                      ->orWhere('status', 'publish')
+                      ->orWhereNull('status');
             });
-        }
-        
-        // Apply series filter
-        if ($request->has('series') && $request->input('series') !== 'all') {
-            $query->where('series_name', $request->input('series'));
-        }
-        
-        // Apply date range filter
-        if ($request->has('date_range')) {
-            $dates = explode(' to ', $request->input('date_range'));
-            if (count($dates) === 2) {
-                $query->whereBetween('upload_date', [$dates[0], $dates[1]]);
+            
+            // Filter schedules berdasarkan series
+            if ($request->filled('series')) {
+                $schedulesQuery->where('series_name', $request->input('series'));
             }
-        }
-        
-        $matches = $query->paginate(12);
-        
-        // Transform data untuk view
-        $transformedMatches = $matches->getCollection()->map(function($match) {
-            return (object) [
-                'id' => $match->id,
-                'match_date' => $match->upload_date,
-                'series' => $match->series_name ?? 'Regular Series',
-                'competition' => $match->main_title ?? 'HSBL Match',
-                'competition_type' => 'Basketball',
-                'phase' => 'Group Stage',
-                'team1_id' => null,
-                'team2_id' => null,
-                'team1_name' => $this->extractTeamName($match->main_title ?? '', 1),
-                'team2_name' => $this->extractTeamName($match->main_title ?? '', 2),
-                'score_1' => null,
-                'score_2' => null,
-                'status' => $this->mapStatus($match->status),
-                'scoresheet' => null,
-                'venue' => $this->extractVenue($match->caption ?? ''),
-                'created_at' => $match->created_at,
-                'updated_at' => $match->updated_at,
-                'team1' => null,
-                'team2' => null,
-                'has_layout_image' => !empty($match->layout_image),
-                'layout_image_url' => $match->layout_image ? 
-                    asset('uploads/layouts/' . $match->layout_image) : null,
-            ];
-        });
-        
-        $matches->setCollection($transformedMatches);
-        
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'matches' => $matches,
-                'html' => view('user.publication.partials.schedule_cards', ['matches' => $matches])->render()
+            
+            // Filter schedules berdasarkan year
+            if ($request->filled('year')) {
+                $schedulesQuery->whereYear('upload_date', $request->input('year'));
+            }
+            
+            // Order by upload date (terbaru dulu)
+            $schedules = $schedulesQuery->orderBy('upload_date', 'desc')
+                ->paginate(8, ['*'], 'schedules_page')
+                ->appends([
+                    'tab' => 'schedules', 
+                    'series' => $request->input('series'),
+                    'year' => $request->input('year'),
+                    'results_series' => $request->input('results_series'),
+                    'results_season' => $request->input('results_season')
+                ]);
+            
+            // Format schedules data
+            $schedules->getCollection()->transform(function ($schedule) {
+                return $this->formatScheduleData($schedule);
+            });
+            
+            // Get series list for schedule filter
+            $seriesList = MatchData::whereNotNull('series_name')
+                ->where('series_name', '!=', '')
+                ->distinct()
+                ->pluck('series_name')
+                ->sort()
+                ->values();
+            
+            // Get years for schedule filter
+            $years = MatchData::selectRaw('YEAR(upload_date) as year')
+                ->whereNotNull('upload_date')
+                ->distinct()
+                ->orderBy('year', 'desc')
+                ->pluck('year')
+                ->filter()
+                ->values();
+            
+            // Jika tidak ada data tahun, buat default
+            if ($years->isEmpty()) {
+                $years = collect([date('Y'), date('Y') - 1]);
+            }
+            
+            // 2. GET RESULTS dengan pagination
+            $resultsQuery = MatchResult::orderBy('match_date', 'desc');
+            
+            // Filter results berdasarkan status
+            $resultsQuery->whereIn('status', ['completed', 'done', 'publish', 'live']);
+            
+            // Filter results berdasarkan series (gunakan results_series untuk menghindari conflict)
+            if ($request->filled('results_series')) {
+                $resultsQuery->where('series', $request->input('results_series'));
+            } elseif ($request->filled('series') && $activeTab === 'results') {
+                // Fallback untuk backward compatibility
+                $resultsQuery->where('series', $request->input('series'));
+            }
+            
+            // Filter results berdasarkan season
+            if ($request->filled('results_season')) {
+                $resultsQuery->where('season', $request->input('results_season'));
+            } elseif ($request->filled('year') && $activeTab === 'results') {
+                // Fallback untuk backward compatibility
+                $resultsQuery->where('season', $request->input('year'));
+            }
+            
+            // Execute query dengan pagination
+            $results = $resultsQuery->paginate(10, ['*'], 'results_page')
+                ->appends([
+                    'tab' => 'results',
+                    'series' => $request->input('series'),
+                    'year' => $request->input('year'),
+                    'results_series' => $request->input('results_series'),
+                    'results_season' => $request->input('results_season')
+                ]);
+            
+            // Format results data
+            $results->getCollection()->transform(function ($result) {
+                return $this->formatResultData($result);
+            });
+            
+            // Get series list for results filter
+            $seriesListResults = MatchResult::whereNotNull('series')
+                ->where('series', '!=', '')
+                ->distinct()
+                ->pluck('series')
+                ->sort()
+                ->values();
+            
+            // Get seasons for results filter
+            $seasons = MatchResult::select('season')
+                ->whereNotNull('season')
+                ->where('season', '!=', '')
+                ->distinct()
+                ->orderBy('season', 'desc')
+                ->pluck('season')
+                ->values();
+            
+            // Jika tidak ada season, buat default
+            if ($seasons->isEmpty()) {
+                $seasons = collect([date('Y'), date('Y') - 1]);
+            }
+            
+            return view('user.publication.schedule_result', [
+                'schedules' => $schedules,
+                'results' => $results,
+                'seriesList' => $seriesList,
+                'seriesListResults' => $seriesListResults,
+                'years' => $years,
+                'seasons' => $seasons,
+                'activeTab' => $activeTab,
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error loading schedule_result page: ' . $e->getMessage());
+            
+            // Return view dengan data kosong
+            return view('user.publication.schedule_result', [
+                'schedules' => collect([]),
+                'results' => collect([]),
+                'seriesList' => collect([]),
+                'seriesListResults' => collect([]),
+                'years' => collect([]),
+                'seasons' => collect([]),
+                'activeTab' => 'schedules',
             ]);
         }
-        
-        return view('user.publication.partials.schedule_cards', ['matches' => $matches]);
     }
     
     /**
-     * Get today's matches - AMBIL DARI match_data
+     * Format data schedule
      */
-    public function getTodayMatches()
+    private function formatScheduleData($schedule)
     {
-        $today = Carbon::today()->format('Y-m-d');
-        
-        $matches = MatchData::whereDate('upload_date', $today)
-            ->whereIn('status', ['published', 'active', 'publish'])
-            ->orderBy('upload_date', 'asc')
-            ->get()
-            ->map(function($match) {
-                return (object) [
-                    'id' => $match->id,
-                    'match_date' => $match->upload_date,
-                    'competition' => $match->main_title ?? 'HSBL Match',
-                    'team1_name' => $this->extractTeamName($match->main_title ?? '', 1),
-                    'team2_name' => $this->extractTeamName($match->main_title ?? '', 2),
-                    'venue' => $this->extractVenue($match->caption ?? ''),
-                    'status' => $this->mapStatus($match->status),
-                ];
-            });
-        
-        return response()->json([
-            'success' => true,
-            'matches' => $matches,
-            'date' => Carbon::today()->format('l, F j, Y')
-        ]);
-    }
-    
-    /**
-     * Get match calendar (for calendar view) - AMBIL DARI match_data
-     */
-    public function getCalendar(Request $request)
-    {
-        $year = $request->input('year', date('Y'));
-        $month = $request->input('month', date('m'));
-        
-        $startDate = Carbon::create($year, $month, 1)->startOfMonth();
-        $endDate = Carbon::create($year, $month, 1)->endOfMonth();
-        
-        $matches = MatchData::whereBetween('upload_date', [$startDate, $endDate])
-            ->whereIn('status', ['published', 'active', 'publish'])
-            ->orderBy('upload_date', 'asc')
-            ->get()
-            ->groupBy(function($item) {
-                return Carbon::parse($item->upload_date)->format('Y-m-d');
-            })
-            ->map(function($dayMatches) {
-                return $dayMatches->map(function($match) {
-                    return (object) [
-                        'id' => $match->id,
-                        'match_date' => $match->upload_date,
-                        'competition' => $match->main_title ?? 'HSBL Match',
-                        'team1_name' => $this->extractTeamName($match->main_title ?? '', 1),
-                        'team2_name' => $this->extractTeamName($match->main_title ?? '', 2),
-                        'venue' => $this->extractVenue($match->caption ?? ''),
-                    ];
-                });
-            });
-        
-        return response()->json([
-            'success' => true,
-            'matches' => $matches,
-            'month' => $startDate->format('F Y'),
-            'days_in_month' => $startDate->daysInMonth,
-            'first_day' => $startDate->dayOfWeek
-        ]);
-    }
-    
-    /**
-     * Set match reminder
-     */
-    public function setReminder(Request $request, $id)
-    {
-        // Cari match di match_data terlebih dahulu
-        $matchData = MatchData::find($id);
-        
-        if ($matchData) {
-            $matchDate = $matchData->upload_date;
-            $teamNames = $this->extractTeamName($matchData->main_title ?? '', 1) . ' vs ' . 
-                         $this->extractTeamName($matchData->main_title ?? '', 2);
+        // Format path gambar
+        if ($schedule->layout_image) {
+            // Cek jika sudah full URL
+            if (str_starts_with($schedule->layout_image, 'http')) {
+                $schedule->image_url = $schedule->layout_image;
+            } 
+            // Cek jika hanya nama file
+            elseif (!str_contains($schedule->layout_image, '/')) {
+                $schedule->image_url = asset('images/schedule/' . $schedule->layout_image);
+            }
+            // Jika sudah ada path relatif
+            else {
+                $schedule->image_url = asset($schedule->layout_image);
+            }
         } else {
-            // Jika tidak ditemukan di match_data, cari di match_result
-            $match = MatchResult::findOrFail($id);
-            $matchDate = $match->match_date;
-            $teamNames = ($match->team1->school_name ?? 'Team A') . ' vs ' . 
-                        ($match->team2->school_name ?? 'Team B');
+            $schedule->image_url = asset('images/default-schedule.jpg');
         }
         
-        $request->validate([
-            'email' => 'required|email',
-            'reminder_time' => 'required|in:15,30,60,120'
-        ]);
+        // Format tanggal untuk display
+        if ($schedule->upload_date) {
+            try {
+                $schedule->formatted_date = \Carbon\Carbon::parse($schedule->upload_date)
+                    ->locale('id')
+                    ->translatedFormat('l, j F Y');
+            } catch (\Exception $e) {
+                $schedule->formatted_date = $schedule->upload_date;
+            }
+        } else {
+            $schedule->formatted_date = 'Date TBD';
+        }
         
-        $reminderTime = (int) $request->input('reminder_time');
-        $reminderDate = Carbon::parse($matchDate)->subMinutes($reminderTime);
-        
-        // Store reminder in session
-        $reminders = session('match_reminders', []);
-        $reminders[$id] = [
-            'match_id' => $id,
-            'email' => $request->input('email'),
-            'reminder_time' => $reminderTime,
-            'reminder_date' => $reminderDate,
-            'match_date' => $matchDate,
-            'teams' => $teamNames
-        ];
-        
-        session(['match_reminders' => $reminders]);
-        
-        return response()->json([
-            'success' => true,
-            'message' => "Reminder set for {$reminderTime} minutes before the match",
-            'reminder_date' => $reminderDate->format('Y-m-d H:i:s')
-        ]);
+        return $schedule;
     }
     
     /**
-     * Helper untuk ekstrak nama tim dari title
+     * Format data result
      */
-    private function extractTeamName($title, $teamNumber = 1)
+    private function formatResultData($result)
     {
-        // Jika title mengandung "vs", split berdasarkan "vs"
-        if (strpos($title, ' vs ') !== false) {
-            $parts = explode(' vs ', $title);
-            if ($teamNumber == 1 && isset($parts[0])) {
-                return trim($parts[0]);
-            } elseif ($teamNumber == 2 && isset($parts[1])) {
-                return trim($parts[1]);
+        // Format tanggal match
+        if ($result->match_date) {
+            try {
+                $result->match_date_formatted = \Carbon\Carbon::parse($result->match_date)
+                    ->locale('id')
+                    ->translatedFormat('l, j F Y');
+                $result->match_time = \Carbon\Carbon::parse($result->match_date)->format('H:i');
+            } catch (\Exception $e) {
+                $result->match_date_formatted = $result->match_date;
+                $result->match_time = '00:00';
             }
+        } else {
+            $result->match_date_formatted = 'Date TBD';
+            $result->match_time = '00:00';
         }
         
-        // Jika title mengandung "-", split berdasarkan "-"
-        if (strpos($title, ' - ') !== false) {
-            $parts = explode(' - ', $title);
-            if ($teamNumber == 1 && isset($parts[0])) {
-                return trim($parts[0]);
-            } elseif ($teamNumber == 2 && isset($parts[1])) {
-                return trim($parts[1]);
-            }
+        // Format scoresheet
+        $result->has_scoresheet = !empty($result->scoresheet);
+        
+        // Format score dengan null coalescing
+        $result->score_1 = isset($result->score_1) ? (int) $result->score_1 : 0;
+        $result->score_2 = isset($result->score_2) ? (int) $result->score_2 : 0;
+        
+        // Format logo paths
+        $result->team1_logo = $this->formatLogoPath($result->team1_logo);
+        $result->team2_logo = $this->formatLogoPath($result->team2_logo);
+        
+        // Status text untuk display
+        $statusConfig = [
+            'completed' => ['text' => 'Completed', 'class' => 'bg-green-100 text-green-800', 'icon' => 'fas fa-check-circle'],
+            'done' => ['text' => 'Completed', 'class' => 'bg-green-100 text-green-800', 'icon' => 'fas fa-check-circle'],
+            'publish' => ['text' => 'Published', 'class' => 'bg-purple-100 text-purple-800', 'icon' => 'fas fa-upload'],
+            'live' => ['text' => 'Live', 'class' => 'bg-red-100 text-red-800', 'icon' => 'fas fa-play-circle'],
+            'upcoming' => ['text' => 'Upcoming', 'class' => 'bg-yellow-100 text-yellow-800', 'icon' => 'fas fa-clock'],
+            'scheduled' => ['text' => 'Scheduled', 'class' => 'bg-blue-100 text-blue-800', 'icon' => 'fas fa-calendar-check']
+        ];
+        
+        $status = isset($result->status) ? $result->status : 'scheduled';
+        $result->status_info = isset($statusConfig[$status]) ? $statusConfig[$status] : $statusConfig['scheduled'];
+        $result->status_text = isset($result->status_info['text']) ? $result->status_info['text'] : 'Scheduled';
+        $result->status_class = isset($result->status_info['class']) ? $result->status_info['class'] : 'bg-blue-100 text-blue-800';
+        $result->status_icon = isset($result->status_info['icon']) ? $result->status_info['icon'] : 'fas fa-calendar-check';
+        
+        return $result;
+    }
+    
+    /**
+     * Format logo path
+     */
+    private function formatLogoPath($logoPath)
+    {
+        if (!$logoPath) {
+            return null;
         }
         
-        // Jika tidak ada format pemisah, coba tebak berdasarkan kata
-        $words = explode(' ', $title);
-        if (count($words) >= 4) {
-            if ($teamNumber == 1) {
-                return trim($words[0] . ' ' . $words[1]);
+        if (str_starts_with($logoPath, 'http')) {
+            return $logoPath;
+        } elseif (!str_contains($logoPath, '/')) {
+            return asset('storage/school_logos/' . $logoPath);
+        } else {
+            return asset($logoPath);
+        }
+    }
+    
+    /**
+     * Download scoresheet untuk results
+     */
+    public function downloadScoresheet($id)
+    {
+        try {
+            $result = MatchResult::findOrFail($id);
+            
+            if (!$result->scoresheet) {
+                return redirect()->back()->with('error', 'Scoresheet not available');
+            }
+            
+            // Cek berbagai kemungkinan path
+            $filePath = null;
+            $possiblePaths = [
+                public_path('uploads/scoresheets/' . $result->scoresheet),
+                storage_path('app/public/uploads/scoresheets/' . $result->scoresheet),
+                public_path($result->scoresheet),
+                storage_path('app/public/' . $result->scoresheet),
+            ];
+            
+            foreach ($possiblePaths as $path) {
+                if (file_exists($path)) {
+                    $filePath = $path;
+                    break;
+                }
+            }
+            
+            if (!$filePath) {
+                Log::error('Scoresheet file not found in any path for result: ' . $id);
+                return redirect()->back()->with('error', 'Scoresheet file not found');
+            }
+            
+            $originalName = isset($result->scoresheet_original_name) ? $result->scoresheet_original_name : 
+                           'scoresheet_' . $result->id . '_' . date('Ymd') . '.xlsx';
+            
+            return response()->download($filePath, $originalName, [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition' => 'attachment; filename="' . $originalName . '"'
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error downloading scoresheet: ' . $e->getMessage());
+            
+            return redirect()->back()->with('error', 'Failed to download scoresheet');
+        }
+    }
+    
+    /**
+     * Download terms and conditions
+     */
+    public function downloadTerms()
+    {
+        try {
+            $termsPath = public_path('documents/terms-and-conditions.pdf');
+            
+            if (file_exists($termsPath)) {
+                return response()->download($termsPath, 'HSBL-Terms-and-Conditions.pdf');
             } else {
-                return trim($words[2] . ' ' . $words[3]);
+                return redirect()->route('user.schedule_result')
+                    ->with('error', 'Terms and conditions document not found.');
             }
+            
+        } catch (\Exception $e) {
+            Log::error('Error downloading terms: ' . $e->getMessage());
+            
+            return redirect()->route('user.schedule_result')
+                ->with('error', 'Failed to download terms and conditions.');
         }
-        
-        // Default fallback
-        return $teamNumber == 1 ? 'Team A' : 'Team B';
-    }
-    
-    /**
-     * Helper untuk ekstrak venue dari caption
-     */
-    private function extractVenue($caption)
-    {
-        // Cari kata kunci venue dalam caption
-        $venueKeywords = ['at', 'venue', 'lokasi', 'tempat', 'stadion', 'arena', 'gym'];
-        
-        foreach ($venueKeywords as $keyword) {
-            $position = stripos($caption, $keyword);
-            if ($position !== false) {
-                // Ambil 50 karakter setelah keyword
-                $venue = substr($caption, $position + strlen($keyword), 50);
-                return trim(preg_replace('/[^a-zA-Z0-9\s,.-]/', '', $venue));
-            }
-        }
-        
-        return 'TBD';
-    }
-    
-    /**
-     * Helper untuk mapping status dari match_data ke format yang diharapkan
-     */
-    private function mapStatus($status)
-    {
-        $statusMap = [
-            'published' => 'upcoming',
-            'publish' => 'upcoming',
-            'active' => 'upcoming',
-            'draft' => 'scheduled',
-            'archived' => 'completed',
-        ];
-        
-        return $statusMap[strtolower($status)] ?? 'upcoming';
     }
 }

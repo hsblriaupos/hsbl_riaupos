@@ -31,6 +31,9 @@
             <form action="{{ route('admin.pub_schedule.store') }}" method="POST" enctype="multipart/form-data" id="scheduleForm">
                 @csrf
                 
+                <!-- Hidden input for action type -->
+                <input type="hidden" name="action_type" id="action_type" value="draft">
+                
                 @if($event)
                     <div class="alert alert-info mb-4">
                         <i class="fas fa-info-circle me-2"></i>
@@ -77,25 +80,6 @@
                             <small class="text-muted">Enter a descriptive title for the schedule</small>
                         </div>
 
-                        <!-- Caption -->
-                        <div class="mb-3">
-                            <label for="caption" class="form-label">
-                                <i class="fas fa-comment me-1"></i> Caption (Optional)
-                            </label>
-                            <textarea class="form-control @error('caption') is-invalid @enderror" 
-                                      id="caption" 
-                                      name="caption" 
-                                      rows="3"
-                                      placeholder="Short description or caption for the schedule...">{{ old('caption') }}</textarea>
-                            @error('caption')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                            <small class="text-muted">Short description for the schedule image</small>
-                        </div>
-                    </div>
-
-                    <!-- Right Column -->
-                    <div class="col-md-6">
                         <!-- Series Name -->
                         <div class="mb-3">
                             <label for="series_name" class="form-label required">
@@ -133,7 +117,10 @@
                             @enderror
                             <small class="text-muted">Select the series location</small>
                         </div>
+                    </div>
 
+                    <!-- Right Column -->
+                    <div class="col-md-6">
                         <!-- Layout Image -->
                         <div class="mb-3">
                             <label for="layout_image" class="form-label">
@@ -161,34 +148,29 @@
                             </div>
                         </div>
 
-                        <!-- Status Info -->
+                        <!-- Caption -->
                         <div class="mb-3">
-                            <label class="form-label">
-                                <i class="fas fa-info-circle me-1"></i> Status Information
+                            <label for="caption" class="form-label">
+                                <i class="fas fa-comment me-1"></i> Caption / Additional Information
                             </label>
-                            <div class="alert alert-light border">
-                                <div class="mb-2">
-                                    <span class="badge bg-warning bg-opacity-20 text-warning d-inline-flex align-items-center">
-                                        <i class="fas fa-edit me-1"></i> Draft
-                                    </span>
-                                    <small class="ms-2">Default status. Only visible to admins</small>
-                                </div>
-                                <div class="mb-2">
-                                    <span class="badge bg-success bg-opacity-20 text-success d-inline-flex align-items-center">
-                                        <i class="fas fa-globe me-1"></i> Published
-                                    </span>
-                                    <small class="ms-2">Visible to public. Can be changed later</small>
-                                </div>
-                                <div>
-                                    <span class="badge bg-primary bg-opacity-20 text-primary d-inline-flex align-items-center">
-                                        <i class="fas fa-check-double me-1"></i> Done
-                                    </span>
-                                    <small class="ms-2">Schedule is completed. Cannot be edited</small>
-                                </div>
-                            </div>
+                            <textarea class="form-control @error('caption') is-invalid @enderror" 
+                                      id="caption" 
+                                      name="caption" 
+                                      rows="6"
+                                      placeholder="You can include complete schedule information here, such as:
+• Match dates and times
+• Venue locations
+• Participating teams
+• Tournament phases
+• Special rules or announcements
+• Contact information for inquiries
+...">{{ old('caption') }}</textarea>
+                            @error('caption')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                             <small class="text-muted">
-                                <i class="fas fa-exclamation-triangle text-warning me-1"></i>
-                                Status will be set to "Draft" by default. You can publish it later from the schedule list.
+                                <i class="fas fa-info-circle text-info me-1"></i>
+                                Add complete schedule information here. This will help users understand the schedule details.
                             </small>
                         </div>
                     </div>
@@ -203,11 +185,11 @@
                                 <i class="fas fa-times me-2"></i> Cancel
                             </a>
                             <div class="d-flex gap-2">
-                                <button type="button" onclick="submitForm('draft')" 
+                                <button type="button" id="draftBtn" 
                                         class="btn btn-warning">
                                     <i class="fas fa-save me-2"></i> Save as Draft
                                 </button>
-                                <button type="button" onclick="submitForm('publish')" 
+                                <button type="submit" id="publishBtn" 
                                         class="btn btn-success">
                                     <i class="fas fa-paper-plane me-2"></i> Save & Publish
                                 </button>
@@ -287,6 +269,17 @@
         font-size: 0.9rem;
         font-weight: 500;
         border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn:active {
+        transform: translateY(0);
     }
 
     .btn-primary {
@@ -371,153 +364,234 @@
     }
 </style>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Image preview
-        const layoutImageInput = document.getElementById('layout_image');
-        const imagePreview = document.getElementById('imagePreview');
-        const previewImage = document.getElementById('previewImage');
-        
-        if (layoutImageInput) {
-            layoutImageInput.addEventListener('change', function() {
-                if (this.files && this.files[0]) {
-                    const reader = new FileReader();
-                    
-                    reader.onload = function(e) {
-                        previewImage.src = e.target.result;
-                        imagePreview.style.display = 'block';
-                    }
-                    
-                    reader.readAsDataURL(this.files[0]);
-                } else {
-                    imagePreview.style.display = 'none';
+// Initialize SweetAlert2
+const Swal2 = Swal.mixin({
+    customClass: {
+        confirmButton: 'btn btn-success mx-2',
+        cancelButton: 'btn btn-secondary mx-2'
+    },
+    buttonsStyling: false
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Schedule Create Page Loaded');
+    
+    // Image preview
+    const layoutImageInput = document.getElementById('layout_image');
+    const imagePreview = document.getElementById('imagePreview');
+    const previewImage = document.getElementById('previewImage');
+    
+    if (layoutImageInput) {
+        layoutImageInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                // Check file size (max 2MB)
+                const maxSize = 2 * 1024 * 1024;
+                if (this.files[0].size > maxSize) {
+                    showError('File Too Large', 'Image size should not exceed 2MB');
+                    this.value = '';
+                    return;
                 }
-            });
-        }
+                
+                // Check file type
+                const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'];
+                if (!validTypes.includes(this.files[0].type)) {
+                    showError('Invalid File Type', 'Only JPG, PNG, and GIF images are allowed');
+                    this.value = '';
+                    return;
+                }
+                
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                }
+                
+                reader.readAsDataURL(this.files[0]);
+            } else {
+                imagePreview.style.display = 'none';
+            }
+        });
+    }
+    
+    // Set today's date as default if not set
+    const uploadDateInput = document.getElementById('upload_date');
+    if (uploadDateInput && !uploadDateInput.value) {
+        uploadDateInput.value = new Date().toISOString().split('T')[0];
+    }
+    
+    // Remove invalid class on input
+    document.querySelectorAll('.form-control, .form-select').forEach(element => {
+        element.addEventListener('input', function() {
+            this.classList.remove('is-invalid');
+        });
         
-        // Set today's date as default if not set
-        const uploadDateInput = document.getElementById('upload_date');
-        if (uploadDateInput && !uploadDateInput.value) {
-            uploadDateInput.value = new Date().toISOString().split('T')[0];
-        }
-        
-        // Remove invalid class on input
-        document.querySelectorAll('.form-control, .form-select').forEach(element => {
-            element.addEventListener('input', function() {
-                this.classList.remove('is-invalid');
-            });
-            
-            element.addEventListener('change', function() {
-                this.classList.remove('is-invalid');
-            });
+        element.addEventListener('change', function() {
+            this.classList.remove('is-invalid');
         });
     });
     
-    // Function to submit form with status
-    function submitForm(actionType) {
-        const form = document.getElementById('scheduleForm');
-        const title = document.getElementById('main_title');
-        const series = document.getElementById('series_name');
-        
-        let isValid = true;
-        
-        // Validate title
-        if (!title.value.trim()) {
-            title.classList.add('is-invalid');
-            isValid = false;
-        }
-        
-        // Validate series
-        if (!series.value) {
-            series.classList.add('is-invalid');
-            isValid = false;
-        }
-        
-        if (!isValid) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Validation Error',
-                text: 'Please fill all required fields',
-                timer: 3000,
-                showConfirmButton: false
-            });
-            return;
-        }
-        
-        // Add hidden input for action type
-        let actionInput = form.querySelector('input[name="action_type"]');
-        if (!actionInput) {
-            actionInput = document.createElement('input');
-            actionInput.type = 'hidden';
-            actionInput.name = 'action_type';
-            form.appendChild(actionInput);
-        }
-        actionInput.value = actionType;
-        
-        // Show confirmation for publish
-        if (actionType === 'publish') {
-            Swal.fire({
-                title: 'Save & Publish Schedule?',
-                html: 'This schedule will be immediately visible to the public.',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#28a745',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Yes, Save & Publish',
-                cancelButtonText: 'Cancel',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Show loading
-                    Swal.fire({
-                        title: 'Saving...',
-                        text: 'Please wait',
-                        allowOutsideClick: false,
-                        showConfirmButton: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
-                    
-                    // Submit form
-                    setTimeout(() => {
-                        form.submit();
-                    }, 500);
-                }
-            });
-        } else {
-            // For draft, submit directly
-            Swal.fire({
-                title: 'Save as Draft?',
-                html: 'This schedule will only be visible to administrators.',
-                icon: 'info',
-                showCancelButton: true,
-                confirmButtonColor: '#ffc107',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Yes, Save as Draft',
-                cancelButtonText: 'Cancel',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Show loading
-                    Swal.fire({
-                        title: 'Saving...',
-                        text: 'Please wait',
-                        allowOutsideClick: false,
-                        showConfirmButton: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
-                    
-                    // Submit form
-                    setTimeout(() => {
-                        form.submit();
-                    }, 500);
-                }
-            });
-        }
+    // Button event listeners
+    const draftBtn = document.getElementById('draftBtn');
+    const publishBtn = document.getElementById('publishBtn');
+    const scheduleForm = document.getElementById('scheduleForm');
+    
+    if (draftBtn) {
+        draftBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            handleDraftSubmit();
+        });
     }
+    
+    if (publishBtn) {
+        publishBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            handlePublishSubmit();
+        });
+    }
+});
+
+// Function to validate form
+function validateForm() {
+    const title = document.getElementById('main_title');
+    const series = document.getElementById('series_name');
+    const date = document.getElementById('upload_date');
+    
+    let isValid = true;
+    
+    // Clear previous errors
+    [title, series, date].forEach(field => {
+        if (field) {
+            field.classList.remove('is-invalid');
+        }
+    });
+    
+    // Validate title
+    if (!title.value.trim()) {
+        title.classList.add('is-invalid');
+        isValid = false;
+    }
+    
+    // Validate series
+    if (!series.value) {
+        series.classList.add('is-invalid');
+        isValid = false;
+    }
+    
+    // Validate date
+    if (!date.value) {
+        date.classList.add('is-invalid');
+        isValid = false;
+    }
+    
+    return isValid;
+}
+
+// Function to handle draft submission
+async function handleDraftSubmit() {
+    if (!validateForm()) {
+        await showError('Validation Error', 'Please fill all required fields marked with *');
+        return;
+    }
+    
+    try {
+        document.getElementById('action_type').value = 'draft';
+        
+        const result = await Swal2.fire({
+            title: 'Save as Draft?',
+            html: '<div class="text-start">' +
+                  '<p>This schedule will be saved as draft and will not be visible to the public.</p>' +
+                  '<p class="text-muted small">You can publish it later from the schedule list.</p>' +
+                  '</div>',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: '<i class="fas fa-save me-1"></i> Save Draft',
+            cancelButtonText: '<i class="fas fa-times me-1"></i> Cancel',
+            reverseButtons: true,
+            focusConfirm: false
+        });
+        
+        if (result.isConfirmed) {
+            // Submit form immediately - no loading delay
+            document.getElementById('scheduleForm').submit();
+        }
+    } catch (error) {
+        console.error('Error in draft submission:', error);
+        showError('Error', 'An error occurred. Please try again.');
+    }
+}
+
+// Function to handle publish submission
+async function handlePublishSubmit() {
+    if (!validateForm()) {
+        await showError('Validation Error', 'Please fill all required fields marked with *');
+        return;
+    }
+    
+    try {
+        document.getElementById('action_type').value = 'publish';
+        
+        const result = await Swal2.fire({
+            title: 'Save & Publish?',
+            html: '<div class="text-start">' +
+                  '<p>This schedule will be immediately visible to the public.</p>' +
+                  '<p class="text-warning small"><i class="fas fa-exclamation-triangle me-1"></i> This action cannot be undone.</p>' +
+                  '</div>',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: '<i class="fas fa-paper-plane me-1"></i> Publish Now',
+            cancelButtonText: '<i class="fas fa-times me-1"></i> Cancel',
+            reverseButtons: true,
+            focusConfirm: false
+        });
+        
+        if (result.isConfirmed) {
+            // Submit form immediately - no loading delay
+            document.getElementById('scheduleForm').submit();
+        }
+    } catch (error) {
+        console.error('Error in publish submission:', error);
+        showError('Error', 'An error occurred. Please try again.');
+    }
+}
+
+// Utility function to show error
+function showError(title, text) {
+    return Swal2.fire({
+        icon: 'error',
+        title: title,
+        text: text,
+        confirmButtonText: 'OK'
+    });
+}
+
+// Utility function to show success
+function showSuccess(title, text) {
+    return Swal2.fire({
+        icon: 'success',
+        title: title,
+        text: text,
+        timer: 3000,
+        showConfirmButton: false
+    });
+}
+
+// Show success message if redirected from controller with success
+@if(session('success'))
+    showSuccess('Success!', '{{ session('success') }}');
+@endif
+
+// Show error message if redirected from controller with error
+@if(session('error'))
+    showError('Error!', '{{ session('error') }}');
+@endif
+
+// Show validation errors
+@if($errors->any())
+    showError('Validation Error', '{{ $errors->first() }}');
+@endif
 </script>
 
 @endsection

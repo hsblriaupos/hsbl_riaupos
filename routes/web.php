@@ -3,7 +3,6 @@
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AdminLoginController;
 use App\Http\Controllers\Admin\DataActionController;
-use App\Http\Controllers\Admin\GalleryController as AdminGalleryController;
 use App\Http\Controllers\Admin\NewsController as AdminNewsController;
 use App\Http\Controllers\Admin\TermConditionController;
 use App\Http\Controllers\Camper\CamperController;
@@ -12,19 +11,23 @@ use App\Http\Controllers\Form\FormPlayerController;
 use App\Http\Controllers\Form\FormDancerController;
 use App\Http\Controllers\Form\FormOfficialController;
 use App\Http\Controllers\GoogleController\GoogleController;
+use App\Http\Controllers\Publication\Gallery\PhotosController;
+use App\Http\Controllers\Publication\Gallery\VideosController;
 use App\Http\Controllers\Publication\PubMatchDataController;
 use App\Http\Controllers\Publication\PubMatchResult;
+use App\Http\Controllers\Publication\StatisticsController as PublicationStatisticsController;
 use App\Http\Controllers\Sponsor\SponsorController;
 use App\Http\Controllers\TeamVerification\TeamController;
-use App\Http\Controllers\User\GalleryController as UserGalleryController;
 use App\Http\Controllers\User\HomeController;
 use App\Http\Controllers\User\NewsController;
 use App\Http\Controllers\User\ScheduleController;
 use App\Http\Controllers\User\ResultController;
+use App\Http\Controllers\User\UserPhotosController;
+use App\Http\Controllers\User\UserVideosController;
+use App\Http\Controllers\User\StatisticsController as UserStatisticsController;
 use App\Http\Controllers\Student\StudentAuthController;
 use App\Http\Controllers\Student\StudentDashboardController;
 use App\Http\Controllers\Student\StudentProfileController;
-use App\Http\Controllers\Student\StudentSchoolController;
 use App\Models\TermCondition;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -163,7 +166,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         Route::get('/{id}/edit', [PubMatchDataController::class, 'edit'])->name('edit');
         Route::put('/{id}', [PubMatchDataController::class, 'update'])->name('update');
         Route::delete('/{id}', [PubMatchDataController::class, 'destroy'])->name('destroy');
-        Route::post('/bulk-destroy', [PubMatchDataController::class, 'bulkDestroy'])->name('bulk-destroy');
+        Route::delete('/bulk-destroy', [PubMatchDataController::class, 'bulkDestroy'])->name('bulk-destroy');
         Route::post('/{id}/publish', [PubMatchDataController::class, 'publish'])->name('publish');
         Route::post('/{id}/unpublish', [PubMatchDataController::class, 'unpublish'])->name('unpublish');
         Route::post('/{id}/done', [PubMatchDataController::class, 'done'])->name('done');
@@ -185,7 +188,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         Route::get('/{id}/download-scoresheet', [PubMatchResult::class, 'downloadScoresheet'])->name('download_scoresheet');
         
         // Bulk actions
-        Route::post('/bulk-destroy', [PubMatchResult::class, 'bulkDestroy'])->name('bulk-destroy');
+        Route::delete('/bulk-destroy', [PubMatchResult::class, 'bulkDestroy'])->name('bulk-destroy');
         Route::post('/bulk-publish', [PubMatchResult::class, 'bulkPublish'])->name('bulk-publish');
     });
 
@@ -198,7 +201,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('/sponsor/{id}/edit', [SponsorController::class, 'edit'])->name('sponsor.edit');
     Route::put('/sponsor/{id}', [SponsorController::class, 'update'])->name('sponsor.update');
     Route::delete('/sponsor/{id}', [SponsorController::class, 'destroy'])->name('sponsor.destroy');
-    Route::post('/sponsor/destroy-selected', [SponsorController::class, 'destroySelected'])->name('sponsor.destroySelected');
+    Route::delete('/sponsor/destroy-selected', [SponsorController::class, 'destroySelected'])->name('sponsor.destroySelected');
+
+    // Statistics Page untuk Admin
+    Route::get('/statistics', [PublicationStatisticsController::class, 'index'])->name('statistics');
 
     // News Management
     Route::get('/news', [AdminNewsController::class, 'index'])->name('news.index');
@@ -210,18 +216,86 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::delete('/news/bulk/delete', [AdminNewsController::class, 'bulkDestroy'])->name('news.bulk-destroy');
 
     // Terms & Conditions Management
-    Route::get('/term-conditions', [TermConditionController::class, 'index'])->name('term_conditions.index');
-    Route::post('/term-conditions', [TermConditionController::class, 'store'])->name('term_conditions.store');
-    Route::delete('/term-conditions/delete-selected', [TermConditionController::class, 'destroySelected'])->name('term_conditions.destroySelected');
-    Route::delete('/term-conditions/{id}', [TermConditionController::class, 'destroy'])->name('term_conditions.destroy');
+    Route::prefix('term-conditions')->name('term_conditions.')->group(function () {
+        Route::get('/', [TermConditionController::class, 'index'])->name('index');
+        Route::post('/', [TermConditionController::class, 'store'])->name('store');
+        Route::delete('/destroy-selected', [TermConditionController::class, 'destroySelected'])->name('destroySelected');
+        Route::delete('/{id}', [TermConditionController::class, 'destroy'])->name('destroy');
+        
+        // Route untuk download dan view
+        Route::get('/{id}/download', [TermConditionController::class, 'download'])->name('download');
+        Route::get('/{id}/view', [TermConditionController::class, 'view'])->name('view');
+        
+        // Route alias untuk backward compatibility
+        Route::get('/sponsor', [TermConditionController::class, 'index'])->name('sponsor');
+    });
 
-    // Video Management
-    Route::get('videos', [AdminGalleryController::class, 'index'])->name('videos.index');
-    Route::get('videos/create', [AdminGalleryController::class, 'create'])->name('videos.create');
-    Route::post('videos', [AdminGalleryController::class, 'store'])->name('videos.store');
-    Route::get('videos/{video}/edit', [AdminGalleryController::class, 'edit'])->name('videos.edit');
-    Route::put('videos/{video}', [AdminGalleryController::class, 'update'])->name('videos.update');
-    Route::delete('videos/{video}', [AdminGalleryController::class, 'destroy'])->name('videos.destroy');
+    // ========== MEDIA GALLERY ROUTES ==========
+    
+    // VIDEOS MANAGEMENT ROUTES
+    Route::prefix('videos')->name('videos.')->group(function () {
+        Route::get('/', [VideosController::class, 'index'])->name('index');
+        Route::get('/create', function() {
+            return view('admin.media.gallery.videos_form');
+        })->name('create');
+        Route::post('/', [VideosController::class, 'store'])->name('store');
+        Route::get('/{id}', [VideosController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', function($id) {
+            $video = \App\Models\Video::findOrFail($id);
+            return view('admin.media.gallery.videos_edit', compact('video'));
+        })->name('edit');
+        Route::put('/{id}', [VideosController::class, 'update'])->name('update');
+        Route::delete('/{id}', [VideosController::class, 'destroy'])->name('destroy');
+        
+        Route::delete('/bulk/destroy', [VideosController::class, 'bulkDestroy'])->name('bulk-destroy');
+        
+        Route::post('/{id}/status', [VideosController::class, 'changeStatus'])->name('change-status');
+        Route::post('/{id}/toggle-status', [VideosController::class, 'toggleStatus'])->name('toggle-status');
+        
+        Route::get('/{id}/ajax', [VideosController::class, 'getVideoAjax'])->name('ajax');
+        Route::get('/{id}/details', [VideosController::class, 'getVideoDetails'])->name('details');
+    });
+    
+    // ========== MEDIA GALLERY GROUP ROUTES ==========
+    
+    Route::prefix('gallery')->name('gallery.')->group(function () {
+        // PHOTOS ROUTES YANG LENGKAP DAN BENAR
+        Route::prefix('photos')->name('photos.')->group(function () {
+            Route::get('/', [PhotosController::class, 'index'])->name('index');
+            Route::get('/create', [PhotosController::class, 'create'])->name('create');
+            Route::get('/form', [PhotosController::class, 'form'])->name('form');
+            Route::post('/', [PhotosController::class, 'store'])->name('store');
+            Route::get('/{id}/edit', [PhotosController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [PhotosController::class, 'update'])->name('update');
+            Route::delete('/{id}', [PhotosController::class, 'destroy'])->name('destroy');
+            
+            // ROUTE BULK ACTIONS
+            Route::delete('/bulk/destroy', [PhotosController::class, 'bulkDestroy'])->name('bulk-destroy');
+            Route::post('/bulk/download', [PhotosController::class, 'bulkDownload'])->name('bulk-download');
+            
+            Route::get('/{id}/download', [PhotosController::class, 'download'])->name('download');
+            Route::post('/{id}/increment-download', [PhotosController::class, 'incrementDownload'])->name('increment-download');
+            
+            // ROUTE STATUS MANAGEMENT
+            Route::post('/{id}/publish', [PhotosController::class, 'publish'])->name('publish');
+            Route::post('/{id}/unpublish', [PhotosController::class, 'unpublish'])->name('unpublish');
+            Route::post('/{id}/toggle-status', [PhotosController::class, 'toggleStatus'])->name('toggle-status');
+            
+            Route::get('/statistics', [PhotosController::class, 'statistics'])->name('statistics');
+            
+            // API endpoints
+            Route::get('/api/schools', [PhotosController::class, 'getSchools'])->name('api.schools');
+            Route::get('/api/competitions', [PhotosController::class, 'getCompetitions'])->name('api.competitions');
+            Route::get('/api/seasons', [PhotosController::class, 'getSeasons'])->name('api.seasons');
+            Route::get('/api/series', [PhotosController::class, 'getSeries'])->name('api.series');
+        });
+
+        // VIDEOS ROUTES - tidak perlu duplikat
+    });
+    
+    // Route simple untuk bulk delete jika masih error
+    Route::post('/gallery-photos/bulk-delete', [PhotosController::class, 'bulkDestroy'])
+        ->name('admin.gallery.photos.bulk-delete-simple');
 });
 
 /*
@@ -287,36 +361,131 @@ Route::prefix('user')->name('user.')->group(function () {
     Route::get('/news', [NewsController::class, 'index'])->name('news.index');
     Route::get('/news/{id}', [NewsController::class, 'show'])->whereNumber('id')->name('news.show');
 
-    // ========== SCHEDULE & RESULTS ROUTES ==========
-    // Combined schedule & results page - FIX: Ganti ke /schedules-results
-    Route::get('/schedules-results', [ScheduleController::class, 'index'])->name('schedule_result');
+    // ========== REVISI: SCHEDULE & RESULTS ROUTES ==========
     
-    // Redirect untuk backward compatibility
-    Route::get('/schedule-result', function() {
+    // Main Schedule & Results Combined Page - Gunakan ScheduleController::index
+    Route::get('/schedule-result', [ScheduleController::class, 'index'])->name('schedule_result');
+    
+    // Alias untuk backward compatibility
+    Route::get('/schedules-results', function() {
         return redirect()->route('user.schedule_result');
     });
     
-    // Individual Schedule Routes
+    // AJAX Filter Routes untuk Schedule
+    Route::post('/schedules/filter', [ScheduleController::class, 'filterSchedules'])
+        ->name('schedules.filter');
+    
+    // AJAX Filter Routes untuk Results
+    Route::post('/results/filter', [ScheduleController::class, 'filterResults'])
+        ->name('results.filter');
+    
+    // Individual Schedule Routes (API/Data)
     Route::prefix('schedule')->name('schedule.')->group(function () {
+        // Route utama tetap menggunakan index (untuk API jika perlu)
         Route::get('/', [ScheduleController::class, 'index'])->name('index');
-        Route::get('/{id}', [ScheduleController::class, 'show'])->name('show');
-        Route::get('/ajax/get-schedule', [ScheduleController::class, 'getSchedule'])->name('ajax.get');
+        
+        // Detail route
+        Route::get('/{id}', [ScheduleController::class, 'getScheduleDetail'])->name('show');
+        
+        // API endpoints
         Route::get('/today', [ScheduleController::class, 'getTodayMatches'])->name('today');
         Route::get('/calendar', [ScheduleController::class, 'getCalendar'])->name('calendar');
+        Route::get('/search', [ScheduleController::class, 'search'])->name('search');
+        Route::get('/latest/{limit?}', [ScheduleController::class, 'getLatest'])->name('latest');
         Route::post('/{id}/reminder', [ScheduleController::class, 'setReminder'])->name('reminder');
     });
     
-    // Individual Results Routes
+    // Individual Results Routes - Pastikan menggunakan ResultController yang benar
     Route::prefix('results')->name('results.')->group(function () {
+        // Main results page (jika terpisah)
         Route::get('/', [ResultController::class, 'index'])->name('index');
-        Route::get('/{id}', [ResultController::class, 'show'])->name('show');
-        Route::get('/ajax/get-results', [ResultController::class, 'getResults'])->name('ajax.get');
-        Route::get('/{id}/download-scoresheet', [ResultController::class, 'downloadScoresheet'])->name('download.scoresheet');
+        
+        // Detail route
+        Route::get('/{id}', [ResultController::class, 'getResultDetail'])->name('show');
+        
+        // Route untuk download scoresheet - SESUAI DENGAN BLADE
+        Route::get('/{id}/download-scoresheet', [ResultController::class, 'downloadScoresheet'])
+            ->name('download.scoresheet');
+            
+        // API endpoints
+        Route::get('/team/{teamId}', [ResultController::class, 'getByTeam'])->name('team');
+        Route::get('/seasons', [ResultController::class, 'getSeasons'])->name('seasons');
+        Route::get('/series', [ResultController::class, 'getSeries'])->name('series');
+        Route::get('/statistics', [ResultController::class, 'getStatistics'])->name('statistics');
     });
 
-    // Videos untuk User
-    Route::get('/videos', [UserGalleryController::class, 'videos'])->name('videos');
-    Route::get('/videos/{slug}', [UserGalleryController::class, 'videoDetail'])->name('videos.detail');
+    // ========== PERBAIKAN UTAMA: GALLERY PHOTOS ROUTES ==========
+    
+    // ROUTE UTAMA UNTUK PHOTOS GALLERY (USER)
+    Route::prefix('media/gallery')->name('media.gallery.')->group(function () {
+        // Route untuk photos list - GUNAKAN UserPhotosController
+        Route::get('photos', [UserPhotosController::class, 'index'])->name('photos');
+        
+        // Route untuk photos detail
+        Route::get('photos/{id}', [UserPhotosController::class, 'show'])->name('photos.detail');
+        
+        // PERBAIKAN: Tambahkan route download dengan name yang benar
+        Route::get('photos/{id}/download', [UserPhotosController::class, 'download'])->name('photos.download');
+        
+        // Route untuk video list
+        Route::get('videos', [UserVideosController::class, 'index'])->name('videos');
+        
+        // Route untuk video detail (dengan parameter slug)
+        Route::get('videos/{slug}', [UserVideosController::class, 'show'])->name('videos.detail');
+    });
+    
+    // PERBAIKAN: Tambahkan route group khusus untuk 'user.gallery.' prefix
+    Route::prefix('gallery')->name('gallery.')->group(function () {
+        // Photos routes dengan 'user.gallery.' prefix
+        Route::prefix('photos')->name('photos.')->group(function () {
+            Route::get('/', [UserPhotosController::class, 'index'])->name('index');
+            Route::get('/{id}', [UserPhotosController::class, 'show'])->name('show');
+            // INI ROUTE YANG DIPERLUKAN: user.gallery.photos.download
+            Route::get('/{id}/download', [UserPhotosController::class, 'download'])->name('download');
+        });
+        
+        // Videos routes dengan 'user.gallery.' prefix
+        Route::prefix('videos')->name('videos.')->group(function () {
+            Route::get('/', [UserVideosController::class, 'index'])->name('index');
+            Route::get('/{slug}', [UserVideosController::class, 'show'])->name('show');
+        });
+    });
+    
+    // ALIAS ROUTES UNTUK KEMUDAHAN AKSES
+    Route::get('/photos', [UserPhotosController::class, 'index'])->name('photos');
+    Route::get('/photos/{id}', [UserPhotosController::class, 'show'])->name('photos.detail');
+    Route::get('/photos/{id}/download', [UserPhotosController::class, 'download'])->name('photos.download.alias');
+    
+    Route::get('/videos', [UserVideosController::class, 'index'])->name('videos');
+    Route::get('/videos/{slug}', [UserVideosController::class, 'show'])->name('videos.detail');
+    
+    // API ROUTES UNTUK PHOTOS (UNTUK AJAX/FILTER/MODAL)
+    Route::prefix('ajax/photos')->name('ajax.photos.')->group(function () {
+        Route::get('/details/{id}', [UserPhotosController::class, 'getDetails'])->name('details');
+        Route::get('/filter-options', [UserPhotosController::class, 'getFilterOptions'])->name('filter-options');
+        Route::get('/statistics', [UserPhotosController::class, 'getStatistics'])->name('statistics');
+        Route::get('/search', [UserPhotosController::class, 'search'])->name('search');
+    });
+    
+    // API ROUTES UNTUK VIDEOS
+    Route::prefix('ajax/videos')->name('ajax.videos.')->group(function () {
+        Route::get('/modal/{id}', [UserVideosController::class, 'getVideoModal'])->name('modal');
+        Route::get('/type/{type}', [UserVideosController::class, 'getVideosByType'])->name('byType');
+        Route::get('/latest/{limit?}', [UserVideosController::class, 'getLatestVideos'])->name('latest');
+    });
+
+    // ========== ABOUT & DEVELOPER ROUTES (TERPISAH DARI GALLERY) ==========
+    Route::prefix('media')->name('media.')->group(function () {
+        // About - langsung view
+        Route::get('about', function() {
+            return view('user.media.about.about');
+        })->name('about');
+        
+        // Developer - langsung view
+        Route::get('developer', function() {
+            return view('user.media.about.developer');
+        })->name('developer');
+    });
 
     // Download Terms & Conditions
     Route::get('/download-terms', function () {
@@ -328,6 +497,9 @@ Route::prefix('user')->name('user.')->group(function () {
 
         return Storage::disk('public')->download($latestTerm->file_path, 'SyaratKetentuan-' . $latestTerm->year . '.pdf');
     })->name('download_terms');
+
+    // PERBAIKAN: Statistics Page untuk User
+    Route::get('/statistics', [UserStatisticsController::class, 'index'])->name('statistics');
 });
 
 /*
@@ -473,3 +645,104 @@ Route::get('/student-login', function () {
 Route::get('/student-register', function () {
     return redirect()->route('student.register');
 })->name('student.register.redirect');
+
+// ========== PERBAIKAN UTAMA: ROUTE UNTUK HANDLE DOT NOTATION ==========
+
+// ROUTE KHUSUS UNTUK HANDLE URL DENGAN DOT NOTATION
+Route::get('/user.media.gallery.photos', function() {
+    return redirect()->route('user.media.gallery.photos', [], 301);
+})->name('user.media.gallery.photos.legacy');
+
+// Untuk Videos dengan dot notation
+Route::get('/user.media.gallery.videos', function() {
+    return redirect()->route('user.media.gallery.videos', [], 301);
+})->name('user.media.gallery.videos.legacy');
+
+// Untuk download dengan dot notation
+Route::get('/user.gallery.photos.download', function() {
+    return redirect('/user/media/gallery/photos');
+})->name('user.gallery.photos.download.legacy');
+
+// Untuk semua kemungkinan dot notation lainnya
+Route::get('/{any}.{any2}.{any3}.{any4}', function($any, $any2, $any3, $any4) {
+    // Jika pattern cocok dengan user.media.gallery.*
+    if ($any === 'user' && $any2 === 'media' && $any3 === 'gallery') {
+        if ($any4 === 'photos') {
+            return redirect()->route('user.media.gallery.photos', [], 301);
+        } elseif ($any4 === 'videos') {
+            return redirect()->route('user.media.gallery.videos', [], 301);
+        }
+    }
+    // Jika pattern cocok dengan user.gallery.photos.*
+    elseif ($any === 'user' && $any2 === 'gallery' && $any3 === 'photos') {
+        if ($any4 === 'download') {
+            return redirect('/user/media/gallery/photos');
+        }
+    }
+    
+    // Default redirect ke home
+    return redirect('/');
+})->where('any', '[a-zA-Z]+')
+  ->where('any2', '[a-zA-Z]+')
+  ->where('any3', '[a-zA-Z]+')
+  ->where('any4', '[a-zA-Z]+');
+
+// Public video view (for embedding)
+Route::get('/video/{slug}', [UserVideosController::class, 'show'])->name('video.embed');
+
+// Public photo view
+Route::get('/photo/{slug}', [UserPhotosController::class, 'show'])->name('photo.public.show');
+
+// ========== FALLBACK ROUTES (untuk backward compatibility) ==========
+Route::get('/user/media/gallery/videos_list', function() {
+    return redirect()->route('user.videos');
+});
+
+Route::get('/user/media/gallery/photos_list', function() {
+    return redirect()->route('user.media.gallery.photos');
+});
+
+// ========== TEST ROUTE UNTUK VIDEO ==========
+Route::get('/test-video', function() {
+    return view('user.media.gallery.videos_list');
+});
+
+// ========== TEST ROUTE UNTUK PHOTOS ==========
+Route::get('/test-photos', function() {
+    return view('user.media.gallery.photos_list');
+});
+
+// ========== FALLBACK ROUTE UNTUK HANDLE SLUG YANG TIDAK DITEMUKAN ==========
+Route::fallback(function () {
+    // Jika URL dimulai dengan /user/videos/, coba handle sebagai video detail
+    if (request()->is('user/videos/*')) {
+        $slug = request()->segment(3); // Ambil segment ke-3 (slug)
+        return app()->make(App\Http\Controllers\User\UserVideosController::class)->callAction('show', [$slug]);
+    }
+    
+    // Jika URL dimulai dengan /user/photos/, coba handle sebagai photo detail
+    if (request()->is('user/photos/*')) {
+        $id = request()->segment(3); // Ambil segment ke-3 (id)
+        return app()->make(App\Http\Controllers\User\UserPhotosController::class)->callAction('show', [$id]);
+    }
+    
+    // Jika URL menggunakan dot notation (user.media.gallery.*)
+    $path = request()->path();
+    if (strpos($path, '.') !== false) {
+        $segments = explode('.', $path);
+        if (count($segments) >= 4 && $segments[0] === 'user' && $segments[1] === 'media' && $segments[2] === 'gallery') {
+            if ($segments[3] === 'photos') {
+                return redirect()->route('user.media.gallery.photos');
+            } elseif ($segments[3] === 'videos') {
+                return redirect()->route('user.media.gallery.videos');
+            }
+        }
+        // Handle user.gallery.photos.download
+        if (count($segments) >= 4 && $segments[0] === 'user' && $segments[1] === 'gallery' && $segments[2] === 'photos' && $segments[3] === 'download') {
+            return redirect('/user/media/gallery/photos');
+        }
+    }
+    
+    // Tampilkan 404 jika tidak ditemukan
+    return response()->view('errors.404', [], 404);
+});

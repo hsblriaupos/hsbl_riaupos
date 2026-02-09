@@ -71,21 +71,6 @@
             transform: translateY(-2px);
         }
 
-        .btn-success {
-            background-color: var(--success);
-            color: white;
-            padding: 0.5rem 1.25rem;
-            border-radius: 0.375rem;
-            font-weight: 500;
-            font-size: 0.875rem;
-            transition: all 0.3s ease;
-        }
-
-        .btn-success:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
-        }
-
         /* Card Styles */
         .card {
             background: white;
@@ -170,6 +155,70 @@
         .nav-link:hover::after,
         .nav-link.active::after {
             width: 100%;
+        }
+
+        /* Developer Menu Special Style */
+        .developer-menu {
+            background: linear-gradient(135deg, #8b5cf6, #6366f1);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4), 
+                        0 0 20px rgba(99, 102, 241, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .developer-menu::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent 30%,
+                rgba(255, 255, 255, 0.1) 50%,
+                transparent 70%
+            );
+            animation: shine 3s infinite linear;
+        }
+
+        .developer-badge {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 0.65rem;
+            padding: 0.125rem 0.5rem;
+            border-radius: 1rem;
+            margin-left: 0.375rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        @keyframes shine {
+            0% {
+                transform: translateX(-100%) translateY(-100%) rotate(45deg);
+            }
+            100% {
+                transform: translateX(100%) translateY(100%) rotate(45deg);
+            }
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% {
+                box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4),
+                            0 0 20px rgba(99, 102, 241, 0.2);
+            }
+            50% {
+                box-shadow: 0 4px 20px rgba(139, 92, 246, 0.6),
+                            0 0 30px rgba(99, 102, 241, 0.4),
+                            0 0 40px rgba(139, 92, 246, 0.2);
+            }
+        }
+
+        .pulse-glow {
+            animation: pulse-glow 2s infinite;
         }
 
         /* Table Styles */
@@ -297,16 +346,18 @@
                 <nav class="hidden lg:flex items-center space-x-0.5">
                     @php
                     $menu = [
-                        ['label' => 'Home', 'url' => 'user/dashboard', 'icon' => 'fas fa-home text-sm'],
-                        ['label' => 'News', 'url' => 'user/news', 'icon' => 'fas fa-newspaper text-sm'],
-                        ['label' => 'Schedules & Results', 'url' => route('user.schedule_result'), 'icon' => 'fas fa-calendar-alt text-sm'],
-                        ['label' => 'Statistics', 'url' => '#', 'icon' => 'fas fa-chart-bar text-sm'],
+                        ['label' => 'Home', 'url' => url('user/dashboard'), 'icon' => 'fas fa-home text-sm'],
+                        ['label' => 'News', 'url' => url('user/news'), 'icon' => 'fas fa-newspaper text-sm'],
+                        ['label' => 'Schedules & Results', 'url' => url('user/schedule-result'), 'icon' => 'fas fa-calendar-alt text-sm'],
+                        // Statistics - mengarah ke halaman statistics.blade.php
+                        ['label' => 'Statistics', 'url' => url('user/statistics'), 'icon' => 'fas fa-chart-bar text-sm'],
                         ['label' => 'Gallery', 'url' => '#', 'icon' => 'fas fa-images text-sm', 'submenu' => [
-                            ['label' => 'Videos', 'url' => 'user/videos', 'icon' => 'fas fa-video text-xs'],
-                            ['label' => 'Photos', 'url' => '#', 'icon' => 'fas fa-camera text-xs'],
+                            ['label' => 'Videos', 'url' => route('user.media.gallery.videos'), 'icon' => 'fas fa-video text-xs'],
+                            // PERBAIKAN: Menggunakan route atau URL yang benar
+                            ['label' => 'Photos', 'url' => route('user.gallery.photos.index'), 'icon' => 'fas fa-camera text-xs'],
                         ]],
-                        ['label' => 'About', 'url' => '#', 'icon' => 'fas fa-history text-sm'],
-                        ['label' => 'Developer', 'url' => '#', 'icon' => 'fas fa-code text-sm'],
+                        // About
+                        ['label' => 'About', 'url' => url('user/media/about'), 'icon' => 'fas fa-landmark text-sm'],
                     ];
                     @endphp
 
@@ -315,7 +366,7 @@
                             <div class="relative" x-data="{ open: false }">
                                 <button @click="open = !open"
                                     class="nav-link flex items-center space-x-1.5 px-3 py-2 text-xs font-medium rounded-md hover:bg-blue-500/20 transition-colors duration-200"
-                                    :class="open || '{{ request()->is(ltrim($item['url'], '/')) }}' ? 'bg-blue-500/20' : ''">
+                                    :class="open ? 'bg-blue-500/20' : ''">
                                     <i class="{{ $item['icon'] }}"></i>
                                     <span class="whitespace-nowrap">{{ $item['label'] }}</span>
                                     <i class="fas fa-chevron-down text-xs transition-transform duration-200" :class="open ? 'rotate-180' : ''"></i>
@@ -323,7 +374,7 @@
                                 <div x-show="open" x-transition @click.away="open = false"
                                     class="absolute top-full left-0 mt-1 w-40 bg-white rounded-md shadow-lg z-50 border border-blue-100 py-1">
                                     @foreach($item['submenu'] as $sub)
-                                        <a href="{{ url($sub['url']) }}"
+                                        <a href="{{ $sub['url'] }}"
                                             class="flex items-center space-x-2 px-3 py-2 text-xs text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 first:rounded-t-md last:rounded-b-md">
                                             <i class="{{ $sub['icon'] }} w-3.5"></i>
                                             <span>{{ $sub['label'] }}</span>
@@ -332,13 +383,21 @@
                                 </div>
                             </div>
                         @else
-                            <a href="{{ url($item['url']) }}"
-                                class="nav-link flex items-center space-x-1.5 px-3 py-2 text-xs font-medium rounded-md hover:bg-blue-500/20 transition-colors duration-200 {{ request()->is(ltrim($item['url'], '/')) ? 'bg-blue-500/20' : '' }}">
+                            <a href="{{ $item['url'] }}"
+                                class="nav-link flex items-center space-x-1.5 px-3 py-2 text-xs font-medium rounded-md hover:bg-blue-500/20 transition-colors duration-200 {{ request()->is(parse_url($item['url'], PHP_URL_PATH)) ? 'bg-blue-500/20' : '' }}">
                                 <i class="{{ $item['icon'] }}"></i>
                                 <span class="whitespace-nowrap">{{ $item['label'] }}</span>
                             </a>
                         @endif
                     @endforeach
+
+                    {{-- Developer Menu - Tidak ada dropdown, hanya link biasa dengan efek menonjol --}}
+                    <a href="{{ url('user/media/developer') }}"
+                       class="developer-menu flex items-center space-x-1.5 px-4 py-2 text-xs font-semibold rounded-md hover:opacity-90 transition-all duration-300 relative overflow-hidden pulse-glow ml-2">
+                        <i class="fas fa-glasses text-sm"></i>
+                        <span class="whitespace-nowrap">Developer</span>
+                        <span class="developer-badge">TEAM</span>
+                    </a>
 
                     {{-- Auth Menu --}}
                     <div class="border-l border-blue-400/50 pl-2 ml-1">
@@ -406,7 +465,7 @@
                                 </button>
                                 <div x-show="open" x-transition class="pl-6 mt-1 space-y-1">
                                     @foreach($item['submenu'] as $sub)
-                                        <a href="{{ url($sub['url']) }}"
+                                        <a href="{{ $sub['url'] }}"
                                             class="flex items-center space-x-2 px-3 py-1.5 rounded-md hover:bg-blue-500/10 transition-colors duration-200 text-sm">
                                             <i class="{{ $sub['icon'] }}"></i>
                                             <span>{{ $sub['label'] }}</span>
@@ -415,13 +474,21 @@
                                 </div>
                             </div>
                         @else
-                            <a href="{{ url($item['url']) }}"
-                                class="flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-blue-500/10 transition-colors duration-200 text-sm {{ request()->is(ltrim($item['url'], '/')) ? 'bg-blue-500/10' : '' }}">
+                            <a href="{{ $item['url'] }}"
+                                class="flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-blue-500/10 transition-colors duration-200 text-sm {{ request()->is(parse_url($item['url'], PHP_URL_PATH)) ? 'bg-blue-500/10' : '' }}">
                                 <i class="{{ $item['icon'] }}"></i>
                                 <span class="font-medium">{{ $item['label'] }}</span>
                             </a>
                         @endif
                     @endforeach
+                    
+                    {{-- Developer Menu Mobile --}}
+                    <a href="{{ url('user/media/developer') }}"
+                       class="developer-menu flex items-center space-x-2 px-3 py-2 rounded-md transition-all duration-300 relative overflow-hidden mt-1">
+                        <i class="fas fa-glasses"></i>
+                        <span class="font-semibold">Developer</span>
+                        <span class="developer-badge text-xs">TEAM</span>
+                    </a>
                     
                     {{-- Mobile Auth Menu --}}
                     <div class="pt-3 border-t border-blue-400/20">
@@ -495,7 +562,7 @@
                             </div>
                             <div class="pl-5 space-y-0.5">
                                 @foreach($item['submenu'] as $sub)
-                                    <a href="{{ url($sub['url']) }}"
+                                    <a href="{{ $sub['url'] }}"
                                        @click="floatingMenuOpen = false"
                                        class="block px-2.5 py-1.5 text-xs text-gray-600 hover:bg-blue-50 hover:text-blue-500 rounded transition-colors duration-200">
                                         <i class="{{ $sub['icon'] }} mr-1.5 w-3"></i>
@@ -505,7 +572,7 @@
                             </div>
                         </div>
                     @else
-                        <a href="{{ url($item['url']) }}"
+                        <a href="{{ $item['url'] }}"
                            @click="floatingMenuOpen = false"
                            class="flex items-center space-x-1.5 px-2.5 py-1.5 text-gray-700 hover:bg-blue-50 hover:text-blue-500 rounded transition-colors duration-200 mb-0.5 text-sm">
                             <i class="{{ $item['icon'] }} text-blue-500 w-3.5"></i>
@@ -513,6 +580,15 @@
                         </a>
                     @endif
                 @endforeach
+                
+                {{-- Developer Menu Floating --}}
+                <a href="{{ url('user/media/developer') }}"
+                   @click="floatingMenuOpen = false"
+                   class="developer-menu flex items-center space-x-1.5 px-2.5 py-1.5 rounded transition-all duration-300 mb-0.5 text-sm font-semibold">
+                    <i class="fas fa-glasses w-3.5"></i>
+                    <span>Developer</span>
+                    <span class="developer-badge text-xs">TEAM</span>
+                </a>
                 
                 {{-- Floating Auth Menu --}}
                 <div class="border-t border-gray-100 mt-1 pt-1">
