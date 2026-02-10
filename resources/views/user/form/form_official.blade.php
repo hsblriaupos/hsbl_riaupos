@@ -58,6 +58,7 @@
             <form id="officialForm" action="{{ route('form.official.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="team_id" value="{{ $team_id }}">
+                <input type="hidden" name="team_category" value="{{ $teamCategory }}">
 
                 <!-- Section 1: Data Pribadi -->
                 <div class="mb-3">
@@ -79,6 +80,9 @@
                                 placeholder="16 digit" maxlength="16"
                                 oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                             <div class="invalid-feedback" id="nik-feedback"></div>
+                            @error('nik')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="col-md-3 mb-1">
@@ -88,6 +92,9 @@
                             <input type="text" class="form-control form-control-sm @error('name') is-invalid @enderror"
                                 id="name" name="name" value="{{ old('name') }}" required
                                 placeholder="Nama lengkap">
+                            @error('name')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="col-md-3 mb-1">
@@ -96,7 +103,10 @@
                             </label>
                             <input type="date" class="form-control form-control-sm @error('birthdate') is-invalid @enderror"
                                 id="birthdate" name="birthdate" value="{{ old('birthdate') }}" required
-                                max="{{ date('Y-m-d') }}">
+                                max="{{ date('Y-m-d', strtotime('-18 years')) }}">
+                            @error('birthdate')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="col-md-3 mb-1">
@@ -109,6 +119,9 @@
                                 <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>Laki-laki</option>
                                 <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Perempuan</option>
                             </select>
+                            @error('gender')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
 
@@ -122,6 +135,9 @@
                                 id="phone" name="phone" value="{{ old('phone') }}" required
                                 placeholder="081234567890"
                                 oninput="this.value = this.value.replace(/[^0-9+]/g, '')">
+                            @error('phone')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="col-md-3 mb-1">
@@ -132,6 +148,9 @@
                                 id="email" name="email" value="{{ old('email') }}" required
                                 placeholder="email@example.com">
                             <div class="invalid-feedback" id="email-feedback"></div>
+                            @error('email')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="col-md-3 mb-1">
@@ -147,8 +166,42 @@
                                 <option value="Assistant Coach" {{ old('team_role') == 'Assistant Coach' ? 'selected' : '' }}>Asisten Pelatih</option>
                                 <option value="Pendamping" {{ old('team_role') == 'Pendamping' ? 'selected' : '' }}>Pendamping</option>
                             </select>
+                            @error('team_role')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
 
+                        <div class="col-md-3 mb-1">
+                            <label class="form-label fw-semibold" style="font-size: 0.75rem;">
+                                Kategori <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select form-select-sm @error('category') is-invalid @enderror"
+                                id="category" name="category" required>
+                                <option value="">Pilih Kategori</option>
+                                <option value="basket_putra" {{ (old('category') == 'basket_putra' || $teamCategory == 'basket_putra') ? 'selected' : '' }}>
+                                    Basket Putra
+                                </option>
+                                <option value="basket_putri" {{ (old('category') == 'basket_putri' || $teamCategory == 'basket_putri') ? 'selected' : '' }}>
+                                    Basket Putri
+                                </option>
+                                <option value="dancer" {{ (old('category') == 'dancer' || $teamCategory == 'dancer') ? 'selected' : '' }}>
+                                    Dancer
+                                </option>
+                                <option value="lainnya" {{ old('category') == 'lainnya' ? 'selected' : '' }}>
+                                    Lainnya
+                                </option>
+                            </select>
+                            <small class="form-text text-muted" style="font-size: 0.7rem;">
+                                Pilih kategori yang sesuai
+                            </small>
+                            @error('category')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <!-- Row 3 -->
+                    <div class="row gx-1 gy-1 mb-2">
                         <div class="col-md-3 mb-1">
                             <label class="form-label fw-semibold" style="font-size: 0.75rem;">
                                 Sekolah <span class="text-danger">*</span>
@@ -157,10 +210,7 @@
                                 value="{{ $team->school_name }}" readonly>
                             <input type="hidden" name="school" value="{{ $team->school_name }}">
                         </div>
-                    </div>
 
-                    <!-- Row 3: Sosial Media -->
-                    <div class="row gx-1 gy-1">
                         <div class="col-md-3 mb-1">
                             <label class="form-label fw-semibold" style="font-size: 0.75rem;">
                                 Instagram
@@ -173,6 +223,9 @@
                                     id="instagram" name="instagram" value="{{ old('instagram') }}"
                                     placeholder="username">
                             </div>
+                            @error('instagram')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="col-md-3 mb-1">
@@ -187,6 +240,9 @@
                                     id="tiktok" name="tiktok" value="{{ old('tiktok') }}"
                                     placeholder="username">
                             </div>
+                            @error('tiktok')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
                 </div>
@@ -208,6 +264,12 @@
                             <input type="number" class="form-control form-control-sm @error('height') is-invalid @enderror"
                                 id="height" name="height" value="{{ old('height') }}"
                                 min="100" max="250" step="1" placeholder="170">
+                            <small class="form-text text-muted" style="font-size: 0.7rem;">
+                                Contoh: 170
+                            </small>
+                            @error('height')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="col-md-3 mb-1">
@@ -217,6 +279,12 @@
                             <input type="number" class="form-control form-control-sm @error('weight') is-invalid @enderror"
                                 id="weight" name="weight" value="{{ old('weight') }}"
                                 min="30" max="200" step="0.5" placeholder="65.5">
+                            <small class="form-text text-muted" style="font-size: 0.7rem;">
+                                Contoh: 65.5
+                            </small>
+                            @error('weight')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="col-md-3 mb-1">
@@ -232,6 +300,9 @@
                                 <option value="XL" {{ old('tshirt_size') == 'XL' ? 'selected' : '' }}>XL</option>
                                 <option value="XXL" {{ old('tshirt_size') == 'XXL' ? 'selected' : '' }}>XXL</option>
                             </select>
+                            @error('tshirt_size')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="col-md-3 mb-1">
@@ -245,6 +316,9 @@
                                 <option value="{{ $i }}" {{ old('shoes_size') == $i ? 'selected' : '' }}>{{ $i }}</option>
                                 @endfor
                             </select>
+                            @error('shoes_size')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
                 </div>
@@ -283,6 +357,9 @@
                                     <img id="formal_photo_preview" src="" alt="Preview" 
                                          class="img-thumbnail d-none" style="max-height: 100px; max-width: 150px;">
                                 </div>
+                                @error('formal_photo')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="col-md-6 mb-1">
@@ -298,6 +375,9 @@
                                     <img id="identity_card_preview" src="" alt="Preview" 
                                          class="img-thumbnail d-none" style="max-height: 100px; max-width: 150px;">
                                 </div>
+                                @error('identity_card')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                     </div>
@@ -322,6 +402,9 @@
                                     <img id="license_photo_preview" src="" alt="Preview" 
                                          class="img-thumbnail d-none" style="max-height: 100px; max-width: 150px;">
                                 </div>
+                                @error('license_photo')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                     </div>
@@ -334,6 +417,9 @@
                     <label class="form-check-label fw-medium small" for="terms" style="font-size: 0.8rem;">
                         Saya menyetujui Syarat & Ketentuan dan memastikan data benar.
                     </label>
+                    @error('terms')
+                        <div class="text-danger small mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <!-- Submit Button -->
@@ -364,10 +450,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const nikInput = document.getElementById('nik');
     const emailInput = document.getElementById('email');
     const submitBtn = document.getElementById('submitBtn');
+    const birthdateInput = document.getElementById('birthdate');
+    const categorySelect = document.getElementById('category');
+    const teamRoleSelect = document.getElementById('team_role');
+    
+    // Set max birthdate untuk usia minimal 18 tahun
+    const today = new Date();
+    const minBirthDate = new Date();
+    minBirthDate.setFullYear(today.getFullYear() - 18);
+    birthdateInput.max = minBirthDate.toISOString().split('T')[0];
     
     // Real-time NIK validation
     nikInput.addEventListener('blur', function() {
-        const nik = this.value;
+        const nik = this.value.trim();
         if (nik.length === 16) {
             checkNikAvailability(nik);
         } else if (nik.length > 0) {
@@ -377,24 +472,38 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Real-time Email validation
     emailInput.addEventListener('blur', function() {
-        const email = this.value;
-        if (email.includes('@')) {
+        const email = this.value.trim();
+        if (email.includes('@') && email.includes('.')) {
             checkEmailAvailability(email);
         } else if (email.length > 0) {
             showError(emailInput, 'Format email tidak valid');
         }
     });
     
+    // Auto-select category berdasarkan team_role
+    teamRoleSelect.addEventListener('change', function() {
+        const role = this.value;
+        if (role === 'Coach' || role === 'Assistant Coach') {
+            // Jika pelatih, set category berdasarkan tim atau pilihan user
+            if (categorySelect.value === '') {
+                const teamCategory = document.querySelector('input[name="team_category"]').value;
+                if (teamCategory) {
+                    categorySelect.value = teamCategory;
+                }
+            }
+        }
+    });
+    
     // Image preview
-    document.getElementById('formal_photo').addEventListener('change', function(e) {
+    document.querySelector('input[name="formal_photo"]').addEventListener('change', function(e) {
         previewImage(e.target, 'formal_photo_preview');
     });
     
-    document.getElementById('license_photo').addEventListener('change', function(e) {
+    document.querySelector('input[name="license_photo"]').addEventListener('change', function(e) {
         previewImage(e.target, 'license_photo_preview');
     });
     
-    document.getElementById('identity_card').addEventListener('change', function(e) {
+    document.querySelector('input[name="identity_card"]').addEventListener('change', function(e) {
         previewImage(e.target, 'identity_card_preview');
     });
     
@@ -406,26 +515,63 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!file) return;
 
             const maxSize = 2 * 1024 * 1024; // 2MB
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
             
+            // Check file type
+            if (!allowedTypes.includes(file.type) && file.type !== 'application/pdf') {
+                alert(`Format file tidak didukung! Hanya JPG, JPEG, PNG, atau PDF.`);
+                this.value = '';
+                resetPreview(this.name + '_preview');
+                return;
+            }
+            
+            // Check file size
             if (file.size > maxSize) {
                 alert(`File terlalu besar! Maksimal 2MB`);
                 this.value = '';
-                
-                // Reset preview
-                const previewId = this.name + '_preview';
-                const preview = document.getElementById(previewId);
-                if (preview) {
-                    preview.src = '';
-                    preview.classList.add('d-none');
-                }
+                resetPreview(this.name + '_preview');
             }
         });
     });
     
     // Form validation before submit
     form.addEventListener('submit', function(e) {
-        if (!validateForm()) {
-            e.preventDefault();
+        e.preventDefault();
+        
+        if (validateForm()) {
+            // Show confirmation
+            Swal.fire({
+                title: 'Konfirmasi Pendaftaran',
+                html: `
+                    <div class="text-start">
+                        <p class="mb-2">Anda akan mendaftar sebagai <strong>${document.getElementById('team_role').options[document.getElementById('team_role').selectedIndex].text}</strong></p>
+                        <p class="mb-2">Kategori: <strong>${document.getElementById('category').options[document.getElementById('category').selectedIndex].text}</strong></p>
+                        <p class="mb-0 small text-muted">Pastikan data yang diisi sudah benar.</p>
+                    </div>
+                `,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#f59e0b',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, Daftar Sekarang',
+                cancelButtonText: 'Periksa Kembali'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Show loading state
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Memproses...';
+                    submitBtn.disabled = true;
+                    
+                    // Submit form
+                    form.submit();
+                }
+            });
+        } else {
+            // Scroll to first error
+            const firstError = form.querySelector('.is-invalid');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            
             Swal.fire({
                 icon: 'warning',
                 title: 'Perhatian!',
@@ -433,10 +579,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 confirmButtonText: 'OK',
                 confirmButtonColor: '#ffc107'
             });
-        } else {
-            // Show loading state
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Memproses...';
-            submitBtn.disabled = true;
         }
     });
     
@@ -495,14 +637,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const preview = document.getElementById(previewId);
         const file = input.files[0];
         
-        if (file) {
-            // Check if it's an image
-            if (!file.type.match('image.*')) {
-                alert('Hanya file gambar yang diizinkan!');
-                input.value = '';
-                return;
-            }
-            
+        if (file && file.type.match('image.*')) {
             const reader = new FileReader();
             reader.onload = function(e) {
                 preview.src = e.target.result;
@@ -510,6 +645,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             reader.readAsDataURL(file);
         } else {
+            resetPreview(previewId);
+        }
+    }
+    
+    function resetPreview(previewId) {
+        const preview = document.getElementById(previewId);
+        if (preview) {
             preview.src = '';
             preview.classList.add('d-none');
         }
@@ -527,6 +669,12 @@ document.addEventListener('DOMContentLoaded', function() {
     function validateForm() {
         let isValid = true;
         
+        // Reset validation states
+        const inputs = form.querySelectorAll('.form-control, .form-select, .form-check-input');
+        inputs.forEach(input => {
+            input.classList.remove('is-invalid', 'is-valid');
+        });
+        
         // Check required fields
         const requiredInputs = form.querySelectorAll('[required]');
         requiredInputs.forEach(input => {
@@ -534,22 +682,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (!input.checked) {
                     input.classList.add('is-invalid');
                     isValid = false;
-                } else {
-                    input.classList.remove('is-invalid');
                 }
             } else if (input.type === 'file') {
                 if (!input.files || input.files.length === 0) {
                     input.classList.add('is-invalid');
                     isValid = false;
-                } else {
-                    input.classList.remove('is-invalid');
                 }
             } else {
                 if (!input.value.trim()) {
                     input.classList.add('is-invalid');
                     isValid = false;
-                } else {
-                    input.classList.remove('is-invalid');
                 }
             }
         });
@@ -560,8 +702,80 @@ document.addEventListener('DOMContentLoaded', function() {
             isValid = false;
         }
         
+        // Check email format
+        if (emailInput.value && !isValidEmail(emailInput.value)) {
+            showError(emailInput, 'Format email tidak valid');
+            isValid = false;
+        }
+        
+        // Check age (min 18 years)
+        if (birthdateInput.value) {
+            const birthDate = new Date(birthdateInput.value);
+            const age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            
+            if (age < 18) {
+                showError(birthdateInput, 'Usia minimal 18 tahun untuk official');
+                isValid = false;
+            }
+        }
+        
+        // Check category selection
+        if (!categorySelect.value) {
+            showError(categorySelect, 'Pilih kategori official');
+            isValid = false;
+        }
+        
         return isValid;
     }
+    
+    function isValidEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+    
+    // Auto-fill birthday from NIK (if possible)
+    nikInput.addEventListener('input', function() {
+        const nik = this.value;
+        if (nik.length === 16 && !birthdateInput.value) {
+            // Try to extract birthdate from NIK (positions 6-13 in format DDMMYYYY)
+            const day = nik.substr(6, 2);
+            const month = nik.substr(8, 2);
+            const year = nik.substr(10, 2);
+            
+            // Validate day and month
+            if (parseInt(day) >= 1 && parseInt(day) <= 31 && 
+                parseInt(month) >= 1 && parseInt(month) <= 12) {
+                
+                // Determine century (for NIK, 00-40: 2000-2040, 41-99: 1941-1999)
+                let fullYear;
+                const yearNum = parseInt(year);
+                
+                if (yearNum <= 40) {
+                    fullYear = 2000 + yearNum;
+                } else {
+                    fullYear = 1900 + yearNum;
+                }
+                
+                // Check if date is valid
+                const dateStr = `${fullYear}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+                const dateObj = new Date(dateStr);
+                
+                if (!isNaN(dateObj.getTime())) {
+                    // Check if age is at least 18
+                    const today = new Date();
+                    const age = today.getFullYear() - fullYear;
+                    
+                    if (age >= 18) {
+                        birthdateInput.value = dateStr;
+                    }
+                }
+            }
+        }
+    });
 });
 </script>
 
@@ -795,6 +1009,40 @@ h6.small {
         max-width: 900px;
         margin: 0 auto;
     }
+}
+
+/* Validation states */
+.is-valid {
+    border-color: #198754 !important;
+}
+
+.is-invalid {
+    border-color: #dc3545 !important;
+}
+
+/* Category specific styling */
+.category-option-basket_putra {
+    position: relative;
+}
+
+.category-option-basket_putra::before {
+    content: "🏀";
+    margin-right: 5px;
+}
+
+.category-option-basket_putri::before {
+    content: "🏀";
+    margin-right: 5px;
+}
+
+.category-option-dancer::before {
+    content: "💃";
+    margin-right: 5px;
+}
+
+.category-option-lainnya::before {
+    content: "👥";
+    margin-right: 5px;
 }
 </style>
 @endsection

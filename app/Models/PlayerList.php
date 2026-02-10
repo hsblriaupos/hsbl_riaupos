@@ -25,7 +25,8 @@ class PlayerList extends Model
         'gender',
         'email',
         'phone',
-        'school_id', // ✅ Pastikan ini ada
+        'school_id', 
+        'school_name',
         'grade',
         'sttb_year',
         'height',

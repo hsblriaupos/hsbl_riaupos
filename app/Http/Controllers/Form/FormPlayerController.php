@@ -223,7 +223,7 @@ class FormPlayerController extends Controller
     }
 
     /**
-     * Proses pendaftaran player (DIPERBAIKI UNTUK SCHOOL_ID)
+     * Proses pendaftaran player (DIPERBAIKI DENGAN SCHOOL_ID YANG BENAR)
      */
     public function storePlayer(Request $request)
     {
@@ -342,38 +342,13 @@ class FormPlayerController extends Controller
             Log::info('✅ Player validation passed');
 
             // ============================================
-            // AMBIL DATA SEKOLAH DENGAN BENAR
+            // 🔥 FIX: AMBIL/MBUAT SEKOLAH DENGAN BENAR
             // ============================================
             Log::info('🔍 Looking for school: ' . $team->school_name);
             
-            // Cari sekolah berdasarkan school_id di team_list (jika ada)
-            $school = null;
-            if ($team->school_id) {
-                $school = School::find($team->school_id);
-                if ($school) {
-                    Log::info('✅ Found school by team.school_id: ' . $team->school_id . ' - ' . $school->school_name);
-                } else {
-                    Log::warning('⚠️ Team.school_id (' . $team->school_id . ') not found in schools table');
-                }
-            }
+            // Cari sekolah berdasarkan school_name (PASTIKAN SATU-SATUNYA)
+            $school = School::where('school_name', $team->school_name)->first();
             
-            // Jika tidak ditemukan, cari berdasarkan nama sekolah
-            if (!$school) {
-                $school = School::where('school_name', $team->school_name)->first();
-                if ($school) {
-                    Log::info('✅ Found school by name: ' . $school->id . ' - ' . $school->school_name);
-                    
-                    // Update team_list dengan school_id yang benar
-                    if (!$team->school_id) {
-                        $team->update(['school_id' => $school->id]);
-                        Log::info('✅ Updated team.school_id to: ' . $school->id);
-                    }
-                } else {
-                    Log::info('❌ School not found by name, will create new one');
-                }
-            }
-        
-            // Jika masih tidak ditemukan, buat sekolah baru
             if (!$school) {
                 Log::info('📝 Creating new school: ' . $team->school_name);
                 $school = School::create([
@@ -382,13 +357,20 @@ class FormPlayerController extends Controller
                     'type' => 'SWASTA',
                     'city_id' => 1,
                 ]);
-                
-                // Update team_list dengan school_id yang baru
-                $team->update(['school_id' => $school->id]);
-                Log::info('✅ Created new school with ID: ' . $school->id . ' and updated team.school_id');
             }
             
-            Log::info('🎯 Final school for player: ID=' . $school->id . ', Name=' . $school->school_name);
+            // 🔥 PASTIKAN team_list punya school_id yang benar
+            if ($team->school_id != $school->id) {
+                $team->update(['school_id' => $school->id]);
+                Log::info('✅ Updated team.school_id from ' . $team->school_id . ' to ' . $school->id);
+            }
+            
+            // 🔥 Juga update semua tim dengan nama sekolah yang sama
+            TeamList::where('school_name', $team->school_name)
+                ->where('school_id', '!=', $school->id)
+                ->update(['school_id' => $school->id]);
+            
+            Log::info('🎯 School for player: ID=' . $school->id . ', Name=' . $school->school_name);
 
             // ============================================
             // GENERATE NAMA FILE
@@ -502,7 +484,7 @@ class FormPlayerController extends Controller
             // ============================================
             $playerData = [
                 'team_id' => $teamId,
-                'school_id' => $school->id,  // ✅ PASTIKAN INI SATU-SATUNYA & BENAR
+                'school_id' => $school->id,  // 🔥 PASTIKAN school_id benar
                 'category' => $category,
                 'role' => $teamRole,
                 'nik' => $validated['nik'],

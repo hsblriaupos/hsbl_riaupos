@@ -164,15 +164,35 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::post('/team/{id}/verify', [TeamController::class, 'verify'])->name('team.verify');
     Route::post('/team/{id}/unverify', [TeamController::class, 'unverify'])->name('team.unverify');
 
-    Route::get('/player/{id}', [TeamController::class, 'playerDetail'])->name('player.detail');
     Route::get('/team-verification', [TeamController::class, 'teamVerification'])->name('tv_team_verification');
     Route::get('/team-awards', [TeamController::class, 'teamAwards'])->name('tv_team_awards');
+
+    // Tab System Routes - TAMBAHKAN INI
+    Route::get('/team/{id}/basket-putra', [TeamController::class, 'teamDetailBasketPutra'])
+        ->name('team.detail.basket-putra');
+    Route::get('/team/{id}/basket-putri', [TeamController::class, 'teamDetailBasketPutri'])
+        ->name('team.detail.basket-putri');
+    Route::get('/team/{id}/dancer', [TeamController::class, 'teamDetailDancer'])
+        ->name('team.detail.dancer');
 
     // Camper Management
     Route::get('/camper', [CamperController::class, 'camper'])->name('camper_team');
     Route::get('/camper/detail/{id}', [CamperController::class, 'camperDetail'])->name('camper.detail');
     Route::post('/camper/detail/update/{id}', [CamperController::class, 'updateCamper'])->name('camper.update');
 
+    // Player Detail
+    Route::get('/player/{id}', [TeamController::class, 'playerDetail'])->name('player.detail');
+
+    // Dancer Detail
+    Route::get('/dancer/{id}', [TeamController::class, 'dancerDetail'])->name('dancer.detail');
+    Route::post('/dancer/{id}/verify', [TeamController::class, 'verifyDancer'])->name('dancer.verify');
+    Route::post('/dancer/{id}/unverify', [TeamController::class, 'unverifyDancer'])->name('dancer.unverify');
+    Route::post('/dancer/{id}/reject', [TeamController::class, 'rejectDancer'])->name('dancer.reject');
+
+    // Official Detail  
+    Route::get('/official/{id}', [TeamController::class, 'officialDetail'])->name('official.detail');
+
+    
     // ========== PUBLICATION MANAGEMENT ==========
 
     Route::prefix('pub_schedule')->name('pub_schedule.')->group(function () {

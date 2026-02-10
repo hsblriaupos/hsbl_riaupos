@@ -31,7 +31,10 @@ class FormOfficialController extends Controller
         $canBeLeader = session('current_can_be_leader', false);
         $role = $canBeLeader ? 'Leader' : 'Member';
         
-        return view('user.form.form_official', compact('team_id', 'team', 'role', 'canBeLeader'));
+        // Ambil kategori tim dari nama tim atau team_type
+        $teamCategory = $this->determineTeamCategory($team);
+        
+        return view('user.form.form_official', compact('team_id', 'team', 'role', 'canBeLeader', 'teamCategory'));
     }
 
     /**
@@ -54,6 +57,7 @@ class FormOfficialController extends Controller
                 'height' => 'nullable|numeric|min:100|max:250',
                 'weight' => 'nullable|numeric|min:30|max:200',
                 'team_role' => 'required|in:Coach,Manager,Medical Support,Assistant Coach,Pendamping',
+                'category' => 'required|in:basket_putra,basket_putri,dancer,lainnya', // Validasi baru
                 'tshirt_size' => 'nullable|string|max:10',
                 'shoes_size' => 'nullable|string|max:10',
                 'instagram' => 'nullable|string|max:255',
@@ -69,6 +73,7 @@ class FormOfficialController extends Controller
                 'formal_photo.required' => 'Foto formal wajib diunggah.',
                 'identity_card.required' => 'Foto KTP/SIM wajib diunggah.',
                 'team_role.required' => 'Pilih peran dalam tim.',
+                'category.required' => 'Pilih kategori official.', // Pesan error baru
                 'terms.required' => 'Anda harus menyetujui syarat dan ketentuan.',
                 'terms.accepted' => 'Anda harus menyetujui syarat dan ketentuan.',
             ]);
@@ -137,7 +142,7 @@ class FormOfficialController extends Controller
                 }
             }
             
-            // Create official
+            // Create official dengan category
             $official = OfficialList::create([
                 'team_id' => $request->team_id,
                 'school_id' => $school->id,
@@ -151,6 +156,7 @@ class FormOfficialController extends Controller
                 'height' => $request->height,
                 'weight' => $request->weight,
                 'team_role' => $request->team_role,
+                'category' => $request->category, // Tambah ini
                 'tshirt_size' => $request->tshirt_size,
                 'shoes_size' => $request->shoes_size,
                 'instagram' => $request->instagram,
@@ -278,5 +284,25 @@ class FormOfficialController extends Controller
                 ? 'Tim sudah melakukan pembayaran' 
                 : 'Tim belum melakukan pembayaran'
         ]);
+    }
+
+    /**
+     * Determine team category from team name or type
+     */
+    private function determineTeamCategory($team)
+    {
+        $teamName = strtolower($team->team_name ?? '');
+        
+        // Cek berdasarkan nama tim
+        if (str_contains($teamName, 'putra') || str_contains($teamName, 'boys')) {
+            return 'basket_putra';
+        } elseif (str_contains($teamName, 'putri') || str_contains($teamName, 'girls')) {
+            return 'basket_putri';
+        } elseif (str_contains($teamName, 'dancer') || str_contains($teamName, 'cheer')) {
+            return 'dancer';
+        }
+        
+        // Default
+        return 'basket_putra'; // atau 'lainnya' sesuai kebutuhan
     }
 }
