@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Route;
 use App\Models\Sponsor;
 use Illuminate\Database\QueryException;
 
@@ -18,28 +19,64 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        // Tambahkan helper function formatBytes ke semua views
+        // ========== TAMBAHKAN: REGISTER MIDDLEWARE ==========
+        $this->registerMiddlewareAliases();
+        
+        // ========== TAMBAHKAN: CUSTOM BLADE DIRECTIVES ==========
+        $this->addCustomDirectives();
+        
+        // ========== TAMBAHKAN: HELPER FUNCTIONS ==========
         $this->addHelperFunctions();
         
-        try {
-            // ⛑️ AMAN: hanya jalan jika DB & tabel siap
-            if (Schema::hasTable('sponsors')) {
+        // ========== TAMBAHKAN: SHARED VIEW DATA ==========
+        $this->shareViewData();
+        
+        // ========== TAMBAHKAN: VALIDATION RULES ==========
+        $this->addValidationRules();
+    }
 
-                $groupedSponsors = Sponsor::orderBy('category')
-                    ->orderBy('created_at')
-                    ->get()
-                    ->groupBy('category');
+    /**
+     * Register middleware aliases untuk memastikan middleware 'admin' terdaftar
+     */
+    protected function registerMiddlewareAliases(): void
+    {
+        $router = $this->app['router'];
+        
+        // Daftarkan middleware jika belum terdaftar
+        if (!array_key_exists('admin', $router->getMiddleware())) {
+            $router->aliasMiddleware('admin', \App\Http\Middleware\AdminMiddleware::class);
+        }
+        
+        if (!array_key_exists('student', $router->getMiddleware())) {
+            $router->aliasMiddleware('student', \App\Http\Middleware\StudentMiddleware::class);
+        }
+        
+        if (!array_key_exists('role', $router->getMiddleware())) {
+            $router->aliasMiddleware('role', \App\Http\Middleware\RoleMiddleware::class);
+        }
+        
+        // Tambahkan juga untuk handle jika ada middleware yang belum dibuat
+        $this->ensureMiddlewareExists();
+    }
 
-                View::composer('*', function ($view) use ($groupedSponsors) {
-                    $view->with('groupedSponsors', $groupedSponsors);
-                });
+    /**
+     * Pastikan file middleware benar-benar ada
+     */
+    protected function ensureMiddlewareExists(): void
+    {
+        $middlewareFiles = [
+            'AdminMiddleware.php' => \App\Http\Middleware\AdminMiddleware::class,
+            'StudentMiddleware.php' => \App\Http\Middleware\StudentMiddleware::class,
+            'RoleMiddleware.php' => \App\Http\Middleware\RoleMiddleware::class,
+        ];
+        
+        foreach ($middlewareFiles as $file => $class) {
+            $filePath = app_path('Http/Middleware/' . $file);
+            
+            if (!file_exists($filePath)) {
+                // Log warning jika middleware file tidak ditemukan
+                \Log::warning("Middleware file {$file} not found at {$filePath}");
             }
-        } catch (\Throwable $e) {
-            // ⛔ DIAMKAN error:
-            // - composer install
-            // - migrate
-            // - fresh clone
-            // - env belum siap
         }
     }
 
@@ -60,12 +97,127 @@ class AppServiceProvider extends ServiceProvider
             $view->with('formatBytesHelper', function ($bytes, $precision = 2) {
                 return self::formatBytesHelper($bytes, $precision);
             });
+            
+            // Tambahkan helper untuk cek role user
+            $view->with('isAdmin', function () {
+                return auth()->check() && auth()->user()->role === 'admin';
+            });
+            
+            $view->with('isStudent', function () {
+                return auth()->check() && auth()->user()->role === 'student';
+            });
         });
 
         // Method 3: Tambahkan ke Blade sebagai fungsi
         Blade::directive('formatbytes', function ($expression) {
             return "<?php echo \App\Providers\AppServiceProvider::formatBytesHelper($expression); ?>";
         });
+    }
+
+    /**
+     * Share sponsor data ke semua views
+     */
+    protected function shareViewData(): void
+    {
+        try {
+            // ⛑️ AMAN: hanya jalan jika DB & tabel siap
+            if (Schema::hasTable('sponsors')) {
+                $groupedSponsors = Sponsor::orderBy('category')
+                    ->orderBy('created_at')
+                    ->get()
+                    ->groupBy('category');
+
+                View::composer('*', function ($view) use ($groupedSponsors) {
+                    $view->with('groupedSponsors', $groupedSponsors);
+                });
+            }
+        } catch (\Throwable $e) {
+            // ⛔ DIAMKAN error:
+            // - composer install
+            // - migrate
+            // - fresh clone
+            // - env belum siap
+        }
+    }
+
+    /**
+     * Tambahkan custom blade directives
+     */
+    protected function addCustomDirectives(): void
+    {
+        // Directive untuk cek role user
+        Blade::if('admin', function () {
+            return auth()->check() && auth()->user()->role === 'admin';
+        });
+        
+        Blade::if('student', function () {
+            return auth()->check() && auth()->user()->role === 'student';
+        });
+        
+        Blade::if('guest', function () {
+            return !auth()->check();
+        });
+        
+        // Directive untuk cek permission
+        Blade::if('can', function ($permission) {
+            return auth()->check() && auth()->user()->can($permission);
+        });
+        
+        // Directive untuk cek role
+        Blade::if('role', function ($role) {
+            return auth()->check() && auth()->user()->role === $role;
+        });
+        
+        // Directive untuk cek multiple roles
+        Blade::directive('hasrole', function ($expression) {
+            return "<?php if(auth()->check() && in_array(auth()->user()->role, explode('|', {$expression}))): ?>";
+        });
+        
+        Blade::directive('endhasrole', function () {
+            return "<?php endif; ?>";
+        });
+        
+        // Directive untuk cek status
+        Blade::if('published', function ($status) {
+            return $status === 'published';
+        });
+
+        Blade::if('draft', function ($status) {
+            return $status === 'draft';
+        });
+
+        Blade::if('archived', function ($status) {
+            return $status === 'archived';
+        });
+        
+        // Directive untuk formating tanggal
+        Blade::directive('datetime', function ($expression) {
+            return "<?php echo ($expression) ? \Carbon\Carbon::parse($expression)->translatedFormat('d F Y H:i') : '-'; ?>";
+        });
+        
+        Blade::directive('dateonly', function ($expression) {
+            return "<?php echo ($expression) ? \Carbon\Carbon::parse($expression)->translatedFormat('d F Y') : '-'; ?>";
+        });
+        
+        // Directive untuk cek active route
+        Blade::directive('active', function ($expression) {
+            return "<?php echo request()->routeIs($expression) ? 'active' : ''; ?>";
+        });
+    }
+
+    /**
+     * Tambahkan custom validation rules
+     */
+    protected function addValidationRules(): void
+    {
+        // Contoh custom validation rules
+        // Validator::extend('phone', function ($attribute, $value, $parameters, $validator) {
+        //     return preg_match('/^[0-9]{10,15}$/', $value);
+        // });
+        
+        // Validator::extend('nik', function ($attribute, $value, $parameters, $validator) {
+        //     return preg_match('/^[0-9]{16}$/', $value);
+        // });
     }
 
     /**
@@ -96,25 +248,24 @@ class AppServiceProvider extends ServiceProvider
         $formatted = $bytes / pow($base, $pow);
         return round($formatted, $precision) . ' ' . $units[$pow];
     }
-
+    
     /**
-     * Register custom Blade if directive untuk memeriksa status
+     * Helper function untuk memformat angka (ribuan separator)
      */
-    protected function addCustomDirectives(): void
+    public static function formatNumber($number, $decimals = 0): string
     {
-        // Directive untuk cek jika status adalah 'published'
-        Blade::if('published', function ($status) {
-            return $status === 'published';
-        });
-
-        // Directive untuk cek jika status adalah 'draft'
-        Blade::if('draft', function ($status) {
-            return $status === 'draft';
-        });
-
-        // Directive untuk cek jika status adalah 'archived'
-        Blade::if('archived', function ($status) {
-            return $status === 'archived';
-        });
+        return number_format($number, $decimals, ',', '.');
+    }
+    
+    /**
+     * Helper function untuk trim teks panjang
+     */
+    public static function trimText($text, $length = 100, $suffix = '...'): string
+    {
+        if (strlen($text) <= $length) {
+            return $text;
+        }
+        
+        return substr($text, 0, $length) . $suffix;
     }
 }

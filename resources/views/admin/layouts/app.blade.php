@@ -655,6 +655,17 @@
                 </li>
             </ul>
 
+            <!-- PENAMBAHAN: Menu Reset User Password -->
+            <h2>User Management</h2>
+            <ul class="admin-menu-list">
+                <li>
+                    <a href="{{ route('admin.resetpassword.index') }}" 
+                       class="{{ request()->routeIs('admin.resetpassword.*') ? 'active' : '' }}">
+                        <i class="fas fa-key me-2"></i> Reset User Password
+                    </a>
+                </li>
+            </ul>
+
             <h2>Term and Conditions</h2>
             <ul class="admin-menu-list">
                 <li>
@@ -717,7 +728,8 @@
             'admin.tv_team_verification',
             'admin.tv_team_list',
             'admin.pub_schedule.index',
-            'admin.gallery.photos.index' // Ditambahkan gallery ke auto-refresh
+            'admin.gallery.photos.index',
+            'admin.resetpassword.index' // Ditambahkan reset password ke auto-refresh
         ];
         
         // Cek route saat ini

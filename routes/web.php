@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AdminLoginController;
 use App\Http\Controllers\Admin\DataActionController;
 use App\Http\Controllers\Admin\NewsController as AdminNewsController;
 use App\Http\Controllers\Admin\TermConditionController;
+use App\Http\Controllers\Admin\ResetPasswordController;
 use App\Http\Controllers\Camper\CamperController;
 use App\Http\Controllers\Form\FormTeamController;
 use App\Http\Controllers\Form\FormPlayerController;
@@ -28,13 +29,17 @@ use App\Http\Controllers\User\StatisticsController as UserStatisticsController;
 use App\Http\Controllers\Student\StudentAuthController;
 use App\Http\Controllers\Student\StudentDashboardController;
 use App\Http\Controllers\Student\StudentProfileController;
+use App\Http\Controllers\Student\StudentSchoolController;
+use App\Http\Controllers\Student\StudentTeamController;
+// PERBAIKAN: Tambahkan controller untuk SchoolDataProfile
+use App\Http\Controllers\Student\SchoolDataProfileController;
 use App\Models\TermCondition;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
 /*
 |--------------------------------------------------------------------------
-| 🏠 LANDING PAGE (Welcome) - Akan tampil user/dashboard
+| 🏠 LANDING PAGE (Welcome) - Akan tampil user/dashboard sebagai halaman utama
 |--------------------------------------------------------------------------
 */
 
@@ -87,13 +92,24 @@ Route::prefix('student')->name('student.')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| 🛡️ ADMIN AREA (Prefix: /admin) - PROTECTED dengan middleware 'auth' saja
+| 🛡️ ADMIN AREA (Prefix: /admin) - PROTECTED dengan middleware 'auth' dan 'admin'
 |--------------------------------------------------------------------------
 */
-Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
     // Dashboard
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+
+    // ========== USER MANAGEMENT ROUTES ==========
+    Route::prefix('resetpassword')->name('resetpassword.')->group(function () {
+        Route::get('/', [ResetPasswordController::class, 'index'])->name('index');
+        Route::get('/get-user-info/{userId}', [ResetPasswordController::class, 'getUserInfo'])->name('get-user-info');
+        Route::post('/update', [ResetPasswordController::class, 'updatePassword'])->name('update');
+        Route::post('/bulk-update', [ResetPasswordController::class, 'bulkUpdate'])->name('bulk-update');
+        Route::get('/user-detail/{userId}', [ResetPasswordController::class, 'userDetail'])->name('user-detail');
+        Route::get('/logs', [ResetPasswordController::class, 'logs'])->name('logs');
+        Route::get('/export-logs', [ResetPasswordController::class, 'exportLogs'])->name('export-logs');
+    });
 
     // ========== DATA MASTER ROUTES ==========
 
@@ -314,38 +330,84 @@ Route::prefix('student')->name('student.')->middleware(['auth'])->group(function
         return view('student.notifications');
     })->name('notifications');
 
-    // Edit Profil
-    Route::get('/profile/edit', function () {
-        return view('student.profile_edit');
-    })->name('profile.edit');
-
-    // Tim Saya
-    Route::get('/my-team', function () {
-        return view('student.my_team');
-    })->name('team');
-
-    // ========== SCHOOL DATA MANAGEMENT ==========
-    // Edit Data Sekolah (Route yang ditambahkan)
-    Route::get('/school/edit', function () {
-        return view('student.school_edit');
-    })->name('school.edit');
-
     // ========== PROFILE MANAGEMENT ==========
     // Profile Management
-    Route::get('/profile', [StudentProfileController::class, 'index'])->name('profile');
-    Route::put('/profile', [StudentProfileController::class, 'update'])->name('profile.update');
-    Route::put('/profile/password', [StudentProfileController::class, 'updatePassword'])->name('profile.password');
+    Route::prefix('profile')->name('profile.')->group(function () {
+        // Halaman profil utama
+        Route::get('/', [StudentProfileController::class, 'index'])->name('index');
+        Route::get('/edit', [StudentProfileController::class, 'edit'])->name('edit');
+        
+        // Update profil
+        Route::put('/update', [StudentProfileController::class, 'update'])->name('update');
+        Route::put('/password', [StudentProfileController::class, 'updatePassword'])->name('password.update');
+        
+        // AJAX endpoints untuk profil
+        Route::get('/password-info', [StudentProfileController::class, 'getCurrentPasswordInfo'])->name('password.info');
+        Route::post('/verify-password', [StudentProfileController::class, 'verifyPassword'])->name('password.verify');
+        Route::post('/check-email', [StudentProfileController::class, 'checkEmailAvailability'])->name('email.check');
+        Route::post('/validate-password', [StudentProfileController::class, 'validatePasswordStrength'])->name('password.validate');
+        
+        // Avatar management
+        Route::post('/avatar/upload', [StudentProfileController::class, 'uploadAvatar'])->name('avatar.upload');
+        Route::delete('/avatar/remove', [StudentProfileController::class, 'removeAvatar'])->name('avatar.remove');
+        
+        // Email verification
+        Route::post('/send-verification', [StudentProfileController::class, 'sendVerificationEmail'])->name('verification.send');
+        
+        // PERBAIKAN: Tambahkan route untuk generate password token
+        Route::post('/generate-password-token', [StudentProfileController::class, 'generatePasswordToken'])
+            ->name('generate.password.token');
+            
+        // PERBAIKAN: Tambahkan route untuk verify auto token
+        Route::post('/verify-auto-token', [StudentProfileController::class, 'verifyAutoToken'])
+            ->name('verify.auto.token');
+        
+        // Check temp password
+        Route::get('/check-temp-password', [StudentProfileController::class, 'checkTempPassword'])
+            ->name('check.temp.password');
+        
+        // Get profile data
+        Route::get('/get-profile-data', [StudentProfileController::class, 'getProfileData'])
+            ->name('get.profile.data');
+        
+        // Logs and data export
+        Route::get('/password-logs', [StudentProfileController::class, 'showPasswordLogs'])->name('password.logs');
+        Route::get('/export-data', [StudentProfileController::class, 'exportData'])->name('data.export');
+        
+        // Preferences
+        Route::put('/preferences', [StudentProfileController::class, 'updatePreferences'])->name('preferences.update');
+    });
+
+    // ========== SCHOOL DATA MANAGEMENT ==========
+    // Edit Data Sekolah
+    Route::prefix('school')->name('school.')->group(function () {
+        Route::get('/edit', [StudentSchoolController::class, 'edit'])->name('edit');
+        Route::post('/update', [StudentSchoolController::class, 'update'])->name('update');
+    });
+
+    // ========== TEAM MANAGEMENT ==========
+    // Team List
+    Route::get('/team/list', [StudentTeamController::class, 'index'])->name('team.list');
 
     // Team Management (jika siswa punya tim)
     Route::get('/team/players', [StudentDashboardController::class, 'teamPlayers'])->name('team.players');
 
+    // My Team
+    Route::get('/my-team', function () {
+        return view('student.my_team');
+    })->name('team');
+
+    // ========== SCHEDULE & RESULTS ==========
     // Schedule & Results
     Route::get('/schedules', [StudentDashboardController::class, 'schedules'])->name('schedules');
     Route::get('/results', [StudentDashboardController::class, 'results'])->name('results');
 
+    // ========== DOCUMENTS ==========
     // Documents
-    Route::get('/documents', [StudentDashboardController::class, 'documents'])->name('documents');
-    Route::get('/documents/download/{id}', [StudentDashboardController::class, 'downloadDocument'])->name('documents.download');
+    Route::prefix('documents')->name('documents.')->group(function () {
+        Route::get('/', [StudentDashboardController::class, 'documents'])->name('index');
+        Route::get('/download/{id}', [StudentDashboardController::class, 'downloadDocument'])->name('download');
+    });
 });
 
 /*
@@ -620,17 +682,6 @@ Route::prefix('form')->name('form.')->group(function () {
     }
 });
 
-// ================= DASHBOARD REDIRECT =================
-// Redirect dari halaman utama ke form choice
-Route::get('/', function () {
-    return redirect()->route('form.team.choice');
-})->name('home');
-
-// ================= FALLBACK ROUTE =================
-Route::fallback(function () {
-    return redirect()->route('form.team.choice')->with('error', 'Halaman tidak ditemukan.');
-});
-
 /*
 |--------------------------------------------------------------------------
 | 🌐 PUBLIC ROUTES (tanpa prefix)
@@ -710,6 +761,69 @@ Route::get('/test-video', function() {
 // ========== TEST ROUTE UNTUK PHOTOS ==========
 Route::get('/test-photos', function() {
     return view('user.media.gallery.photos_list');
+});
+
+/*
+|--------------------------------------------------------------------------
+| 🔄 DIRECT ROUTES UNTUK DROPDOWN MENU (tanpa prefix student) - PERBAIKAN
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth'])->group(function () {
+    // Edit Profile - arahkan ke blade yang sesuai
+    Route::get('/profile/edit', function () {
+        return view('user.event.profile.profile-edit');
+    })->name('profile.edit');
+
+    // 🔥 PERBAIKAN: Tambahkan route PUT untuk update profile
+    Route::put('/profile/update', function () {
+        // Sementara redirect ke student.profile.update sampai controller dibuat
+        return redirect()->route('student.profile.update');
+    })->name('profile.update');
+
+    // ========== PERBAIKAN: SCHOOL DATA ROUTES ==========
+    // My Schools (School Data List) - PERBAIKAN: menggunakan SchoolDataProfileController
+    Route::get('/schooldata', [SchoolDataProfileController::class, 'index'])->name('schooldata.list');
+    
+    // Edit School Data - arahkan ke blade yang sesuai
+    Route::get('/schooldata/edit', function () {
+        return view('user.event.profile.schooldata-edit');
+    })->name('schooldata.edit');
+    
+    // Edit School Data dengan parameter school_id
+    Route::get('/schooldata/edit/{school_id}', function ($school_id) {
+        return view('user.event.profile.schooldata-edit', ['school_id' => $school_id]);
+    })->name('schooldata.edit.id');
+    
+    // Update School Data - route untuk POST update
+    Route::post('/schooldata/update', [SchoolDataProfileController::class, 'update'])->name('schooldata.update');
+    
+    // Leave School - route untuk DELETE
+    Route::delete('/schooldata/{school_id}/leave', [SchoolDataProfileController::class, 'leave'])->name('schooldata.leave');
+    
+    // View Team Profile
+    Route::get('/team/profile/{team_id}', function ($team_id) {
+        return view('user.event.profile.team-profile', ['team_id' => $team_id]);
+    })->name('team.profile');
+    
+    // Player Profile
+    Route::get('/player/profile/{id}', function ($id) {
+        return view('user.event.profile.player-profile', ['id' => $id]);
+    })->name('player.profile');
+    
+    // Dancer Profile
+    Route::get('/dancer/profile/{dancer_id}', function ($dancer_id) {
+        return view('user.event.profile.dancer-profile', ['dancer_id' => $dancer_id]);
+    })->name('dancer.profile');
+    
+    // Official Profile
+    Route::get('/official/profile/{official_id}', function ($official_id) {
+        return view('user.event.profile.official-profile', ['official_id' => $official_id]);
+    })->name('official.profile');
+
+    // Team List - arahkan ke blade yang sesuai
+    Route::get('/team/list', function () {
+        return view('user.event.profile.teamlist');
+    })->name('team.list');
 });
 
 // ========== FALLBACK ROUTE UNTUK HANDLE SLUG YANG TIDAK DITEMUKAN ==========

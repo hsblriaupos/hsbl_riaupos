@@ -6,6 +6,9 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>@yield('title', 'HSBL Registration - Student Portal')</title>
     
+    <!-- Favicon -->
+    <link rel="icon" href="{{ asset('uploads/logo/hsbl.png') }}" type="image/png" />
+    
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
@@ -130,13 +133,27 @@
             object-fit: cover;
             border: 2px solid rgba(255, 255, 255, 0.4);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background: white;
+        }
+        
+        /* Style khusus untuk avatar SVG */
+        .user-avatar-svg {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .avatar-icon {
             width: 42px;
             height: 42px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
+            background: var(--primary-gradient);
             border: 2px solid rgba(255, 255, 255, 0.4);
             display: flex;
             align-items: center;
@@ -170,47 +187,6 @@
             text-align: center;
             display: inline-block;
             width: fit-content;
-        }
-        
-        .notification-badge {
-            position: absolute;
-            top: -6px;
-            right: -6px;
-            background: var(--danger-color);
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 0.7rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid var(--primary-color);
-            font-weight: bold;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-        
-        .notification-btn {
-            position: relative;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            font-size: 1.1rem;
-            width: 44px;
-            height: 44px;
-            padding: 0;
-            border-radius: 10px;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .notification-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            color: white;
         }
         
         .logout-btn {
@@ -265,6 +241,7 @@
             gap: 12px;
             border-left: 3px solid transparent;
             font-size: 0.95rem;
+            text-decoration: none !important;
         }
         
         .dropdown-item-custom:hover {
@@ -304,20 +281,20 @@
             object-fit: cover;
             border: 3px solid white;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background: white;
         }
         
-        .dropdown-avatar-icon {
+        /* Style khusus untuk avatar SVG di dropdown */
+        .dropdown-avatar-svg {
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            background: var(--primary-gradient);
             border: 3px solid white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 1.5rem;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         
         .dropdown-user-info {
@@ -337,6 +314,64 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+        }
+        
+        /* Avatar Placeholder Styles */
+        .avatar-placeholder {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 1rem;
+            background: var(--primary-gradient);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .dropdown-avatar-placeholder {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 1.2rem;
+            background: var(--primary-gradient);
+            border: 3px solid white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Footer Styles */
+        .footer-custom {
+            background: var(--primary-gradient);
+            color: white;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Logo Container */
+        .logo-container {
+            background: white;
+            padding: 8px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+        
+        .logo-container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+        
+        .logo-img {
+            height: 40px;
+            width: auto;
+            border-radius: 6px;
         }
         
         /* Responsive */
@@ -362,15 +397,17 @@
                 display: none;
             }
             
-            .notification-btn {
-                width: 40px;
-                height: 40px;
-                font-size: 1rem;
-            }
-            
-            .user-avatar, .avatar-icon {
+            .user-avatar, .user-avatar-svg, .avatar-icon, .avatar-placeholder {
                 width: 36px;
                 height: 36px;
+            }
+            
+            .logo-img {
+                height: 32px;
+            }
+            
+            .logo-container {
+                padding: 6px;
             }
         }
         
@@ -383,7 +420,7 @@
                 padding: 4px 8px;
             }
             
-            .user-avatar, .avatar-icon {
+            .user-avatar, .user-avatar-svg, .avatar-icon, .avatar-placeholder {
                 width: 32px;
                 height: 32px;
             }
@@ -441,9 +478,16 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark" style="background: var(--primary-gradient);">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="{{ route('form.team.choice') }}">
-                <i class="fas fa-basketball-ball me-2"></i>HSBL Student Portal
+            <!-- Logo -->
+            <a href="{{ route('form.team.choice') }}" class="d-flex align-items-center text-decoration-none">
+                <div class="logo-container">
+                    <img src="{{ asset('uploads/logo/hsbl.png') }}" 
+                         alt="HSBL Riau Pos Logo" 
+                         class="logo-img" />
+                </div>
+                <span class="navbar-brand fw-bold ms-3">HSBL Student Portal</span>
             </a>
+            
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -468,39 +512,69 @@
                 
                 <!-- User Menu (Right Side) -->
                 <div class="user-menu">
-                    <!-- Notification Button -->
-                    <a href="{{ route('student.notifications') }}" class="notification-btn position-relative" title="Notifications">
-                        <i class="fas fa-bell"></i>
-                    </a>
-                    
                     <!-- User Profile Dropdown -->
                     <div class="dropdown">
                         <div class="user-profile" data-bs-toggle="dropdown" aria-expanded="false">
                             @if(auth()->check())
                                 @php
                                     $user = auth()->user();
+                                    $avatar = $user->avatar;
+                                    
+                                    // Buat inisial untuk placeholder
+                                    $initials = '';
+                                    $nameParts = explode(' ', $user->name);
+                                    foreach($nameParts as $part) {
+                                        if(!empty($part)) {
+                                            $initials .= strtoupper(substr($part, 0, 1));
+                                        }
+                                        if(strlen($initials) >= 2) break;
+                                    }
+                                    if(empty($initials)) {
+                                        $initials = strtoupper(substr($user->email, 0, 1));
+                                    }
+                                    
+                                    // Cek jika avatar adalah URL DiceBear
+                                    $isDiceBear = $avatar && strpos($avatar, 'dicebear.com') !== false;
+                                    $isValidAvatar = $avatar && (strpos($avatar, 'http') === 0 || strpos($avatar, '//') === 0);
                                 @endphp
                                 
-                                @if($user->avatar)
-                                    <!-- If user has avatar, show image -->
-                                    <img src="{{ asset('storage/' . $user->avatar) }}" 
-                                         class="user-avatar" 
-                                         alt="{{ $user->name }}"
-                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                    <!-- Fallback icon if image error -->
-                                    <div class="avatar-icon" style="display: none;">
-                                        <i class="fas fa-user"></i>
-                                    </div>
+                                @if($isValidAvatar)
+                                    @if($isDiceBear)
+                                        <!-- Avatar dari DiceBear API (SVG) -->
+                                        <div class="user-avatar-svg" id="navbar-avatar-container">
+                                            <img src="{{ $avatar }}" 
+                                                 class="user-avatar" 
+                                                 alt="{{ $user->name }}"
+                                                 id="navbar-avatar-img"
+                                                 data-initials="{{ $initials }}"
+                                                 style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                                            <!-- Fallback placeholder -->
+                                            <div class="avatar-placeholder d-none" id="navbar-avatar-placeholder">
+                                                {{ $initials }}
+                                            </div>
+                                        </div>
+                                    @else
+                                        <!-- Avatar biasa (JPG/PNG) -->
+                                        <img src="{{ $avatar }}" 
+                                             class="user-avatar" 
+                                             alt="{{ $user->name }}"
+                                             id="navbar-avatar-img"
+                                             data-initials="{{ $initials }}">
+                                        <!-- Fallback placeholder -->
+                                        <div class="avatar-placeholder d-none" id="navbar-avatar-placeholder">
+                                            {{ $initials }}
+                                        </div>
+                                    @endif
                                 @else
-                                    <!-- If no avatar, show user icon -->
-                                    <div class="avatar-icon">
-                                        <i class="fas fa-user"></i>
+                                    <!-- Tampilkan placeholder jika tidak ada avatar atau tidak valid -->
+                                    <div class="avatar-placeholder" id="navbar-avatar-placeholder">
+                                        {{ $initials }}
                                     </div>
                                 @endif
                             @else
-                                <!-- For guest user -->
+                                <!-- Untuk guest user -->
                                 <div class="avatar-icon">
-                                    <i class="fas fa-user"></i>
+                                    <i class="fas fa-basketball-ball"></i>
                                 </div>
                             @endif
                             
@@ -515,25 +589,61 @@
                             @if(auth()->check())
                                 @php
                                     $user = auth()->user();
+                                    $avatar = $user->avatar;
+                                    
+                                    // Buat inisial untuk placeholder
+                                    $initials = '';
+                                    $nameParts = explode(' ', $user->name);
+                                    foreach($nameParts as $part) {
+                                        if(!empty($part)) {
+                                            $initials .= strtoupper(substr($part, 0, 1));
+                                        }
+                                        if(strlen($initials) >= 2) break;
+                                    }
+                                    if(empty($initials)) {
+                                        $initials = strtoupper(substr($user->email, 0, 1));
+                                    }
+                                    
+                                    // Cek jika avatar adalah URL DiceBear
+                                    $isDiceBear = $avatar && strpos($avatar, 'dicebear.com') !== false;
+                                    $isValidAvatar = $avatar && (strpos($avatar, 'http') === 0 || strpos($avatar, '//') === 0);
                                 @endphp
                                 <li>
                                     <div class="dropdown-profile-preview">
-                                        @if($user->avatar)
-                                            <!-- If has avatar -->
-                                            <img src="{{ asset('storage/' . $user->avatar) }}" 
-                                                 class="dropdown-avatar" 
-                                                 alt="{{ $user->name }}"
-                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                            <!-- Fallback icon -->
-                                            <div class="dropdown-avatar-icon" style="display: none;">
-                                                <i class="fas fa-user"></i>
-                                            </div>
+                                        @if($isValidAvatar)
+                                            @if($isDiceBear)
+                                                <!-- Avatar dari DiceBear API (SVG) untuk dropdown -->
+                                                <div class="dropdown-avatar-svg" id="dropdown-avatar-container">
+                                                    <img src="{{ $avatar }}" 
+                                                         class="dropdown-avatar" 
+                                                         alt="{{ $user->name }}"
+                                                         id="dropdown-avatar-img"
+                                                         data-initials="{{ $initials }}"
+                                                         style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                                                    <!-- Fallback placeholder -->
+                                                    <div class="dropdown-avatar-placeholder d-none" id="dropdown-avatar-placeholder">
+                                                        {{ $initials }}
+                                                    </div>
+                                                </div>
+                                            @else
+                                                <!-- Avatar biasa (JPG/PNG) untuk dropdown -->
+                                                <img src="{{ $avatar }}" 
+                                                     class="dropdown-avatar" 
+                                                     alt="{{ $user->name }}"
+                                                     id="dropdown-avatar-img"
+                                                     data-initials="{{ $initials }}">
+                                                <!-- Fallback placeholder -->
+                                                <div class="dropdown-avatar-placeholder d-none" id="dropdown-avatar-placeholder">
+                                                    {{ $initials }}
+                                                </div>
+                                            @endif
                                         @else
-                                            <!-- If no avatar -->
-                                            <div class="dropdown-avatar-icon">
-                                                <i class="fas fa-user"></i>
+                                            <!-- Tampilkan placeholder jika tidak ada avatar atau tidak valid -->
+                                            <div class="dropdown-avatar-placeholder" id="dropdown-avatar-placeholder">
+                                                {{ $initials }}
                                             </div>
                                         @endif
+                                        
                                         <div class="dropdown-user-info">
                                             <div class="dropdown-user-name">{{ $user->name }}</div>
                                             <div class="dropdown-user-email">{{ $user->email }}</div>
@@ -548,26 +658,26 @@
                                 <li><hr class="dropdown-divider dropdown-divider-custom mx-3"></li>
                             @endif
                             
-                            <!-- Dropdown Items -->
-                            <li>
-                                <a class="dropdown-item-custom" href="{{ route('student.profile.edit') }}">
-                                    <i class="fas fa-user-edit text-primary"></i>
-                                    <span>Edit Profile</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item-custom" href="{{ route('student.school.edit') }}">
-                                    <i class="fas fa-school text-success"></i>
-                                    <span>Edit School Data</span>
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider dropdown-divider-custom mx-3"></li>
-                            <li>
-                                <a class="dropdown-item-custom" href="{{ route('student.team') }}">
-                                    <i class="fas fa-users text-info"></i>
-                                    <span>My Team</span>
-                                </a>
-                            </li>
+<!-- Dropdown Items -->
+<li>
+    <a class="dropdown-item-custom" href="{{ route('profile.edit') }}">
+        <i class="fas fa-user-edit text-primary"></i>
+        <span>Edit Profile</span>
+    </a>
+</li>
+<li>
+    <a class="dropdown-item-custom" href="{{ route('schooldata.list') }}">
+        <i class="fas fa-school text-success"></i>
+        <span>My Schools</span>
+    </a>
+</li>
+<li><hr class="dropdown-divider dropdown-divider-custom mx-3"></li>
+<li>
+    <a class="dropdown-item-custom" href="{{ route('team.list') }}">
+        <i class="fas fa-users text-info"></i>
+        <span>Team List</span>
+    </a>
+</li>
                         </ul>
                     </div>
                     
@@ -590,12 +700,18 @@
     </div>
     
     <!-- Footer -->
-    <footer class="mt-5 py-4 text-center" style="background: var(--light-bg); border-top: 1px solid #e0e0e0;">
+    <footer class="mt-5 py-4 footer-custom">
         <div class="container">
-            <p class="mb-1">
-                <i class="fas fa-heart text-danger"></i> Riau Pos - Honda HSBL {{ date('Y') }} 
-                | Honda Student Basketball League
-            </p>
+            <div class="text-center">
+                <div class="text-xs" style="color: rgba(255, 255, 255, 0.8);">
+                    <p class="mb-1">&copy; {{ date('Y') }} Riau Pos - Honda HSBL. All Rights Reserved.</p>
+                    <p class="d-flex align-items-center justify-content-center gap-1 mt-2 flex-wrap">
+                        <span>Developed with</span>
+                        <i class="fas fa-heart" style="color: #ff6b6b;"></i>
+                        <span>by : Mutia Rizkianti | Wafiq Wardatul Khairani</span>
+                    </p>
+                </div>
+            </div>
         </div>
     </footer>
     
@@ -606,8 +722,8 @@
     @stack('scripts')
     
     <script>
-        // Auto-hide alerts after 5 seconds
         document.addEventListener('DOMContentLoaded', function() {
+            // Auto-hide alerts after 5 seconds
             const alerts = document.querySelectorAll('.alert');
             alerts.forEach(alert => {
                 setTimeout(() => {
@@ -627,19 +743,128 @@
                 }
             });
             
-            // Handle avatar loading errors
-            document.querySelectorAll('img.user-avatar, img.dropdown-avatar').forEach(img => {
-                img.addEventListener('error', function() {
-                    console.log('Avatar image failed to load:', this.src);
-                    this.style.display = 'none';
+            // Debug: Tampilkan info avatar
+            @if(auth()->check())
+                console.log('=== AVATAR DEBUG INFO ===');
+                console.log('User:', '{{ auth()->user()->name }}');
+                console.log('Avatar URL from DB:', '{{ auth()->user()->avatar }}');
+                console.log('Avatar type:', '{{ strpos(auth()->user()->avatar ?? "", "dicebear.com") !== false ? "DiceBear SVG" : "Regular Image" }}');
+                console.log('URL starts with https:', '{{ strpos(auth()->user()->avatar ?? "", "https") === 0 }}');
+            @endif
+            
+            // Fungsi untuk menangani error loading avatar
+            function handleAvatarError(imgElement) {
+                console.log('Avatar loading error for:', imgElement.src);
+                
+                const placeholderId = imgElement.id.replace('-img', '-placeholder');
+                const placeholder = document.getElementById(placeholderId);
+                
+                if (placeholder) {
+                    imgElement.style.display = 'none';
+                    placeholder.classList.remove('d-none');
+                }
+            }
+            
+            // Setup error handlers untuk semua avatar image
+            document.querySelectorAll('img[id$="-avatar-img"]').forEach(img => {
+                img.onerror = function() {
+                    handleAvatarError(this);
+                };
+                
+                // Coba load ulang gambar dengan timestamp untuk menghindari cache
+                if (img.src.includes('dicebear.com')) {
+                    const originalSrc = img.src;
+                    const timestamp = new Date().getTime();
+                    const newSrc = originalSrc + (originalSrc.includes('?') ? '&' : '?') + '_=' + timestamp;
                     
-                    // Find and show the fallback icon
-                    const fallback = this.nextElementSibling;
-                    if (fallback && (fallback.classList.contains('avatar-icon') || fallback.classList.contains('dropdown-avatar-icon'))) {
-                        fallback.style.display = 'flex';
+                    // Coba load dengan timestamp baru
+                    const testImg = new Image();
+                    testImg.onload = function() {
+                        console.log('DiceBear avatar loaded successfully');
+                    };
+                    testImg.onerror = function() {
+                        console.log('DiceBear avatar failed to load, showing placeholder');
+                        handleAvatarError(img);
+                    };
+                    testImg.src = newSrc;
+                }
+            });
+            
+            // Preload DiceBear avatars
+            function preloadDiceBearAvatars() {
+                @if(auth()->check() && auth()->user()->avatar && strpos(auth()->user()->avatar, 'dicebear.com') !== false)
+                    const avatarUrl = '{{ auth()->user()->avatar }}';
+                    
+                    // Tambahkan cache busting parameter
+                    const timestamp = new Date().getTime();
+                    const cacheBustedUrl = avatarUrl + (avatarUrl.includes('?') ? '&' : '?') + '_=' + timestamp;
+                    
+                    // Preload dengan fetch
+                    fetch(cacheBustedUrl, {
+                        method: 'GET',
+                        mode: 'no-cors',
+                        cache: 'no-cache'
+                    }).catch(err => {
+                        console.log('Avatar preload attempt completed');
+                    });
+                    
+                    // Juga preload dengan Image object
+                    const preloadImg = new Image();
+                    preloadImg.onload = function() {
+                        console.log('DiceBear avatar preloaded successfully');
+                    };
+                    preloadImg.onerror = function() {
+                        console.log('DiceBear avatar preload failed');
+                    };
+                    preloadImg.src = cacheBustedUrl;
+                @endif
+            }
+            
+            // Jalankan preload
+            preloadDiceBearAvatars();
+            
+            // Cek apakah avatar sudah dimuat setelah beberapa detik
+            setTimeout(() => {
+                document.querySelectorAll('img[id$="-avatar-img"]').forEach(img => {
+                    if (img.complete && img.naturalHeight === 0) {
+                        console.log('Avatar image appears to be broken:', img.src);
+                        handleAvatarError(img);
                     }
                 });
-            });
+            }, 2000);
+        });
+        
+        // Fungsi untuk force reload avatar dengan cache busting
+        function reloadAvatarWithCacheBusting() {
+            @if(auth()->check() && auth()->user()->avatar)
+                const avatarUrl = '{{ auth()->user()->avatar }}';
+                const timestamp = new Date().getTime();
+                const newUrl = avatarUrl + (avatarUrl.includes('?') ? '&' : '?') + '_=' + timestamp;
+                
+                // Update semua avatar images dengan URL baru
+                document.querySelectorAll('img[src*="dicebear.com"]').forEach(img => {
+                    img.src = newUrl;
+                });
+                
+                console.log('Avatars reloaded with cache busting');
+            @endif
+        }
+        
+        // Tambahkan button untuk reload avatar (untuk debugging)
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hanya untuk debugging - bisa dihapus di production
+            const debugDiv = document.createElement('div');
+            debugDiv.style.position = 'fixed';
+            debugDiv.style.bottom = '10px';
+            debugDiv.style.right = '10px';
+            debugDiv.style.zIndex = '9999';
+            debugDiv.innerHTML = `
+                <button onclick="reloadAvatarWithCacheBusting()" 
+                        style="background: #f44336; color: white; border: none; padding: 5px 10px; border-radius: 5px; font-size: 12px; cursor: pointer;">
+                    Reload Avatar
+                </button>
+            `;
+            document.body.appendChild(debugDiv);
         });
     </script>
 </body>

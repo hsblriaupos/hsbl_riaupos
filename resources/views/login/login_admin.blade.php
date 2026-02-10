@@ -6,6 +6,10 @@
     <title>Login - HSBL Riau Pos</title>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="{{ asset('uploads/logo/hsbl.png') }}" type="image/png" />
+
     <style>
         * {
             margin: 0;
@@ -594,7 +598,6 @@
                             <input type="checkbox" id="admin_remember" name="remember">
                             <label for="admin_remember">Remember me</label>
                         </div>
-                        <a href="#" class="forgot-password">Forgot Password?</a>
                     </div>
 
                     <button type="submit" class="login-button" id="adminLoginButton">
