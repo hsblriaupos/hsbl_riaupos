@@ -20,20 +20,20 @@ class FormOfficialController extends Controller
     public function showOfficialForm(Request $request, $team_id)
     {
         $team = TeamList::findOrFail($team_id);
-        
+
         // Cek apakah tim sudah locked
         if ($team->locked_status === 'locked') {
             return redirect()->route('form.team.choice')
                 ->with('error', 'Tim ini sudah dikunci dan tidak dapat menambah official.');
         }
-        
+
         // Ambil session untuk menentukan role
         $canBeLeader = session('current_can_be_leader', false);
         $role = $canBeLeader ? 'Leader' : 'Member';
-        
+
         // Ambil kategori tim dari nama tim atau team_type
         $teamCategory = $this->determineTeamCategory($team);
-        
+
         return view('user.form.form_official', compact('team_id', 'team', 'role', 'canBeLeader', 'teamCategory'));
     }
 
@@ -44,7 +44,7 @@ class FormOfficialController extends Controller
     {
         try {
             DB::beginTransaction();
-            
+
             $validator = Validator::make($request->all(), [
                 'team_id' => 'required|exists:team_list,team_id',
                 'nik' => 'required|unique:official_list,nik|digits:16',
@@ -77,16 +77,16 @@ class FormOfficialController extends Controller
                 'terms.required' => 'Anda harus menyetujui syarat dan ketentuan.',
                 'terms.accepted' => 'Anda harus menyetujui syarat dan ketentuan.',
             ]);
-            
+
             if ($validator->fails()) {
                 return redirect()->back()
                     ->withErrors($validator)
                     ->withInput()
                     ->with('team_id', $request->team_id);
             }
-            
+
             $team = TeamList::findOrFail($request->team_id);
-            
+
             // Cek apakah tim sudah locked
             if ($team->locked_status === 'locked') {
                 return redirect()->back()
@@ -94,7 +94,7 @@ class FormOfficialController extends Controller
                     ->withInput()
                     ->with('team_id', $request->team_id);
             }
-            
+
             // Cari atau buat sekolah
             $school = School::where('school_name', $request->school)->first();
             if (!$school) {
@@ -104,44 +104,48 @@ class FormOfficialController extends Controller
                     'type' => 'SWASTA',
                     'city_id' => 1,
                 ]);
-                
+
                 // Update team dengan school_id baru
                 $team->update(['school_id' => $school->id]);
             }
-            
+
             // Handle file uploads
             $formalPhotoPath = null;
             $licensePhotoPath = null;
             $identityCardPath = null;
-            
+
             if ($request->hasFile('formal_photo')) {
                 $formalPhotoPath = $request->file('formal_photo')->store('uploads/officials/formal_photos', 'public');
             }
-            
+
             if ($request->hasFile('license_photo')) {
                 $licensePhotoPath = $request->file('license_photo')->store('uploads/officials/license_photos', 'public');
             }
-            
+
             if ($request->hasFile('identity_card')) {
                 $identityCardPath = $request->file('identity_card')->store('uploads/officials/identity_cards', 'public');
             }
-            
+
             // Cek jika ini official pertama, set sebagai Leader
             // Gunakan session untuk menentukan apakah bisa jadi leader
             $canBeLeader = session('current_can_be_leader', false);
             $role = $canBeLeader ? 'Leader' : 'Member';
-            
+
             // Double check: jika sudah ada leader, tetap jadi member
             if ($role === 'Leader') {
                 $existingLeaderCount = OfficialList::where('team_id', $request->team_id)
                     ->where('role', 'Leader')
                     ->count();
-                    
+
                 if ($existingLeaderCount > 0) {
                     $role = 'Member';
                 }
             }
-            
+
+            // Create official dengan category
+            // Di App\Http\Controllers\Form\FormOfficialController.php
+            // Cari bagian storeOfficial, pastikan ini:
+
             // Create official dengan category
             $official = OfficialList::create([
                 'team_id' => $request->team_id,
@@ -156,7 +160,7 @@ class FormOfficialController extends Controller
                 'height' => $request->height,
                 'weight' => $request->weight,
                 'team_role' => $request->team_role,
-                'category' => $request->category, // Tambah ini
+                'category' => $request->category, 
                 'tshirt_size' => $request->tshirt_size,
                 'shoes_size' => $request->shoes_size,
                 'instagram' => $request->instagram,
@@ -167,22 +171,21 @@ class FormOfficialController extends Controller
                 'role' => $role,
                 'verification_status' => 'unverified',
             ]);
-            
+
             DB::commit();
-            
+
             // Clear session untuk official
             session()->forget('current_can_be_leader');
-            
+
             return redirect()->route('form.official.success', [
                 'team_id' => $request->team_id,
                 'official_id' => $official->official_id
             ]);
-            
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error storing official: ' . $e->getMessage());
             Log::error('Stack trace: ' . $e->getTraceAsString());
-            
+
             return redirect()->back()
                 ->with('error', 'Terjadi kesalahan saat menyimpan data: ' . $e->getMessage())
                 ->withInput()
@@ -197,7 +200,7 @@ class FormOfficialController extends Controller
     {
         $official = OfficialList::findOrFail($official_id);
         $team = TeamList::findOrFail($team_id);
-        
+
         return view('user.form.form_official_success', compact('official', 'team'));
     }
 
@@ -209,16 +212,16 @@ class FormOfficialController extends Controller
         $validator = Validator::make($request->all(), [
             'nik' => 'required|digits:16'
         ]);
-        
+
         if ($validator->fails()) {
             return response()->json([
                 'available' => false,
                 'message' => 'NIK harus 16 digit'
             ], 422);
         }
-        
+
         $exists = OfficialList::where('nik', $request->nik)->exists();
-        
+
         return response()->json([
             'available' => !$exists,
             'message' => $exists ? 'NIK sudah terdaftar' : 'NIK tersedia'
@@ -233,16 +236,16 @@ class FormOfficialController extends Controller
         $validator = Validator::make($request->all(), [
             'email' => 'required|email'
         ]);
-        
+
         if ($validator->fails()) {
             return response()->json([
                 'available' => false,
                 'message' => 'Format email tidak valid'
             ], 422);
         }
-        
+
         $exists = OfficialList::where('email', $request->email)->exists();
-        
+
         return response()->json([
             'available' => !$exists,
             'message' => $exists ? 'Email sudah terdaftar' : 'Email tersedia'
@@ -257,7 +260,7 @@ class FormOfficialController extends Controller
         $exists = OfficialList::where('team_id', $request->team_id)
             ->where('role', 'Leader')
             ->exists();
-            
+
         return response()->json([
             'exists' => $exists,
             'message' => $exists ? 'Tim ini sudah memiliki Leader official' : 'Belum ada Leader official'
@@ -270,18 +273,18 @@ class FormOfficialController extends Controller
     public function checkTeamPayment(Request $request)
     {
         $team = TeamList::find($request->team_id);
-        
+
         if (!$team) {
             return response()->json([
                 'paid' => false,
                 'message' => 'Tim tidak ditemukan'
             ]);
         }
-        
+
         return response()->json([
             'paid' => $team->payment_status === 'paid',
-            'message' => $team->payment_status === 'paid' 
-                ? 'Tim sudah melakukan pembayaran' 
+            'message' => $team->payment_status === 'paid'
+                ? 'Tim sudah melakukan pembayaran'
                 : 'Tim belum melakukan pembayaran'
         ]);
     }
@@ -292,7 +295,7 @@ class FormOfficialController extends Controller
     private function determineTeamCategory($team)
     {
         $teamName = strtolower($team->team_name ?? '');
-        
+
         // Cek berdasarkan nama tim
         if (str_contains($teamName, 'putra') || str_contains($teamName, 'boys')) {
             return 'basket_putra';
@@ -301,7 +304,7 @@ class FormOfficialController extends Controller
         } elseif (str_contains($teamName, 'dancer') || str_contains($teamName, 'cheer')) {
             return 'dancer';
         }
-        
+
         // Default
         return 'basket_putra'; // atau 'lainnya' sesuai kebutuhan
     }

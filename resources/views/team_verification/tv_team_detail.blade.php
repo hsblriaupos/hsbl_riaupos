@@ -1073,219 +1073,214 @@
         <p class="page-subtitle">Informasi lengkap tim <strong>{{ $mainTeam->school_name }}</strong></p>
     </div>
 
-    <!-- =============================== -->
-    <!-- 🔥 INI TAB CATEGORY YANG KAMU TANYAKAN -->
-    <!-- =============================== -->
+    <!-- TAB CATEGORY -->
+
     @include('team_verification.partials.category-tabs')
 
-    <!-- =============================== -->
-    <!-- KONTEN DINAMIS BERDASARKAN TAB -->
-    <!-- =============================== -->
     @if($activeTab == 'Basket Putra')
-        @php
-            if(isset($teamData['Basket Putra']) && $teamData['Basket Putra']['exists']) {
-                $teamInfo = $teamData['Basket Putra'];
-                $team = $teamInfo['team'];
-                $players = $teamInfo['players'];
-                $officials = $teamInfo['officials'];
-            } else {
-                $team = null;
-                $players = collect();
-                $officials = collect();
-            }
-        @endphp
+    @php
+    if(isset($teamData['Basket Putra']) && $teamData['Basket Putra']['exists']) {
+    $teamInfo = $teamData['Basket Putra'];
+    $team = $teamInfo['team'];
+    $players = $teamInfo['players'];
+    $officials = $teamInfo['officials'];
+    } else {
+    $team = null;
+    $players = collect();
+    $officials = collect();
+    }
+    @endphp
 
-        @if($team)
-        <!-- Team Information Card -->
-        <div class="card">
-            <div class="card-header">
-                <i class="fas fa-info-circle"></i>
-                <span>Informasi Tim Basket Putra</span>
-            </div>
-            <div class="card-body">
-                <div class="team-info">
-                    <!-- Logo di Kiri -->
-                    <div class="logo-column">
-                        <div class="logo-box-square" onclick="showLogoPopup()">
-                            @if($team->school_logo)
-                            @php
-                            $logoPath = storage_path('app/public/' . $team->school_logo);
-                            $logoExists = file_exists($logoPath);
-                            @endphp
+    @if($team)
+    <!-- Team Information Card -->
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-info-circle"></i>
+            <span>Informasi Tim Basket Putra</span>
+        </div>
+        <div class="card-body">
+            <div class="team-info">
+                <!-- Logo di Kiri -->
+                <div class="logo-column">
+                    <div class="logo-box-square" onclick="showLogoPopup()">
+                        @if($team->school_logo)
+                        @php
+                        $logoPath = storage_path('app/public/' . $team->school_logo);
+                        $logoExists = file_exists($logoPath);
+                        @endphp
 
-                            @if($logoExists)
-                            <img src="{{ asset('storage/' . $team->school_logo) }}"
-                                alt="Logo Sekolah {{ $team->school_name }}"
-                                id="team-logo"
-                                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div class="logo-placeholder" id="logo-placeholder-fallback" style="display: none;">
-                                <i class="fas fa-school"></i>
-                                <span>Logo Tidak Ditemukan</span>
-                            </div>
-                            @else
-                            <div class="logo-placeholder">
-                                <i class="fas fa-school"></i>
-                                <span>Logo Tidak Ditemukan</span>
-                            </div>
-                            @endif
-                            @else
-                            <div class="logo-placeholder">
-                                <i class="fas fa-school"></i>
-                                <span>No Logo</span>
-                            </div>
-                            @endif
+                        @if($logoExists)
+                        <img src="{{ asset('storage/' . $team->school_logo) }}"
+                            alt="Logo Sekolah {{ $team->school_name }}"
+                            id="team-logo"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="logo-placeholder" id="logo-placeholder-fallback" style="display: none;">
+                            <i class="fas fa-school"></i>
+                            <span>Logo Tidak Ditemukan</span>
                         </div>
+                        @else
+                        <div class="logo-placeholder">
+                            <i class="fas fa-school"></i>
+                            <span>Logo Tidak Ditemukan</span>
+                        </div>
+                        @endif
+                        @else
+                        <div class="logo-placeholder">
+                            <i class="fas fa-school"></i>
+                            <span>No Logo</span>
+                        </div>
+                        @endif
                     </div>
+                </div>
 
-                    <!-- Konten di Kanan -->
-                    <div class="content-column">
-                        <div class="content-grid">
-                            <!-- Info Dasar -->
-                            <div class="info-section">
-                                <table class="info-table">
+                <!-- Konten di Kanan -->
+                <div class="content-column">
+                    <div class="content-grid">
+                        <!-- Info Dasar -->
+                        <div class="info-section">
+                            <table class="info-table">
+                                <tr>
+                                    <td>ID Tim</td>
+                                    <td>: <strong>{{ $team->referral_code ?? 'N/A' }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>Leader</td>
+                                    <td>: {{ $team->registered_by ?? 'N/A' }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Nama Sekolah</td>
+                                    <td>: <strong>{{ $team->school_name }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>Kompetisi</td>
+                                    <td>: {{ $team->competition ?? 'N/A' }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Musim</td>
+                                    <td>: {{ $team->season ?? 'N/A' }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Seri</td>
+                                    <td>: {{ $team->series ?? 'N/A' }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Wilayah</td>
+                                    <td>: {{ $team->region ?? '-' }}</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- Status dan Dokumen -->
+                        <div class="status-doc-section">
+                            <!-- Status -->
+                            <div class="status-section">
+                                <table class="info-table compact">
                                     <tr>
-                                        <td>ID Tim</td>
-                                        <td>: <strong>{{ $team->referral_code ?? 'N/A' }}</strong></td>
+                                        <td>Status Terkunci</td>
+                                        <td>:
+                                            @if($team->locked_status == 'locked')
+                                            <span class="status-locked">
+                                                <i class="fas fa-lock"></i> Terkunci
+                                            </span>
+                                            @else
+                                            <span class="status-open">
+                                                <i class="fas fa-lock-open"></i> Terbuka
+                                            </span>
+                                            @endif
+                                        </td>
                                     </tr>
                                     <tr>
-                                        <td>Leader</td>
-                                        <td>: {{ $team->registered_by ?? 'N/A' }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Nama Sekolah</td>
-                                        <td>: <strong>{{ $team->school_name }}</strong></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Kompetisi</td>
-                                        <td>: {{ $team->competition ?? 'N/A' }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Musim</td>
-                                        <td>: {{ $team->season ?? 'N/A' }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Seri</td>
-                                        <td>: {{ $team->series ?? 'N/A' }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Wilayah</td>
-                                        <td>: {{ $team->region ?? '-' }}</td>
+                                        <td>Status Verifikasi</td>
+                                        <td>:
+                                            @if($team->verification_status == 'verified')
+                                            <span class="status-verified">
+                                                <i class="fas fa-check-circle"></i> Terverifikasi
+                                            </span>
+                                            @else
+                                            <span class="status-unverified">
+                                                <i class="fas fa-clock"></i> Belum Diverifikasi
+                                            </span>
+                                            @endif
+                                        </td>
                                     </tr>
                                 </table>
                             </div>
 
-                            <!-- Status dan Dokumen -->
-                            <div class="status-doc-section">
-                                <!-- Status -->
-                                <div class="status-section">
-                                    <table class="info-table compact">
-                                        <tr>
-                                            <td>Status Terkunci</td>
-                                            <td>:
-                                                @if($team->locked_status == 'locked')
-                                                <span class="status-locked">
-                                                    <i class="fas fa-lock"></i> Terkunci
-                                                </span>
-                                                @else
-                                                <span class="status-open">
-                                                    <i class="fas fa-lock-open"></i> Terbuka
-                                                </span>
-                                                @endif
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>Status Verifikasi</td>
-                                            <td>:
-                                                @if($team->verification_status == 'verified')
-                                                <span class="status-verified">
-                                                    <i class="fas fa-check-circle"></i> Terverifikasi
-                                                </span>
-                                                @else
-                                                <span class="status-unverified">
-                                                    <i class="fas fa-clock"></i> Belum Diverifikasi
-                                                </span>
-                                                @endif
-                                            </td>
-                                        </tr>
-                                    </table>
+                            <!-- Dokumen -->
+                            <div class="documents-section">
+                                <h4><i class="fas fa-file-alt"></i> Dokumen</h4>
+                                <div class="document-links compact">
+                                    <!-- Surat Rekomendasi -->
+                                    @if($team->recommendation_letter)
+                                    <a href="{{ asset('storage/' . $team->recommendation_letter) }}"
+                                        target="_blank"
+                                        class="document-link available">
+                                        <i class="fas fa-file-pdf"></i>
+                                        <span>Surat Rekomendasi</span>
+                                    </a>
+                                    @else
+                                    <a href="#"
+                                        class="document-link warning"
+                                        onclick="showAlert('Surat Rekomendasi')">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        <span>Surat Rekomendasi (Belum Upload)</span>
+                                    </a>
+                                    @endif
+
+                                    <!-- Bukti Langganan Koran -->
+                                    @if($team->koran)
+                                    <a href="{{ asset('storage/' . $team->koran) }}"
+                                        target="_blank"
+                                        class="document-link available">
+                                        <i class="fas fa-newspaper"></i>
+                                        <span>Bukti Langganan Koran</span>
+                                    </a>
+                                    @else
+                                    <a href="#"
+                                        class="document-link danger"
+                                        onclick="showAlert('Bukti Langganan Koran')">
+                                        <i class="fas fa-times-circle"></i>
+                                        <span>Bukti Langganan Koran (Belum Upload)</span>
+                                    </a>
+                                    @endif
                                 </div>
+                            </div>
 
-                                <!-- Dokumen -->
-                                <div class="documents-section">
-                                    <h4><i class="fas fa-file-alt"></i> Dokumen</h4>
-                                    <div class="document-links compact">
-                                        <!-- Surat Rekomendasi -->
-                                        @if($team->recommendation_letter)
-                                        <a href="{{ asset('storage/' . $team->recommendation_letter) }}"
-                                            target="_blank"
-                                            class="document-link available">
-                                            <i class="fas fa-file-pdf"></i>
-                                            <span>Surat Rekomendasi</span>
-                                        </a>
-                                        @else
-                                        <a href="#"
-                                            class="document-link warning"
-                                            onclick="showAlert('Surat Rekomendasi')">
-                                            <i class="fas fa-exclamation-circle"></i>
-                                            <span>Surat Rekomendasi (Belum Upload)</span>
-                                        </a>
-                                        @endif
+                            <!-- Action Buttons -->
+                            <div class="action-buttons">
+                                <h4><i class="fas fa-cogs"></i> Aksi Tim</h4>
+                                <div class="action-buttons-row compact">
+                                    @if($team->locked_status != 'locked')
+                                    <form action="{{ route('admin.team.lock', $team->team_id) }}" method="POST" class="d-inline" onsubmit="return confirmAction('Kunci tim Basket Putra {{ $team->school_name }}?')">
+                                        @csrf
+                                        <button type="submit" class="btn-action-simple btn-lock">
+                                            <i class="fas fa-lock"></i> Kunci Tim
+                                        </button>
+                                    </form>
+                                    @else
+                                    <form action="{{ route('admin.team.unlock', $team->team_id) }}" method="POST" class="d-inline" onsubmit="return confirmAction('Buka kunci tim Basket Putra {{ $team->school_name }}?')">
+                                        @csrf
+                                        <button type="submit" class="btn-action-simple btn-unlock">
+                                            <i class="fas fa-unlock"></i> Buka Kunci
+                                        </button>
+                                    </form>
+                                    @endif
 
-                                        <!-- Bukti Langganan Koran -->
-                                        @if($team->koran)
-                                        <a href="{{ asset('storage/' . $team->koran) }}"
-                                            target="_blank"
-                                            class="document-link available">
-                                            <i class="fas fa-newspaper"></i>
-                                            <span>Bukti Langganan Koran</span>
-                                        </a>
-                                        @else
-                                        <a href="#"
-                                            class="document-link danger"
-                                            onclick="showAlert('Bukti Langganan Koran')">
-                                            <i class="fas fa-times-circle"></i>
-                                            <span>Bukti Langganan Koran (Belum Upload)</span>
-                                        </a>
-                                        @endif
-                                    </div>
-                                </div>
-
-                                <!-- Action Buttons -->
-                                <div class="action-buttons">
-                                    <h4><i class="fas fa-cogs"></i> Aksi Tim</h4>
-                                    <div class="action-buttons-row compact">
-                                        @if($team->locked_status != 'locked')
-                                        <form action="{{ route('admin.team.lock', $team->team_id) }}" method="POST" class="d-inline" onsubmit="return confirmAction('Kunci tim Basket Putra {{ $team->school_name }}?')">
-                                            @csrf
-                                            <button type="submit" class="btn-action-simple btn-lock">
-                                                <i class="fas fa-lock"></i> Kunci Tim
-                                            </button>
-                                        </form>
-                                        @else
-                                        <form action="{{ route('admin.team.unlock', $team->team_id) }}" method="POST" class="d-inline" onsubmit="return confirmAction('Buka kunci tim Basket Putra {{ $team->school_name }}?')">
-                                            @csrf
-                                            <button type="submit" class="btn-action-simple btn-unlock">
-                                                <i class="fas fa-unlock"></i> Buka Kunci
-                                            </button>
-                                        </form>
-                                        @endif
-
-                                        @if($team->verification_status != 'verified')
-                                        <form action="{{ route('admin.team.verify', $team->team_id) }}" method="POST" class="d-inline" onsubmit="return confirmAction('Verifikasi tim Basket Putra {{ $team->school_name }}?')">
-                                            @csrf
-                                            <button type="submit" class="btn-action-simple btn-verify">
-                                                <i class="fas fa-check"></i> Verifikasi Tim
-                                            </button>
-                                        </form>
-                                        @else
-                                        <form action="{{ route('admin.team.unverify', $team->team_id) }}" method="POST" class="d-inline" onsubmit="return confirmAction('Batalkan verifikasi tim Basket Putra {{ $team->school_name }}?')">
-                                            @csrf
-                                            <button type="submit" class="btn-action-simple btn-unverify">
-                                                <i class="fas fa-times"></i> Batalkan Verifikasi
-                                            </button>
-                                        </form>
-                                        @endif
-                                    </div>
+                                    @if($team->verification_status != 'verified')
+                                    <form action="{{ route('admin.team.verify', $team->team_id) }}" method="POST" class="d-inline" onsubmit="return confirmAction('Verifikasi tim Basket Putra {{ $team->school_name }}?')">
+                                        @csrf
+                                        <button type="submit" class="btn-action-simple btn-verify">
+                                            <i class="fas fa-check"></i> Verifikasi Tim
+                                        </button>
+                                    </form>
+                                    @else
+                                    <form action="{{ route('admin.team.unverify', $team->team_id) }}" method="POST" class="d-inline" onsubmit="return confirmAction('Batalkan verifikasi tim Basket Putra {{ $team->school_name }}?')">
+                                        @csrf
+                                        <button type="submit" class="btn-action-simple btn-unverify">
+                                            <i class="fas fa-times"></i> Batalkan Verifikasi
+                                        </button>
+                                    </form>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -1293,532 +1288,528 @@
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Player List Card -->
-        <div class="card">
-            <div class="card-header">
+    <!-- Player List Card -->
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-users"></i>
+            <span>Daftar Pemain Basket Putra ({{ $players->count() }})</span>
+        </div>
+        <div class="card-body">
+            @if($players->count() > 0)
+            <div class="table-container">
+                <table class="data">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>NAMA</th>
+                            <th>ROLE</th>
+                            <th>NO. JERSEY</th>
+                            <th>TANGGAL LAHIR</th>
+                            <th>JENIS KELAMIN</th>
+                            <th>POSISI</th>
+                            <th>KELAS</th>
+                            <th>TAHUN STTB</th>
+                            <th>TINDAKAN</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($players as $index => $player)
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td><strong>{{ $player->name ?? 'N/A' }}</strong></td>
+                            <td class="text-center">
+                                @if($player->role == 'Leader')
+                                <span class="badge-role-leader">Leader</span>
+                                @else
+                                <span class="badge-role-player">Pemain</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                @if($player->jersey_number)
+                                <span class="badge-jersey">{{ $player->jersey_number }}</span>
+                                @else
+                                <span style="color: #718096;">-</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($player->birthdate)
+                                {{ \Carbon\Carbon::parse($player->birthdate)->isoFormat('D MMMM YYYY') }}
+                                @else
+                                <span style="color: #718096;">-</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                @if($player->gender == 'Male')
+                                <span class="badge-gender-male">Laki-laki</span>
+                                @elseif($player->gender == 'Female')
+                                <span class="badge-gender-female">Perempuan</span>
+                                @else
+                                <span style="color: #718096;">-</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                @if($player->basketball_position)
+                                <span class="badge-position">{{ $player->basketball_position }}</span>
+                                @else
+                                <span style="color: #718096;">-</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                @if($player->grade)
+                                <span class="badge-grade">{{ $player->grade }}</span>
+                                @else
+                                <span style="color: #718096;">-</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                @if($player->sttb_year)
+                                <span class="badge-sttb">{{ $player->sttb_year }}</span>
+                                @else
+                                <span style="color: #718096;">-</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                <a href="{{ route('admin.player.detail', $player->id) }}" class="btn-detail">
+                                    <i class="fas fa-eye"></i> Detail
+                                </a>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            @else
+            <div class="empty-state">
                 <i class="fas fa-users"></i>
-                <span>Daftar Pemain Basket Putra ({{ $players->count() }})</span>
+                <h5>Belum ada data pemain</h5>
+                <p>Data pemain akan muncul di sini setelah mendaftar menggunakan referral code tim ini.</p>
+                <p class="text-muted mt-2" style="font-size: 12px;">
+                    <i class="fas fa-info-circle"></i>
+                    Tim ini memiliki referral code: <strong>{{ $team->referral_code ?? 'N/A' }}</strong>
+                </p>
             </div>
-            <div class="card-body">
-                @if($players->count() > 0)
-                <div class="table-container">
-                    <table class="data">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>NAMA</th>
-                                <th>ROLE</th>
-                                <th>NO. JERSEY</th>
-                                <th>TANGGAL LAHIR</th>
-                                <th>JENIS KELAMIN</th>
-                                <th>POSISI</th>
-                                <th>KELAS</th>
-                                <th>TAHUN STTB</th>
-                                <th>TINDAKAN</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($players as $index => $player)
-                            <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td><strong>{{ $player->name ?? 'N/A' }}</strong></td>
-                                <td class="text-center">
-                                    @if($player->role == 'Leader')
-                                    <span class="badge-role-leader">Leader</span>
-                                    @else
-                                    <span class="badge-role-player">Pemain</span>
-                                    @endif
-                                </td>
-                                <td class="text-center">
-                                    @if($player->jersey_number)
-                                    <span class="badge-jersey">{{ $player->jersey_number }}</span>
-                                    @else
-                                    <span style="color: #718096;">-</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if($player->birthdate)
-                                    {{ \Carbon\Carbon::parse($player->birthdate)->isoFormat('D MMMM YYYY') }}
-                                    @else
-                                    <span style="color: #718096;">-</span>
-                                    @endif
-                                </td>
-                                <td class="text-center">
-                                    @if($player->gender == 'Male')
-                                    <span class="badge-gender-male">Laki-laki</span>
-                                    @elseif($player->gender == 'Female')
-                                    <span class="badge-gender-female">Perempuan</span>
-                                    @else
-                                    <span style="color: #718096;">-</span>
-                                    @endif
-                                </td>
-                                <td class="text-center">
-                                    @if($player->basketball_position)
-                                    <span class="badge-position">{{ $player->basketball_position }}</span>
-                                    @else
-                                    <span style="color: #718096;">-</span>
-                                    @endif
-                                </td>
-                                <td class="text-center">
-                                    @if($player->grade)
-                                    <span class="badge-grade">{{ $player->grade }}</span>
-                                    @else
-                                    <span style="color: #718096;">-</span>
-                                    @endif
-                                </td>
-                                <td class="text-center">
-                                    @if($player->sttb_year)
-                                    <span class="badge-sttb">{{ $player->sttb_year }}</span>
-                                    @else
-                                    <span style="color: #718096;">-</span>
-                                    @endif
-                                </td>
-                                <td class="text-center">
-                                    <a href="{{ route('admin.player.detail', $player->id) }}" class="btn-detail">
-                                        <i class="fas fa-eye"></i> Detail
-                                    </a>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-                @else
-                <div class="empty-state">
-                    <i class="fas fa-users"></i>
-                    <h5>Belum ada data pemain</h5>
-                    <p>Data pemain akan muncul di sini setelah mendaftar menggunakan referral code tim ini.</p>
-                    <p class="text-muted mt-2" style="font-size: 12px;">
-                        <i class="fas fa-info-circle"></i>
-                        Tim ini memiliki referral code: <strong>{{ $team->referral_code ?? 'N/A' }}</strong>
-                    </p>
-                </div>
-                @endif
-            </div>
+            @endif
         </div>
+    </div>
 
-        <!-- Official List Card -->
-        <div class="card">
-            <div class="card-header">
+    <!-- Official List Card -->
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-user-tie"></i>
+            <span>Daftar Official Basket Putra ({{ $officials->count() }})</span>
+        </div>
+        <div class="card-body">
+            @if($officials->count() > 0)
+            <div class="table-container">
+                <table class="data official">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>NAMA</th>
+                            <th>JABATAN</th>
+                            <th>EMAIL</th>
+                            <th>TELEPON</th>
+                            <th>JENIS KELAMIN</th>
+                            <th>STATUS VERIFIKASI</th>
+                            <th>TINDAKAN</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($officials as $index => $official)
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td><strong>{{ $official->name ?? 'N/A' }}</strong></td>
+                            <td class="text-center">
+                                @if($official->team_role)
+                                <span class="badge-official-role">{{ $official->team_role }}</span>
+                                @else
+                                <span style="color: #718096;">-</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($official->email)
+                                <a href="mailto:{{ $official->email }}" style="color: #3b82f6; text-decoration: none; font-weight: 500;">
+                                    {{ $official->email }}
+                                </a>
+                                @else
+                                <span style="color: #718096;">-</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($official->phone)
+                                <a href="tel:{{ $official->phone }}" style="color: #10b981; text-decoration: none; font-weight: 500;">
+                                    {{ $official->phone }}
+                                </a>
+                                @else
+                                <span style="color: #718096;">-</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                @if($official->gender == 'male')
+                                <span class="badge-gender-male">Laki-laki</span>
+                                @elseif($official->gender == 'female')
+                                <span class="badge-gender-female">Perempuan</span>
+                                @else
+                                <span style="color: #718096;">-</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                @if($official->verification_status == 'verified')
+                                <span class="status-verified" style="display: inline-flex; align-items: center; gap: 4px;">
+                                    <i class="fas fa-check-circle"></i> Terverifikasi
+                                </span>
+                                @elseif($official->verification_status == 'rejected')
+                                <span class="status-open" style="display: inline-flex; align-items: center; gap: 4px;">
+                                    <i class="fas fa-times-circle"></i> Ditolak
+                                </span>
+                                @else
+                                <span class="status-unverified" style="display: inline-flex; align-items: center; gap: 4px;">
+                                    <i class="fas fa-clock"></i> Belum Diverifikasi
+                                </span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                <a href="{{ route('admin.official.detail', $official->official_id) }}" class="btn-detail">
+                                    <i class="fas fa-eye"></i> Detail
+                                </a>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            @else
+            <div class="empty-state">
                 <i class="fas fa-user-tie"></i>
-                <span>Daftar Official Basket Putra ({{ $officials->count() }})</span>
+                <h5>Belum ada data official</h5>
+                <p>Data official akan muncul di sini setelah ditambahkan.</p>
             </div>
-            <div class="card-body">
-                @if($officials->count() > 0)
-                <div class="table-container">
-                    <table class="data official">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>NAMA</th>
-                                <th>JABATAN</th>
-                                <th>EMAIL</th>
-                                <th>TELEPON</th>
-                                <th>JENIS KELAMIN</th>
-                                <th>STATUS VERIFIKASI</th>
-                                <th>TINDAKAN</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($officials as $index => $official)
-                            <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td><strong>{{ $official->name ?? 'N/A' }}</strong></td>
-                                <td class="text-center">
-                                    @if($official->team_role)
-                                    <span class="badge-official-role">{{ $official->team_role }}</span>
-                                    @else
-                                    <span style="color: #718096;">-</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if($official->email)
-                                    <a href="mailto:{{ $official->email }}" style="color: #3b82f6; text-decoration: none; font-weight: 500;">
-                                        {{ $official->email }}
-                                    </a>
-                                    @else
-                                    <span style="color: #718096;">-</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if($official->phone)
-                                    <a href="tel:{{ $official->phone }}" style="color: #10b981; text-decoration: none; font-weight: 500;">
-                                        {{ $official->phone }}
-                                    </a>
-                                    @else
-                                    <span style="color: #718096;">-</span>
-                                    @endif
-                                </td>
-                                <td class="text-center">
-                                    @if($official->gender == 'male')
-                                    <span class="badge-gender-male">Laki-laki</span>
-                                    @elseif($official->gender == 'female')
-                                    <span class="badge-gender-female">Perempuan</span>
-                                    @else
-                                    <span style="color: #718096;">-</span>
-                                    @endif
-                                </td>
-                                <td class="text-center">
-                                    @if($official->verification_status == 'verified')
-                                    <span class="status-verified" style="display: inline-flex; align-items: center; gap: 4px;">
-                                        <i class="fas fa-check-circle"></i> Terverifikasi
-                                    </span>
-                                    @elseif($official->verification_status == 'rejected')
-                                    <span class="status-open" style="display: inline-flex; align-items: center; gap: 4px;">
-                                        <i class="fas fa-times-circle"></i> Ditolak
-                                    </span>
-                                    @else
-                                    <span class="status-unverified" style="display: inline-flex; align-items: center; gap: 4px;">
-                                        <i class="fas fa-clock"></i> Belum Diverifikasi
-                                    </span>
-                                    @endif
-                                </td>
-                                <td class="text-center">
-                                    <a href="{{ route('admin.official.detail', $official->official_id) }}" class="btn-detail">
-                                        <i class="fas fa-eye"></i> Detail
-                                    </a>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-                @else
-                <div class="empty-state">
-                    <i class="fas fa-user-tie"></i>
-                    <h5>Belum ada data official</h5>
-                    <p>Data official akan muncul di sini setelah ditambahkan.</p>
-                    <p class="text-muted mt-2" style="font-size: 12px;">
-                        <i class="fas fa-info-circle"></i>
-                        Silakan hubungi tim untuk menambahkan official.
-                    </p>
-                </div>
-                @endif
-            </div>
+            @endif
         </div>
+    </div>
 
-        <!-- JERSEY LIST CARD -->
-        <div class="card">
-            <div class="card-header">
-                <i class="fas fa-tshirt"></i>
-                <span>Daftar Jersey Basket Putra</span>
-            </div>
-            <div class="card-body">
-                <div class="jersey-single-container">
-                    <h3 class="jersey-main-title">Galeri Jersey Tim Basket Putra</h3>
-                    <div class="jersey-image-container">
-                        <!-- Jersey Kandang -->
-                        <div class="jersey-single-item" onclick="showJerseyPopup('home')">
-                            <p>Jersey Kandang</p>
-                            @if($team->jersey_home)
-                            @php
-                            $jerseyHomePath = storage_path('app/public/' . $team->jersey_home);
-                            $jerseyHomeExists = file_exists($jerseyHomePath);
-                            @endphp
+    <!-- JERSEY LIST CARD -->
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-tshirt"></i>
+            <span>Daftar Jersey Basket Putra</span>
+        </div>
+        <div class="card-body">
+            <div class="jersey-single-container">
+                <h3 class="jersey-main-title">Galeri Jersey Tim Basket Putra</h3>
+                <div class="jersey-image-container">
+                    <!-- Jersey Kandang -->
+                    <div class="jersey-single-item" onclick="showJerseyPopup('home')">
+                        <p>Jersey Kandang</p>
+                        @if($team->jersey_home)
+                        @php
+                        $jerseyHomePath = storage_path('app/public/' . $team->jersey_home);
+                        $jerseyHomeExists = file_exists($jerseyHomePath);
+                        @endphp
 
-                            @if($jerseyHomeExists)
-                            <img src="{{ asset('storage/' . $team->jersey_home) }}"
-                                alt="Jersey Kandang {{ $team->school_name }}"
-                                class="jersey-image"
-                                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div class="no-image" style="display: none;">
-                                <i class="fas fa-tshirt"></i>
-                                <span>Gambar Error</span>
-                            </div>
-                            @else
-                            <div class="no-image">
-                                <i class="fas fa-tshirt"></i>
-                                <span>File Tidak Ditemukan</span>
-                            </div>
-                            @endif
-                            @else
-                            <div class="no-image">
-                                <i class="fas fa-tshirt"></i>
-                                <span>Belum Upload</span>
-                            </div>
-                            @endif
+                        @if($jerseyHomeExists)
+                        <img src="{{ asset('storage/' . $team->jersey_home) }}"
+                            alt="Jersey Kandang {{ $team->school_name }}"
+                            class="jersey-image"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="no-image" style="display: none;">
+                            <i class="fas fa-tshirt"></i>
+                            <span>Gambar Error</span>
                         </div>
-
-                        <!-- Jersey Tandang -->
-                        <div class="jersey-single-item" onclick="showJerseyPopup('away')">
-                            <p>Jersey Tandang</p>
-                            @if($team->jersey_away)
-                            @php
-                            $jerseyAwayPath = storage_path('app/public/' . $team->jersey_away);
-                            $jerseyAwayExists = file_exists($jerseyAwayPath);
-                            @endphp
-
-                            @if($jerseyAwayExists)
-                            <img src="{{ asset('storage/' . $team->jersey_away) }}"
-                                alt="Jersey Tandang {{ $team->school_name }}"
-                                class="jersey-image"
-                                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div class="no-image" style="display: none;">
-                                <i class="fas fa-tshirt"></i>
-                                <span>Gambar Error</span>
-                            </div>
-                            @else
-                            <div class="no-image">
-                                <i class="fas fa-tshirt"></i>
-                                <span>File Tidak Ditemukan</span>
-                            </div>
-                            @endif
-                            @else
-                            <div class="no-image">
-                                <i class="fas fa-tshirt"></i>
-                                <span>Belum Upload</span>
-                            </div>
-                            @endif
+                        @else
+                        <div class="no-image">
+                            <i class="fas fa-tshirt"></i>
+                            <span>File Tidak Ditemukan</span>
                         </div>
-
-                        <!-- Jersey Alternatif -->
-                        <div class="jersey-single-item" onclick="showJerseyPopup('alternate')">
-                            <p>Jersey Alternatif</p>
-                            @if($team->jersey_alternate)
-                            @php
-                            $jerseyAltPath = storage_path('app/public/' . $team->jersey_alternate);
-                            $jerseyAltExists = file_exists($jerseyAltPath);
-                            @endphp
-
-                            @if($jerseyAltExists)
-                            <img src="{{ asset('storage/' . $team->jersey_alternate) }}"
-                                alt="Jersey Alternatif {{ $team->school_name }}"
-                                class="jersey-image"
-                                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div class="no-image" style="display: none;">
-                                <i class="fas fa-tshirt"></i>
-                                <span>Gambar Error</span>
-                            </div>
-                            @else
-                            <div class="no-image">
-                                <i class="fas fa-tshirt"></i>
-                                <span>File Tidak Ditemukan</span>
-                            </div>
-                            @endif
-                            @else
-                            <div class="no-image">
-                                <i class="fas fa-tshirt"></i>
-                                <span>Belum Upload</span>
-                            </div>
-                            @endif
+                        @endif
+                        @else
+                        <div class="no-image">
+                            <i class="fas fa-tshirt"></i>
+                            <span>Belum Upload</span>
                         </div>
+                        @endif
+                    </div>
+
+                    <!-- Jersey Tandang -->
+                    <div class="jersey-single-item" onclick="showJerseyPopup('away')">
+                        <p>Jersey Tandang</p>
+                        @if($team->jersey_away)
+                        @php
+                        $jerseyAwayPath = storage_path('app/public/' . $team->jersey_away);
+                        $jerseyAwayExists = file_exists($jerseyAwayPath);
+                        @endphp
+
+                        @if($jerseyAwayExists)
+                        <img src="{{ asset('storage/' . $team->jersey_away) }}"
+                            alt="Jersey Tandang {{ $team->school_name }}"
+                            class="jersey-image"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="no-image" style="display: none;">
+                            <i class="fas fa-tshirt"></i>
+                            <span>Gambar Error</span>
+                        </div>
+                        @else
+                        <div class="no-image">
+                            <i class="fas fa-tshirt"></i>
+                            <span>File Tidak Ditemukan</span>
+                        </div>
+                        @endif
+                        @else
+                        <div class="no-image">
+                            <i class="fas fa-tshirt"></i>
+                            <span>Belum Upload</span>
+                        </div>
+                        @endif
+                    </div>
+
+                    <!-- Jersey Alternatif -->
+                    <div class="jersey-single-item" onclick="showJerseyPopup('alternate')">
+                        <p>Jersey Alternatif</p>
+                        @if($team->jersey_alternate)
+                        @php
+                        $jerseyAltPath = storage_path('app/public/' . $team->jersey_alternate);
+                        $jerseyAltExists = file_exists($jerseyAltPath);
+                        @endphp
+
+                        @if($jerseyAltExists)
+                        <img src="{{ asset('storage/' . $team->jersey_alternate) }}"
+                            alt="Jersey Alternatif {{ $team->school_name }}"
+                            class="jersey-image"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="no-image" style="display: none;">
+                            <i class="fas fa-tshirt"></i>
+                            <span>Gambar Error</span>
+                        </div>
+                        @else
+                        <div class="no-image">
+                            <i class="fas fa-tshirt"></i>
+                            <span>File Tidak Ditemukan</span>
+                        </div>
+                        @endif
+                        @else
+                        <div class="no-image">
+                            <i class="fas fa-tshirt"></i>
+                            <span>Belum Upload</span>
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
         </div>
-        @else
-        <!-- Empty State for Unregistered Team -->
-        <div class="empty-state">
-            <i class="fas fa-basketball-ball" style="color: #3b82f6;"></i>
-            <h5>Tim Basket Putra Belum Terdaftar</h5>
-            <p>Sekolah <strong>{{ $mainTeam->school_name }}</strong> belum mendaftarkan tim untuk kategori Basket Putra.</p>
-            <p style="margin-top: 20px; font-size: 13px; color: #6b7280;">
-                <i class="fas fa-info-circle"></i>
-                Untuk mendaftarkan tim, gunakan referral code: <strong>{{ $mainTeam->referral_code ?? 'N/A' }}</strong>
-            </p>
-        </div>
-        @endif
+    </div>
+    @else
+    <!-- Empty State for Unregistered Team -->
+    <div class="empty-state">
+        <i class="fas fa-basketball-ball" style="color: #3b82f6;"></i>
+        <h5>Tim Basket Putra Belum Terdaftar</h5>
+        <p>Sekolah <strong>{{ $mainTeam->school_name }}</strong> belum mendaftarkan tim untuk kategori Basket Putra.</p>
+        <p style="margin-top: 20px; font-size: 13px; color: #6b7280;">
+            <i class="fas fa-info-circle"></i>
+            Untuk mendaftarkan tim, gunakan referral code: <strong>{{ $mainTeam->referral_code ?? 'N/A' }}</strong>
+        </p>
+    </div>
+    @endif
 
     @elseif($activeTab == 'Basket Putri')
-        @php
-            if(isset($teamData['Basket Putri']) && $teamData['Basket Putri']['exists']) {
-                $teamInfo = $teamData['Basket Putri'];
-                $team = $teamInfo['team'];
-                $players = $teamInfo['players'];
-                $officials = $teamInfo['officials'];
-            } else {
-                $team = null;
-                $players = collect();
-                $officials = collect();
-            }
-        @endphp
+    @php
+    if(isset($teamData['Basket Putri']) && $teamData['Basket Putri']['exists']) {
+    $teamInfo = $teamData['Basket Putri'];
+    $team = $teamInfo['team'];
+    $players = $teamInfo['players'];
+    $officials = $teamInfo['officials'];
+    } else {
+    $team = null;
+    $players = collect();
+    $officials = collect();
+    }
+    @endphp
 
-        @if($team)
-        <!-- Team Information Card - Basket Putri -->
-        <div class="card">
-            <div class="card-header" style="background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); color: white;">
-                <i class="fas fa-info-circle"></i>
-                <span>Informasi Tim Basket Putri</span>
-            </div>
-            <div class="card-body">
-                <div class="team-info">
-                    <!-- Logo di Kiri -->
-                    <div class="logo-column">
-                        <div class="logo-box-square" onclick="showLogoPopup()">
-                            @if($team->school_logo)
-                            @php
-                            $logoPath = storage_path('app/public/' . $team->school_logo);
-                            $logoExists = file_exists($logoPath);
-                            @endphp
+    @if($team)
+    <!-- Team Information Card - Basket Putri -->
+    <div class="card">
+        <div class="card-header" style="background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); color: white;">
+            <i class="fas fa-info-circle"></i>
+            <span>Informasi Tim Basket Putri</span>
+        </div>
+        <div class="card-body">
+            <div class="team-info">
+                <!-- Logo di Kiri -->
+                <div class="logo-column">
+                    <div class="logo-box-square" onclick="showLogoPopup()">
+                        @if($team->school_logo)
+                        @php
+                        $logoPath = storage_path('app/public/' . $team->school_logo);
+                        $logoExists = file_exists($logoPath);
+                        @endphp
 
-                            @if($logoExists)
-                            <img src="{{ asset('storage/' . $team->school_logo) }}"
-                                alt="Logo Sekolah {{ $team->school_name }}"
-                                id="team-logo"
-                                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div class="logo-placeholder" id="logo-placeholder-fallback" style="display: none;">
-                                <i class="fas fa-school"></i>
-                                <span>Logo Tidak Ditemukan</span>
-                            </div>
-                            @else
-                            <div class="logo-placeholder">
-                                <i class="fas fa-school"></i>
-                                <span>Logo Tidak Ditemukan</span>
-                            </div>
-                            @endif
-                            @else
-                            <div class="logo-placeholder">
-                                <i class="fas fa-school"></i>
-                                <span>No Logo</span>
-                            </div>
-                            @endif
+                        @if($logoExists)
+                        <img src="{{ asset('storage/' . $team->school_logo) }}"
+                            alt="Logo Sekolah {{ $team->school_name }}"
+                            id="team-logo"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="logo-placeholder" id="logo-placeholder-fallback" style="display: none;">
+                            <i class="fas fa-school"></i>
+                            <span>Logo Tidak Ditemukan</span>
                         </div>
+                        @else
+                        <div class="logo-placeholder">
+                            <i class="fas fa-school"></i>
+                            <span>Logo Tidak Ditemukan</span>
+                        </div>
+                        @endif
+                        @else
+                        <div class="logo-placeholder">
+                            <i class="fas fa-school"></i>
+                            <span>No Logo</span>
+                        </div>
+                        @endif
                     </div>
+                </div>
 
-                    <!-- Konten di Kanan -->
-                    <div class="content-column">
-                        <div class="content-grid">
-                            <!-- Info Dasar -->
-                            <div class="info-section">
-                                <table class="info-table">
+                <!-- Konten di Kanan -->
+                <div class="content-column">
+                    <div class="content-grid">
+                        <!-- Info Dasar -->
+                        <div class="info-section">
+                            <table class="info-table">
+                                <tr>
+                                    <td>ID Tim</td>
+                                    <td>: <strong>{{ $team->referral_code ?? 'N/A' }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>Leader</td>
+                                    <td>: {{ $team->registered_by ?? 'N/A' }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Nama Sekolah</td>
+                                    <td>: <strong>{{ $team->school_name }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>Kompetisi</td>
+                                    <td>: {{ $team->competition ?? 'N/A' }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Musim</td>
+                                    <td>: {{ $team->season ?? 'N/A' }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Seri</td>
+                                    <td>: {{ $team->series ?? 'N/A' }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Wilayah</td>
+                                    <td>: {{ $team->region ?? '-' }}</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- Status dan Dokumen -->
+                        <div class="status-doc-section">
+                            <!-- Status -->
+                            <div class="status-section">
+                                <table class="info-table compact">
                                     <tr>
-                                        <td>ID Tim</td>
-                                        <td>: <strong>{{ $team->referral_code ?? 'N/A' }}</strong></td>
+                                        <td>Status Terkunci</td>
+                                        <td>:
+                                            @if($team->locked_status == 'locked')
+                                            <span class="status-locked"><i class="fas fa-lock"></i> Terkunci</span>
+                                            @else
+                                            <span class="status-open"><i class="fas fa-lock-open"></i> Terbuka</span>
+                                            @endif
+                                        </td>
                                     </tr>
                                     <tr>
-                                        <td>Leader</td>
-                                        <td>: {{ $team->registered_by ?? 'N/A' }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Nama Sekolah</td>
-                                        <td>: <strong>{{ $team->school_name }}</strong></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Kompetisi</td>
-                                        <td>: {{ $team->competition ?? 'N/A' }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Musim</td>
-                                        <td>: {{ $team->season ?? 'N/A' }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Seri</td>
-                                        <td>: {{ $team->series ?? 'N/A' }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Wilayah</td>
-                                        <td>: {{ $team->region ?? '-' }}</td>
+                                        <td>Status Verifikasi</td>
+                                        <td>:
+                                            @if($team->verification_status == 'verified')
+                                            <span class="status-verified"><i class="fas fa-check-circle"></i> Terverifikasi</span>
+                                            @else
+                                            <span class="status-unverified"><i class="fas fa-clock"></i> Belum Diverifikasi</span>
+                                            @endif
+                                        </td>
                                     </tr>
                                 </table>
                             </div>
 
-                            <!-- Status dan Dokumen -->
-                            <div class="status-doc-section">
-                                <!-- Status -->
-                                <div class="status-section">
-                                    <table class="info-table compact">
-                                        <tr>
-                                            <td>Status Terkunci</td>
-                                            <td>:
-                                                @if($team->locked_status == 'locked')
-                                                <span class="status-locked"><i class="fas fa-lock"></i> Terkunci</span>
-                                                @else
-                                                <span class="status-open"><i class="fas fa-lock-open"></i> Terbuka</span>
-                                                @endif
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>Status Verifikasi</td>
-                                            <td>:
-                                                @if($team->verification_status == 'verified')
-                                                <span class="status-verified"><i class="fas fa-check-circle"></i> Terverifikasi</span>
-                                                @else
-                                                <span class="status-unverified"><i class="fas fa-clock"></i> Belum Diverifikasi</span>
-                                                @endif
-                                            </td>
-                                        </tr>
-                                    </table>
+                            <!-- Dokumen -->
+                            <div class="documents-section">
+                                <h4><i class="fas fa-file-alt"></i> Dokumen</h4>
+                                <div class="document-links compact">
+                                    <!-- Surat Rekomendasi -->
+                                    @if($team->recommendation_letter)
+                                    <a href="{{ asset('storage/' . $team->recommendation_letter) }}"
+                                        target="_blank"
+                                        class="document-link available">
+                                        <i class="fas fa-file-pdf"></i>
+                                        <span>Surat Rekomendasi</span>
+                                        <i class="fas fa-external-link-alt ms-auto" style="font-size: 12px;"></i>
+                                    </a>
+                                    @else
+                                    <a href="#"
+                                        class="document-link warning mb-2"
+                                        onclick="showAlert('Surat Rekomendasi')">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        <span>Surat Rekomendasi (Belum Upload)</span>
+                                    </a>
+                                    @endif
+
+                                    <!-- Bukti Langganan Koran -->
+                                    @if($team->koran)
+                                    <a href="{{ asset('storage/' . $team->koran) }}"
+                                        target="_blank"
+                                        class="document-link available">
+                                        <i class="fas fa-newspaper"></i>
+                                        <span>Bukti Langganan Koran</span>
+                                        <i class="fas fa-external-link-alt ms-auto" style="font-size: 12px;"></i>
+                                    </a>
+                                    @else
+                                    <a href="#"
+                                        class="document-link danger"
+                                        onclick="showAlert('Bukti Langganan Koran')">
+                                        <i class="fas fa-times-circle"></i>
+                                        <span>Bukti Langganan Koran (Belum Upload)</span>
+                                    </a>
+                                    @endif
                                 </div>
+                            </div>
 
-                                <!-- Dokumen -->
-                                <div class="documents-section">
-                                    <h4><i class="fas fa-file-alt"></i> Dokumen</h4>
-                                    <div class="document-links compact">
-                                        <!-- Surat Rekomendasi -->
-                                        @if($team->recommendation_letter)
-                                        <a href="{{ asset('storage/' . $team->recommendation_letter) }}"
-                                            target="_blank"
-                                            class="document-link available">
-                                            <i class="fas fa-file-pdf"></i>
-                                            <span>Surat Rekomendasi</span>
-                                            <i class="fas fa-external-link-alt ms-auto" style="font-size: 12px;"></i>
-                                        </a>
-                                        @else
-                                        <a href="#"
-                                            class="document-link warning mb-2"
-                                            onclick="showAlert('Surat Rekomendasi')">
-                                            <i class="fas fa-exclamation-circle"></i>
-                                            <span>Surat Rekomendasi (Belum Upload)</span>
-                                        </a>
-                                        @endif
+                            <!-- Action Buttons -->
+                            <div class="action-buttons mt-2">
+                                <h4><i class="fas fa-cogs"></i> Aksi Tim</h4>
+                                <div class="action-buttons-row compact">
+                                    @if($team->locked_status != 'locked')
+                                    <form action="{{ route('admin.team.lock', $team->team_id) }}" method="POST" class="d-inline" onsubmit="return confirmAction('Kunci tim Basket Putri {{ $team->school_name }}?')">
+                                        @csrf
+                                        <button type="submit" class="btn-action-simple btn-lock">
+                                            <i class="fas fa-lock"></i> Kunci Tim
+                                        </button>
+                                    </form>
+                                    @else
+                                    <form action="{{ route('admin.team.unlock', $team->team_id) }}" method="POST" class="d-inline" onsubmit="return confirmAction('Buka kunci tim Basket Putri {{ $team->school_name }}?')">
+                                        @csrf
+                                        <button type="submit" class="btn-action-simple btn-unlock">
+                                            <i class="fas fa-unlock"></i> Buka Kunci
+                                        </button>
+                                    </form>
+                                    @endif
 
-                                        <!-- Bukti Langganan Koran -->
-                                        @if($team->koran)
-                                        <a href="{{ asset('storage/' . $team->koran) }}"
-                                            target="_blank"
-                                            class="document-link available">
-                                            <i class="fas fa-newspaper"></i>
-                                            <span>Bukti Langganan Koran</span>
-                                            <i class="fas fa-external-link-alt ms-auto" style="font-size: 12px;"></i>
-                                        </a>
-                                        @else
-                                        <a href="#"
-                                            class="document-link danger"
-                                            onclick="showAlert('Bukti Langganan Koran')">
-                                            <i class="fas fa-times-circle"></i>
-                                            <span>Bukti Langganan Koran (Belum Upload)</span>
-                                        </a>
-                                        @endif
-                                    </div>
-                                </div>
-
-                                <!-- Action Buttons -->
-                                <div class="action-buttons mt-2">
-                                    <h4><i class="fas fa-cogs"></i> Aksi Tim</h4>
-                                    <div class="action-buttons-row compact">
-                                        @if($team->locked_status != 'locked')
-                                        <form action="{{ route('admin.team.lock', $team->team_id) }}" method="POST" class="d-inline" onsubmit="return confirmAction('Kunci tim Basket Putri {{ $team->school_name }}?')">
-                                            @csrf
-                                            <button type="submit" class="btn-action-simple btn-lock">
-                                                <i class="fas fa-lock"></i> Kunci Tim
-                                            </button>
-                                        </form>
-                                        @else
-                                        <form action="{{ route('admin.team.unlock', $team->team_id) }}" method="POST" class="d-inline" onsubmit="return confirmAction('Buka kunci tim Basket Putri {{ $team->school_name }}?')">
-                                            @csrf
-                                            <button type="submit" class="btn-action-simple btn-unlock">
-                                                <i class="fas fa-unlock"></i> Buka Kunci
-                                            </button>
-                                        </form>
-                                        @endif
-
-                                        @if($team->verification_status != 'verified')
-                                        <form action="{{ route('admin.team.verify', $team->team_id) }}" method="POST" class="d-inline" onsubmit="return confirmAction('Verifikasi tim Basket Putri {{ $team->school_name }}?')">
-                                            @csrf
-                                            <button type="submit" class="btn-action-simple btn-verify">
-                                                <i class="fas fa-check"></i> Verifikasi Tim
-                                            </button>
-                                        </form>
-                                        @else
-                                        <form action="{{ route('admin.team.unverify', $team->team_id) }}" method="POST" class="d-inline" onsubmit="return confirmAction('Batalkan verifikasi tim Basket Putri {{ $team->school_name }}?')">
-                                            @csrf
-                                            <button type="submit" class="btn-action-simple btn-unverify">
-                                                <i class="fas fa-times"></i> Batalkan Verifikasi
-                                            </button>
-                                        </form>
-                                        @endif
-                                    </div>
+                                    @if($team->verification_status != 'verified')
+                                    <form action="{{ route('admin.team.verify', $team->team_id) }}" method="POST" class="d-inline" onsubmit="return confirmAction('Verifikasi tim Basket Putri {{ $team->school_name }}?')">
+                                        @csrf
+                                        <button type="submit" class="btn-action-simple btn-verify">
+                                            <i class="fas fa-check"></i> Verifikasi Tim
+                                        </button>
+                                    </form>
+                                    @else
+                                    <form action="{{ route('admin.team.unverify', $team->team_id) }}" method="POST" class="d-inline" onsubmit="return confirmAction('Batalkan verifikasi tim Basket Putri {{ $team->school_name }}?')">
+                                        @csrf
+                                        <button type="submit" class="btn-action-simple btn-unverify">
+                                            <i class="fas fa-times"></i> Batalkan Verifikasi
+                                        </button>
+                                    </form>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -1826,460 +1817,476 @@
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Player List Card - Basket Putri -->
-        <div class="card">
-            <div class="card-header" style="background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); color: white;">
+    <!-- Player List Card - Basket Putri -->
+    <div class="card">
+        <div class="card-header" style="background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); color: white;">
+            <i class="fas fa-users"></i>
+            <span>Daftar Pemain Basket Putri ({{ $players->count() }})</span>
+        </div>
+        <div class="card-body">
+            @if($players->count() > 0)
+            <div class="table-container">
+                <table class="data">
+                    <thead>
+                        <tr>
+                            <th width="50">#</th>
+                            <th>NAMA</th>
+                            <th>ROLE</th>
+                            <th width="80">NO. JERSEY</th>
+                            <th width="120">TANGGAL LAHIR</th>
+                            <th width="100">JENIS KELAMIN</th>
+                            <th width="120">POSISI</th>
+                            <th width="100">KELAS</th>
+                            <th width="100">TAHUN STTB</th>
+                            <th width="120">TINDAKAN</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($players as $index => $player)
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td><strong>{{ $player->name ?? 'N/A' }}</strong></td>
+                            <td class="text-center">
+                                @if($player->role == 'Leader')
+                                <span class="badge-role-leader">Leader</span>
+                                @else
+                                <span class="badge-role-player">Pemain</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                @if($player->jersey_number)
+                                <span class="badge-jersey" style="background: #ec4899;">{{ $player->jersey_number }}</span>
+                                @else
+                                <span style="color: #718096;">-</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($player->birthdate)
+                                {{ \Carbon\Carbon::parse($player->birthdate)->isoFormat('D MMMM YYYY') }}
+                                @else
+                                <span style="color: #718096;">-</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                @if($player->gender == 'Female')
+                                <span class="badge-gender-female">Perempuan</span>
+                                @else
+                                <span style="color: #718096;">-</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                @if($player->basketball_position)
+                                <span class="badge-position">{{ $player->basketball_position }}</span>
+                                @else
+                                <span style="color: #718096;">-</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                @if($player->grade)
+                                <span class="badge-grade">{{ $player->grade }}</span>
+                                @else
+                                <span style="color: #718096;">-</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                @if($player->sttb_year)
+                                <span class="badge-sttb">{{ $player->sttb_year }}</span>
+                                @else
+                                <span style="color: #718096;">-</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                <a href="{{ route('admin.player.detail', $player->id) }}" class="btn-detail">
+                                    <i class="fas fa-eye"></i> Detail
+                                </a>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            @else
+            <div class="empty-state">
                 <i class="fas fa-users"></i>
-                <span>Daftar Pemain Basket Putri ({{ $players->count() }})</span>
+                <h5>Belum ada data pemain</h5>
+                <p>Data pemain akan muncul di sini setelah mendaftar menggunakan referral code tim ini.</p>
+                <p class="text-muted mt-2" style="font-size: 12px;">
+                    <i class="fas fa-info-circle"></i>
+                    Tim ini memiliki referral code: <strong>{{ $team->referral_code ?? 'N/A' }}</strong>
+                </p>
             </div>
-            <div class="card-body">
-                @if($players->count() > 0)
-                <div class="table-container">
-                    <table class="data">
-                        <thead>
-                            <tr>
-                                <th width="50">#</th>
-                                <th>Nama</th>
-                                <th>Role</th>
-                                <th width="80">No. Jersey</th>
-                                <th width="120">Tanggal Lahir</th>
-                                <th width="100">Jenis Kelamin</th>
-                                <th width="100">Posisi</th>
-                                <th width="100">Kelas</th>
-                                <th width="100">Tahun STTB</th>
-                                <th width="100" class="text-center">Tindakan</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($players as $index => $player)
-                            <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td><strong>{{ $player->name ?? 'N/A' }}</strong></td>
-                                <td>
-                                    @if($player->role == 'Leader')
-                                    <span class="status-locked"><i class="fas fa-crown"></i> Leader</span>
-                                    @else
-                                    <span class="status-open"><i class="fas fa-user"></i> Pemain</span>
-                                    @endif
-                                </td>
-                                <td class="text-center">
-                                    <span style="display: inline-block; width: 30px; height: 30px; line-height: 30px; background: #ec4899; color: white; border-radius: 50%; font-weight: bold;">
-                                        {{ $player->jersey_number ?? '-' }}
-                                    </span>
-                                </td>
-                                <td>
-                                    @if($player->birthdate)
-                                    {{ \Carbon\Carbon::parse($player->birthdate)->isoFormat('D MMMM YYYY') }}
-                                    @else
-                                    <span style="color: #718096;">-</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if($player->gender == 'Male')
-                                    <i class="fas fa-mars text-primary me-1"></i> Laki-laki
-                                    @elseif($player->gender == 'Female')
-                                    <i class="fas fa-venus text-pink me-1"></i> Perempuan
-                                    @else
-                                    <span style="color: #718096;">-</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    <span class="badge bg-light text-dark border">{{ $player->basketball_position ?? '-' }}</span>
-                                </td>
-                                <td>{{ $player->grade ?? '-' }}</td>
-                                <td>{{ $player->sttb_year ?? '-' }}</td>
-                                <td class="text-center">
-                                    <a href="{{ route('admin.player.detail', $player->id) }}" class="btn-detail">
-                                        <i class="fas fa-eye"></i> Detail
-                                    </a>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-                @else
-                <div class="empty-state">
-                    <i class="fas fa-users"></i>
-                    <h5>Belum ada data pemain</h5>
-                    <p>Data pemain akan muncul di sini setelah mendaftar menggunakan referral code tim ini.</p>
-                    <p class="text-muted mt-2" style="font-size: 12px;">
-                        <i class="fas fa-info-circle"></i>
-                        Tim ini memiliki referral code: <strong>{{ $team->referral_code ?? 'N/A' }}</strong>
-                    </p>
-                </div>
-                @endif
-            </div>
+            @endif
         </div>
+    </div>
 
-        <!-- Official List Card - Basket Putri -->
-        <div class="card">
-            <div class="card-header" style="background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); color: white;">
-                <i class="fas fa-user-tie"></i>
-                <span>Daftar Official Basket Putri ({{ $officials->count() }})</span>
-            </div>
-            <div class="card-body">
-                @if($officials->count() > 0)
-                <div class="table-container">
-                    <table class="data">
-                        <thead>
-                            <tr>
-                                <th width="50">#</th>
-                                <th>Nama</th>
-                                <th width="120">Jabatan</th>
-                                <th width="150">Email</th>
-                                <th width="100">Telepon</th>
-                                <th width="120">Jenis Kelamin</th>
-                                <th width="120">Status Verifikasi</th>
-                                <th width="100" class="text-center">Tindakan</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($officials as $index => $official)
-                            <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td><strong>{{ $official->name ?? 'N/A' }}</strong></td>
-                                <td>
-                                    <span class="badge bg-light text-dark border">{{ $official->team_role ?? '-' }}</span>
-                                </td>
-                                <td>
-                                    <a href="mailto:{{ $official->email }}" class="text-decoration-none">
-                                        <i class="fas fa-envelope me-1 text-primary"></i>
-                                        {{ $official->email ?? '-' }}
-                                    </a>
-                                </td>
-                                <td>
-                                    @if($official->phone)
-                                    <a href="tel:{{ $official->phone }}" class="text-decoration-none">
-                                        <i class="fas fa-phone me-1 text-success"></i>
-                                        {{ $official->phone }}
-                                    </a>
-                                    @else
-                                    <span style="color: #718096;">-</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if($official->gender == 'male')
-                                    <i class="fas fa-mars text-primary me-1"></i> Laki-laki
-                                    @elseif($official->gender == 'female')
-                                    <i class="fas fa-venus text-pink me-1"></i> Perempuan
-                                    @else
-                                    <span style="color: #718096;">-</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if($official->verification_status == 'verified')
-                                    <span class="status-verified"><i class="fas fa-check-circle"></i> Terverifikasi</span>
-                                    @elseif($official->verification_status == 'rejected')
-                                    <span class="status-open"><i class="fas fa-times-circle"></i> Ditolak</span>
-                                    @else
-                                    <span class="status-unverified"><i class="fas fa-clock"></i> Belum Diverifikasi</span>
-                                    @endif
-                                </td>
-                                <td class="text-center">
-                                    <a href="{{ route('admin.official.detail', $official->official_id) }}" class="btn-detail">
-                                        <i class="fas fa-eye"></i> Detail
-                                    </a>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-                @else
-                <div class="empty-state">
-                    <i class="fas fa-inbox"></i>
-                    <h5>Belum ada data official</h5>
-                    <p>Data official akan muncul di sini setelah ditambahkan.</p>
-                </div>
-                @endif
-            </div>
+    <!-- Official List Card - Basket Putri -->
+    <div class="card">
+        <div class="card-header" style="background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); color: white;">
+            <i class="fas fa-user-tie"></i>
+            <span>Daftar Official Basket Putri ({{ $officials->count() }})</span>
         </div>
-
-        <!-- Jersey List Card - Basket Putri -->
-        <div class="card">
-            <div class="card-header" style="background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); color: white;">
-                <i class="fas fa-tshirt"></i>
-                <span>Daftar Jersey Basket Putri</span>
+        <div class="card-body">
+            @if($officials->count() > 0)
+            <div class="table-container">
+                <table class="data">
+                    <thead>
+                        <tr>
+                            <th width="50">#</th>
+                            <th>Nama</th>
+                            <th width="120">Jabatan</th>
+                            <th width="150">Email</th>
+                            <th width="100">Telepon</th>
+                            <th width="120">Jenis Kelamin</th>
+                            <th width="120">Status Verifikasi</th>
+                            <th width="100" class="text-center">Tindakan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($officials as $index => $official)
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td><strong>{{ $official->name ?? 'N/A' }}</strong></td>
+                            <td>
+                                <span class="badge bg-light text-dark border">{{ $official->team_role ?? '-' }}</span>
+                            </td>
+                            <td>
+                                <a href="mailto:{{ $official->email }}" class="text-decoration-none">
+                                    <i class="fas fa-envelope me-1 text-primary"></i>
+                                    {{ $official->email ?? '-' }}
+                                </a>
+                            </td>
+                            <td>
+                                @if($official->phone)
+                                <a href="tel:{{ $official->phone }}" class="text-decoration-none">
+                                    <i class="fas fa-phone me-1 text-success"></i>
+                                    {{ $official->phone }}
+                                </a>
+                                @else
+                                <span style="color: #718096;">-</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($official->gender == 'male')
+                                <i class="fas fa-mars text-primary me-1"></i> Laki-laki
+                                @elseif($official->gender == 'female')
+                                <i class="fas fa-venus text-pink me-1"></i> Perempuan
+                                @else
+                                <span style="color: #718096;">-</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($official->verification_status == 'verified')
+                                <span class="status-verified"><i class="fas fa-check-circle"></i> Terverifikasi</span>
+                                @elseif($official->verification_status == 'rejected')
+                                <span class="status-open"><i class="fas fa-times-circle"></i> Ditolak</span>
+                                @else
+                                <span class="status-unverified"><i class="fas fa-clock"></i> Belum Diverifikasi</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                <a href="{{ route('admin.official.detail', $official->official_id) }}" class="btn-detail">
+                                    <i class="fas fa-eye"></i> Detail
+                                </a>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
-            <div class="card-body">
-                <div class="jersey-single-container">
-                    <h3 class="jersey-main-title">Galeri Jersey Tim Basket Putri</h3>
-                    <div class="jersey-image-container">
-                        <!-- Jersey Kandang -->
-                        <div class="jersey-single-item" onclick="showJerseyPopup('home')">
-                            <p>Jersey Kandang</p>
-                            @if($team->jersey_home)
-                            <img src="{{ asset('storage/' . $team->jersey_home) }}"
-                                alt="Jersey Kandang {{ $team->school_name }}"
-                                class="jersey-image"
-                                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div class="no-image" style="display: none;">
-                                <i class="fas fa-tshirt"></i>
-                                <span>Gambar Error</span>
-                            </div>
-                            @else
-                            <div class="no-image">
-                                <i class="fas fa-tshirt"></i>
-                                <span>Belum Upload</span>
-                            </div>
-                            @endif
-                        </div>
+            @else
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <h5>Belum ada data official</h5>
+                <p>Data official akan muncul di sini setelah ditambahkan.</p>
+            </div>
+            @endif
+        </div>
+    </div>
 
-                        <!-- Jersey Tandang -->
-                        <div class="jersey-single-item" onclick="showJerseyPopup('away')">
-                            <p>Jersey Tandang</p>
-                            @if($team->jersey_away)
-                            <img src="{{ asset('storage/' . $team->jersey_away) }}"
-                                alt="Jersey Tandang {{ $team->school_name }}"
-                                class="jersey-image"
-                                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div class="no-image" style="display: none;">
-                                <i class="fas fa-tshirt"></i>
-                                <span>Gambar Error</span>
-                            </div>
-                            @else
-                            <div class="no-image">
-                                <i class="fas fa-tshirt"></i>
-                                <span>Belum Upload</span>
-                            </div>
-                            @endif
+    <!-- Jersey List Card - Basket Putri -->
+    <div class="card">
+        <div class="card-header" style="background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); color: white;">
+            <i class="fas fa-tshirt"></i>
+            <span>Daftar Jersey Basket Putri</span>
+        </div>
+        <div class="card-body">
+            <div class="jersey-single-container">
+                <h3 class="jersey-main-title">Galeri Jersey Tim Basket Putri</h3>
+                <div class="jersey-image-container">
+                    <!-- Jersey Kandang -->
+                    <div class="jersey-single-item" onclick="showJerseyPopup('home')">
+                        <p>Jersey Kandang</p>
+                        @if($team->jersey_home)
+                        <img src="{{ asset('storage/' . $team->jersey_home) }}"
+                            alt="Jersey Kandang {{ $team->school_name }}"
+                            class="jersey-image"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="no-image" style="display: none;">
+                            <i class="fas fa-tshirt"></i>
+                            <span>Gambar Error</span>
                         </div>
+                        @else
+                        <div class="no-image">
+                            <i class="fas fa-tshirt"></i>
+                            <span>Belum Upload</span>
+                        </div>
+                        @endif
+                    </div>
 
-                        <!-- Jersey Alternatif -->
-                        <div class="jersey-single-item" onclick="showJerseyPopup('alternate')">
-                            <p>Jersey Alternatif</p>
-                            @if($team->jersey_alternate)
-                            <img src="{{ asset('storage/' . $team->jersey_alternate) }}"
-                                alt="Jersey Alternatif {{ $team->school_name }}"
-                                class="jersey-image"
-                                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div class="no-image" style="display: none;">
-                                <i class="fas fa-tshirt"></i>
-                                <span>Gambar Error</span>
-                            </div>
-                            @else
-                            <div class="no-image">
-                                <i class="fas fa-tshirt"></i>
-                                <span>Belum Upload</span>
-                            </div>
-                            @endif
+                    <!-- Jersey Tandang -->
+                    <div class="jersey-single-item" onclick="showJerseyPopup('away')">
+                        <p>Jersey Tandang</p>
+                        @if($team->jersey_away)
+                        <img src="{{ asset('storage/' . $team->jersey_away) }}"
+                            alt="Jersey Tandang {{ $team->school_name }}"
+                            class="jersey-image"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="no-image" style="display: none;">
+                            <i class="fas fa-tshirt"></i>
+                            <span>Gambar Error</span>
                         </div>
+                        @else
+                        <div class="no-image">
+                            <i class="fas fa-tshirt"></i>
+                            <span>Belum Upload</span>
+                        </div>
+                        @endif
+                    </div>
+
+                    <!-- Jersey Alternatif -->
+                    <div class="jersey-single-item" onclick="showJerseyPopup('alternate')">
+                        <p>Jersey Alternatif</p>
+                        @if($team->jersey_alternate)
+                        <img src="{{ asset('storage/' . $team->jersey_alternate) }}"
+                            alt="Jersey Alternatif {{ $team->school_name }}"
+                            class="jersey-image"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="no-image" style="display: none;">
+                            <i class="fas fa-tshirt"></i>
+                            <span>Gambar Error</span>
+                        </div>
+                        @else
+                        <div class="no-image">
+                            <i class="fas fa-tshirt"></i>
+                            <span>Belum Upload</span>
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
         </div>
-        @else
-        <!-- Empty State for Unregistered Team -->
-        <div class="empty-state">
-            <i class="fas fa-basketball-ball" style="color: #ec4899;"></i>
-            <h5>Tim Basket Putri Belum Terdaftar</h5>
-            <p>Sekolah <strong>{{ $mainTeam->school_name }}</strong> belum mendaftarkan tim untuk kategori Basket Putri.</p>
-            <p style="margin-top: 20px; font-size: 13px; color: #6b7280;">
-                <i class="fas fa-info-circle"></i>
-                Untuk mendaftarkan tim, gunakan referral code: <strong>{{ $mainTeam->referral_code ?? 'N/A' }}</strong>
-            </p>
-        </div>
-        @endif
+    </div>
+    @else
+    <!-- Empty State for Unregistered Team -->
+    <div class="empty-state">
+        <i class="fas fa-basketball-ball" style="color: #ec4899;"></i>
+        <h5>Tim Basket Putri Belum Terdaftar</h5>
+        <p>Sekolah <strong>{{ $mainTeam->school_name }}</strong> belum mendaftarkan tim untuk kategori Basket Putri.</p>
+        <p style="margin-top: 20px; font-size: 13px; color: #6b7280;">
+            <i class="fas fa-info-circle"></i>
+            Untuk mendaftarkan tim, gunakan referral code: <strong>{{ $mainTeam->referral_code ?? 'N/A' }}</strong>
+        </p>
+    </div>
+    @endif
 
     @elseif($activeTab == 'Dancer')
-        @php
-            if(isset($teamData['Dancer']) && $teamData['Dancer']['exists']) {
-                $teamInfo = $teamData['Dancer'];
-                $team = $teamInfo['team'];
-                $players = $teamInfo['players'];
-                $officials = $teamInfo['officials'];
-            } else {
-                $team = null;
-                $players = collect();
-                $officials = collect();
-            }
-        @endphp
+    @php
+    if(isset($teamData['Dancer']) && $teamData['Dancer']['exists']) {
+    $teamInfo = $teamData['Dancer'];
+    $team = $teamInfo['team'];
+    $players = $teamInfo['players'];
+    $officials = $teamInfo['officials'];
+    } else {
+    $team = null;
+    $players = collect();
+    $officials = collect();
+    }
+    @endphp
 
-        @if($team)
-        <!-- Team Information Card - Dancer -->
-        <div class="card">
-            <div class="card-header" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white;">
-                <i class="fas fa-info-circle"></i>
-                <span>Informasi Tim Dancer</span>
-            </div>
-            <div class="card-body">
-                <div class="team-info">
-                    <!-- Logo di Kiri -->
-                    <div class="logo-column">
-                        <div class="logo-box-square" onclick="showLogoPopup()">
-                            @if($team->school_logo)
-                            @php
-                            $logoPath = storage_path('app/public/' . $team->school_logo);
-                            $logoExists = file_exists($logoPath);
-                            @endphp
+    @if($team)
+    <!-- Team Information Card - Dancer -->
+    <div class="card">
+        <div class="card-header" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white;">
+            <i class="fas fa-info-circle"></i>
+            <span>Informasi Tim Dancer</span>
+        </div>
+        <div class="card-body">
+            <div class="team-info">
+                <!-- Logo di Kiri -->
+                <div class="logo-column">
+                    <div class="logo-box-square" onclick="showLogoPopup()">
+                        @if($team->school_logo)
+                        @php
+                        $logoPath = storage_path('app/public/' . $team->school_logo);
+                        $logoExists = file_exists($logoPath);
+                        @endphp
 
-                            @if($logoExists)
-                            <img src="{{ asset('storage/' . $team->school_logo) }}"
-                                alt="Logo Sekolah {{ $team->school_name }}"
-                                id="team-logo"
-                                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div class="logo-placeholder" id="logo-placeholder-fallback" style="display: none;">
-                                <i class="fas fa-school"></i>
-                                <span>Logo Tidak Ditemukan</span>
-                            </div>
-                            @else
-                            <div class="logo-placeholder">
-                                <i class="fas fa-school"></i>
-                                <span>Logo Tidak Ditemukan</span>
-                            </div>
-                            @endif
-                            @else
-                            <div class="logo-placeholder">
-                                <i class="fas fa-school"></i>
-                                <span>No Logo</span>
-                            </div>
-                            @endif
+                        @if($logoExists)
+                        <img src="{{ asset('storage/' . $team->school_logo) }}"
+                            alt="Logo Sekolah {{ $team->school_name }}"
+                            id="team-logo"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="logo-placeholder" id="logo-placeholder-fallback" style="display: none;">
+                            <i class="fas fa-school"></i>
+                            <span>Logo Tidak Ditemukan</span>
                         </div>
+                        @else
+                        <div class="logo-placeholder">
+                            <i class="fas fa-school"></i>
+                            <span>Logo Tidak Ditemukan</span>
+                        </div>
+                        @endif
+                        @else
+                        <div class="logo-placeholder">
+                            <i class="fas fa-school"></i>
+                            <span>No Logo</span>
+                        </div>
+                        @endif
                     </div>
+                </div>
 
-                    <!-- Konten di Kanan -->
-                    <div class="content-column">
-                        <div class="content-grid">
-                            <!-- Info Dasar -->
-                            <div class="info-section">
-                                <table class="info-table">
+                <!-- Konten di Kanan -->
+                <div class="content-column">
+                    <div class="content-grid">
+                        <!-- Info Dasar -->
+                        <div class="info-section">
+                            <table class="info-table">
+                                <tr>
+                                    <td>ID Tim</td>
+                                    <td>: <strong>{{ $team->referral_code ?? 'N/A' }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>Leader</td>
+                                    <td>: {{ $team->registered_by ?? 'N/A' }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Nama Sekolah</td>
+                                    <td>: <strong>{{ $team->school_name }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>Kompetisi</td>
+                                    <td>: {{ $team->competition ?? 'N/A' }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Musim</td>
+                                    <td>: {{ $team->season ?? 'N/A' }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Seri</td>
+                                    <td>: {{ $team->series ?? 'N/A' }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Wilayah</td>
+                                    <td>: {{ $team->region ?? '-' }}</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- Status dan Dokumen -->
+                        <div class="status-doc-section">
+                            <!-- Status -->
+                            <div class="status-section">
+                                <table class="info-table compact">
                                     <tr>
-                                        <td>ID Tim</td>
-                                        <td>: <strong>{{ $team->referral_code ?? 'N/A' }}</strong></td>
+                                        <td>Status Terkunci</td>
+                                        <td>:
+                                            @if($team->locked_status == 'locked')
+                                            <span class="status-locked">Terkunci</span>
+                                            @else
+                                            <span class="status-open">Terbuka</span>
+                                            @endif
+                                        </td>
                                     </tr>
                                     <tr>
-                                        <td>Leader</td>
-                                        <td>: {{ $team->registered_by ?? 'N/A' }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Nama Sekolah</td>
-                                        <td>: <strong>{{ $team->school_name }}</strong></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Kompetisi</td>
-                                        <td>: {{ $team->competition ?? 'N/A' }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Musim</td>
-                                        <td>: {{ $team->season ?? 'N/A' }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Seri</td>
-                                        <td>: {{ $team->series ?? 'N/A' }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Wilayah</td>
-                                        <td>: {{ $team->region ?? '-' }}</td>
+                                        <td>Status Verifikasi</td>
+                                        <td>:
+                                            @if($team->verification_status == 'verified')
+                                            <span class="status-verified">Terverifikasi</span>
+                                            @else
+                                            <span class="status-unverified">Belum Diverifikasi</span>
+                                            @endif
+                                        </td>
                                     </tr>
                                 </table>
                             </div>
 
-                            <!-- Status dan Dokumen -->
-                            <div class="status-doc-section">
-                                <!-- Status -->
-                                <div class="status-section">
-                                    <table class="info-table compact">
-                                        <tr>
-                                            <td>Status Terkunci</td>
-                                            <td>:
-                                                @if($team->locked_status == 'locked')
-                                                <span class="status-locked">Terkunci</span>
-                                                @else
-                                                <span class="status-open">Terbuka</span>
-                                                @endif
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>Status Verifikasi</td>
-                                            <td>:
-                                                @if($team->verification_status == 'verified')
-                                                <span class="status-verified">Terverifikasi</span>
-                                                @else
-                                                <span class="status-unverified">Belum Diverifikasi</span>
-                                                @endif
-                                            </td>
-                                        </tr>
-                                    </table>
+                            <!-- Dokumen -->
+                            <div class="documents-section">
+                                <h4>Dokumen</h4>
+                                <div class="document-links compact">
+                                    <!-- Surat Rekomendasi -->
+                                    @if($team->recommendation_letter)
+                                    <a href="{{ asset('storage/' . $team->recommendation_letter) }}"
+                                        target="_blank"
+                                        class="document-link available">
+                                        <i class="fas fa-file-pdf"></i>
+                                        <span>Surat Rekomendasi</span>
+                                    </a>
+                                    @else
+                                    <a href="#"
+                                        class="document-link warning mb-2"
+                                        onclick="showAlert('Surat Rekomendasi')">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        <span>Surat Rekomendasi (Belum Upload)</span>
+                                    </a>
+                                    @endif
+
+                                    <!-- Bukti Langganan Koran -->
+                                    @if($team->koran)
+                                    <a href="{{ asset('storage/' . $team->koran) }}"
+                                        target="_blank"
+                                        class="document-link available">
+                                        <i class="fas fa-newspaper"></i>
+                                        <span>Bukti Langganan Koran</span>
+                                    </a>
+                                    @else
+                                    <a href="#"
+                                        class="document-link danger"
+                                        onclick="showAlert('Bukti Langganan Koran')">
+                                        <i class="fas fa-times-circle"></i>
+                                        <span>Bukti Langganan Koran (Belum Upload)</span>
+                                    </a>
+                                    @endif
                                 </div>
+                            </div>
 
-                                <!-- Dokumen -->
-                                <div class="documents-section">
-                                    <h4>Dokumen</h4>
-                                    <div class="document-links compact">
-                                        <!-- Surat Rekomendasi -->
-                                        @if($team->recommendation_letter)
-                                        <a href="{{ asset('storage/' . $team->recommendation_letter) }}"
-                                            target="_blank"
-                                            class="document-link available">
-                                            <i class="fas fa-file-pdf"></i>
-                                            <span>Surat Rekomendasi</span>
-                                        </a>
-                                        @else
-                                        <a href="#"
-                                            class="document-link warning mb-2"
-                                            onclick="showAlert('Surat Rekomendasi')">
-                                            <i class="fas fa-exclamation-circle"></i>
-                                            <span>Surat Rekomendasi (Belum Upload)</span>
-                                        </a>
-                                        @endif
+                            <!-- Action Buttons -->
+                            <div class="action-buttons mt-2">
+                                <h4>Aksi Tim</h4>
+                                <div class="action-buttons-row compact">
+                                    @if($team->locked_status != 'locked')
+                                    <form action="{{ route('admin.team.lock', $team->team_id) }}" method="POST" class="d-inline" onsubmit="return confirmAction('Kunci tim Dancer {{ $team->school_name }}?')">
+                                        @csrf
+                                        <button type="submit" class="btn-action-simple btn-lock">
+                                            <i class="fas fa-lock"></i> Kunci Tim
+                                        </button>
+                                    </form>
+                                    @else
+                                    <form action="{{ route('admin.team.unlock', $team->team_id) }}" method="POST" class="d-inline" onsubmit="return confirmAction('Buka kunci tim Dancer {{ $team->school_name }}?')">
+                                        @csrf
+                                        <button type="submit" class="btn-action-simple btn-unlock">
+                                            <i class="fas fa-unlock"></i> Buka Kunci
+                                        </button>
+                                    </form>
+                                    @endif
 
-                                        <!-- Bukti Langganan Koran -->
-                                        @if($team->koran)
-                                        <a href="{{ asset('storage/' . $team->koran) }}"
-                                            target="_blank"
-                                            class="document-link available">
-                                            <i class="fas fa-newspaper"></i>
-                                            <span>Bukti Langganan Koran</span>
-                                        </a>
-                                        @else
-                                        <a href="#"
-                                            class="document-link danger"
-                                            onclick="showAlert('Bukti Langganan Koran')">
-                                            <i class="fas fa-times-circle"></i>
-                                            <span>Bukti Langganan Koran (Belum Upload)</span>
-                                        </a>
-                                        @endif
-                                    </div>
-                                </div>
-
-                                <!-- Action Buttons -->
-                                <div class="action-buttons mt-2">
-                                    <h4>Aksi Tim</h4>
-                                    <div class="action-buttons-row compact">
-                                        @if($team->locked_status != 'locked')
-                                        <form action="{{ route('admin.team.lock', $team->team_id) }}" method="POST" class="d-inline" onsubmit="return confirmAction('Kunci tim Dancer {{ $team->school_name }}?')">
-                                            @csrf
-                                            <button type="submit" class="btn-action-simple btn-lock">
-                                                <i class="fas fa-lock"></i> Kunci Tim
-                                            </button>
-                                        </form>
-                                        @else
-                                        <form action="{{ route('admin.team.unlock', $team->team_id) }}" method="POST" class="d-inline" onsubmit="return confirmAction('Buka kunci tim Dancer {{ $team->school_name }}?')">
-                                            @csrf
-                                            <button type="submit" class="btn-action-simple btn-unlock">
-                                                <i class="fas fa-unlock"></i> Buka Kunci
-                                            </button>
-                                        </form>
-                                        @endif
-
-                                        @if($team->verification_status != 'verified')
-                                        <form action="{{ route('admin.team.verify', $team->team_id) }}" method="POST" class="d-inline" onsubmit="return confirmAction('Verifikasi tim Dancer {{ $team->school_name }}?')">
-                                            @csrf
-                                            <button type="submit" class="btn-action-simple btn-verify">
-                                                <i class="fas fa-check"></i> Verifikasi Tim
-                                            </button>
-                                        </form>
-                                        @else
-                                        <form action="{{ route('admin.team.unverify', $team->team_id) }}" method="POST" class="d-inline" onsubmit="return confirmAction('Batalkan verifikasi tim Dancer {{ $team->school_name }}?')">
-                                            @csrf
-                                            <button type="submit" class="btn-action-simple btn-unverify">
-                                                <i class="fas fa-times"></i> Batalkan Verifikasi
-                                            </button>
-                                        </form>
-                                        @endif
-                                    </div>
+                                    @if($team->verification_status != 'verified')
+                                    <form action="{{ route('admin.team.verify', $team->team_id) }}" method="POST" class="d-inline" onsubmit="return confirmAction('Verifikasi tim Dancer {{ $team->school_name }}?')">
+                                        @csrf
+                                        <button type="submit" class="btn-action-simple btn-verify">
+                                            <i class="fas fa-check"></i> Verifikasi Tim
+                                        </button>
+                                    </form>
+                                    @else
+                                    <form action="{{ route('admin.team.unverify', $team->team_id) }}" method="POST" class="d-inline" onsubmit="return confirmAction('Batalkan verifikasi tim Dancer {{ $team->school_name }}?')">
+                                        @csrf
+                                        <button type="submit" class="btn-action-simple btn-unverify">
+                                            <i class="fas fa-times"></i> Batalkan Verifikasi
+                                        </button>
+                                    </form>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -2287,256 +2294,257 @@
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Dancer List Card -->
-        <div class="card">
-            <div class="card-header" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white;">
+    <!-- Dancer List Card -->
+    <div class="card">
+        <div class="card-header" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white;">
+            <i class="fas fa-music"></i>
+            <span>Daftar Dancer ({{ $players->count() }})</span>
+        </div>
+        <div class="card-body">
+            @if($players->count() > 0)
+            <div class="table-container">
+                <table class="data">
+                    <thead>
+                        <tr>
+                            <th width="50">#</th>
+                            <th>Nama</th>
+                            <th width="100">Role</th>
+                            <th width="120">Tanggal Lahir</th>
+                            <th width="100">Jenis Kelamin</th>
+                            <th width="100">Tinggi</th>
+                            <th width="100">Berat</th>
+                            <th width="100">Ukuran Kaos</th>
+                            <th width="100">Status Verifikasi</th>
+                            <th width="100" class="text-center">Tindakan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($players as $index => $player)
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td><strong>{{ $player->name ?? 'N/A' }}</strong></td>
+                            <td>
+                                @if($player->role == 'Leader')
+                                <span class="status-locked">Leader</span>
+                                @else
+                                <span class="status-open">Member</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($player->birthdate)
+                                {{ \Carbon\Carbon::parse($player->birthdate)->isoFormat('D MMMM YYYY') }}
+                                @else
+                                <span style="color: #718096;">-</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($player->gender == 'male' || $player->gender == 'Laki-laki')
+                                Laki-laki
+                                @elseif($player->gender == 'female' || $player->gender == 'Perempuan')
+                                Perempuan
+                                @else
+                                <span style="color: #718096;">-</span>
+                                @endif
+                            </td>
+                            <td>{{ $player->height ?? '-' }} cm</td>
+                            <td>{{ $player->weight ?? '-' }} kg</td>
+                            <td>{{ $player->tshirt_size ?? '-' }}</td>
+                            <td>
+                                @if($player->verification_status == 'verified')
+                                <span class="status-verified">Terverifikasi</span>
+                                @elseif($player->verification_status == 'rejected')
+                                <span class="status-open">Ditolak</span>
+                                @else
+                                <span class="status-unverified">Belum Diverifikasi</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                <a href="{{ route('admin.dancer.detail', $player->dancer_id) }}" class="btn-detail">
+                                    <i class="fas fa-eye"></i> Detail
+                                </a>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            @else
+            <div class="empty-state">
                 <i class="fas fa-music"></i>
-                <span>Daftar Dancer ({{ $players->count() }})</span>
+                <h5>Belum ada data dancer</h5>
+                <p>Data dancer akan muncul di sini setelah mendaftar menggunakan referral code tim ini.</p>
+                <p class="text-muted mt-2" style="font-size: 12px;">
+                    <i class="fas fa-info-circle"></i>
+                    Tim ini memiliki referral code: <strong>{{ $team->referral_code ?? 'N/A' }}</strong>
+                </p>
             </div>
-            <div class="card-body">
-                @if($players->count() > 0)
-                <div class="table-container">
-                    <table class="data">
-                        <thead>
-                            <tr>
-                                <th width="50">#</th>
-                                <th>Nama</th>
-                                <th width="100">Role</th>
-                                <th width="120">Tanggal Lahir</th>
-                                <th width="100">Jenis Kelamin</th>
-                                <th width="100">Tinggi</th>
-                                <th width="100">Berat</th>
-                                <th width="100">Ukuran Kaos</th>
-                                <th width="100">Status Verifikasi</th>
-                                <th width="100" class="text-center">Tindakan</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($players as $index => $player)
-                            <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td><strong>{{ $player->name ?? 'N/A' }}</strong></td>
-                                <td>
-                                    @if($player->role == 'Leader')
-                                    <span class="status-locked">Leader</span>
-                                    @else
-                                    <span class="status-open">Member</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if($player->birthdate)
-                                    {{ \Carbon\Carbon::parse($player->birthdate)->isoFormat('D MMMM YYYY') }}
-                                    @else
-                                    <span style="color: #718096;">-</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if($player->gender == 'male' || $player->gender == 'Laki-laki')
-                                    Laki-laki
-                                    @elseif($player->gender == 'female' || $player->gender == 'Perempuan')
-                                    Perempuan
-                                    @else
-                                    <span style="color: #718096;">-</span>
-                                    @endif
-                                </td>
-                                <td>{{ $player->height ?? '-' }} cm</td>
-                                <td>{{ $player->weight ?? '-' }} kg</td>
-                                <td>{{ $player->tshirt_size ?? '-' }}</td>
-                                <td>
-                                    @if($player->verification_status == 'verified')
-                                    <span class="status-verified">Terverifikasi</span>
-                                    @elseif($player->verification_status == 'rejected')
-                                    <span class="status-open">Ditolak</span>
-                                    @else
-                                    <span class="status-unverified">Belum Diverifikasi</span>
-                                    @endif
-                                </td>
-                                <td class="text-center">
-                                    <a href="{{ route('admin.dancer.detail', $player->dancer_id) }}" class="btn-detail">
-                                        <i class="fas fa-eye"></i> Detail
-                                    </a>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-                @else
-                <div class="empty-state">
-                    <i class="fas fa-music"></i>
-                    <h5>Belum ada data dancer</h5>
-                    <p>Data dancer akan muncul di sini setelah mendaftar menggunakan referral code tim ini.</p>
-                    <p class="text-muted mt-2" style="font-size: 12px;">
-                        <i class="fas fa-info-circle"></i>
-                        Tim ini memiliki referral code: <strong>{{ $team->referral_code ?? 'N/A' }}</strong>
-                    </p>
-                </div>
-                @endif
-            </div>
+            @endif
         </div>
+    </div>
 
-        <!-- Official List Card - Dancer -->
-        <div class="card">
-            <div class="card-header" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white;">
-                <i class="fas fa-user-tie"></i>
-                <span>Daftar Official Dancer ({{ $officials->count() }})</span>
-            </div>
-            <div class="card-body">
-                @if($officials->count() > 0)
-                <div class="table-container">
-                    <table class="data">
-                        <thead>
-                            <tr>
-                                <th width="50">#</th>
-                                <th>Nama</th>
-                                <th width="120">Jabatan</th>
-                                <th width="150">Email</th>
-                                <th width="100">Telepon</th>
-                                <th width="120">Jenis Kelamin</th>
-                                <th width="120">Status Verifikasi</th>
-                                <th width="100" class="text-center">Tindakan</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($officials as $index => $official)
-                            <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td><strong>{{ $official->name ?? 'N/A' }}</strong></td>
-                                <td>{{ $official->team_role ?? '-' }}</td>
-                                <td>{{ $official->email ?? '-' }}</td>
-                                <td>{{ $official->phone ?? '-' }}</td>
-                                <td>
-                                    @if($official->gender == 'male')
-                                    Laki-laki
-                                    @elseif($official->gender == 'female')
-                                    Perempuan
-                                    @else
-                                    <span style="color: #718096;">-</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if($official->verification_status == 'verified')
-                                    <span class="status-verified">Terverifikasi</span>
-                                    @elseif($official->verification_status == 'rejected')
-                                    <span class="status-open">Ditolak</span>
-                                    @else
-                                    <span class="status-unverified">Belum Diverifikasi</span>
-                                    @endif
-                                </td>
-                                <td class="text-center">
-                                    <a href="{{ route('admin.official.detail', $official->official_id) }}" class="btn-detail">
-                                        <i class="fas fa-eye"></i> Detail
-                                    </a>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-                @else
-                <div class="empty-state">
-                    <i class="fas fa-inbox"></i>
-                    <h5>Belum ada data official</h5>
-                    <p>Data official akan muncul di sini setelah ditambahkan.</p>
-                </div>
-                @endif
-            </div>
+    <!-- Official List Card - Dancer -->
+    <div class="card">
+        <div class="card-header" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white;">
+            <i class="fas fa-user-tie"></i>
+            <span>Daftar Official Dancer ({{ $officials->count() }})</span>
         </div>
-
-        <!-- Costume List Card -->
-        <div class="card">
-            <div class="card-header" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white;">
-                <i class="fas fa-tshirt"></i>
-                <span>Daftar Kostum Dancer</span>
+        <div class="card-body">
+            @if($officials->count() > 0)
+            <div class="table-container">
+                <table class="data">
+                    <thead>
+                        <tr>
+                            <th width="50">#</th>
+                            <th>Nama</th>
+                            <th width="120">Jabatan</th>
+                            <th width="150">Email</th>
+                            <th width="100">Telepon</th>
+                            <th width="120">Jenis Kelamin</th>
+                            <th width="120">Status Verifikasi</th>
+                            <th width="100" class="text-center">Tindakan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($officials as $index => $official)
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td><strong>{{ $official->name ?? 'N/A' }}</strong></td>
+                            <td>{{ $official->team_role ?? '-' }}</td>
+                            <td>{{ $official->email ?? '-' }}</td>
+                            <td>{{ $official->phone ?? '-' }}</td>
+                            <td>
+                                @if($official->gender == 'male')
+                                Laki-laki
+                                @elseif($official->gender == 'female')
+                                Perempuan
+                                @else
+                                <span style="color: #718096;">-</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($official->verification_status == 'verified')
+                                <span class="status-verified">Terverifikasi</span>
+                                @elseif($official->verification_status == 'rejected')
+                                <span class="status-open">Ditolak</span>
+                                @else
+                                <span class="status-unverified">Belum Diverifikasi</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                <a href="{{ route('admin.official.detail', $official->official_id) }}" class="btn-detail">
+                                    <i class="fas fa-eye"></i> Detail
+                                </a>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
-            <div class="card-body">
-                <div class="jersey-single-container">
-                    <h3 class="jersey-main-title">Galeri Kostum Tim Dancer</h3>
-                    <div class="jersey-image-container">
-                        <!-- Kostum Utama -->
-                        <div class="jersey-single-item" onclick="showJerseyPopup('home')">
-                            <p>Kostum Utama</p>
-                            @if($team->jersey_home)
-                            <img src="{{ asset('storage/' . $team->jersey_home) }}"
-                                alt="Kostum Utama {{ $team->school_name }}"
-                                class="jersey-image"
-                                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div class="no-image" style="display: none;">
-                                <i class="fas fa-tshirt"></i>
-                                <span>Gambar Error</span>
-                            </div>
-                            @else
-                            <div class="no-image">
-                                <i class="fas fa-tshirt"></i>
-                                <span>Belum Upload</span>
-                            </div>
-                            @endif
-                        </div>
+            @else
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <h5>Belum ada data official</h5>
+                <p>Data official akan muncul di sini setelah ditambahkan.</p>
+            </div>
+            @endif
+        </div>
+    </div>
 
-                        <!-- Kostum Alternatif -->
-                        <div class="jersey-single-item" onclick="showJerseyPopup('away')">
-                            <p>Kostum Alternatif</p>
-                            @if($team->jersey_away)
-                            <img src="{{ asset('storage/' . $team->jersey_away) }}"
-                                alt="Kostum Alternatif {{ $team->school_name }}"
-                                class="jersey-image"
-                                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div class="no-image" style="display: none;">
-                                <i class="fas fa-tshirt"></i>
-                                <span>Gambar Error</span>
-                            </div>
-                            @else
-                            <div class="no-image">
-                                <i class="fas fa-tshirt"></i>
-                                <span>Belum Upload</span>
-                            </div>
-                            @endif
+    <!-- Costume List Card -->
+    <div class="card">
+        <div class="card-header" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white;">
+            <i class="fas fa-tshirt"></i>
+            <span>Daftar Kostum Dancer</span>
+        </div>
+        <div class="card-body">
+            <div class="jersey-single-container">
+                <h3 class="jersey-main-title">Galeri Kostum Tim Dancer</h3>
+                <div class="jersey-image-container">
+                    <!-- Kostum Utama -->
+                    <div class="jersey-single-item" onclick="showJerseyPopup('home')">
+                        <p>Kostum Utama</p>
+                        @if($team->jersey_home)
+                        <img src="{{ asset('storage/' . $team->jersey_home) }}"
+                            alt="Kostum Utama {{ $team->school_name }}"
+                            class="jersey-image"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="no-image" style="display: none;">
+                            <i class="fas fa-tshirt"></i>
+                            <span>Gambar Error</span>
                         </div>
+                        @else
+                        <div class="no-image">
+                            <i class="fas fa-tshirt"></i>
+                            <span>Belum Upload</span>
+                        </div>
+                        @endif
+                    </div>
 
-                        <!-- Kostum Khusus -->
-                        <div class="jersey-single-item" onclick="showJerseyPopup('alternate')">
-                            <p>Kostum Khusus</p>
-                            @if($team->jersey_alternate)
-                            <img src="{{ asset('storage/' . $team->jersey_alternate) }}"
-                                alt="Kostum Khusus {{ $team->school_name }}"
-                                class="jersey-image"
-                                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div class="no-image" style="display: none;">
-                                <i class="fas fa-tshirt"></i>
-                                <span>Gambar Error</span>
-                            </div>
-                            @else
-                            <div class="no-image">
-                                <i class="fas fa-tshirt"></i>
-                                <span>Belum Upload</span>
-                            </div>
-                            @endif
+                    <!-- Kostum Alternatif -->
+                    <div class="jersey-single-item" onclick="showJerseyPopup('away')">
+                        <p>Kostum Alternatif</p>
+                        @if($team->jersey_away)
+                        <img src="{{ asset('storage/' . $team->jersey_away) }}"
+                            alt="Kostum Alternatif {{ $team->school_name }}"
+                            class="jersey-image"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="no-image" style="display: none;">
+                            <i class="fas fa-tshirt"></i>
+                            <span>Gambar Error</span>
                         </div>
+                        @else
+                        <div class="no-image">
+                            <i class="fas fa-tshirt"></i>
+                            <span>Belum Upload</span>
+                        </div>
+                        @endif
+                    </div>
+
+                    <!-- Kostum Khusus -->
+                    <div class="jersey-single-item" onclick="showJerseyPopup('alternate')">
+                        <p>Kostum Khusus</p>
+                        @if($team->jersey_alternate)
+                        <img src="{{ asset('storage/' . $team->jersey_alternate) }}"
+                            alt="Kostum Khusus {{ $team->school_name }}"
+                            class="jersey-image"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="no-image" style="display: none;">
+                            <i class="fas fa-tshirt"></i>
+                            <span>Gambar Error</span>
+                        </div>
+                        @else
+                        <div class="no-image">
+                            <i class="fas fa-tshirt"></i>
+                            <span>Belum Upload</span>
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
         </div>
-        @else
-        <!-- Empty State for Unregistered Team -->
-        <div class="empty-state">
-            <i class="fas fa-music" style="color: #8b5cf6;"></i>
-            <h5>Tim Dancer Belum Terdaftar</h5>
-            <p>Sekolah <strong>{{ $mainTeam->school_name }}</strong> belum mendaftarkan tim untuk kategori Dancer.</p>
-            <p style="margin-top: 20px; font-size: 13px; color: #6b7280;">
-                <i class="fas fa-info-circle"></i>
-                Untuk mendaftarkan tim, gunakan referral code: <strong>{{ $mainTeam->referral_code ?? 'N/A' }}</strong>
-            </p>
-        </div>
-        @endif
+    </div>
+    @else
+    <!-- Empty State for Unregistered Team -->
+    <div class="empty-state">
+        <i class="fas fa-music" style="color: #8b5cf6;"></i>
+        <h5>Tim Dancer Belum Terdaftar</h5>
+        <p>Sekolah <strong>{{ $mainTeam->school_name }}</strong> belum mendaftarkan tim untuk kategori Dancer.</p>
+        <p style="margin-top: 20px; font-size: 13px; color: #6b7280;">
+            <i class="fas fa-info-circle"></i>
+            Untuk mendaftarkan tim, gunakan referral code: <strong>{{ $mainTeam->referral_code ?? 'N/A' }}</strong>
+        </p>
+    </div>
+    @endif
 
     @else
-        <!-- Fallback jika tidak ada tab aktif -->
-        <div class="empty-state">
-            <i class="fas fa-exclamation-circle" style="color: #6b7280;"></i>
-            <h5>Pilih Kategori Tim</h5>
-            <p>Silakan pilih kategori tim dari tab di atas untuk melihat detail.</p>
-        </div>
+    <!-- Fallback jika tidak ada tab aktif -->
+    <div class="empty-state">
+        <i class="fas fa-exclamation-circle" style="color: #6b7280;"></i>
+        <h5>Pilih Kategori Tim</h5>
+        <p>Silakan pilih kategori tim dari tab di atas untuk melihat detail.</p>
+    </div>
     @endif
 </div>
 

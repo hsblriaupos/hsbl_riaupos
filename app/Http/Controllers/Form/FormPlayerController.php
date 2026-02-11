@@ -32,7 +32,7 @@ class FormPlayerController extends Controller
 
             // Ambil data tim
             $team = TeamList::findOrFail($team_id);
-            
+
             Log::info('Team info:', [
                 'team_id' => $team->team_id,
                 'school_name' => $team->school_name,
@@ -47,17 +47,17 @@ class FormPlayerController extends Controller
             // ============================================
             $role = 'Player'; // default
             $isCaptain = false;
-            
+
             // Cek session untuk menentukan apakah user boleh jadi Leader
             $canBeLeader = session('current_can_be_leader', false);
-            
+
             Log::info('Session check:', [
                 'current_can_be_leader' => session('current_can_be_leader'),
                 'created_team_id' => session('created_team_id'),
                 'join_referral_code' => session('join_referral_code'),
                 'team_id_from_session' => session('current_team_id')
             ]);
-            
+
             // Jika boleh jadi Leader dari session
             if ($canBeLeader) {
                 // Cek apakah sudah ada Leader di kategori ini
@@ -65,9 +65,9 @@ class FormPlayerController extends Controller
                     ->where('category', $category)
                     ->where('role', 'Leader')
                     ->count();
-                    
+
                 Log::info('Existing Leader count in ' . $category . ': ' . $existingLeaderCount);
-                
+
                 // Jika belum ada Leader di kategori ini, bisa jadi Leader
                 if ($existingLeaderCount === 0) {
                     $role = 'Leader';
@@ -79,7 +79,7 @@ class FormPlayerController extends Controller
             } else {
                 Log::info('❌ User cannot be leader from session');
             }
-            
+
             Log::info('Final Role: ' . $role . ', isCaptain: ' . ($isCaptain ? 'true' : 'false'));
 
             // Set session untuk store method
@@ -95,7 +95,7 @@ class FormPlayerController extends Controller
                 $school = School::find($team->school_id);
                 Log::info('Found school by team.school_id: ' . $team->school_id);
             }
-            
+
             // Jika tidak ditemukan, cari berdasarkan nama
             if (!$school) {
                 $school = School::where('school_name', $team->school_name)->first();
@@ -139,7 +139,6 @@ class FormPlayerController extends Controller
                 'grades',
                 'referralCode'
             ));
-
         } catch (\Exception $e) {
             Log::error('❌ Error in showPlayerFormWithCategory: ' . $e->getMessage());
             return redirect()->route('form.team.choice')
@@ -157,7 +156,7 @@ class FormPlayerController extends Controller
             if ($team_id) {
                 // Ambil data tim
                 $team = TeamList::findOrFail($team_id);
-                
+
                 // Tentukan kategori default berdasarkan team_category
                 $defaultCategory = 'putra'; // default
                 if (str_contains(strtolower($team->team_category), 'putri')) {
@@ -165,7 +164,7 @@ class FormPlayerController extends Controller
                 } elseif ($team->team_category == 'Dancer') {
                     $defaultCategory = 'dancer';
                 }
-                
+
                 return $this->showPlayerFormWithCategory($request, $team_id, $defaultCategory);
             } else {
                 // Ambil dari session
@@ -181,7 +180,7 @@ class FormPlayerController extends Controller
                             ->with('error', 'Silakan daftarkan atau bergabung dengan tim terlebih dahulu.');
                     }
                 }
-                
+
                 // Ambil kategori dari session
                 $category = session('current_player_category', 'putra');
                 return $this->showPlayerFormWithCategory($request, $team_id, $category);
@@ -199,26 +198,26 @@ class FormPlayerController extends Controller
     private function generateUniqueReferralCode($baseSlug, $teamId = null)
     {
         $maxAttempts = 5;
-        
+
         for ($i = 0; $i < $maxAttempts; $i++) {
             $code = strtoupper($baseSlug) . '-' . strtoupper(Str::random(6));
-            
+
             $query = TeamList::where('referral_code', $code);
-            
+
             if ($teamId) {
                 $query->where('team_id', '!=', $teamId);
             }
-            
+
             if (!$query->exists()) {
                 return $code;
             }
-            
+
             // Last attempt - add timestamp
             if ($i === $maxAttempts - 1) {
                 return strtoupper($baseSlug) . '-' . strtoupper(Str::random(4)) . '-' . time();
             }
         }
-        
+
         return strtoupper($baseSlug) . '-' . time();
     }
 
@@ -230,7 +229,7 @@ class FormPlayerController extends Controller
         try {
             Log::info('=== STORE PLAYER START ===');
             Log::info('Request data keys:', array_keys($request->all()));
-            
+
             // Ambil team_id
             $teamId = $request->input('team_id') ??
                 session('current_team_id') ??
@@ -246,10 +245,10 @@ class FormPlayerController extends Controller
 
             // Ambil data tim
             $team = TeamList::findOrFail($teamId);
-            
+
             // Ambil kategori dari request atau session
             $category = $request->input('category') ?? session('current_player_category', 'putra');
-            
+
             Log::info('Player category: ' . $category);
             Log::info('Team payment status:', [
                 'is_leader_paid' => $team->is_leader_paid,
@@ -258,15 +257,15 @@ class FormPlayerController extends Controller
                 'school_name' => $team->school_name,
                 'school_id' => $team->school_id
             ]);
-            
+
             // ============================================
             // 🔥 LOGIC PENENTUAN ROLE YANG LEBIH AKURAT
             // ============================================
             $teamRole = $request->input('team_role', 'Player');
             $isCaptain = ($teamRole === 'Leader');
-            
+
             Log::info('Role from form: ' . $teamRole . ', isCaptain: ' . ($isCaptain ? 'true' : 'false'));
-            
+
             // Validasi: jika mengaku Leader, pastikan memang boleh jadi Leader
             if ($isCaptain) {
                 // 1. Cek apakah sudah ada Leader di kategori ini
@@ -274,20 +273,20 @@ class FormPlayerController extends Controller
                     ->where('category', $category)
                     ->where('role', 'Leader')
                     ->count();
-                    
+
                 if ($existingLeaderCount > 0) {
                     Log::error('❌ ERROR: Trying to register as Leader but leader already exists');
                     return back()->withErrors(['error' => 'Tim ini sudah memiliki Leader untuk kategori ' . $category . '.'])->withInput();
                 }
-                
+
                 // 2. Cek apakah ini dari session boleh jadi Leader
                 $canBeLeaderFromSession = session('current_can_be_leader', false);
-                
+
                 if (!$canBeLeaderFromSession) {
                     Log::error('❌ ERROR: Trying to register as Leader but not authorized from session');
                     return back()->withErrors(['error' => 'Anda tidak berhak menjadi Leader.'])->withInput();
                 }
-                
+
                 Log::info('✅ User authorized to be Leader from session');
             }
 
@@ -345,10 +344,10 @@ class FormPlayerController extends Controller
             // 🔥 FIX: AMBIL/MBUAT SEKOLAH DENGAN BENAR
             // ============================================
             Log::info('🔍 Looking for school: ' . $team->school_name);
-            
+
             // Cari sekolah berdasarkan school_name (PASTIKAN SATU-SATUNYA)
             $school = School::where('school_name', $team->school_name)->first();
-            
+
             if (!$school) {
                 Log::info('📝 Creating new school: ' . $team->school_name);
                 $school = School::create([
@@ -358,18 +357,18 @@ class FormPlayerController extends Controller
                     'city_id' => 1,
                 ]);
             }
-            
+
             // 🔥 PASTIKAN team_list punya school_id yang benar
             if ($team->school_id != $school->id) {
                 $team->update(['school_id' => $school->id]);
                 Log::info('✅ Updated team.school_id from ' . $team->school_id . ' to ' . $school->id);
             }
-            
+
             // 🔥 Juga update semua tim dengan nama sekolah yang sama
             TeamList::where('school_name', $team->school_name)
                 ->where('school_id', '!=', $school->id)
                 ->update(['school_id' => $school->id]);
-            
+
             Log::info('🎯 School for player: ID=' . $school->id . ', Name=' . $school->school_name);
 
             // ============================================
@@ -402,37 +401,37 @@ class FormPlayerController extends Controller
             // ============================================
             $paymentProofPath = null;
             $referralCodeGenerated = null;
-            
+
             Log::info('=== PAYMENT PROCESSING ===');
             Log::info('Is Captain: ' . ($isCaptain ? 'YES' : 'NO'));
             Log::info('Has Payment File: ' . ($request->hasFile('payment_proof') ? 'YES' : 'NO'));
-            
+
             if ($isCaptain) {
                 if (!$request->hasFile('payment_proof')) {
                     Log::error('❌ ERROR: Leader but no payment file uploaded!');
                     return back()->withErrors(['payment_proof' => 'Sebagai Kapten, Anda wajib mengupload bukti pembayaran.'])->withInput();
                 }
-                
+
                 Log::info('💰 PROCESSING PAYMENT FOR LEADER...');
-                
+
                 // 1. Simpan bukti pembayaran PLAYER (Leader)
                 $paymentFile = $request->file('payment_proof');
                 $paymentExtension = $paymentFile->getClientOriginalExtension();
                 $paymentFilename = "payment_{$schoolSlug}_{$playerSlug}_{$timestamp}.{$paymentExtension}";
-                
+
                 $paymentProofPath = $paymentFile->storeAs('payment_proofs', $paymentFilename, 'public');
                 Log::info('✅ Payment proof saved: ' . $paymentProofPath);
-                
+
                 // 2. 🔥 GENERATE REFERRAL CODE JIKA KOSONG/NULL
                 if (empty($team->referral_code)) {
                     Log::info('🔑 GENERATING NEW REFERRAL CODE...');
-                    
+
                     // Generate unique referral code
                     $baseSlug = Str::slug($team->school_name);
                     $referralCodeGenerated = $this->generateUniqueReferralCode($baseSlug, $teamId);
-                    
+
                     Log::info('Generated referral code: ' . $referralCodeGenerated);
-                    
+
                     // Update ALL teams from same school & season
                     $updatedCount = TeamList::where('school_name', $team->school_name)
                         ->where('season', $team->season)
@@ -442,19 +441,18 @@ class FormPlayerController extends Controller
                             'payment_status' => 'paid',
                             'payment_date' => now(),
                         ]);
-                    
+
                     // Update current team with payment proof
                     $team->update(['payment_proof' => $paymentProofPath]);
-                    
+
                     Log::info('✅ Teams updated: ' . $updatedCount);
                     session(['player_referral_code' => $referralCodeGenerated]);
-                    
                 } else {
                     // Referral code already exists
                     $referralCodeGenerated = $team->referral_code;
                     session(['player_referral_code' => $referralCodeGenerated]);
                     Log::info('✅ Using existing referral code: ' . $referralCodeGenerated);
-                    
+
                     // Update payment status for all teams
                     TeamList::where('school_name', $team->school_name)
                         ->where('season', $team->season)
@@ -463,28 +461,27 @@ class FormPlayerController extends Controller
                             'payment_status' => 'paid',
                             'payment_date' => now(),
                         ]);
-                    
+
                     // Add payment proof to current team only
                     $team->update(['payment_proof' => $paymentProofPath]);
                 }
-                
+
                 Log::info('✅ Payment processed successfully');
-                
+
                 // 3. RELOAD TEAM DATA untuk dapat data terbaru
                 $team = TeamList::find($teamId);
                 Log::info('✅ Team reloaded. Referral code: ' . ($team->referral_code ?: 'NULL/EMPTY'));
                 Log::info('✅ Team is_leader_paid: ' . ($team->is_leader_paid ? 'YES' : 'NO'));
-                
             } else {
                 Log::info('✅ Player registration (no payment required)');
             }
 
             // ============================================
-            // SIMPAN DATA PLAYER DENGAN SCHOOL_ID YANG BENAR
+            // 🔥🔥🔥 SIMPAN DATA PLAYER DENGAN SCHOOL_ID YANG BENAR
             // ============================================
             $playerData = [
                 'team_id' => $teamId,
-                'school_id' => $school->id,  // 🔥 PASTIKAN school_id benar
+                'school_id' => $school->id,
                 'category' => $category,
                 'role' => $teamRole,
                 'nik' => $validated['nik'],
@@ -493,6 +490,7 @@ class FormPlayerController extends Controller
                 'gender' => $validated['gender'],
                 'email' => $validated['email'],
                 'phone' => $validated['phone'],
+                'school_name' => $team->school_name,
                 'grade' => $validated['grade'],
                 'sttb_year' => $validated['sttb_year'],
                 'height' => $validated['height'],
@@ -514,28 +512,43 @@ class FormPlayerController extends Controller
                 'last_report_card' => $saveFile('last_report_card', 'player_docs'),
                 'formal_photo' => $saveFile('formal_photo', 'player_docs'),
                 'assignment_letter' => $saveFile('assignment_letter', 'player_docs'),
-                'payment_proof' => $paymentProofPath, // Hanya ada jika Leader
+                'payment_proof' => $paymentProofPath,
             ];
 
-            // Tambahkan field basket hanya untuk non-dancer
+            // Tambahkan field basket untuk non-dancer (SEBELUM CREATE!)
             if ($category !== 'dancer') {
                 $playerData['basketball_position'] = $validated['basketball_position'] ?? null;
                 $playerData['jersey_number'] = $validated['jersey_number'] ?? null;
             }
 
-            // Simpan data player
-            Log::info('📝 Saving player data with school_id: ' . $school->id);
+            // Simpan data player - SEKALI AJA!
+            Log::info('📝 Saving player data with school_id: ' . $school->id . ', school_name: ' . $team->school_name);
             $player = PlayerList::create($playerData);
-            Log::info('✅ Player created with ID: ' . $player->id . 
-                     ', Role: ' . $teamRole . 
-                     ', School ID: ' . $player->school_id);
+            Log::info('✅ Player created with ID: ' . $player->id .
+                ', Role: ' . $teamRole .
+                ', School ID: ' . $player->school_id);
+            // ============================================
+            // 🔥 PERBAIKAN: UPDATE REGISTERED_BY UNTUK TIM YANG SESUAI!
+            // ============================================
+            if ($isCaptain) {
+                // Ambil tim yang BENAR berdasarkan kategori
+                $correctTeam = TeamList::where('school_name', $team->school_name)
+                    ->where('season', $team->season)
+                    ->where(
+                        'team_category',
+                        $category == 'putra' ? 'Basket Putra' : ($category == 'putri' ? 'Basket Putri' : 'Dancer')
+                    )
+                    ->first();
 
-            // ============================================
-            // UPDATE NAMA REGISTERED_BY DI TIM (jika Leader)
-            // ============================================
-            if ($isCaptain && $team->registered_by !== $validated['name']) {
-                $team->update(['registered_by' => $validated['name']]);
-                Log::info('✅ Updated team registered_by to: ' . $validated['name']);
+                if ($correctTeam) {
+                    // Update registered_by di tim yang BENAR
+                    if ($correctTeam->registered_by !== $validated['name']) {
+                        $correctTeam->update(['registered_by' => $validated['name']]);
+                        Log::info('✅ Updated ' . $correctTeam->team_category . ' registered_by to: ' . $validated['name']);
+                    }
+                } else {
+                    Log::warning('⚠️ Tim ' . $category . ' tidak ditemukan untuk sekolah ' . $team->school_name);
+                }
             }
 
             // ============================================
@@ -572,7 +585,7 @@ class FormPlayerController extends Controller
 
             // Ambil referral code terbaru dari TIM yang sudah di-reload
             $referralCodeForSuccess = $team->referral_code;
-            
+
             if (!empty($referralCodeForSuccess)) {
                 session(['player_referral_code' => $referralCodeForSuccess]);
                 Log::info('✅ Final referral code for success page: ' . $referralCodeForSuccess);
@@ -595,7 +608,6 @@ class FormPlayerController extends Controller
                 'team_id' => $teamId,
                 'player_id' => $player->id
             ])->with('success', '🎉 Pendaftaran berhasil!');
-
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('❌ Validation error in storePlayer: ', $e->errors());
             return back()->withErrors($e->errors())->withInput();
@@ -615,7 +627,7 @@ class FormPlayerController extends Controller
             Log::info('=== SHOW SUCCESS PAGE START ===');
             Log::info('Team ID from URL: ' . $team_id);
             Log::info('Player ID from URL: ' . $player_id);
-            
+
             // Ambil data tim
             $team = TeamList::find($team_id);
             if (!$team) {
@@ -623,7 +635,7 @@ class FormPlayerController extends Controller
                 return redirect()->route('form.team.choice')
                     ->with('error', 'Tim tidak ditemukan.');
             }
-            
+
             // Ambil data player
             $player = PlayerList::find($player_id);
             if (!$player) {
@@ -631,11 +643,11 @@ class FormPlayerController extends Controller
                 return redirect()->route('form.team.choice')
                     ->with('error', 'Data pemain tidak ditemukan.');
             }
-            
+
             Log::info('✅ Team found: ' . $team->school_name . ' (ID: ' . $team->team_id . ')');
             Log::info('✅ Player found: ' . $player->name . ' (ID: ' . $player->id . ')');
             Log::info('✅ Player Role from DB: ' . $player->role);
-            
+
             // DEBUG DETAIL
             Log::info('=== SUCCESS PAGE DEBUG ===');
             Log::info('Player Role from DB: ' . $player->role);
@@ -643,15 +655,15 @@ class FormPlayerController extends Controller
             Log::info('Team Referral Code: ' . ($team->referral_code ?: 'EMPTY/NULL'));
             Log::info('Team is_leader_paid: ' . ($team->is_leader_paid ? 'YES' : 'NO'));
             Log::info('Team payment_proof: ' . ($team->payment_proof ? 'EXISTS' : 'NULL'));
-            
+
             // Cek apakah ada Leader lain di tim yang sama
             $otherLeaders = PlayerList::where('team_id', $team_id)
                 ->where('role', 'Leader')
                 ->where('id', '!=', $player_id)
                 ->count();
-                
+
             Log::info('Other Leaders in team: ' . $otherLeaders);
-            
+
             // Ambil data sekolah DARI PLAYER.SCHOOL_ID
             $school = null;
             if ($player->school_id) {
@@ -679,7 +691,7 @@ class FormPlayerController extends Controller
                     Log::info('✅ Set player.school_id to: ' . $school->id);
                 }
             }
-            
+
             // Jika masih tidak ditemukan, buat sekolah baru
             if (!$school) {
                 Log::info('📝 Creating new school for player: ' . $team->school_name);
@@ -689,16 +701,16 @@ class FormPlayerController extends Controller
                     'type' => 'SWASTA',
                     'city_id' => 1,
                 ]);
-                
+
                 // Update player dan team dengan school_id yang baru
                 $player->update(['school_id' => $school->id]);
                 $team->update(['school_id' => $school->id]);
                 Log::info('✅ Created new school and updated IDs');
             }
-            
+
             // 🔥 Ambil referral code dari TEAM
             $referralCode = $team->referral_code;
-            
+
             // Filter menggunakan empty()
             if (empty($referralCode)) {
                 $referralCode = null;
@@ -706,7 +718,7 @@ class FormPlayerController extends Controller
             } else {
                 Log::info('✅ Referral code is valid: ' . $referralCode);
             }
-            
+
             // Cek apakah ini Kapten (LEADER)
             $isCaptain = ($player->role === 'Leader');
             Log::info('Is Captain: ' . ($isCaptain ? 'YES' : 'NO'));
@@ -714,7 +726,7 @@ class FormPlayerController extends Controller
             // Tampilkan pesan sesuai role
             if ($isCaptain) {
                 $successMessage = '🎉 Selamat! Anda telah terdaftar sebagai KAPTEN tim ' . $team->school_name . '.';
-                
+
                 if (!empty($referralCode)) {
                     $instructions = 'Sebagai Kapten, Anda telah berhasil membayar biaya registrasi tim.';
                     Log::info('✅ Captain WITH referral code: ' . $referralCode);
@@ -726,7 +738,7 @@ class FormPlayerController extends Controller
                 $successMessage = '🎉 Selamat! Anda telah bergabung dengan tim ' . $team->school_name . '.';
                 $instructions = 'Anda telah terdaftar sebagai anggota tim. Biaya sudah ditanggung oleh Kapten.';
             }
-            
+
             Log::info('✅ Success page ready with school: ' . ($school ? $school->school_name : 'NOT FOUND'));
             Log::info('=== SHOW SUCCESS PAGE END ===');
 
@@ -739,7 +751,6 @@ class FormPlayerController extends Controller
                 'successMessage',
                 'instructions'
             ))->with('success', session('success'));
-            
         } catch (\Exception $e) {
             Log::error('❌ Error in showSuccessPage: ' . $e->getMessage());
             Log::error('Stack trace: ' . $e->getTraceAsString());
@@ -794,7 +805,7 @@ class FormPlayerController extends Controller
             ]);
 
             $team = TeamList::find($request->team_id);
-            
+
             if (!$team) {
                 return response()->json([
                     'exists' => false,
@@ -810,7 +821,7 @@ class FormPlayerController extends Controller
 
             // Cek apakah tim sudah bayar
             $hasLeaderPaid = $team->is_leader_paid;
-            
+
             // Jika tim SUDAH bayar dan BELUM ada Leader di kategori ini, maka bisa jadi Leader
             // Jika tim BELUM bayar, tidak bisa jadi Leader (harus ada yang bayar dulu)
             $canBeLeader = ($hasLeaderPaid && $existingLeaderCount === 0);
