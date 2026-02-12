@@ -55,7 +55,7 @@
 
         {{-- Developers Grid --}}
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
-            {{-- Developer 1: Mutia Rizkianti --}}
+            {{-- Developer 1: Mutia Rizkianti, S.Kom --}}
             <div class="bg-white rounded-2xl overflow-hidden shadow-xl transform transition-all duration-300 hover:-translate-y-2 animate-fadeInUp">
                 <div class="relative h-48 bg-gradient-to-r from-blue-500 to-cyan-400">
                     <div class="absolute inset-0 bg-black bg-opacity-20"></div>
@@ -64,7 +64,7 @@
                             <div class="w-32 h-32 rounded-full border-4 border-white overflow-hidden bg-white shadow-xl">
                                 <img 
                                     src="{{ asset('images/Developer/Mutia Rizki.jpeg') }}" 
-                                    alt="Mutia Rizkianti"
+                                    alt="Mutia Rizkianti, S.Kom"
                                     class="w-full h-full object-cover"
                                     onerror="this.src='https://ui-avatars.com/api/?name=Mutia+Rizkianti&background=3b82f6&color=fff&size=128'"
                                 >
@@ -74,7 +74,7 @@
                                     <i class="fas fa-code mr-1"></i>
                                     <span>INTJ</span>
                                 </div>
-                                <h3 class="text-2xl font-bold text-white">Mutia Rizkianti</h3>
+                                <h3 class="text-2xl font-bold text-white">Mutia Rizkianti, S.Kom</h3>
                                 <p class="text-blue-100 font-medium">Full-Stack Developer</p>
                             </div>
                         </div>
@@ -112,7 +112,7 @@
                         </h4>
                         <div class="space-y-3">
                             <p class="text-gray-700 leading-relaxed">
-                                Mutia Rizkianti adalah lulusan Ilmu Komputer Universitas Riau tahun 2025 yang lahir di Melai, 3 April 2004, dan berperan sebagai Full-Stack Developer. Secara tampilan memang kalem dan terkesan "aku aman, semua terkendali", khas INTJ. Tapi jangan terkecoh.
+                                Mutia Rizkianti, S.Kom adalah lulusan Ilmu Komputer Universitas Riau tahun 2025 yang lahir di Melai, 3 April 2004, dan berperan sebagai Full-Stack Developer. Secara tampilan memang kalem dan terkesan "aku aman, semua terkendali", khas INTJ. Tapi jangan terkecoh.
                             </p>
                             <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded-r">
                                 <p class="text-sm text-gray-700">
@@ -130,7 +130,7 @@
                             Strategic Thinker & Visual Designer
                         </h4>
                         <p class="text-sm text-gray-700">
-                            Sebagai fresh graduate, Mutia memiliki kemampuan unik dalam menggabungkan logika sistem dengan estetika visual. 
+                            Sebagai fresh graduate, Mutia, S.Kom memiliki kemampuan unik dalam menggabungkan logika sistem dengan estetika visual. 
                             Mulut bilang "ini bentar doang", tapi isi kepala sudah lari ke mana-mana mencari solusi optimal. 
                             Untungnya, setelah fase panik selesai, biasanya solusi ketemu juga dengan pendekatan yang terstruktur.
                         </p>
@@ -177,36 +177,53 @@
                         </div>
                     </div>
 
-                    {{-- Contact & Links --}}
-                    <div class="pt-4 border-t border-gray-100 space-y-3">
+                    {{-- Contact & Social Media --}}
+                    <div class="pt-4 border-t border-gray-100 space-y-4">
+                        {{-- Email --}}
                         <div class="flex items-center">
                             <i class="fas fa-envelope text-gray-400 mr-3 w-5"></i>
                             <a href="mailto:mutiarizkianti04@gmail.com" class="text-sm text-gray-700 hover:text-blue-600 transition-colors">
                                 mutiarizkianti04@gmail.com
                             </a>
                         </div>
-                        <div class="flex flex-wrap items-center justify-between">
-                            <div class="flex items-center space-x-2 mb-3 md:mb-0">
-                                <span class="text-sm text-gray-600">Hobbies:</span>
-                                <div class="flex space-x-1">
+                        
+                        {{-- Instagram --}}
+                        <div class="flex items-center">
+                            <i class="fab fa-instagram text-gray-400 mr-3 w-5"></i>
+                            <a href="https://www.instagram.com/mutia.rizkii_?igsh=MXNmeW1idG12YjJldA==" 
+                               target="_blank" 
+                               class="text-sm text-gray-700 hover:text-pink-600 transition-colors">
+                                @mutia.rizkii_
+                            </a>
+                        </div>
+                        
+                        {{-- LinkedIn --}}
+                        <div class="flex items-center">
+                            <i class="fab fa-linkedin-in text-gray-400 mr-3 w-5"></i>
+                            <a href="https://www.linkedin.com/in/mutia-rizkianti-ruslan-3978532b0?utm_source=share_via&utm_content=profile&utm_medium=member_android" 
+                               target="_blank"
+                               class="text-sm text-gray-700 hover:text-blue-700 transition-colors">
+                                Mutia Rizkianti Ruslan
+                            </a>
+                        </div>
+                        
+                        {{-- Hobbies (Separate Section) --}}
+                        <div class="pt-2">
+                            <div class="flex items-center">
+                                <span class="text-sm font-medium text-gray-700 mr-3">Hobbies:</span>
+                                <div class="flex flex-wrap gap-1">
                                     <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">Design</span>
                                     <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">Movies</span>
                                     <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">Culinary</span>
                                     <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">Writing</span>
                                 </div>
                             </div>
-                            <a href="https://www.linkedin.com/in/mutia-rizkianti-ruslan-3978532b0?utm_source=share_via&utm_content=profile&utm_medium=member_android" 
-                               target="_blank"
-                               class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg hover:from-blue-700 hover:to-blue-600 transition-all duration-300 shadow-md hover:shadow-lg">
-                                <i class="fab fa-linkedin-in mr-2"></i>
-                                LinkedIn
-                            </a>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {{-- Developer 2: Wafiq Wardatul Khairani --}}
+            {{-- Developer 2: Wafiq Wardatul Khairani, S.Kom --}}
             <div class="bg-white rounded-2xl overflow-hidden shadow-xl transform transition-all duration-300 hover:-translate-y-2 animate-fadeInUp" style="animation-delay: 0.1s">
                 <div class="relative h-48 bg-gradient-to-r from-purple-500 to-pink-400">
                     <div class="absolute inset-0 bg-black bg-opacity-20"></div>
@@ -215,7 +232,7 @@
                             <div class="w-32 h-32 rounded-full border-4 border-white overflow-hidden bg-white shadow-xl">
                                 <img 
                                     src="{{ asset('images/Developer/Wafiq WW.jpeg') }}" 
-                                    alt="Wafiq Wardatul Khairani"
+                                    alt="Wafiq Wardatul Khairani, S.Kom"
                                     class="w-full h-full object-cover"
                                     onerror="this.src='https://ui-avatars.com/api/?name=Wafiq+Khairani&background=8b5cf6&color=fff&size=128'"
                                 >
@@ -225,7 +242,7 @@
                                     <i class="fas fa-brain mr-1"></i>
                                     <span>INFJ</span>
                                 </div>
-                                <h3 class="text-2xl font-bold text-white">Wafiq Wardatul Khairani</h3>
+                                <h3 class="text-2xl font-bold text-white">Wafiq Wardatul Khairani, S.Kom</h3>
                                 <p class="text-purple-100 font-medium">Full-Stack Developer</p>
                             </div>
                         </div>
@@ -263,12 +280,12 @@
                         </h4>
                         <div class="space-y-3">
                             <p class="text-gray-700 leading-relaxed">
-                                Wafiq Wardatul Khairani adalah lulusan Ilmu Komputer Universitas Riau tahun 2025 asal Pekanbaru yang berperan sebagai Full-Stack Developer. Gayanya terkesan cuek, bicara seperlunya, tapi begitu sudah pegang kode, fokusnya galak dan serius.
+                                Wafiq Wardatul Khairani, S.Kom adalah lulusan Ilmu Komputer Universitas Riau tahun 2025 asal Pekanbaru yang berperan sebagai Full-Stack Developer. Gayanya terkesan cuek, bicara seperlunya, tapi begitu sudah pegang kode, fokusnya galak dan serius.
                             </p>
                             <div class="bg-blue-50 border-l-4 border-blue-400 p-3 rounded-r">
                                 <p class="text-sm text-gray-700">
                                     <i class="fas fa-search text-blue-500 mr-2"></i>
-                                    <span class="font-medium">Problem-Solver Approach:</span> Ia terbiasa mengerjakan sistem dari ujung backend sampai frontend tanpa banyak drama. Kalau ada sistem bermasalah, Wafiq bukan banyak tanya, tapi langsung cari akar masalah.
+                                    <span class="font-medium">Problem-Solver Approach:</span> Ia terbiasa mengerjakan sistem dari ujung backend sampai frontend tanpa banyak drama. Kalau ada sistem bermasalah, Wafiq, S.Kom bukan banyak tanya, tapi langsung cari akar masalah.
                                 </p>
                             </div>
                         </div>
@@ -281,7 +298,7 @@
                             Observant & Systematic Problem-Solver
                         </h4>
                         <p class="text-sm text-gray-700">
-                            Di luar dunia teknis, Wafiq adalah tipe INFJ yang kelihatannya dingin tapi sebenarnya observatif dan penuh pertimbangan. 
+                            Di luar dunia teknis, Wafiq, S.Kom adalah tipe INFJ yang kelihatannya dingin tapi sebenarnya observatif dan penuh pertimbangan. 
                             Ia menikmati waktu sendiri dengan mendengarkan lagu, menonton film, atau masak sambil mikir hidup (dan bug). 
                             Dibekali pola kerja yang terstruktur, ia punya fondasi teknis yang rapi untuk menangani kompleksitas sistem.
                         </p>
@@ -308,7 +325,7 @@
                             </li>
                         </ul>
                         <p class="mt-2 text-sm text-gray-600 italic">
-                            Singkatnya, kalau ada sistem bermasalah, Wafiq bukan banyak tanya, tapi langsung cari akar masalah.
+                            Singkatnya, kalau ada sistem bermasalah, Wafiq, S.Kom bukan banyak tanya, tapi langsung cari akar masalah.
                         </p>
                     </div>
 
@@ -326,30 +343,47 @@
                         </div>
                     </div>
 
-                    {{-- Contact & Links --}}
-                    <div class="pt-4 border-t border-gray-100 space-y-3">
+                    {{-- Contact & Social Media --}}
+                    <div class="pt-4 border-t border-gray-100 space-y-4">
+                        {{-- Email --}}
                         <div class="flex items-center">
                             <i class="fas fa-envelope text-gray-400 mr-3 w-5"></i>
                             <a href="mailto:wafiqwardatulkhairani22@gmail.com" class="text-sm text-gray-700 hover:text-purple-600 transition-colors">
                                 wafiqwardatulkhairani22@gmail.com
                             </a>
                         </div>
-                        <div class="flex flex-wrap items-center justify-between">
-                            <div class="flex items-center space-x-2 mb-3 md:mb-0">
-                                <span class="text-sm text-gray-600">Hobbies:</span>
-                                <div class="flex space-x-1">
+                        
+                        {{-- Instagram --}}
+                        <div class="flex items-center">
+                            <i class="fab fa-instagram text-gray-400 mr-3 w-5"></i>
+                            <a href="https://www.instagram.com/wfiqwrdtl_?igsh=dHBiZHN6eTJwbTFn" 
+                               target="_blank" 
+                               class="text-sm text-gray-700 hover:text-pink-600 transition-colors">
+                                @wfiqwrdtl_
+                            </a>
+                        </div>
+                        
+                        {{-- LinkedIn --}}
+                        <div class="flex items-center">
+                            <i class="fab fa-linkedin-in text-gray-400 mr-3 w-5"></i>
+                            <a href="https://id.linkedin.com/in/wafiq-wardatul-khairani-1bb976294" 
+                               target="_blank"
+                               class="text-sm text-gray-700 hover:text-blue-700 transition-colors">
+                                Wafiq Wardatul Khairani
+                            </a>
+                        </div>
+                        
+                        {{-- Hobbies (Separate Section) --}}
+                        <div class="pt-2">
+                            <div class="flex items-center">
+                                <span class="text-sm font-medium text-gray-700 mr-3">Hobbies:</span>
+                                <div class="flex flex-wrap gap-1">
                                     <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">Music</span>
                                     <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">Movies</span>
                                     <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">Cooking</span>
                                     <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">Solitude</span>
                                 </div>
                             </div>
-                            <a href="https://id.linkedin.com/in/wafiq-wardatul-khairani-1bb976294" 
-                               target="_blank"
-                               class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-300 shadow-md hover:shadow-lg">
-                                <i class="fab fa-linkedin-in mr-2"></i>
-                                LinkedIn
-                            </a>
                         </div>
                     </div>
                 </div>
@@ -372,7 +406,7 @@
                             <i class="fas fa-palette text-white text-xl"></i>
                         </div>
                         <div>
-                            <h3 class="font-bold text-gray-800">Mutia: Visual Precision</h3>
+                            <h3 class="font-bold text-gray-800">Mutia, S.Kom: Visual Precision</h3>
                             <p class="text-sm text-gray-600">INTJ - Structured & Aesthetic</p>
                         </div>
                     </div>
@@ -388,7 +422,7 @@
                             <i class="fas fa-cogs text-white text-xl"></i>
                         </div>
                         <div>
-                            <h3 class="font-bold text-gray-800">Wafiq: Systematic Efficiency</h3>
+                            <h3 class="font-bold text-gray-800">Wafiq, S.Kom: Systematic Efficiency</h3>
                             <p class="text-sm text-gray-600">INFJ - Observant & Methodical</p>
                         </div>
                     </div>
@@ -434,7 +468,7 @@
                                     "Clean code should read like well-written prose. The frontend is the conversation 
                                     we have with users, while the backend is the solid foundation that makes it all possible."
                                 </p>
-                                <p class="text-sm text-blue-300 mt-2">— Mutia Rizkianti</p>
+                                <p class="text-sm text-blue-300 mt-2">— Mutia Rizkianti, S.Kom</p>
                             </div>
                         </div>
                     </div>
@@ -450,7 +484,7 @@
                                     "Efficiency isn't about doing things quickly; it's about building systems that 
                                     don't need constant fixing. A good architecture solves problems before they happen."
                                 </p>
-                                <p class="text-sm text-purple-300 mt-2">— Wafiq Wardatul Khairani</p>
+                                <p class="text-sm text-purple-300 mt-2">— Wafiq Wardatul Khairani, S.Kom</p>
                             </div>
                         </div>
                     </div>
@@ -467,12 +501,12 @@
                 <a href="mailto:mutiarizkianti04@gmail.com" 
                    class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-medium rounded-lg hover:from-blue-700 hover:to-blue-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                     <i class="fas fa-envelope mr-2"></i>
-                    Contact Mutia
+                    Contact Mutia, S.Kom
                 </a>
                 <a href="mailto:wafiqwardatulkhairani22@gmail.com" 
                    class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-medium rounded-lg hover:from-purple-700 hover:to-pink-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                     <i class="fas fa-envelope mr-2"></i>
-                    Contact Wafiq
+                    Contact Wafiq, S.Kom
                 </a>
             </div>
         </div>
@@ -536,6 +570,6 @@
     }
 </style>
 
-{{-- Add Font Awesome Brands for LinkedIn --}}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/brands.min.js" defer></script>
+{{-- Add Font Awesome Brands for LinkedIn & Instagram --}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js" defer></script>
 @endsection

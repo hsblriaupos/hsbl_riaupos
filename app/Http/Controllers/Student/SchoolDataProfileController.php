@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class SchoolDataProfileController extends Controller
 {
@@ -49,40 +50,7 @@ class SchoolDataProfileController extends Controller
                       ->orWhere('nik', $user->nik);
             })->get();
 
-            // Debug: Log semua data yang ditemukan
-            Log::info('User data in tables:', [
-                'player_count' => $playerLists->count(),
-                'player_data' => $playerLists->map(function($p) {
-                    return [
-                        'id' => $p->id,
-                        'team_id' => $p->team_id,
-                        'school_id' => $p->school_id,
-                        'role' => $p->role,
-                        'email' => $p->email
-                    ];
-                })->toArray(),
-                'dancer_count' => $dancerLists->count(),
-                'dancer_data' => $dancerLists->map(function($d) {
-                    return [
-                        'dancer_id' => $d->dancer_id,
-                        'school_name' => $d->school_name,
-                        'role' => $d->role,
-                        'email' => $d->email
-                    ];
-                })->toArray(),
-                'official_count' => $officialLists->count(),
-                'official_data' => $officialLists->map(function($o) {
-                    return [
-                        'official_id' => $o->official_id,
-                        'school_id' => $o->school_id,
-                        'team_role' => $o->team_role,
-                        'role' => $o->role,
-                        'email' => $o->email
-                    ];
-                })->toArray()
-            ]);
-
-            // Get all schools where user is registered based on different matching criteria
+            // Get all schools where user is registered
             $allSchools = $this->getAllSchoolsForUser($user, $playerLists, $dancerLists, $officialLists);
 
             // Process each school to add logo URL and role data
@@ -103,32 +71,15 @@ class SchoolDataProfileController extends Controller
                 $school->playerData = $userRoles['playerData'];
                 $school->dancerData = $userRoles['dancerData'];
                 $school->officialData = $userRoles['officialData'];
-                
-                Log::info("School processed: {$school->school_name}", [
-                    'team_id' => $school->team_id,
-                    'school_id' => $school->school_id,
-                    'isPlayer' => $school->isPlayer,
-                    'playerRole' => $school->playerRole,
-                    'isDancer' => $school->isDancer,
-                    'dancerRole' => $school->dancerRole,
-                    'isOfficial' => $school->isOfficial,
-                    'officialRole' => $school->officialRole
-                ]);
+                $school->registered_by = $school->registered_by ?? 'Self';
                 
                 return $school;
             });
 
             // Filter schools where user has at least one role
             $filteredSchools = $processedSchools->filter(function($school) {
-                $hasRole = $school->isPlayer || $school->isDancer || $school->isOfficial;
-                Log::info("School {$school->school_name} has role: " . ($hasRole ? 'YES' : 'NO'));
-                return $hasRole;
+                return $school->isPlayer || $school->isDancer || $school->isOfficial;
             });
-
-            Log::info('Final schools after filtering:', [
-                'total' => $filteredSchools->count(),
-                'schools' => $filteredSchools->pluck('school_name')->toArray()
-            ]);
 
             // Count statistics
             $totalSchools = $filteredSchools->count();
@@ -187,7 +138,7 @@ class SchoolDataProfileController extends Controller
     }
 
     /**
-     * Get user's roles for a specific school - FIXED!
+     * Get user's roles for a specific school
      */
     private function getUserRolesForSchool($school, $playerLists, $dancerLists, $officialLists, $user)
     {
@@ -204,31 +155,10 @@ class SchoolDataProfileController extends Controller
         ];
 
         try {
-            Log::info("=== Getting roles for school: {$school->school_name} ===");
-            Log::info("School info:", [
-                'team_id' => $school->team_id,
-                'school_id' => $school->school_id,
-                'school_name' => $school->school_name
-            ]);
-
-            // 1. CHECK PLAYER ROLE - FIXED: Use team_id from player_list
+            // 1. CHECK PLAYER ROLE - Use team_id
             $playerData = $playerLists->filter(function($player) use ($school, $user) {
-                // Player_list menggunakan team_id, bukan school_id!
-                $teamMatch = $player->team_id == $school->team_id;
-                $userMatch = $player->email == $user->email || $player->nik == $user->nik;
-                
-                Log::info("Player match check:", [
-                    'player_id' => $player->id,
-                    'player_team_id' => $player->team_id,
-                    'school_team_id' => $school->team_id,
-                    'team_match' => $teamMatch,
-                    'player_email' => $player->email,
-                    'user_email' => $user->email,
-                    'user_match' => $userMatch,
-                    'player_role' => $player->role
-                ]);
-                
-                return $teamMatch && $userMatch;
+                return $player->team_id == $school->team_id && 
+                       ($player->email == $user->email || $player->nik == $user->nik);
             })->first();
 
             if ($playerData) {
@@ -241,37 +171,20 @@ class SchoolDataProfileController extends Controller
                     'jersey_number' => $playerData->jersey_number,
                     'basketball_position' => $playerData->basketball_position
                 ];
-                
-                Log::info("✓ Player role FOUND: {$roles['playerRole']}");
             }
 
             // 2. CHECK DANCER ROLE - Use school_name
             $dancerData = $dancerLists->filter(function($dancer) use ($school, $user) {
-                // Case-insensitive school name matching
                 $dancerSchool = trim($dancer->school_name);
                 $teamSchool = trim($school->school_name);
                 $schoolMatch = strcasecmp($dancerSchool, $teamSchool) === 0;
                 
-                // Try partial matching if exact match fails
                 if (!$schoolMatch) {
                     $schoolMatch = str_contains(strtolower($dancerSchool), strtolower($teamSchool)) ||
                                    str_contains(strtolower($teamSchool), strtolower($dancerSchool));
                 }
                 
-                $userMatch = $dancer->email == $user->email || $dancer->nik == $user->nik;
-                
-                Log::info("Dancer match check:", [
-                    'dancer_id' => $dancer->dancer_id,
-                    'dancer_school' => $dancerSchool,
-                    'team_school' => $teamSchool,
-                    'school_match' => $schoolMatch,
-                    'dancer_email' => $dancer->email,
-                    'user_email' => $user->email,
-                    'user_match' => $userMatch,
-                    'dancer_role' => $dancer->role
-                ]);
-                
-                return $schoolMatch && $userMatch;
+                return $schoolMatch && ($dancer->email == $user->email || $dancer->nik == $user->nik);
             })->first();
 
             if ($dancerData) {
@@ -281,42 +194,21 @@ class SchoolDataProfileController extends Controller
                     'dancer_id' => $dancerData->dancer_id,
                     'role' => $dancerData->role
                 ];
-                
-                Log::info("✓ Dancer role FOUND: {$roles['dancerRole']}");
             }
 
-            // 3. CHECK OFFICIAL ROLE - Check both school_id and team_id
+            // 3. CHECK OFFICIAL ROLE
             $officialData = $officialLists->filter(function($official) use ($school, $user) {
-                // Try matching by school_id first
                 $schoolMatch = $official->school_id == $school->school_id;
                 
-                // If no match by school_id, try by team_id (if available)
                 if (!$schoolMatch && isset($official->team_id) && $official->team_id) {
                     $schoolMatch = $official->team_id == $school->team_id;
                 }
                 
-                $userMatch = $official->email == $user->email || $official->nik == $user->nik;
-                
-                Log::info("Official match check:", [
-                    'official_id' => $official->official_id,
-                    'official_school_id' => $official->school_id,
-                    'team_school_id' => $school->school_id,
-                    'official_team_id' => $official->team_id ?? 'N/A',
-                    'school_team_id' => $school->team_id,
-                    'school_match' => $schoolMatch,
-                    'official_email' => $official->email,
-                    'user_email' => $user->email,
-                    'user_match' => $userMatch,
-                    'official_team_role' => $official->team_role,
-                    'official_role' => $official->role
-                ]);
-                
-                return $schoolMatch && $userMatch;
+                return $schoolMatch && ($official->email == $user->email || $official->nik == $user->nik);
             })->first();
 
             if ($officialData) {
                 $roles['isOfficial'] = true;
-                // Check both fields for role
                 $role = $officialData->team_role ?? $officialData->role;
                 $roles['officialRole'] = $role ? ucfirst($role) : 'Official';
                 $roles['officialData'] = [
@@ -325,29 +217,17 @@ class SchoolDataProfileController extends Controller
                     'role' => $officialData->role,
                     'team_id' => $officialData->team_id ?? null
                 ];
-                
-                Log::info("✓ Official role FOUND: {$roles['officialRole']}");
             }
-
-            Log::info("Final roles for {$school->school_name}:", [
-                'isPlayer' => $roles['isPlayer'],
-                'playerRole' => $roles['playerRole'],
-                'isDancer' => $roles['isDancer'],
-                'dancerRole' => $roles['dancerRole'],
-                'isOfficial' => $roles['isOfficial'],
-                'officialRole' => $roles['officialRole']
-            ]);
 
         } catch (\Exception $e) {
             Log::error('Error in getUserRolesForSchool: ' . $e->getMessage());
-            Log::error('Trace: ' . $e->getTraceAsString());
         }
 
         return $roles;
     }
 
     /**
-     * Get all schools for a user based on their registrations - FIXED!
+     * Get all schools for a user based on their registrations
      */
     private function getAllSchoolsForUser($user, $playerLists = null, $dancerLists = null, $officialLists = null)
     {
@@ -373,80 +253,46 @@ class SchoolDataProfileController extends Controller
                 })->get();
             }
 
-            Log::info('=== Getting all schools for user ===');
-            Log::info('Player team_ids:', $playerLists->pluck('team_id')->toArray());
-            Log::info('Dancer school_names:', $dancerLists->pluck('school_name')->toArray());
-            Log::info('Official school_ids:', $officialLists->pluck('school_id')->toArray());
-
             $allSchools = collect();
 
             // 1. Get schools by team_id (from player_list)
             $teamIdsFromPlayers = $playerLists->pluck('team_id')->filter()->unique();
             if ($teamIdsFromPlayers->isNotEmpty()) {
-                Log::info('Querying schools by team_id:', $teamIdsFromPlayers->toArray());
                 $schoolsByTeamId = TeamList::whereIn('team_id', $teamIdsFromPlayers)->get();
-                Log::info('Found schools by team_id:', [
-                    'count' => $schoolsByTeamId->count(),
-                    'schools' => $schoolsByTeamId->pluck('school_name')->toArray()
-                ]);
                 $allSchools = $allSchools->merge($schoolsByTeamId);
             }
 
             // 2. Get schools by school_id (from official_list)
             $schoolIdsFromOfficials = $officialLists->pluck('school_id')->filter()->unique();
             if ($schoolIdsFromOfficials->isNotEmpty()) {
-                Log::info('Querying schools by school_id:', $schoolIdsFromOfficials->toArray());
                 $schoolsBySchoolId = TeamList::whereIn('school_id', $schoolIdsFromOfficials)->get();
-                Log::info('Found schools by school_id:', [
-                    'count' => $schoolsBySchoolId->count(),
-                    'schools' => $schoolsBySchoolId->pluck('school_name')->toArray()
-                ]);
                 $allSchools = $allSchools->merge($schoolsBySchoolId);
             }
 
-            // 3. Get schools by school_name (from dancer_list)
+            // 3. Get schools by team_id from official_list
+            $teamIdsFromOfficials = $officialLists->pluck('team_id')->filter()->unique();
+            if ($teamIdsFromOfficials->isNotEmpty()) {
+                $schoolsByTeamIdOfficial = TeamList::whereIn('team_id', $teamIdsFromOfficials)->get();
+                $allSchools = $allSchools->merge($schoolsByTeamIdOfficial);
+            }
+
+            // 4. Get schools by school_name (from dancer_list)
             $schoolNamesFromDancers = $dancerLists->pluck('school_name')->filter()->unique();
             if ($schoolNamesFromDancers->isNotEmpty()) {
-                Log::info('Querying schools by school_name:', $schoolNamesFromDancers->toArray());
-                
-                // First try exact matches
-                $schoolsByName = TeamList::whereIn('school_name', $schoolNamesFromDancers)->get();
-                
-                // If no exact matches, try case-insensitive partial matches
-                if ($schoolsByName->isEmpty()) {
-                    foreach ($schoolNamesFromDancers as $schoolName) {
-                        $matchingSchools = TeamList::whereRaw('LOWER(school_name) LIKE ?', 
-                            ['%' . strtolower($schoolName) . '%'])->get();
-                        $schoolsByName = $schoolsByName->merge($matchingSchools);
-                    }
+                foreach ($schoolNamesFromDancers as $schoolName) {
+                    $matchingSchools = TeamList::whereRaw('LOWER(school_name) LIKE ?', 
+                        ['%' . strtolower($schoolName) . '%'])->get();
+                    $allSchools = $allSchools->merge($matchingSchools);
                 }
-                
-                Log::info('Found schools by school_name:', [
-                    'count' => $schoolsByName->count(),
-                    'schools' => $schoolsByName->pluck('school_name')->toArray()
-                ]);
-                $allSchools = $allSchools->merge($schoolsByName);
             }
 
             // Remove duplicates by team_id
             $allSchools = $allSchools->unique('team_id');
 
-            Log::info('=== Final unique schools ===', [
-                'total_count' => $allSchools->count(),
-                'schools' => $allSchools->map(function($school) {
-                    return [
-                        'team_id' => $school->team_id,
-                        'school_id' => $school->school_id,
-                        'school_name' => $school->school_name
-                    ];
-                })->toArray()
-            ]);
-
             return $allSchools;
 
         } catch (\Exception $e) {
             Log::error('Error in getAllSchoolsForUser: ' . $e->getMessage());
-            Log::error('Trace: ' . $e->getTraceAsString());
             return collect();
         }
     }
@@ -462,30 +308,19 @@ class SchoolDataProfileController extends Controller
 
         $logoFile = basename($schoolLogo);
         
-        // If already a full URL
         if (strpos($schoolLogo, 'http') === 0) {
             return $schoolLogo;
         }
 
-        // Try storage first
         if (Storage::disk('public')->exists('school_logos/' . $logoFile)) {
             return Storage::disk('public')->url('school_logos/' . $logoFile);
         }
 
-        // Try public storage
-        $publicPath = public_path('storage/school_logos/' . $logoFile);
-        if (file_exists($publicPath)) {
+        if (file_exists(public_path('storage/school_logos/' . $logoFile))) {
             return asset('storage/school_logos/' . $logoFile);
         }
 
-        // Try the original path
-        if (file_exists(public_path($schoolLogo))) {
-            return asset($schoolLogo);
-        }
-
-        // Try with just the filename
-        $simplePath = public_path('school_logos/' . $logoFile);
-        if (file_exists($simplePath)) {
+        if (file_exists(public_path('school_logos/' . $logoFile))) {
             return asset('school_logos/' . $logoFile);
         }
 
@@ -493,9 +328,54 @@ class SchoolDataProfileController extends Controller
     }
 
     /**
-     * Show the form for editing school data.
+     * Get document URL from storage with FORCE cache busting
      */
-    public function edit($school_id = null)
+    private function getDocumentUrl($path, $disk = 'public', $directory = 'team_docs')
+    {
+        if (!$path) {
+            return null;
+        }
+
+        $fileName = basename($path);
+        $url = null;
+        
+        // Clear file status cache
+        clearstatcache();
+        
+        // Check in specified directory
+        if (Storage::disk($disk)->exists($directory . '/' . $fileName)) {
+            $url = Storage::disk($disk)->url($directory . '/' . $fileName);
+        }
+        
+        // Check in public path
+        elseif (file_exists(public_path($directory . '/' . $fileName))) {
+            $url = asset($directory . '/' . $fileName);
+        }
+        
+        // Check in storage
+        elseif (file_exists(public_path('storage/' . $directory . '/' . $fileName))) {
+            $url = asset('storage/' . $directory . '/' . $fileName);
+        }
+        
+        // FORCE cache busting - selalu tambahkan timestamp
+        if ($url) {
+            // Gunakan file modification time jika ada
+            $filePath = public_path('storage/' . $directory . '/' . $fileName);
+            if (file_exists($filePath)) {
+                $timestamp = filemtime($filePath);
+            } else {
+                $timestamp = time();
+            }
+            $url .= '?v=' . $timestamp;
+        }
+        
+        return $url;
+    }
+
+    /**
+     * Show the form for editing school data - PERBAIKAN DENGAN CACHE BUSTING
+     */
+    public function edit($team_id = null)
     {
         try {
             $user = Auth::user();
@@ -504,31 +384,408 @@ class SchoolDataProfileController extends Controller
                 return redirect()->route('login')->with('error', 'Please login first.');
             }
 
-            // Jika ada school_id, cari data sekolah tersebut
+            // Jika tidak ada team_id, coba ambil dari route parameter
+            if (!$team_id) {
+                $team_id = request()->route('team_id') ?? request()->get('team_id') ?? request()->get('school_id');
+            }
+
+            // Cari data team berdasarkan team_id (prioritas) atau school_id
             $team = null;
-            if ($school_id) {
-                $team = TeamList::where('school_id', $school_id)->first();
+            
+            if ($team_id) {
+                // Cari berdasarkan team_id
+                $team = TeamList::where('team_id', $team_id)->first();
                 
+                // Jika tidak ditemukan, cari berdasarkan school_id
                 if (!$team) {
-                    return redirect()->route('schooldata.list')->with('error', 'School not found.');
-                }
-                
-                // Verifikasi bahwa user memiliki akses ke sekolah ini
-                if (!$this->hasAccessToSchool($user, $school_id, $team->school_name)) {
-                    return redirect()->route('schooldata.list')->with('error', 'You do not have access to this school.');
+                    $team = TeamList::where('school_id', $team_id)->first();
                 }
             }
 
-            return view('user.event.profile.schooldata-edit', compact('team', 'school_id'));
+            // Jika data tidak ditemukan
+            if (!$team) {
+                Log::warning("Team not found for ID: {$team_id}");
+                return redirect()->route('student.event.histories')
+                    ->with('error', 'School data not found. Please check your registration.');
+            }
+
+            // Verifikasi bahwa user memiliki akses ke sekolah ini
+            if (!$this->hasAccessToSchool($user, $team->school_id, $team->school_name, $team->team_id)) {
+                Log::warning("User {$user->email} attempted to access unauthorized school: {$team->school_name}");
+                return redirect()->route('student.event.histories')
+                    ->with('error', 'You do not have permission to access this school data.');
+            }
+
+            // Refresh data team untuk memastikan data terbaru
+            $team->refresh();
+            
+            // Clear cache
+            clearstatcache();
+
+            // Get user's roles for this school
+            $playerLists = PlayerList::where(function($query) use ($user) {
+                $query->where('email', $user->email)
+                      ->orWhere('nik', $user->nik);
+            })->where('team_id', $team->team_id)->get();
+
+            $dancerLists = DancerList::where(function($query) use ($user) {
+                $query->where('email', $user->email)
+                      ->orWhere('nik', $user->nik);
+            })->whereRaw('LOWER(school_name) = ?', [strtolower($team->school_name)])->get();
+
+            $officialLists = OfficialList::where(function($query) use ($user) {
+                $query->where('email', $user->email)
+                      ->orWhere('nik', $user->nik);
+            })->where(function($query) use ($team) {
+                $query->where('school_id', $team->school_id)
+                      ->orWhere('team_id', $team->team_id);
+            })->get();
+
+            // Generate document URLs dengan cache busting
+            $team->recommendation_letter_url = $this->getDocumentUrl($team->recommendation_letter, 'public', 'team_docs');
+            $team->koran_url = $this->getDocumentUrl($team->koran, 'public', 'team_docs');
+            $team->payment_proof_url = $this->getDocumentUrl($team->payment_proof, 'public', 'payment_proofs');
+            $team->logo_url = $this->getSchoolLogoUrl($team->school_logo);
+
+            // Dapatkan ukuran file untuk ditampilkan di view
+            $team->koran_size = $this->getFileSize($team->koran, 'team_docs');
+            $team->recommendation_letter_size = $this->getFileSize($team->recommendation_letter, 'team_docs');
+            $team->payment_proof_size = $this->getFileSize($team->payment_proof, 'payment_proofs');
+
+            return view('user.event.profile.schooldata-edit', [
+                'team' => $team,
+                'team_id' => $team->team_id,
+                'school_id' => $team->school_id,
+                'userRoles' => [
+                    'isPlayer' => $playerLists->isNotEmpty(),
+                    'isDancer' => $dancerLists->isNotEmpty(),
+                    'isOfficial' => $officialLists->isNotEmpty(),
+                    'playerData' => $playerLists->first(),
+                    'dancerData' => $dancerLists->first(),
+                    'officialData' => $officialLists->first()
+                ],
+                'koran_updated' => session('koran_updated', false),
+                'timestamp' => time()
+            ]);
 
         } catch (\Exception $e) {
             Log::error('Error in SchoolDataProfileController@edit: ' . $e->getMessage());
-            return redirect()->route('schooldata.list')->with('error', 'Terjadi kesalahan saat memuat form edit.');
+            Log::error('Trace: ' . $e->getTraceAsString());
+            
+            return redirect()->route('student.event.histories')
+                ->with('error', 'Terjadi kesalahan saat memuat data sekolah. Error: ' . $e->getMessage());
         }
     }
 
     /**
-     * Update school data.
+     * 🔥 PERBAIKAN TOTAL: DOWNLOAD DOCUMENT - Menggunakan pendekatan yang berbeda
+     * Menggunakan ID sebagai parameter, bukan filename, untuk menghindari masalah encoding dan CORS
+     */
+    public function downloadDocument($teamId, $documentType)
+    {
+        try {
+            $user = Auth::user();
+            
+            if (!$user) {
+                return redirect()->route('login')->with('error', 'Please login first.');
+            }
+
+            Log::info('=== DOWNLOAD DOCUMENT STARTED ===');
+            Log::info('User: ' . $user->email);
+            Log::info('Team ID: ' . $teamId);
+            Log::info('Document Type: ' . $documentType);
+
+            // Validasi document type
+            $validTypes = ['koran', 'recommendation_letter', 'payment_proof'];
+            if (!in_array($documentType, $validTypes)) {
+                Log::error('Invalid document type: ' . $documentType);
+                return redirect()->back()->with('error', 'Invalid document type.');
+            }
+
+            // Cari data team
+            $team = TeamList::where('team_id', $teamId)->first();
+            
+            if (!$team) {
+                Log::error("Team not found for ID: {$teamId}");
+                return redirect()->back()->with('error', 'Team not found.');
+            }
+
+            // Verifikasi akses user
+            if (!$this->hasAccessToSchool($user, $team->school_id, $team->school_name, $team->team_id)) {
+                Log::warning("User {$user->email} attempted to download unauthorized document from team: {$team->team_id}");
+                return redirect()->back()->with('error', 'You do not have permission to download this document.');
+            }
+
+            // Dapatkan path file dari database
+            $filePath = $team->{$documentType};
+            
+            if (empty($filePath)) {
+                Log::error("No {$documentType} found for team: {$teamId}");
+                return redirect()->back()->with('error', 'Document not found.');
+            }
+
+            $fileName = basename($filePath);
+            $directory = 'team_docs';
+            
+            if ($documentType === 'payment_proof') {
+                $directory = 'payment_proofs';
+            }
+
+            // Tentukan path lengkap file
+            $fullPath = null;
+            
+            // Cek di storage
+            if (Storage::disk('public')->exists($directory . '/' . $fileName)) {
+                $fullPath = Storage::disk('public')->path($directory . '/' . $fileName);
+                Log::info("Found in storage: " . $directory . '/' . $fileName);
+            }
+            // Cek di public path
+            elseif (file_exists(public_path('storage/' . $directory . '/' . $fileName))) {
+                $fullPath = public_path('storage/' . $directory . '/' . $fileName);
+                Log::info("Found in public: " . $fullPath);
+            }
+            // Cek di public path tanpa storage
+            elseif (file_exists(public_path($directory . '/' . $fileName))) {
+                $fullPath = public_path($directory . '/' . $fileName);
+                Log::info("Found in public root: " . $fullPath);
+            }
+
+            if (!$fullPath || !file_exists($fullPath)) {
+                Log::error("File not found on disk: " . $filePath);
+                return redirect()->back()->with('error', 'File tidak ditemukan di server.');
+            }
+
+            // Dapatkan mime type
+            $mimeType = $this->getMimeTypeFromExtension($fileName);
+            
+            // Dapatkan nama file untuk download (format: JenisDocument_NamaSekolah_Timestamp.ext)
+            $schoolName = preg_replace('/[^a-zA-Z0-9_-]/', '_', $team->school_name);
+            $documentLabels = [
+                'koran' => 'Koran',
+                'recommendation_letter' => 'Rekomendasi',
+                'payment_proof' => 'Bukti_Pembayaran'
+            ];
+            $label = $documentLabels[$documentType] ?? ucfirst($documentType);
+            
+            $downloadName = $label . '_' . $schoolName . '_' . date('Ymd') . '.' . pathinfo($fileName, PATHINFO_EXTENSION);
+
+            // FORCE DOWNLOAD dengan headers yang tepat
+            $headers = [
+                'Content-Type' => $mimeType,
+                'Content-Disposition' => 'attachment; filename="' . $downloadName . '"',
+                'Content-Transfer-Encoding' => 'binary',
+                'Content-Length' => filesize($fullPath),
+                'Cache-Control' => 'no-cache, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0',
+                'Pragma' => 'no-cache',
+                'Expires' => '0',
+                'X-Content-Type-Options' => 'nosniff',
+            ];
+
+            Log::info('Download successful: ' . $downloadName);
+            Log::info('File path: ' . $fullPath);
+            Log::info('File size: ' . filesize($fullPath));
+            Log::info('Mime type: ' . $mimeType);
+
+            return response()->download($fullPath, $downloadName, $headers);
+
+        } catch (\Exception $e) {
+            Log::error('Error in downloadDocument: ' . $e->getMessage());
+            Log::error('Trace: ' . $e->getTraceAsString());
+            
+            return redirect()->back()->with('error', 'Gagal mendownload file. Error: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * 🔥 PERBAIKAN: Get file size for display
+     */
+    private function getFileSize($path, $directory = 'team_docs')
+    {
+        if (!$path) {
+            return null;
+        }
+
+        $fileName = basename($path);
+        
+        // Cek di storage
+        if (Storage::disk('public')->exists($directory . '/' . $fileName)) {
+            $bytes = Storage::disk('public')->size($directory . '/' . $fileName);
+            return $this->formatBytes($bytes);
+        }
+        
+        // Cek di public path
+        $filePath = public_path('storage/' . $directory . '/' . $fileName);
+        if (file_exists($filePath)) {
+            $bytes = filesize($filePath);
+            return $this->formatBytes($bytes);
+        }
+        
+        return null;
+    }
+
+    /**
+     * 🔥 PERBAIKAN: Format bytes to human readable
+     */
+    private function formatBytes($bytes, $precision = 2)
+    {
+        if ($bytes === null || $bytes === 0) {
+            return '0 B';
+        }
+        
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $i = 0;
+        while ($bytes >= 1024 && $i < count($units) - 1) {
+            $bytes /= 1024;
+            $i++;
+        }
+        return round($bytes, $precision) . ' ' . $units[$i];
+    }
+
+    /**
+     * 🔥 PERBAIKAN: Get mime type from file extension
+     */
+    private function getMimeTypeFromExtension($filename)
+    {
+        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        
+        $mimeTypes = [
+            'pdf' => 'application/pdf',
+            'doc' => 'application/msword',
+            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'xls' => 'application/vnd.ms-excel',
+            'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'gif' => 'image/gif',
+            'txt' => 'text/plain',
+            'zip' => 'application/zip',
+            'rar' => 'application/x-rar-compressed',
+        ];
+        
+        return $mimeTypes[$extension] ?? 'application/octet-stream';
+    }
+
+    /**
+     * PERBAIKAN: Update Koran document only - DENGAN REDIRECT YANG BENAR
+     */
+    public function updateKoran(Request $request)
+    {
+        try {
+            $user = Auth::user();
+            
+            if (!$user) {
+                return redirect()->route('login')->with('error', 'Please login first.');
+            }
+
+            Log::info('=== UPDATE KORAN STARTED ===');
+            Log::info('User: ' . $user->email);
+            Log::info('Team ID: ' . $request->team_id);
+            Log::info('File exists: ' . ($request->hasFile('koran_file') ? 'YES' : 'NO'));
+
+            // Validasi input
+            $validated = $request->validate([
+                'team_id' => 'required|string|exists:team_list,team_id',
+                'koran_file' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
+            ]);
+
+            // Cari data team
+            $team = TeamList::where('team_id', $validated['team_id'])->first();
+            
+            if (!$team) {
+                return redirect()->back()->with('error', 'Team not found.');
+            }
+
+            // Cek apakah team locked
+            if ($team->locked_status === 'locked') {
+                return redirect()->back()->with('error', 'Cannot update documents. Team is locked.');
+            }
+
+            // Verifikasi akses user
+            if (!$this->hasAccessToSchool($user, $team->school_id, $team->school_name, $team->team_id)) {
+                return redirect()->route('student.event.histories')
+                    ->with('error', 'You do not have permission to update this school data.');
+            }
+
+            DB::beginTransaction();
+
+            try {
+                // Handle file upload untuk koran
+                if ($request->hasFile('koran_file')) {
+                    $file = $request->file('koran_file');
+                    
+                    Log::info('Original filename: ' . $file->getClientOriginalName());
+                    
+                    // Generate unique filename dengan timestamp
+                    $timestamp = time();
+                    $extension = $file->getClientOriginalExtension();
+                    $fileName = 'koran_' . $team->team_id . '_' . $timestamp . '.' . $extension;
+                    
+                    // Hapus file LAMA dengan PASTI
+                    if ($team->koran) {
+                        $oldFile = basename($team->koran);
+                        
+                        // Hapus dari storage
+                        if (Storage::disk('public')->exists('team_docs/' . $oldFile)) {
+                            Storage::disk('public')->delete('team_docs/' . $oldFile);
+                            Log::info("Deleted old koran file: team_docs/" . $oldFile);
+                        }
+                        
+                        // Hapus dari public path
+                        $oldFilePath = public_path('storage/team_docs/' . $oldFile);
+                        if (file_exists($oldFilePath)) {
+                            unlink($oldFilePath);
+                            Log::info("Deleted old koran file from public: " . $oldFilePath);
+                        }
+                        
+                        // Clear cache file lama
+                        clearstatcache();
+                    }
+                    
+                    // Store file baru
+                    $path = $file->storeAs('team_docs', $fileName, 'public');
+                    
+                    // Update database
+                    $team->koran = 'team_docs/' . $fileName;
+                    $team->save();
+                    
+                    // Refresh model untuk memastikan data terbaru
+                    $team->refresh();
+                    
+                    Log::info("Koran document updated for team {$team->team_id}");
+                    Log::info("New file: {$fileName}");
+                    Log::info("New path in DB: {$team->koran}");
+                }
+
+                DB::commit();
+
+                // 🔥 PERBAIKAN: SELALU REDIRECT KE student.team.edit DENGAN team_id
+                $redirectUrl = route('student.team.edit', ['team_id' => $team->team_id]);
+                Log::info('Redirecting to student.team.edit: ' . $redirectUrl);
+
+                return redirect($redirectUrl)
+                    ->with('success', 'Koran document has been successfully updated.')
+                    ->with('koran_updated', true)
+                    ->with('timestamp', $timestamp);
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                Log::error('Error updating koran: ' . $e->getMessage());
+                Log::error('Trace: ' . $e->getTraceAsString());
+                throw $e;
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Error in SchoolDataProfileController@updateKoran: ' . $e->getMessage());
+            Log::error('Trace: ' . $e->getTraceAsString());
+            
+            return redirect()->back()->withInput()
+                ->with('error', 'Gagal mengupdate dokumen. Error: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Update school data - GENERAL UPDATE (untuk data lain, tidak digunakan untuk koran)
      */
     public function update(Request $request)
     {
@@ -552,7 +809,7 @@ class SchoolDataProfileController extends Controller
 
             // Cek apakah user memiliki akses ke sekolah ini
             if (!$this->hasAccessToSchool($user, $validated['school_id'], $validated['school_name'])) {
-                return redirect()->route('schooldata.list')->with('error', 'You do not have access to this school.');
+                return redirect()->route('student.event.histories')->with('error', 'You do not have access to this school.');
             }
 
             // Cari atau buat data team
@@ -562,7 +819,7 @@ class SchoolDataProfileController extends Controller
                 // Buat baru jika tidak ditemukan
                 $team = new TeamList();
                 $team->school_id = $validated['school_id'];
-                $team->registered_by = $user->id;
+                $team->registered_by = $user->name ?? $user->email;
                 $team->verification_status = 'pending';
                 $team->payment_status = 'unpaid';
                 $team->locked_status = 'unlocked';
@@ -579,14 +836,14 @@ class SchoolDataProfileController extends Controller
             // Handle upload logo
             if ($request->hasFile('school_logo')) {
                 $logoFile = $request->file('school_logo');
-                $logoName = time() . '_' . str_slug($validated['school_name']) . '_logo.' . $logoFile->getClientOriginalExtension();
+                $logoName = time() . '_' . Str::slug($validated['school_name']) . '_logo.' . $logoFile->getClientOriginalExtension();
                 $logoPath = $logoFile->storeAs('school_logos', $logoName, 'public');
-                $team->school_logo = $logoName;
+                $team->school_logo = 'school_logos/' . $logoName;
             }
 
             $team->save();
 
-            return redirect()->route('schooldata.list')->with('success', 'School data updated successfully.');
+            return redirect()->route('student.event.histories')->with('success', 'School data updated successfully.');
 
         } catch (\Exception $e) {
             Log::error('Error in SchoolDataProfileController@update: ' . $e->getMessage());
@@ -608,50 +865,72 @@ class SchoolDataProfileController extends Controller
                 return redirect()->route('login')->with('error', 'Please login first.');
             }
 
-            // Cari data sekolah
             $team = TeamList::where('school_id', $school_id)->first();
             
             if (!$team) {
-                return redirect()->route('schooldata.list')->with('error', 'School not found.');
+                return redirect()->route('student.event.histories')->with('error', 'School not found.');
             }
 
-            // Verifikasi bahwa user memiliki akses ke sekolah ini
-            if (!$this->hasAccessToSchool($user, $school_id, $team->school_name)) {
-                return redirect()->route('schooldata.list')->with('error', 'You do not have access to this school.');
+            if (!$this->hasAccessToSchool($user, $school_id, $team->school_name, $team->team_id)) {
+                return redirect()->route('student.event.histories')->with('error', 'You do not have access to this school.');
             }
 
-            // Hapus user dari semua roles di sekolah ini
-            $this->removeUserFromSchool($user, $team);
+            DB::beginTransaction();
 
-            return redirect()->route('schooldata.list')->with('success', 'Successfully left the school team.');
+            try {
+                // Hapus dari player_list
+                PlayerList::where(function($query) use ($user) {
+                    $query->where('email', $user->email)
+                          ->orWhere('nik', $user->nik);
+                })->where('team_id', $team->team_id)->delete();
+
+                // Hapus dari dancer_list
+                DancerList::where(function($query) use ($user) {
+                    $query->where('email', $user->email)
+                          ->orWhere('nik', $user->nik);
+                })->whereRaw('LOWER(school_name) = ?', [strtolower($team->school_name)])->delete();
+
+                // Hapus dari official_list
+                OfficialList::where(function($query) use ($user) {
+                    $query->where('email', $user->email)
+                          ->orWhere('nik', $user->nik);
+                })->where(function($query) use ($team) {
+                    $query->where('school_id', $team->school_id)
+                          ->orWhere('team_id', $team->team_id);
+                })->delete();
+
+                DB::commit();
+
+                return redirect()->route('student.event.histories')->with('success', 'Successfully left the school team.');
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                throw $e;
+            }
 
         } catch (\Exception $e) {
             Log::error('Error in SchoolDataProfileController@leave: ' . $e->getMessage());
-            Log::error('Trace: ' . $e->getTraceAsString());
-            
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat meninggalkan sekolah. Silakan coba lagi.');
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat meninggalkan sekolah.');
         }
     }
 
     /**
-     * Check if user has access to a school - FIXED!
+     * Check if user has access to a school - PERBAIKAN dengan parameter team_id
      */
-    private function hasAccessToSchool($user, $school_id, $school_name)
+    private function hasAccessToSchool($user, $school_id, $school_name, $team_id = null)
     {
         try {
-            // Cari team berdasarkan school_id
-            $team = TeamList::where('school_id', $school_id)->first();
-            
-            if (!$team) {
-                Log::warning("Team not found for school_id: {$school_id}");
-                return false;
+            // Cari team berdasarkan school_id jika team_id tidak diberikan
+            if (!$team_id) {
+                $team = TeamList::where('school_id', $school_id)->first();
+                $team_id = $team->team_id ?? null;
             }
 
             // Cek di player_list dengan team_id
             $isPlayer = PlayerList::where(function($query) use ($user) {
                 $query->where('email', $user->email)
                       ->orWhere('nik', $user->nik);
-            })->where('team_id', $team->team_id)->exists();
+            })->where('team_id', $team_id)->exists();
 
             // Cek di dancer_list dengan school_name (case-insensitive)
             $isDancer = DancerList::where(function($query) use ($user) {
@@ -659,21 +938,18 @@ class SchoolDataProfileController extends Controller
                       ->orWhere('nik', $user->nik);
             })->whereRaw('LOWER(school_name) = ?', [strtolower($school_name)])->exists();
 
-            // Cek di official_list dengan school_id
+            // Cek di official_list dengan school_id atau team_id
             $isOfficial = OfficialList::where(function($query) use ($user) {
                 $query->where('email', $user->email)
                       ->orWhere('nik', $user->nik);
-            })->where('school_id', $school_id)->exists();
+            })->where(function($query) use ($school_id, $team_id) {
+                $query->where('school_id', $school_id);
+                if ($team_id) {
+                    $query->orWhere('team_id', $team_id);
+                }
+            })->exists();
 
-            // Juga cek official dengan team_id jika ada
-            if (!$isOfficial && $team->team_id) {
-                $isOfficial = OfficialList::where(function($query) use ($user) {
-                    $query->where('email', $user->email)
-                          ->orWhere('nik', $user->nik);
-                })->where('team_id', $team->team_id)->exists();
-            }
-
-            Log::info("Access check for school {$school_name} (ID: {$school_id}, Team ID: {$team->team_id}):", [
+            Log::info("Access check for school {$school_name} (ID: {$school_id}, Team ID: {$team_id}):", [
                 'isPlayer' => $isPlayer,
                 'isDancer' => $isDancer,
                 'isOfficial' => $isOfficial
@@ -688,7 +964,7 @@ class SchoolDataProfileController extends Controller
     }
 
     /**
-     * Remove user from all roles in a school - FIXED!
+     * Remove user from all roles in a school
      */
     private function removeUserFromSchool($user, $team)
     {
@@ -696,42 +972,27 @@ class SchoolDataProfileController extends Controller
             DB::beginTransaction();
 
             // Hapus dari player_list dengan team_id
-            $playerDeleted = PlayerList::where(function($query) use ($user) {
+            PlayerList::where(function($query) use ($user) {
                 $query->where('email', $user->email)
                       ->orWhere('nik', $user->nik);
             })->where('team_id', $team->team_id)->delete();
 
-            Log::info("Deleted {$playerDeleted} player records for team_id {$team->team_id}");
-
             // Hapus dari dancer_list dengan school_name (case-insensitive)
-            $dancerDeleted = DancerList::where(function($query) use ($user) {
+            DancerList::where(function($query) use ($user) {
                 $query->where('email', $user->email)
                       ->orWhere('nik', $user->nik);
             })->whereRaw('LOWER(school_name) = ?', [strtolower($team->school_name)])->delete();
 
-            Log::info("Deleted {$dancerDeleted} dancer records for school {$team->school_name}");
-
-            // Hapus dari official_list dengan school_id
-            $officialDeleted = OfficialList::where(function($query) use ($user) {
+            // Hapus dari official_list dengan school_id dan team_id
+            OfficialList::where(function($query) use ($user) {
                 $query->where('email', $user->email)
                       ->orWhere('nik', $user->nik);
-            })->where('school_id', $team->school_id)->delete();
-
-            // Juga hapus dengan team_id jika ada
-            if ($team->team_id) {
-                $officialDeleted += OfficialList::where(function($query) use ($user) {
-                    $query->where('email', $user->email)
-                          ->orWhere('nik', $user->nik);
-                })->where('team_id', $team->team_id)->delete();
-            }
-
-            Log::info("Deleted {$officialDeleted} official records for school {$team->school_id}");
-
-            // Cek jika sekolah menjadi kosong setelah user keluar
-            $this->checkIfSchoolEmpty($team);
+            })->where(function($query) use ($team) {
+                $query->where('school_id', $team->school_id)
+                      ->orWhere('team_id', $team->team_id);
+            })->delete();
 
             DB::commit();
-
             return true;
 
         } catch (\Exception $e) {
@@ -756,8 +1017,6 @@ class SchoolDataProfileController extends Controller
             // Jika tidak ada anggota sama sekali
             if (!$hasPlayers && !$hasDancers && !$hasOfficials) {
                 Log::info("School {$team->school_name} (ID: {$team->school_id}) is now empty");
-                // Optional: Delete team_list entry if desired
-                // TeamList::where('school_id', $team->school_id)->delete();
             }
 
         } catch (\Exception $e) {
@@ -836,96 +1095,18 @@ class SchoolDataProfileController extends Controller
                       ->orWhere('nik', $user->nik);
             })->get();
 
-            // Get team data for each player
-            $teamsForPlayer = [];
-            foreach ($playerData as $player) {
-                if ($player->team_id) {
-                    $team = TeamList::where('team_id', $player->team_id)->first();
-                    $teamsForPlayer[$player->id] = $team ? [
-                        'team_id' => $team->team_id,
-                        'school_id' => $team->school_id,
-                        'school_name' => $team->school_name
-                    ] : null;
-                }
-            }
-
-            // Get team data for each dancer
-            $teamsForDancer = [];
-            foreach ($dancerData as $dancer) {
-                if ($dancer->school_name) {
-                    $team = TeamList::where('school_name', 'like', "%{$dancer->school_name}%")->first();
-                    $teamsForDancer[$dancer->dancer_id] = $team ? [
-                        'team_id' => $team->team_id,
-                        'school_id' => $team->school_id,
-                        'school_name' => $team->school_name
-                    ] : null;
-                }
-            }
-
-            // Get team data for each official
-            $teamsForOfficial = [];
-            foreach ($officialData as $official) {
-                $team = null;
-                if ($official->school_id) {
-                    $team = TeamList::where('school_id', $official->school_id)->first();
-                }
-                if (!$team && $official->team_id) {
-                    $team = TeamList::where('team_id', $official->team_id)->first();
-                }
-                $teamsForOfficial[$official->official_id] = $team ? [
-                    'team_id' => $team->team_id,
-                    'school_id' => $team->school_id,
-                    'school_name' => $team->school_name
-                ] : null;
-            }
-
             return response()->json([
                 'user' => [
                     'email' => $user->email,
                     'nik' => $user->nik,
                     'name' => $user->name
                 ],
-                'player_data' => $playerData->map(function($item) use ($teamsForPlayer) {
-                    return [
-                        'id' => $item->id,
-                        'team_id' => $item->team_id,
-                        'school_id' => $item->school_id,
-                        'school_info' => $teamsForPlayer[$item->id] ?? 'No team found',
-                        'role' => $item->role,
-                        'email' => $item->email,
-                        'nik' => $item->nik,
-                        'name' => $item->name,
-                        'jersey_number' => $item->jersey_number,
-                        'position' => $item->basketball_position
-                    ];
-                }),
-                'dancer_data' => $dancerData->map(function($item) use ($teamsForDancer) {
-                    return [
-                        'dancer_id' => $item->dancer_id,
-                        'school_name_in_dancer' => $item->school_name,
-                        'school_info' => $teamsForDancer[$item->dancer_id] ?? 'No team found',
-                        'role' => $item->role,
-                        'email' => $item->email,
-                        'nik' => $item->nik,
-                        'name' => $item->name
-                    ];
-                }),
-                'official_data' => $officialData->map(function($item) use ($teamsForOfficial) {
-                    return [
-                        'official_id' => $item->official_id,
-                        'school_id' => $item->school_id,
-                        'team_id' => $item->team_id,
-                        'school_info' => $teamsForOfficial[$item->official_id] ?? 'No team found',
-                        'team_role' => $item->team_role,
-                        'role' => $item->role,
-                        'email' => $item->email,
-                        'nik' => $item->nik,
-                        'name' => $item->name
-                    ];
-                }),
                 'player_count' => $playerData->count(),
+                'player_data' => $playerData,
                 'dancer_count' => $dancerData->count(),
-                'official_count' => $officialData->count()
+                'dancer_data' => $dancerData,
+                'official_count' => $officialData->count(),
+                'official_data' => $officialData
             ]);
 
         } catch (\Exception $e) {
@@ -933,9 +1114,9 @@ class SchoolDataProfileController extends Controller
             return response()->json(['error' => 'Internal server error'], 500);
         }
     }
-    
+
     /**
-     * Direct test function to check roles for a specific school
+     * Test roles for a specific school
      */
     public function testRolesForSchool($school_id)
     {
@@ -970,20 +1151,8 @@ class SchoolDataProfileController extends Controller
             $roles = $this->getUserRolesForSchool($school, $playerLists, $dancerLists, $officialLists, $user);
 
             return response()->json([
-                'school' => [
-                    'team_id' => $school->team_id,
-                    'school_id' => $school->school_id,
-                    'name' => $school->school_name
-                ],
-                'roles' => $roles,
-                'player_data' => $playerLists->where('team_id', $school->team_id)->values(),
-                'dancer_data' => $dancerLists->filter(function($dancer) use ($school) {
-                    return strcasecmp(trim($dancer->school_name), trim($school->school_name)) === 0;
-                })->values(),
-                'official_data' => $officialLists->filter(function($official) use ($school) {
-                    return $official->school_id == $school->school_id || 
-                           (isset($official->team_id) && $official->team_id == $school->team_id);
-                })->values()
+                'school' => $school,
+                'roles' => $roles
             ]);
 
         } catch (\Exception $e) {
@@ -998,43 +1167,16 @@ class SchoolDataProfileController extends Controller
     public function checkDatabaseStructure()
     {
         try {
-            // Check if team_id exists in player_list
             $playerColumns = \Schema::getColumnListing('player_list');
             $dancerColumns = \Schema::getColumnListing('dancer_list');
             $officialColumns = \Schema::getColumnListing('official_list');
             $teamColumns = \Schema::getColumnListing('team_list');
-
-            // Sample data
-            $samplePlayer = PlayerList::first();
-            $sampleDancer = DancerList::first();
-            $sampleOfficial = OfficialList::first();
-            $sampleTeam = TeamList::first();
 
             return response()->json([
                 'player_list_columns' => $playerColumns,
                 'dancer_list_columns' => $dancerColumns,
                 'official_list_columns' => $officialColumns,
                 'team_list_columns' => $teamColumns,
-                'sample_player' => $samplePlayer ? [
-                    'team_id' => $samplePlayer->team_id,
-                    'school_id' => $samplePlayer->school_id,
-                    'role' => $samplePlayer->role
-                ] : null,
-                'sample_dancer' => $sampleDancer ? [
-                    'school_name' => $sampleDancer->school_name,
-                    'role' => $sampleDancer->role
-                ] : null,
-                'sample_official' => $sampleOfficial ? [
-                    'school_id' => $sampleOfficial->school_id,
-                    'team_id' => $sampleOfficial->team_id ?? 'N/A',
-                    'team_role' => $sampleOfficial->team_role,
-                    'role' => $sampleOfficial->role
-                ] : null,
-                'sample_team' => $sampleTeam ? [
-                    'team_id' => $sampleTeam->team_id,
-                    'school_id' => $sampleTeam->school_id,
-                    'school_name' => $sampleTeam->school_name
-                ] : null
             ]);
 
         } catch (\Exception $e) {
