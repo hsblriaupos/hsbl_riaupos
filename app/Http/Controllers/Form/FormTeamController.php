@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Storage;
 class FormTeamController extends Controller
 {
     /**
-     * Tampilkan form pilihan join atau create
+     * Show choice form (join or create)
      */
     public function showChoiceForm()
     {
@@ -50,7 +50,7 @@ class FormTeamController extends Controller
     }
 
     /**
-     * Tampilkan form untuk CREATE TEAM
+     * Show create team form
      */
     public function showCreateForm(Request $request)
     {
@@ -87,7 +87,7 @@ class FormTeamController extends Controller
     }
 
     /**
-     * Tampilkan form untuk JOIN TEAM dengan referral code
+     * Show join team form
      */
     public function showJoinForm()
     {
@@ -95,7 +95,7 @@ class FormTeamController extends Controller
     }
 
     /**
-     * Proses JOIN TEAM dengan referral code
+     * Process join team with referral code
      */
     public function joinTeam(Request $request)
     {
@@ -109,7 +109,7 @@ class FormTeamController extends Controller
         ]);
 
         $team = TeamList::where('referral_code', $request->referral_code)
-            ->whereNotNull('referral_code')  // Pastikan tidak NULL
+            ->whereNotNull('referral_code')
             ->first();
 
         if (!$team) {
@@ -120,20 +120,18 @@ class FormTeamController extends Controller
             return redirect()->back()->withErrors(['referral_code' => 'Tim ini sudah terkunci dan tidak menerima anggota baru.']);
         }
 
-        // Simpan referral code di session
         session([
             'join_referral_code' => $request->referral_code,
             'join_team_id' => $team->team_id,
         ]);
 
-        // Redirect ke form pilih role
         return redirect()->route('form.team.join.role')
             ->with('success', 'Referral code valid! Silakan pilih posisi Anda dalam tim.')
             ->with('team', $team);
     }
 
     /**
-     * Tampilkan form pilih role untuk join team
+     * Show role selection form
      */
     public function showRoleSelectionForm()
     {
@@ -158,7 +156,7 @@ class FormTeamController extends Controller
     }
 
     /**
-     * Proses pemilihan role dan redirect ke form yang sesuai
+     * 🔥🔥🔥 FIX UTAMA: Process role selection with correct team assignment
      */
     public function processRoleSelection(Request $request)
     {
@@ -174,7 +172,7 @@ class FormTeamController extends Controller
                 ->with('error', 'Referral code tidak valid.');
         }
 
-        // Normalisasi kategori
+        // Normalize category
         $playerCategory = $this->normalizeCategory($validated['team_category']);
 
         Log::info('Role Selection:', [
@@ -184,27 +182,24 @@ class FormTeamController extends Controller
             'is_leader_paid' => $team->is_leader_paid
         ]);
 
-        // LOGIKA LEADER
+        // Leader logic
         $canBeLeader = false;
-        
+
         if ($validated['team_category'] === 'Official') {
-            // Cek apakah sudah ada leader official di tim ini
             $existingLeaderCount = OfficialList::where('team_id', $team->team_id)
                 ->where('role', 'Leader')
                 ->count();
-                
+
             if ($existingLeaderCount === 0) {
                 $canBeLeader = true;
             }
         } else {
-            // Untuk player/dancer, cek apakah tim sudah bayar
             if ($team->is_leader_paid) {
-                // Cek apakah sudah ada leader untuk kategori ini
                 if ($playerCategory === 'dancer') {
                     $existingLeaderCount = DancerList::where('team_id', $team->team_id)
                         ->where('role', 'Leader')
                         ->count();
-                        
+
                     if ($existingLeaderCount === 0) {
                         $canBeLeader = true;
                     }
@@ -213,7 +208,7 @@ class FormTeamController extends Controller
                         ->where('category', $playerCategory)
                         ->where('role', 'Leader')
                         ->count();
-                        
+
                     if ($existingLeaderCount === 0) {
                         $canBeLeader = true;
                     }
@@ -235,28 +230,143 @@ class FormTeamController extends Controller
             'canBeLeader' => $canBeLeader ? 'YES' : 'NO'
         ]);
 
-        // Redirect ke form yang sesuai berdasarkan kategori
+        // 🔥🔥🔥 FIX: Redirect to CORRECT team based on category
         switch ($validated['team_category']) {
             case 'Basket Putra':
             case 'Basket Putri':
-                Log::info('Redirecting to player form for team: ' . $team->team_id . ' category: ' . $playerCategory . ', canBeLeader: ' . ($canBeLeader ? 'YES' : 'NO'));
+                // Find or create team with correct category
+                $correctTeam = TeamList::where('school_name', $team->school_name)
+                    ->where('season', $team->season)
+                    ->where('team_category', $validated['team_category'])
+                    ->first();
+
+                if (!$correctTeam) {
+                    Log::info('⚠️ Tim ' . $validated['team_category'] . ' belum ada, membuat baru...');
+
+                    $correctTeam = TeamList::create([
+                        'school_name' => $team->school_name,
+                        'school_id' => $team->school_id,
+                        'school_logo' => $team->school_logo,
+                        'referral_code' => null,
+                        'competition' => $team->competition,
+                        'season' => $team->season,
+                        'series' => $team->series,
+                        'team_category' => $validated['team_category'],
+                        'team_name' => null,
+                        'registered_by' => '',
+                        'locked_status' => 'unlocked',
+                        'verification_status' => 'unverified',
+                        'recommendation_letter' => null,
+                        'koran' => null,
+                        'jersey_home' => null,
+                        'jersey_away' => null,
+                        'jersey_alternate' => null,
+                        'is_leader_paid' => $team->is_leader_paid,
+                        'payment_status' => $team->payment_status,
+                        'payment_date' => $team->payment_date,
+                        'payment_proof' => null,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+
+                    Log::info('✅ Tim baru dibuat dengan ID: ' . $correctTeam->team_id);
+                }
+
+                Log::info('🏀 Redirecting to player form for team: ' . $correctTeam->team_id . ' category: ' . $playerCategory);
+
                 return redirect()->route('form.player.create.with-category', [
-                    'team_id' => $team->team_id,
+                    'team_id' => $correctTeam->team_id,
                     'category' => $playerCategory
                 ]);
-                
+
             case 'Dancer':
-                Log::info('Redirecting to dancer form for team: ' . $team->team_id . ', canBeLeader: ' . ($canBeLeader ? 'YES' : 'NO'));
+                // Find or create dancer team
+                $dancerTeam = TeamList::where('school_name', $team->school_name)
+                    ->where('season', $team->season)
+                    ->where('team_category', 'Dancer')
+                    ->first();
+
+                if (!$dancerTeam) {
+                    Log::info('⚠️ Tim Dancer belum ada, membuat baru...');
+
+                    $dancerTeam = TeamList::create([
+                        'school_name' => $team->school_name,
+                        'school_id' => $team->school_id,
+                        'school_logo' => $team->school_logo,
+                        'referral_code' => null,
+                        'competition' => $team->competition,
+                        'season' => $team->season,
+                        'series' => $team->series,
+                        'team_category' => 'Dancer',
+                        'team_name' => null,
+                        'registered_by' => '',
+                        'locked_status' => 'unlocked',
+                        'verification_status' => 'unverified',
+                        'recommendation_letter' => null,
+                        'koran' => null,
+                        'jersey_home' => null,
+                        'jersey_away' => null,
+                        'jersey_alternate' => null,
+                        'is_leader_paid' => $team->is_leader_paid,
+                        'payment_status' => $team->payment_status,
+                        'payment_date' => $team->payment_date,
+                        'payment_proof' => null,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+
+                    Log::info('✅ Tim Dancer baru dibuat dengan ID: ' . $dancerTeam->team_id);
+                }
+
+                Log::info('💃 Redirecting to dancer form for team: ' . $dancerTeam->team_id);
+
                 return redirect()->route('form.dancer.create', [
-                    'team_id' => $team->team_id
+                    'team_id' => $dancerTeam->team_id
                 ]);
-                
+
             case 'Official':
-                Log::info('Redirecting to official form for team: ' . $team->team_id . ', canBeLeader: ' . ($canBeLeader ? 'YES' : 'NO'));
+                // Find or create official team
+                $officialTeam = TeamList::where('school_name', $team->school_name)
+                    ->where('season', $team->season)
+                    ->where('team_category', 'Official')
+                    ->first();
+
+                if (!$officialTeam) {
+                    Log::info('⚠️ Tim Official belum ada, membuat baru...');
+
+                    $officialTeam = TeamList::create([
+                        'school_name' => $team->school_name,
+                        'school_id' => $team->school_id,
+                        'school_logo' => $team->school_logo,
+                        'referral_code' => null,
+                        'competition' => $team->competition,
+                        'season' => $team->season,
+                        'series' => $team->series,
+                        'team_category' => 'Official',
+                        'team_name' => null,
+                        'registered_by' => '',
+                        'locked_status' => 'unlocked',
+                        'verification_status' => 'unverified',
+                        'recommendation_letter' => null,
+                        'koran' => null,
+                        'jersey_home' => null,
+                        'jersey_away' => null,
+                        'jersey_alternate' => null,
+                        'is_leader_paid' => 0,
+                        'payment_status' => 'pending',
+                        'payment_date' => null,
+                        'payment_proof' => null,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+
+                    Log::info('✅ Tim Official baru dibuat dengan ID: ' . $officialTeam->team_id);
+                }
+
                 return redirect()->route('form.official.create', [
-                    'team_id' => $team->team_id
+                    'team_id' => $officialTeam->team_id
                 ]);
-                
+
             default:
                 Log::error('Invalid category: ' . $validated['team_category']);
                 return redirect()->back()->with('error', 'Kategori tidak valid.');
@@ -264,7 +374,7 @@ class FormTeamController extends Controller
     }
 
     /**
-     * Normalisasi kategori dari team_list ke player_list/dancer_list/official
+     * Normalize category
      */
     private function normalizeCategory($teamCategory)
     {
@@ -284,7 +394,7 @@ class FormTeamController extends Controller
     }
 
     /**
-     * Proses CREATE TEAM (TANPA BUKTI BAYAR)
+     * Process CREATE TEAM - 🔥 FIXED: Redirect ke success page dulu!
      */
     public function createTeam(Request $request)
     {
@@ -292,7 +402,7 @@ class FormTeamController extends Controller
             Log::info('=== CREATE TEAM START ===');
             Log::info('Create Team Request Data:', $request->all());
 
-            // VALIDASI
+            // Validation
             $validationRules = [
                 'school_option' => 'required|in:existing,new',
                 'competition' => 'required',
@@ -318,10 +428,9 @@ class FormTeamController extends Controller
             $validated = $request->validate($validationRules);
             Log::info('✅ Validation passed');
 
-            // PROSES SEKOLAH
+            // Process school
             $schoolName = '';
             $schoolId = null;
-            $schoolLogoPath = null;
 
             if ($validated['school_option'] == 'existing') {
                 $school = School::findOrFail($validated['existing_school_id']);
@@ -335,7 +444,6 @@ class FormTeamController extends Controller
                     $schoolId = $school->id;
                     session()->flash('info', 'Sekolah "' . $schoolName . '" sudah terdaftar di sistem.');
                 } else {
-                    // Buat sekolah baru
                     $school = School::create([
                         'school_name' => $validated['new_school_name'],
                         'city_id' => $validated['new_city_id'],
@@ -349,47 +457,41 @@ class FormTeamController extends Controller
 
             Log::info('✅ School processed: ' . $schoolName . ' (ID: ' . $schoolId . ')');
 
-            // 🔥 PERUBAHAN PENTING: CEK APAKAH SEKOLAH SUDAH PUNYA TIM DI SEASON INI
+            // Check if school already has a team this season
             $existingTeamForSchool = TeamList::where('school_name', $schoolName)
                 ->where('season', $validated['season'])
                 ->first();
 
-            $team = null;
-            $isFirstTeamForSchool = false;
-            $specificTeamCategory = $validated['team_category'];
-
             if ($existingTeamForSchool) {
-                // 🔥 SEKOLAH SUDAH PUNYA TIM → ARAHKAN KE FORM JOIN
                 $team = $existingTeamForSchool;
                 $referralCode = $team->referral_code;
-                
+
                 Log::info('✅ School already has team: ' . $schoolName . ' (ID: ' . $team->team_id . ')');
-                
+
                 if ($referralCode && $team->is_leader_paid) {
-                    // Sudah ada referral code dan sudah bayar → arahkan ke join
                     return redirect()->route('form.team.join')
                         ->with('warning', 'Sekolah "' . $schoolName . '" sudah memiliki tim untuk season ' . $validated['season'] . '. Gunakan referral code: ' . $referralCode . ' untuk bergabung.')
                         ->with('referral_code', $referralCode);
                 } else {
-                    // Belum ada referral code atau belum bayar
                     return redirect()->route('form.team.join')
                         ->with('warning', 'Sekolah "' . $schoolName . '" sudah memiliki tim untuk season ' . $validated['season'] . ' tetapi Kapten belum menyelesaikan pembayaran. Silakan tunggu atau hubungi Kapten tim.');
                 }
             }
 
-            // 🔥 SEKOLAH BELUM PUNYA TIM → BUAT TIM BARU (HANYA UNTUK PERTAMA KALI)
+            // 🔥🔥🔥 School doesn't have team yet - create new team
             $isFirstTeamForSchool = true;
-            
-            // Upload logo sekolah jika ada
+
+            // Upload school logo if exists
+            $schoolLogoPath = null;
             if ($request->hasFile('school_logo')) {
                 $schoolLogoPath = $this->uploadSchoolLogo(
                     $request->file('school_logo'),
                     $schoolName,
-                    $specificTeamCategory
+                    $validated['team_category']
                 );
             }
 
-            // SIMPAN FILE DOKUMEN
+            // Save documents
             Storage::disk('public')->makeDirectory('team_docs');
             $baseSlug = Str::slug($schoolName);
             $timestamp = time();
@@ -402,21 +504,24 @@ class FormTeamController extends Controller
 
             Log::info('✅ Documents saved: ' . $recommendationPath . ', ' . $koranPath);
 
-            // BUAT TIM BARU DI TEAM_LIST (HANYA 1 UNTUK SEKOLAH)
+            // Create new team
             $team = TeamList::create([
                 'school_name' => $schoolName,
                 'school_id' => $schoolId,
                 'school_logo' => $schoolLogoPath,
-                'referral_code' => null, // Akan digenerate setelah pembayaran
+                'referral_code' => null,
                 'competition' => $validated['competition'],
                 'season' => $validated['season'],
                 'series' => $validated['series'],
-                'team_category' => $specificTeamCategory, // Kategori tim pertama yang mendaftar
+                'team_category' => $validated['team_category'],
                 'registered_by' => $validated['registered_by'],
                 'locked_status' => 'unlocked',
                 'verification_status' => 'unverified',
                 'recommendation_letter' => $recommendationPath,
                 'koran' => $koranPath,
+                'jersey_home' => null,
+                'jersey_away' => null,
+                'jersey_alternate' => null,
                 'payment_proof' => null,
                 'is_leader_paid' => false,
                 'payment_status' => 'pending',
@@ -425,17 +530,19 @@ class FormTeamController extends Controller
 
             Log::info('✅ New team created with ID: ' . $team->team_id . ' for school: ' . $schoolName);
 
-            // 🔥 SET SESSION
-            $normalizedCategory = $this->normalizeCategory($specificTeamCategory);
-            
+            // 🔥🔥🔥 FIXED: Normalize category untuk success page
+            $normalizedCategory = $this->normalizeCategory($validated['team_category']);
+
+            // 🔥🔥🔥 SIMPAN KE SESSION untuk success page
             session([
                 'created_team_id' => $team->team_id,
-                'created_team_category' => $specificTeamCategory,
+                'created_team_category' => $validated['team_category'],
                 'created_school_name' => $schoolName,
                 'is_first_team_for_school' => $isFirstTeamForSchool,
                 'registered_by_name' => $validated['registered_by'],
+                'normalized_category' => $normalizedCategory,
                 'team_paid' => false,
-                'current_can_be_leader' => true, // Yang membuat tim pertama OTOMATIS bisa jadi Leader
+                'current_can_be_leader' => true,
                 'current_player_category' => $normalizedCategory,
             ]);
 
@@ -443,39 +550,16 @@ class FormTeamController extends Controller
                 'created_team_id' => session('created_team_id'),
                 'is_first_team_for_school' => session('is_first_team_for_school'),
                 'current_can_be_leader' => session('current_can_be_leader'),
-                'current_player_category' => session('current_player_category')
+                'current_player_category' => session('current_player_category'),
+                'normalized_category' => session('normalized_category')
             ]);
 
-            // Redirect ke form yang sesuai
-            switch ($specificTeamCategory) {
-                case 'Basket Putra':
-                case 'Basket Putri':
-                    Log::info('🏀 Redirecting FIRST TEAM creator to player form');
-                    return redirect()->route('form.player.create.with-category', [
-                        'team_id' => $team->team_id,
-                        'category' => $normalizedCategory
-                    ])->with('success', 'Tim berhasil dibuat! Sekarang lengkapi data diri Anda sebagai Kapten.')
-                        ->with('info', 'Sebagai Kapten, Anda perlu upload bukti pembayaran di langkah berikutnya.');
-                        
-                case 'Dancer':
-                    Log::info('🎭 Redirecting FIRST TEAM creator to dancer form');
-                    return redirect()->route('form.dancer.create', [
-                        'team_id' => $team->team_id
-                    ])->with('success', 'Tim berhasil dibuat! Sekarang lengkapi data diri Anda sebagai Kapten Dancer.')
-                        ->with('info', 'Sebagai Kapten, Anda perlu upload bukti pembayaran di langkah berikutnya.');
-                        
-                case 'Official':
-                    Log::info('📋 Redirecting FIRST TEAM creator to official form');
-                    return redirect()->route('form.official.create', [
-                        'team_id' => $team->team_id
-                    ])->with('success', 'Tim berhasil dibuat! Sekarang lengkapi data diri Anda sebagai Leader Official.')
-                        ->with('info', 'Official tidak memerlukan pembayaran.');
-                        
-                default:
-                    Log::error('Invalid team category after create: ' . $specificTeamCategory);
-                    return back()->withErrors(['error' => 'Kategori tim tidak valid.'])->withInput();
-            }
+            // 🔥🔥🔥 FIXED: REDIRECT KE HALAMAN SUCCESS DULU!
+            Log::info('🎉 Redirecting to team success page for team: ' . $team->team_id);
 
+            return redirect()->route('form.team.success', [
+                'team_id' => $team->team_id
+            ])->with('success', 'Tim berhasil dibuat! Silakan lengkapi data diri Anda sebagai Kapten.');
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('❌ Validation error: ', $e->errors());
             return back()->withErrors($e->errors())->withInput();
@@ -487,7 +571,32 @@ class FormTeamController extends Controller
     }
 
     /**
-     * Helper function untuk upload logo sekolah
+     * 🔥🔥🔥 TAMBAHKAN METHOD BARU: Show Team Success Page
+     */
+    public function showTeamSuccessPage($team_id)
+    {
+        try {
+            Log::info('=== SHOW TEAM SUCCESS PAGE ===');
+            Log::info('Team ID: ' . $team_id);
+
+            $team = TeamList::findOrFail($team_id);
+
+            // Ambil dari session atau generate ulang
+            $normalizedCategory = session('normalized_category', $this->normalizeCategory($team->team_category));
+
+            Log::info('Team success page for: ' . $team->school_name . ' - ' . $team->team_category);
+            Log::info('Normalized category: ' . $normalizedCategory);
+
+            return view('user.form.form_team_success', compact('team', 'normalizedCategory'));
+        } catch (\Exception $e) {
+            Log::error('❌ Error in showTeamSuccessPage: ' . $e->getMessage());
+            return redirect()->route('form.team.choice')
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Upload school logo
      */
     private function uploadSchoolLogo($file, $schoolName, $teamCategory = null)
     {
@@ -505,7 +614,7 @@ class FormTeamController extends Controller
     }
 
     /**
-     * Cek ketersediaan sekolah untuk autocomplete
+     * Check school availability for autocomplete
      */
     public function checkSchool(Request $request)
     {
@@ -520,7 +629,7 @@ class FormTeamController extends Controller
     }
 
     /**
-     * Cek apakah sekolah sudah ada
+     * Check if school exists
      */
     public function checkSchoolExists(Request $request)
     {
@@ -539,7 +648,7 @@ class FormTeamController extends Controller
     }
 
     /**
-     * Verifikasi apakah tim sudah ada untuk kategori tertentu
+     * Check if team already exists for category
      */
     public function checkExistingTeam(Request $request)
     {
@@ -549,14 +658,13 @@ class FormTeamController extends Controller
             'season' => 'required'
         ]);
 
-        // 🔥 PERUBAHAN: Cek apakah sekolah sudah punya tim di season ini (APAPUN kategorinya)
         $existingTeam = TeamList::where('school_name', $request->school_name)
             ->where('season', $request->season)
             ->first();
 
         if ($existingTeam) {
             $message = 'Sekolah "' . $request->school_name . '" sudah memiliki tim untuk season ' . $request->season . '!';
-            
+
             if ($existingTeam->referral_code && $existingTeam->is_leader_paid) {
                 $message .= ' Gunakan referral code: ' . $existingTeam->referral_code . ' untuk bergabung dengan tim ' . $request->team_category . '.';
             } else {

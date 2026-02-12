@@ -162,7 +162,7 @@
 
     /* ===== LEBAR KOLOM OPTIMAL (LEBIH KOMPAK) ===== */
     /* Total: 70 + 60 + 120 + 160 + 110 + 85 + 85 + 120 + 85 + 90 = ~985px */
-    
+
     /* Logo Sekolah */
     .table th:nth-child(1),
     .table td:nth-child(1) {
@@ -651,12 +651,21 @@
 
     /* ===== RESPONSIVE ADJUSTMENTS ===== */
     @media (max-width: 1400px) {
+
         .table th:nth-child(3),
-        .table td:nth-child(3) { width: 110px !important; }
+        .table td:nth-child(3) {
+            width: 110px !important;
+        }
+
         .table th:nth-child(4),
-        .table td:nth-child(4) { width: 150px !important; }
+        .table td:nth-child(4) {
+            width: 150px !important;
+        }
+
         .table th:nth-child(5),
-        .table td:nth-child(5) { width: 100px !important; }
+        .table td:nth-child(5) {
+            width: 100px !important;
+        }
     }
 
     @media (max-width: 1200px) {
@@ -664,19 +673,19 @@
             padding-left: 0.75rem !important;
             padding-right: 0.75rem !important;
         }
-        
+
         .table {
             min-width: 900px !important;
         }
-        
+
         .table-container {
             overflow-x: auto;
         }
-        
+
         .text-small {
             display: none;
         }
-        
+
         .school-name,
         .team-name,
         .competition-name,
@@ -689,24 +698,24 @@
         .filter-body {
             padding: 18px;
         }
-        
+
         .filter-header,
         .card-header {
             padding: 14px 18px;
         }
-        
+
         .pagination-container {
             flex-direction: column;
             gap: 10px;
             text-align: center;
             padding: 12px 18px !important;
         }
-        
+
         .table th,
         .table td {
             padding: 9px 6px !important;
         }
-        
+
         .logo-container {
             width: 45px;
             height: 45px;
@@ -718,26 +727,26 @@
             padding-left: 0.5rem !important;
             padding-right: 0.5rem !important;
         }
-        
+
         .page-title {
             font-size: 1.2rem;
         }
-        
+
         .export-btn {
             padding: 8px 14px;
             font-size: 0.8rem;
         }
-        
+
         .d-flex.justify-content-between {
             flex-direction: column;
             gap: 12px;
         }
-        
+
         .logo-container {
             width: 40px;
             height: 40px;
         }
-        
+
         .logo-placeholder i {
             font-size: 1rem;
         }
@@ -747,23 +756,23 @@
         .filter-body {
             padding: 14px;
         }
-        
+
         .export-btn {
             width: 100%;
             justify-content: center;
         }
-        
+
         .pagination-info {
             font-size: 0.75rem;
         }
-        
+
         .page-link {
             font-size: 0.75rem !important;
             padding: 4px 8px !important;
             min-width: 26px !important;
             height: 26px;
         }
-        
+
         .logo-container {
             width: 35px;
             height: 35px;
@@ -898,7 +907,7 @@
 
                     <div class="col-xl-1 col-lg-12 col-md-12 col-sm-12">
                         <div class="d-flex h-100 align-items-end">
-                            <button type="button" 
+                            <button type="button"
                                 onclick="document.getElementById('filterForm').reset(); document.getElementById('filterForm').submit();"
                                 class="btn btn-outline-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-2"
                                 style="height: 38px;"
@@ -950,258 +959,257 @@
                             <td>
                                 <div class="logo-container" onclick="showLogoPopup('{{ $team->school_logo ? asset('storage/' . $team->school_logo) : '' }}', '{{ $team->school_name }}')">
                                     @if($team->school_logo)
-                                        <!-- 🔥 PERBAIKAN: Gunakan storage path yang benar -->
-                                        <img src="{{ asset('storage/' . $team->school_logo) }}" 
-                                             alt="Logo {{ $team->school_name }}"
-                                             class="logo-img"
-                                             onerror="this.onerror=null; this.parentElement.innerHTML = '<div class=\"logo-placeholder\"><i class=\"fas fa-school\"></i><span>No Logo</span></div>
-                                    @else
-                                        <div class="logo-placeholder">
-                                            <i class="fas fa-school"></i>
-                                            <span>No Logo</span>
-                                        </div>
-                                    @endif
+                                    <!-- 🔥 PERBAIKAN: Gunakan storage path yang benar -->
+                                    <img src="{{ asset('storage/' . $team->school_logo) }}"
+                                        alt="Logo {{ $team->school_name }}"
+                                        class="logo-img"
+                                        onerror="this.onerror=null; this.parentElement.innerHTML = '<div class=\" logo-placeholder\"><i class=\"fas fa-school\"></i><span>No Logo</span>
                                 </div>
-                            </td>
-
-                            <!-- Team Number -->
-                            <td>
-                                <span class="team-number-badge" title="TEA{{ str_pad($team->team_id, 7, '0', STR_PAD_LEFT) }}">
-                                    {{ str_pad($team->team_id, 4, '0', STR_PAD_LEFT) }}
-                                </span>
-                            </td>
-
-                            <!-- School -->
-                            <td>
-                                <div class="school-info">
-                                    <div class="school-name" title="{{ $team->school_name }}">
-                                        {{ Str::limit($team->school_name, 25) }}
-                                    </div>
-                                    @if($team->season)
-                                    <div class="text-small">
-                                        <i class="fas fa-calendar-alt"></i>{{ Str::limit($team->season, 12) }}
-                                    </div>
-                                    @endif
-                                </div>
-                            </td>
-
-                            <!-- Team Name -->
-                            <td>
-                                <div class="team-meta">
-                                    <div class="team-name" title="{{ $team->school_name }}">
-                                        {{ Str::limit($team->school_name, 22) }}
-                                    </div>
-                                    @if($team->team_category)
-                                    <span class="team-category">
-                                        {{ Str::limit($team->team_category, 10) }}
-                                    </span>
-                                    @endif
-                                </div>
-                            </td>
-
-                            <!-- Competition -->
-                            <td>
-                                <div class="competition-info">
-                                    <div class="competition-name" title="{{ $team->competition }}">
-                                        {{ Str::limit($team->competition, 28) }}
-                                    </div>
-                                    @if($team->series)
-                                    <div class="text-small">
-                                        <i class="fas fa-layer-group"></i>{{ Str::limit($team->series, 15) }}
-                                    </div>
-                                    @endif
-                                </div>
-                            </td>
-
-                            <!-- Registered By -->
-                            <td>
-                                <div class="registrant-info">
-                                    <div class="registrant-name" title="{{ $team->registered_by }}">
-                                        {{ Str::limit($team->registered_by, 15) }}
-                                    </div>
-                                    @if($team->referral_code)
-                                    <div class="text-small">
-                                        <i class="fas fa-hashtag"></i>{{ Str::limit($team->referral_code, 8) }}
-                                    </div>
-                                    @endif
-                                </div>
-                            </td>
-
-                            <!-- Lock Status -->
-                            <td>
-                                @if($team->locked_status == 'locked')
-                                <span class="status-badge badge-locked" title="LOCKED">
-                                    <i class="fas fa-lock"></i> LOCKED
-                                </span>
                                 @else
-                                <span class="status-badge badge-unlocked" title="UNLOCKED">
-                                    <i class="fas fa-unlock"></i> OPEN
-                                </span>
-                                @endif
-                            </td>
-
-                            <!-- Verify Status -->
-                            <td>
-                                @if($team->verification_status == 'verified')
-                                <span class="status-badge badge-verified" title="VERIFIED">
-                                    <i class="fas fa-check"></i> VERIFIED
-                                </span>
-                                @else
-                                <span class="status-badge badge-unverified" title="UNVERIFIED">
-                                    <i class="fas fa-clock"></i> PENDING
-                                </span>
-                                @endif
-                            </td>
-
-                            <!-- Updated At -->
-                            <td class="date-cell">
-                                @if($team->updated_at)
-                                <div class="date-primary">{{ $team->updated_at->format('d/m/Y') }}</div>
-                                <div class="date-secondary">{{ $team->updated_at->format('H:i') }}</div>
-                                @else
-                                <div class="date-primary">-</div>
-                                @endif
-                            </td>
-
-                            <!-- Action -->
-                            <td>
-                                <div class="action-buttons">
-                                    <!-- View -->
-                                    <a href="{{ route('admin.team-list.show', $team->team_id) }}"
-                                        class="btn-action btn-view"
-                                        title="Lihat Detail">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-
-                                    <!-- Verify/Unverify -->
-                                    @if($team->verification_status == 'unverified')
-                                    <form action="{{ route('admin.team.verify', $team->team_id) }}"
-                                        method="POST"
-                                        class="d-inline">
-                                        @csrf
-                                        <button type="submit"
-                                            class="btn-action btn-verify"
-                                            title="Verifikasi Tim"
-                                            onclick="return confirm('Verifikasi tim {{ $team->school_name }}?')">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                    </form>
-                                    @else
-                                    <form action="{{ route('admin.team.unverify', $team->team_id) }}"
-                                        method="POST"
-                                        class="d-inline">
-                                        @csrf
-                                        <button type="submit"
-                                            class="btn-action btn-unverify"
-                                            title="Batalkan Verifikasi"
-                                            onclick="return confirm('Batalkan verifikasi tim {{ $team->school_name }}?')">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                    </form>
-                                    @endif
+                                <div class="logo-placeholder">
+                                    <i class="fas fa-school"></i>
+                                    <span>No Logo</span>
                                 </div>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="10">
-                                <div class="empty-state">
-                                    <div class="empty-icon">
-                                        <i class="fas fa-users-slash"></i>
-                                    </div>
-                                    <h5 class="empty-title">Tidak ada data tim ditemukan</h5>
-                                    <p class="empty-text">
-                                        Coba sesuaikan filter pencarian atau tunggu pendaftaran dari peserta.
-                                    </p>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                                @endif
             </div>
+            </td>
 
-            <!-- Pagination -->
-            @if($teamList->hasPages())
-            <div class="pagination-container">
-                <div class="pagination-info">
-                    <i class="fas fa-info-circle me-2"></i>
-                    @if($teamList->total() > 0)
-                    Menampilkan <strong>{{ $teamList->firstItem() }} - {{ $teamList->lastItem() }}</strong>
-                    dari <strong>{{ $teamList->total() }}</strong> data
-                    @else
-                    Tidak ada data yang ditampilkan
+            <!-- Team Number -->
+            <td>
+                <span class="team-number-badge" title="TEA{{ str_pad($team->team_id, 7, '0', STR_PAD_LEFT) }}">
+                    {{ str_pad($team->team_id, 4, '0', STR_PAD_LEFT) }}
+                </span>
+            </td>
+
+            <!-- School -->
+            <td>
+                <div class="school-info">
+                    <div class="school-name" title="{{ $team->school_name }}">
+                        {{ Str::limit($team->school_name, 25) }}
+                    </div>
+                    @if($team->season)
+                    <div class="text-small">
+                        <i class="fas fa-calendar-alt"></i>{{ Str::limit($team->season, 12) }}
+                    </div>
                     @endif
                 </div>
+            </td>
 
-                <nav>
-                    <ul class="custom-pagination">
-                        {{-- Previous Page Link --}}
-                        <li class="page-item {{ $teamList->onFirstPage() ? 'disabled' : '' }}">
-                            <a class="page-link" 
-                               href="{{ $teamList->onFirstPage() ? '#' : $teamList->previousPageUrl() }}"
-                               aria-label="Previous">
-                                <i class="fas fa-chevron-left"></i>
-                            </a>
-                        </li>
+            <!-- Registered By -->
+            <td>
+                <div class="registrant-info">
+                    <div class="registrant-name" title="{{ $team->registered_by }}">
+                        {{ Str::limit($team->registered_by, 15) }}
+                    </div>
+                    <div class="text-small" style="color: #6b7280; font-size: 0.65rem;">
+                        <i class="fas fa-hashtag"></i> Pendaftar Awal
+                    </div>
+                </div>
+            </td>
 
-                        {{-- Page Numbers --}}
-                        @php
-                        $currentPage = $teamList->currentPage();
-                        $lastPage = $teamList->lastPage();
-                        $startPage = max($currentPage - 2, 1);
-                        $endPage = min($currentPage + 2, $lastPage);
-                        @endphp
+            <!-- Competition -->
+            <td>
+                <div class="competition-info">
+                    <div class="competition-name" title="{{ $team->competition }}">
+                        {{ Str::limit($team->competition, 28) }}
+                    </div>
+                    @if($team->series)
+                    <div class="text-small">
+                        <i class="fas fa-layer-group"></i>{{ Str::limit($team->series, 15) }}
+                    </div>
+                    @endif
+                </div>
+            </td>
 
-                        {{-- First page --}}
-                        @if($startPage > 1)
-                        <li class="page-item">
-                            <a class="page-link" href="{{ $teamList->url(1) }}">1</a>
-                        </li>
-                        @if($startPage > 2)
-                        <li class="page-item disabled">
-                            <span class="page-link">...</span>
-                        </li>
+            <!-- Registered By -->
+            <td>
+                <div class="registrant-info">
+                    <div class="registrant-name" title="{{ $team->registered_by }}">
+                        {{ Str::limit($team->registered_by, 15) }}
+                    </div>
+                    @if($team->referral_code)
+                    <div class="text-small">
+                        <i class="fas fa-hashtag"></i>{{ Str::limit($team->referral_code, 8) }}
+                    </div>
+                    @endif
+                </div>
+            </td>
+
+            <!-- Lock Status -->
+            <td>
+                @if($team->locked_status == 'locked')
+                <span class="status-badge badge-locked" title="LOCKED">
+                    <i class="fas fa-lock"></i> LOCKED
+                </span>
+                @else
+                <span class="status-badge badge-unlocked" title="UNLOCKED">
+                    <i class="fas fa-unlock"></i> OPEN
+                </span>
+                @endif
+            </td>
+
+            <!-- Verify Status -->
+            <td>
+                @if($team->verification_status == 'verified')
+                <span class="status-badge badge-verified" title="VERIFIED">
+                    <i class="fas fa-check"></i> VERIFIED
+                </span>
+                @else
+                <span class="status-badge badge-unverified" title="UNVERIFIED">
+                    <i class="fas fa-clock"></i> PENDING
+                </span>
+                @endif
+            </td>
+
+            <!-- Updated At -->
+            <td class="date-cell">
+                @if($team->updated_at)
+                <div class="date-primary">{{ $team->updated_at->format('d/m/Y') }}</div>
+                <div class="date-secondary">{{ $team->updated_at->format('H:i') }}</div>
+                @else
+                <div class="date-primary">-</div>
+                @endif
+            </td>
+
+            <!-- Action -->
+            <td>
+                <div class="action-buttons">
+                    <!-- View -->
+                    <a href="{{ route('admin.team-list.show', $team->team_id) }}"
+                        class="btn-action btn-view"
+                        title="Lihat Detail">
+                        <i class="fas fa-eye"></i>
+                    </a>
+
+                    <!-- Verify/Unverify -->
+                    @if($team->verification_status == 'unverified')
+                    <form action="{{ route('admin.team.verify', $team->team_id) }}"
+                        method="POST"
+                        class="d-inline">
+                        @csrf
+                        <button type="submit"
+                            class="btn-action btn-verify"
+                            title="Verifikasi Tim"
+                            onclick="return confirm('Verifikasi tim {{ $team->school_name }}?')">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    </form>
+                    @else
+                    <form action="{{ route('admin.team.unverify', $team->team_id) }}"
+                        method="POST"
+                        class="d-inline">
+                        @csrf
+                        <button type="submit"
+                            class="btn-action btn-unverify"
+                            title="Batalkan Verifikasi"
+                            onclick="return confirm('Batalkan verifikasi tim {{ $team->school_name }}?')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </form>
+                    @endif
+                </div>
+            </td>
+            </tr>
+            @empty
+            <tr>
+                <td colspan="10">
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-users-slash"></i>
+                        </div>
+                        <h5 class="empty-title">Tidak ada data tim ditemukan</h5>
+                        <p class="empty-text">
+                            Coba sesuaikan filter pencarian atau tunggu pendaftaran dari peserta.
+                        </p>
+                    </div>
+                </td>
+            </tr>
+            @endforelse
+            </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        @if($teamList->hasPages())
+        <div class="pagination-container">
+            <div class="pagination-info">
+                <i class="fas fa-info-circle me-2"></i>
+                @if($teamList->total() > 0)
+                Menampilkan <strong>{{ $teamList->firstItem() }} - {{ $teamList->lastItem() }}</strong>
+                dari <strong>{{ $teamList->total() }}</strong> data
+                @else
+                Tidak ada data yang ditampilkan
+                @endif
+            </div>
+
+            <nav>
+                <ul class="custom-pagination">
+                    {{-- Previous Page Link --}}
+                    <li class="page-item {{ $teamList->onFirstPage() ? 'disabled' : '' }}">
+                        <a class="page-link"
+                            href="{{ $teamList->onFirstPage() ? '#' : $teamList->previousPageUrl() }}"
+                            aria-label="Previous">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+
+                    {{-- Page Numbers --}}
+                    @php
+                    $currentPage = $teamList->currentPage();
+                    $lastPage = $teamList->lastPage();
+                    $startPage = max($currentPage - 2, 1);
+                    $endPage = min($currentPage + 2, $lastPage);
+                    @endphp
+
+                    {{-- First page --}}
+                    @if($startPage > 1)
+                    <li class="page-item">
+                        <a class="page-link" href="{{ $teamList->url(1) }}">1</a>
+                    </li>
+                    @if($startPage > 2)
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                    @endif
+                    @endif
+
+                    {{-- Pages around current --}}
+                    @for ($i = $startPage; $i <= $endPage; $i++)
+                        <li class="page-item {{ $i == $currentPage ? 'active' : '' }}">
+                        @if($i == $currentPage)
+                        <span class="page-link">{{ $i }}</span>
+                        @else
+                        <a class="page-link" href="{{ $teamList->url($i) }}">{{ $i }}</a>
                         @endif
-                        @endif
-
-                        {{-- Pages around current --}}
-                        @for ($i = $startPage; $i <= $endPage; $i++)
-                            <li class="page-item {{ $i == $currentPage ? 'active' : '' }}">
-                                @if($i == $currentPage)
-                                <span class="page-link">{{ $i }}</span>
-                                @else
-                                <a class="page-link" href="{{ $teamList->url($i) }}">{{ $i }}</a>
-                                @endif
-                            </li>
+                        </li>
                         @endfor
 
                         {{-- Last page --}}
                         @if($endPage < $lastPage)
                             @if($endPage < $lastPage - 1)
                             <li class="page-item disabled">
-                                <span class="page-link">...</span>
+                            <span class="page-link">...</span>
                             </li>
                             @endif
                             <li class="page-item">
                                 <a class="page-link" href="{{ $teamList->url($lastPage) }}">{{ $lastPage }}</a>
                             </li>
-                        @endif
+                            @endif
 
-                        {{-- Next Page Link --}}
-                        <li class="page-item {{ !$teamList->hasMorePages() ? 'disabled' : '' }}">
-                            <a class="page-link" 
-                               href="{{ !$teamList->hasMorePages() ? '#' : $teamList->nextPageUrl() }}"
-                               aria-label="Next">
-                                <i class="fas fa-chevron-right"></i>
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
-            @endif
+                            {{-- Next Page Link --}}
+                            <li class="page-item {{ !$teamList->hasMorePages() ? 'disabled' : '' }}">
+                                <a class="page-link"
+                                    href="{{ !$teamList->hasMorePages() ? '#' : $teamList->nextPageUrl() }}"
+                                    aria-label="Next">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                </ul>
+            </nav>
         </div>
+        @endif
     </div>
+</div>
 </div>
 
 @push('scripts')
@@ -1251,7 +1259,7 @@
         function checkTableWidth() {
             const screenWidth = window.innerWidth;
             const container = document.querySelector('.table-container');
-            
+
             if (screenWidth < 1200) {
                 container.style.overflowX = 'auto';
             } else {
@@ -1266,8 +1274,9 @@
     // Function to show logo popup
     function showLogoPopup(logoUrl, schoolName) {
         let htmlContent;
-        
-        if (logoUrl && logoUrl !== '{{ asset('storage/') }}') {
+
+        if (logoUrl && logoUrl !== '{{ asset('
+            storage / ') }}') {
             htmlContent = `
                 <div style="text-align: center;">
                     <img src="${logoUrl}" alt="Logo ${schoolName}" class="logo-popup-img">

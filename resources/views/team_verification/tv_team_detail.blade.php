@@ -1056,6 +1056,94 @@
         .jersey-main-title {
             font-size: 18px;
         }
+
+        /* Badge Kategori Official */
+        .badge-category {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .badge-category i {
+            margin-right: 4px;
+            font-size: 11px;
+        }
+
+        .badge-category-putra {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        }
+
+        .badge-category-putri {
+            background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+        }
+
+        .badge-category-dancer {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        }
+
+        .badge-category-lainnya {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+        }
+
+        /* Fix table official width dengan tambahan kolom kategori */
+        table.data.official th:nth-child(1),
+        table.data.official td:nth-child(1) {
+            width: 60px;
+        }
+
+        /* # */
+        table.data.official th:nth-child(2),
+        table.data.official td:nth-child(2) {
+            width: 180px;
+        }
+
+        /* Nama */
+        table.data.official th:nth-child(3),
+        table.data.official td:nth-child(3) {
+            width: 120px;
+        }
+
+        /* Jabatan */
+        table.data.official th:nth-child(4),
+        table.data.official td:nth-child(4) {
+            width: 200px;
+        }
+
+        /* Email */
+        table.data.official th:nth-child(5),
+        table.data.official td:nth-child(5) {
+            width: 120px;
+        }
+
+        /* Telepon */
+        table.data.official th:nth-child(6),
+        table.data.official td:nth-child(6) {
+            width: 100px;
+        }
+
+        /* Jenis Kelamin */
+        table.data.official th:nth-child(7),
+        table.data.official td:nth-child(7) {
+            width: 130px;
+        }
+
+        /* Kategori */
+        table.data.official th:nth-child(8),
+        table.data.official td:nth-child(8) {
+            width: 150px;
+        }
+
+        /* Status */
+        table.data.official th:nth-child(9),
+        table.data.official td:nth-child(9) {
+            width: 100px;
+        }
+
+        /* Tindakan */
     }
 </style>
 @endpush
@@ -1403,7 +1491,7 @@
         <div class="card-body">
             @if($officials->count() > 0)
             <div class="table-container">
-                <table class="data official">
+                <table class="data official"> <!-- ✅ PASTIKAN PAKAI CLASS "official" -->
                     <thead>
                         <tr>
                             <th>#</th>
@@ -1412,6 +1500,7 @@
                             <th>EMAIL</th>
                             <th>TELEPON</th>
                             <th>JENIS KELAMIN</th>
+                            <th>KATEGORI</th> <!-- ✅ TAMBAHKAN KOLOM KATEGORI -->
                             <th>STATUS VERIFIKASI</th>
                             <th>TINDAKAN</th>
                         </tr>
@@ -1422,15 +1511,11 @@
                             <td>{{ $index + 1 }}</td>
                             <td><strong>{{ $official->name ?? 'N/A' }}</strong></td>
                             <td class="text-center">
-                                @if($official->team_role)
-                                <span class="badge-official-role">{{ $official->team_role }}</span>
-                                @else
-                                <span style="color: #718096;">-</span>
-                                @endif
+                                <span class="badge-official-role">{{ $official->team_role ?? '-' }}</span>
                             </td>
                             <td>
                                 @if($official->email)
-                                <a href="mailto:{{ $official->email }}" style="color: #3b82f6; text-decoration: none; font-weight: 500;">
+                                <a href="mailto:{{ $official->email }}" style="color: #3b82f6; text-decoration: none;">
                                     {{ $official->email }}
                                 </a>
                                 @else
@@ -1439,7 +1524,7 @@
                             </td>
                             <td>
                                 @if($official->phone)
-                                <a href="tel:{{ $official->phone }}" style="color: #10b981; text-decoration: none; font-weight: 500;">
+                                <a href="tel:{{ $official->phone }}" style="color: #10b981; text-decoration: none;">
                                     {{ $official->phone }}
                                 </a>
                                 @else
@@ -1453,6 +1538,26 @@
                                 <span class="badge-gender-female">Perempuan</span>
                                 @else
                                 <span style="color: #718096;">-</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                <!-- ✅ TAMPILKAN KATEGORI DENGAN BADGE -->
+                                @if($official->category == 'basket_putra')
+                                <span class="badge" style="background: #3b82f6; color: white; padding: 6px 12px; border-radius: 20px;">
+                                    <i class="fas fa-basketball-ball me-1"></i> Basket Putra
+                                </span>
+                                @elseif($official->category == 'basket_putri')
+                                <span class="badge" style="background: #ec4899; color: white; padding: 6px 12px; border-radius: 20px;">
+                                    <i class="fas fa-basketball-ball me-1"></i> Basket Putri
+                                </span>
+                                @elseif($official->category == 'dancer')
+                                <span class="badge" style="background: #8b5cf6; color: white; padding: 6px 12px; border-radius: 20px;">
+                                    <i class="fas fa-music me-1"></i> Dancer
+                                </span>
+                                @else
+                                <span class="badge" style="background: #6b7280; color: white; padding: 6px 12px; border-radius: 20px;">
+                                    {{ $official->category ?? '-' }}
+                                </span>
                                 @endif
                             </td>
                             <td class="text-center">
@@ -1484,7 +1589,7 @@
             <div class="empty-state">
                 <i class="fas fa-user-tie"></i>
                 <h5>Belum ada data official</h5>
-                <p>Data official akan muncul di sini setelah ditambahkan.</p>
+                <p>Data official Basket Putra akan muncul di sini setelah ditambahkan.</p>
             </div>
             @endif
         </div>
@@ -1930,17 +2035,18 @@
         <div class="card-body">
             @if($officials->count() > 0)
             <div class="table-container">
-                <table class="data">
+                <table class="data official"> <!-- ✅ PASTIKAN PAKAI CLASS "official" -->
                     <thead>
                         <tr>
-                            <th width="50">#</th>
-                            <th>Nama</th>
-                            <th width="120">Jabatan</th>
-                            <th width="150">Email</th>
-                            <th width="100">Telepon</th>
-                            <th width="120">Jenis Kelamin</th>
-                            <th width="120">Status Verifikasi</th>
-                            <th width="100" class="text-center">Tindakan</th>
+                            <th>#</th>
+                            <th>NAMA</th>
+                            <th>JABATAN</th>
+                            <th>EMAIL</th>
+                            <th>TELEPON</th>
+                            <th>JENIS KELAMIN</th>
+                            <th>KATEGORI</th> <!-- ✅ TAMBAHKAN KOLOM KATEGORI -->
+                            <th>STATUS VERIFIKASI</th>
+                            <th>TINDAKAN</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1948,41 +2054,61 @@
                         <tr>
                             <td>{{ $index + 1 }}</td>
                             <td><strong>{{ $official->name ?? 'N/A' }}</strong></td>
-                            <td>
-                                <span class="badge bg-light text-dark border">{{ $official->team_role ?? '-' }}</span>
+                            <td class="text-center">
+                                <span class="badge-official-role">{{ $official->team_role ?? '-' }}</span>
                             </td>
                             <td>
-                                <a href="mailto:{{ $official->email }}" class="text-decoration-none">
-                                    <i class="fas fa-envelope me-1 text-primary"></i>
-                                    {{ $official->email ?? '-' }}
+                                @if($official->email)
+                                <a href="mailto:{{ $official->email }}" style="color: #3b82f6; text-decoration: none;">
+                                    {{ $official->email }}
                                 </a>
+                                @else
+                                <span style="color: #718096;">-</span>
+                                @endif
                             </td>
                             <td>
                                 @if($official->phone)
-                                <a href="tel:{{ $official->phone }}" class="text-decoration-none">
-                                    <i class="fas fa-phone me-1 text-success"></i>
+                                <a href="tel:{{ $official->phone }}" style="color: #10b981; text-decoration: none;">
                                     {{ $official->phone }}
                                 </a>
                                 @else
                                 <span style="color: #718096;">-</span>
                                 @endif
                             </td>
-                            <td>
+                            <td class="text-center">
                                 @if($official->gender == 'male')
-                                <i class="fas fa-mars text-primary me-1"></i> Laki-laki
+                                <span class="badge-gender-male">Laki-laki</span>
                                 @elseif($official->gender == 'female')
-                                <i class="fas fa-venus text-pink me-1"></i> Perempuan
+                                <span class="badge-gender-female">Perempuan</span>
                                 @else
                                 <span style="color: #718096;">-</span>
                                 @endif
                             </td>
-                            <td>
-                                @if($official->verification_status == 'verified')
-                                <span class="status-verified"><i class="fas fa-check-circle"></i> Terverifikasi</span>
-                                @elseif($official->verification_status == 'rejected')
-                                <span class="status-open"><i class="fas fa-times-circle"></i> Ditolak</span>
+                            <td class="text-center">
+                                <!-- ✅ TAMPILKAN KATEGORI DENGAN BADGE -->
+                                @if($official->category == 'basket_putri')
+                                <span class="badge" style="background: #ec4899; color: white; padding: 6px 12px; border-radius: 20px;">
+                                    <i class="fas fa-basketball-ball me-1"></i> Basket Putri
+                                </span>
                                 @else
-                                <span class="status-unverified"><i class="fas fa-clock"></i> Belum Diverifikasi</span>
+                                <span class="badge" style="background: #6b7280; color: white; padding: 6px 12px; border-radius: 20px;">
+                                    {{ $official->category ?? '-' }}
+                                </span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                @if($official->verification_status == 'verified')
+                                <span class="status-verified">
+                                    <i class="fas fa-check-circle"></i> Terverifikasi
+                                </span>
+                                @elseif($official->verification_status == 'rejected')
+                                <span class="status-open">
+                                    <i class="fas fa-times-circle"></i> Ditolak
+                                </span>
+                                @else
+                                <span class="status-unverified">
+                                    <i class="fas fa-clock"></i> Belum Diverifikasi
+                                </span>
                                 @endif
                             </td>
                             <td class="text-center">
@@ -1997,9 +2123,13 @@
             </div>
             @else
             <div class="empty-state">
-                <i class="fas fa-inbox"></i>
+                <i class="fas fa-user-tie"></i>
                 <h5>Belum ada data official</h5>
-                <p>Data official akan muncul di sini setelah ditambahkan.</p>
+                <p>Data official Basket Putri akan muncul di sini setelah ditambahkan.</p>
+                <p class="text-muted mt-2" style="font-size: 12px;">
+                    <i class="fas fa-info-circle"></i>
+                    Official dengan kategori <strong>Basket Putri</strong> akan tampil di tab ini.
+                </p>
             </div>
             @endif
         </div>
@@ -2393,17 +2523,18 @@
         <div class="card-body">
             @if($officials->count() > 0)
             <div class="table-container">
-                <table class="data">
+                <table class="data official"> <!-- ✅ PASTIKAN PAKAI CLASS "official" -->
                     <thead>
                         <tr>
-                            <th width="50">#</th>
-                            <th>Nama</th>
-                            <th width="120">Jabatan</th>
-                            <th width="150">Email</th>
-                            <th width="100">Telepon</th>
-                            <th width="120">Jenis Kelamin</th>
-                            <th width="120">Status Verifikasi</th>
-                            <th width="100" class="text-center">Tindakan</th>
+                            <th>#</th>
+                            <th>NAMA</th>
+                            <th>JABATAN</th>
+                            <th>EMAIL</th>
+                            <th>TELEPON</th>
+                            <th>JENIS KELAMIN</th>
+                            <th>KATEGORI</th> <!-- ✅ TAMBAHKAN KOLOM KATEGORI -->
+                            <th>STATUS VERIFIKASI</th>
+                            <th>TINDAKAN</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -2411,25 +2542,61 @@
                         <tr>
                             <td>{{ $index + 1 }}</td>
                             <td><strong>{{ $official->name ?? 'N/A' }}</strong></td>
-                            <td>{{ $official->team_role ?? '-' }}</td>
-                            <td>{{ $official->email ?? '-' }}</td>
-                            <td>{{ $official->phone ?? '-' }}</td>
+                            <td class="text-center">
+                                <span class="badge-official-role">{{ $official->team_role ?? '-' }}</span>
+                            </td>
                             <td>
-                                @if($official->gender == 'male')
-                                Laki-laki
-                                @elseif($official->gender == 'female')
-                                Perempuan
+                                @if($official->email)
+                                <a href="mailto:{{ $official->email }}" style="color: #3b82f6; text-decoration: none;">
+                                    {{ $official->email }}
+                                </a>
                                 @else
                                 <span style="color: #718096;">-</span>
                                 @endif
                             </td>
                             <td>
-                                @if($official->verification_status == 'verified')
-                                <span class="status-verified">Terverifikasi</span>
-                                @elseif($official->verification_status == 'rejected')
-                                <span class="status-open">Ditolak</span>
+                                @if($official->phone)
+                                <a href="tel:{{ $official->phone }}" style="color: #10b981; text-decoration: none;">
+                                    {{ $official->phone }}
+                                </a>
                                 @else
-                                <span class="status-unverified">Belum Diverifikasi</span>
+                                <span style="color: #718096;">-</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                @if($official->gender == 'male')
+                                <span class="badge-gender-male">Laki-laki</span>
+                                @elseif($official->gender == 'female')
+                                <span class="badge-gender-female">Perempuan</span>
+                                @else
+                                <span style="color: #718096;">-</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                <!-- ✅ TAMPILKAN KATEGORI DENGAN BADGE -->
+                                @if($official->category == 'dancer')
+                                <span class="badge" style="background: #8b5cf6; color: white; padding: 6px 12px; border-radius: 20px;">
+                                    <i class="fas fa-music me-1"></i> Dancer
+                                </span>
+                                @else
+                                <span class="badge" style="background: #6b7280; color: white; padding: 6px 12px; border-radius: 20px;">
+                                    {{ $official->category ?? '-' }}
+                                </span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                @if($official->verification_status == 'verified')
+                                <span class="status-verified">
+                                    <i class="fas fa-check-circle"></i> Terverifikasi
+                                </span>
+                                @elseif($official->verification_status == 'rejected')
+                                <span class="status-open">
+                                    <i class="fas fa-times-circle"></i> Ditolak
+                                </span>
+                                @else
+                                <span class="status-unverified">
+                                    <i class="fas fa-clock"></i> Belum Diverifikasi
+                                </span>
                                 @endif
                             </td>
                             <td class="text-center">
@@ -2444,87 +2611,19 @@
             </div>
             @else
             <div class="empty-state">
-                <i class="fas fa-inbox"></i>
+                <i class="fas fa-user-tie"></i>
                 <h5>Belum ada data official</h5>
-                <p>Data official akan muncul di sini setelah ditambahkan.</p>
+                <p>Data official Dancer akan muncul di sini setelah ditambahkan.</p>
+                <p class="text-muted mt-2" style="font-size: 12px;">
+                    <i class="fas fa-info-circle"></i>
+                    Official dengan kategori <strong>Dancer</strong> akan tampil di tab ini.
+                </p>
             </div>
             @endif
         </div>
     </div>
 
-    <!-- Costume List Card -->
-    <div class="card">
-        <div class="card-header" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white;">
-            <i class="fas fa-tshirt"></i>
-            <span>Daftar Kostum Dancer</span>
-        </div>
-        <div class="card-body">
-            <div class="jersey-single-container">
-                <h3 class="jersey-main-title">Galeri Kostum Tim Dancer</h3>
-                <div class="jersey-image-container">
-                    <!-- Kostum Utama -->
-                    <div class="jersey-single-item" onclick="showJerseyPopup('home')">
-                        <p>Kostum Utama</p>
-                        @if($team->jersey_home)
-                        <img src="{{ asset('storage/' . $team->jersey_home) }}"
-                            alt="Kostum Utama {{ $team->school_name }}"
-                            class="jersey-image"
-                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                        <div class="no-image" style="display: none;">
-                            <i class="fas fa-tshirt"></i>
-                            <span>Gambar Error</span>
-                        </div>
-                        @else
-                        <div class="no-image">
-                            <i class="fas fa-tshirt"></i>
-                            <span>Belum Upload</span>
-                        </div>
-                        @endif
-                    </div>
 
-                    <!-- Kostum Alternatif -->
-                    <div class="jersey-single-item" onclick="showJerseyPopup('away')">
-                        <p>Kostum Alternatif</p>
-                        @if($team->jersey_away)
-                        <img src="{{ asset('storage/' . $team->jersey_away) }}"
-                            alt="Kostum Alternatif {{ $team->school_name }}"
-                            class="jersey-image"
-                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                        <div class="no-image" style="display: none;">
-                            <i class="fas fa-tshirt"></i>
-                            <span>Gambar Error</span>
-                        </div>
-                        @else
-                        <div class="no-image">
-                            <i class="fas fa-tshirt"></i>
-                            <span>Belum Upload</span>
-                        </div>
-                        @endif
-                    </div>
-
-                    <!-- Kostum Khusus -->
-                    <div class="jersey-single-item" onclick="showJerseyPopup('alternate')">
-                        <p>Kostum Khusus</p>
-                        @if($team->jersey_alternate)
-                        <img src="{{ asset('storage/' . $team->jersey_alternate) }}"
-                            alt="Kostum Khusus {{ $team->school_name }}"
-                            class="jersey-image"
-                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                        <div class="no-image" style="display: none;">
-                            <i class="fas fa-tshirt"></i>
-                            <span>Gambar Error</span>
-                        </div>
-                        @else
-                        <div class="no-image">
-                            <i class="fas fa-tshirt"></i>
-                            <span>Belum Upload</span>
-                        </div>
-                        @endif
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
     @else
     <!-- Empty State for Unregistered Team -->
     <div class="empty-state">

@@ -3,8 +3,8 @@
 @section('title', 'Form Pendaftaran Pemain - HSBL')
 
 @section('content')
-<div class="container py-3 px-lg-4 px-md-3 px-sm-2"> <!-- Tambah padding horizontal -->
-    <!-- Role Indicator - Compact -->
+<div class="container py-3 px-lg-4 px-md-3 px-sm-2">
+    <!-- Role Indicator -->
     @if($role === 'Leader')
     <div class="alert alert-warning border-warning bg-warning-subtle mb-3 py-2 px-2 shadow-sm mx-auto" style="max-width: 780px;">
         <div class="d-flex align-items-center">
@@ -13,7 +13,7 @@
             </div>
             <div class="flex-grow-1">
                 <h6 class="mb-0 fw-bold small text-dark">Anda adalah Leader Tim!</h6>
-                <p class="mb-0 text-muted" style="font-size: 0.75rem;">Bertanggung jawab untuk pembayaran tim</p>
+                <p class="mb-0 text-muted" style="font-size: 0.75rem;">Bertanggung jawab untuk pembayaran dan upload jersey tim</p>
             </div>
         </div>
     </div>
@@ -31,9 +31,9 @@
     </div>
     @endif
 
-    <!-- Main Form Card - Tambah sedikit lebar -->
+    <!-- Main Form Card -->
     <div class="card border-0 shadow-sm mx-auto" style="max-width: 800px; border-radius: 8px; width: 100%;">
-        <!-- Card Header - Compact -->
+        <!-- Card Header -->
         <div class="card-header bg-gradient-primary text-white py-2 px-3 border-0">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="flex-grow-1">
@@ -61,7 +61,7 @@
             </div>
         </div>
 
-        <!-- Form Content - Compact dengan sedikit lebih lega -->
+        <!-- Form Content -->
         <div class="card-body p-3 px-md-3 px-sm-2">
             <form id="playerForm" action="{{ route('form.player.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
@@ -69,7 +69,7 @@
                 <input type="hidden" name="category" value="{{ $category }}">
                 <input type="hidden" name="team_role" value="{{ $role }}">
 
-                <!-- Section 1: Data Pribadi dengan sedikit spacing -->
+                <!-- SECTION 1: Data Pribadi -->
                 <div class="mb-3">
                     <div class="d-flex align-items-center mb-2">
                         <div class="icon-wrapper bg-primary bg-opacity-10 p-1 rounded me-2" style="width: 28px; height: 28px;">
@@ -78,7 +78,7 @@
                         <h6 class="mb-0 fw-bold text-dark small">Data Pribadi</h6>
                     </div>
                     
-                    <!-- Row 1: 4 Kolom Compact dengan sedikit gap -->
+                    <!-- Row 1 -->
                     <div class="row gx-1 gy-1 mb-2">
                         <div class="col-md-3 mb-1">
                             <label class="form-label fw-semibold" style="font-size: 0.75rem;">
@@ -89,7 +89,6 @@
                                 placeholder="16 digit" maxlength="16"
                                 oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                         </div>
-
                         <div class="col-md-3 mb-1">
                             <label class="form-label fw-semibold" style="font-size: 0.75rem;">
                                 Nama <span class="text-danger">*</span>
@@ -98,7 +97,6 @@
                                 id="name" name="name" value="{{ old('name') }}" required
                                 placeholder="Nama lengkap">
                         </div>
-
                         <div class="col-md-3 mb-1">
                             <label class="form-label fw-semibold" style="font-size: 0.75rem;">
                                 Tgl Lahir <span class="text-danger">*</span>
@@ -107,7 +105,6 @@
                                 id="birthdate" name="birthdate" value="{{ old('birthdate') }}" required
                                 max="{{ date('Y-m-d', strtotime('-10 years')) }}">
                         </div>
-
                         <div class="col-md-3 mb-1">
                             <label class="form-label fw-semibold" style="font-size: 0.75rem;">
                                 Jenis Kelamin <span class="text-danger">*</span>
@@ -124,7 +121,7 @@
                         </div>
                     </div>
 
-                    <!-- Row 2: 4 Kolom Compact -->
+                    <!-- Row 2 -->
                     <div class="row gx-1 gy-1 mb-2">
                         <div class="col-md-3 mb-1">
                             <label class="form-label fw-semibold" style="font-size: 0.75rem;">
@@ -135,7 +132,6 @@
                                 placeholder="081234567890"
                                 oninput="this.value = this.value.replace(/[^0-9+]/g, '')">
                         </div>
-
                         <div class="col-md-3 mb-1">
                             <label class="form-label fw-semibold" style="font-size: 0.75rem;">
                                 Email <span class="text-danger">*</span>
@@ -144,7 +140,6 @@
                                 id="email" name="email" value="{{ old('email') }}" required
                                 placeholder="email@example.com">
                         </div>
-
                         <div class="col-md-3 mb-1">
                             <label class="form-label fw-semibold" style="font-size: 0.75rem;">
                                 Sekolah <span class="text-danger">*</span>
@@ -153,7 +148,6 @@
                                 value="{{ $team->school_name }}" readonly>
                             <input type="hidden" name="school_name" value="{{ $team->school_name }}">
                         </div>
-
                         <div class="col-md-3 mb-1">
                             <label class="form-label fw-semibold" style="font-size: 0.75rem;">
                                 Kelas <span class="text-danger">*</span>
@@ -170,7 +164,7 @@
                         </div>
                     </div>
 
-                    <!-- Row 3: STTB Tahun -->
+                    <!-- Row 3 -->
                     <div class="row gx-1 gy-1">
                         <div class="col-md-3 mb-1">
                             <label class="form-label fw-semibold" style="font-size: 0.75rem;">
@@ -184,13 +178,13 @@
                     </div>
                 </div>
 
-                <!-- Section 2: Data Fisik -->
+                <!-- SECTION 2: Data Fisik & Basket -->
                 <div class="mb-3">
                     <div class="d-flex align-items-center mb-2">
                         <div class="icon-wrapper bg-success bg-opacity-10 p-1 rounded me-2" style="width: 28px; height: 28px;">
                             <i class="fas fa-running text-success" style="font-size: 0.8rem;"></i>
                         </div>
-                        <h6 class="mb-0 fw-bold text-dark small">Data Fisik</h6>
+                        <h6 class="mb-0 fw-bold text-dark small">Data Fisik & Basket</h6>
                     </div>
                     
                     <div class="row gx-1 gy-1 mb-2">
@@ -202,7 +196,6 @@
                                 id="height" name="height" value="{{ old('height') }}" required
                                 min="100" max="250" step="1" placeholder="170">
                         </div>
-
                         <div class="col-md-3 mb-1">
                             <label class="form-label fw-semibold" style="font-size: 0.75rem;">
                                 Berat (kg) <span class="text-danger">*</span>
@@ -211,7 +204,6 @@
                                 id="weight" name="weight" value="{{ old('weight') }}" required
                                 min="30" max="150" step="0.5" placeholder="65.5">
                         </div>
-
                         <div class="col-md-3 mb-1">
                             <label class="form-label fw-semibold" style="font-size: 0.75rem;">
                                 Uk. Kaos <span class="text-danger">*</span>
@@ -226,7 +218,6 @@
                                 @endforeach
                             </select>
                         </div>
-
                         <div class="col-md-3 mb-1">
                             <label class="form-label fw-semibold" style="font-size: 0.75rem;">
                                 Uk. Sepatu <span class="text-danger">*</span>
@@ -247,10 +238,10 @@
                     <div class="row gx-1 gy-1">
                         <div class="col-md-4 mb-1">
                             <label class="form-label fw-semibold" style="font-size: 0.75rem;">
-                                Posisi Basket <small class="text-muted">(Opsional)</small>
+                                Posisi Basket <span class="text-danger">*</span>
                             </label>
                             <select class="form-select form-select-sm @error('basketball_position') is-invalid @enderror"
-                                id="basketball_position" name="basketball_position">
+                                id="basketball_position" name="basketball_position" required>
                                 <option value="">Pilih Posisi</option>
                                 @foreach($basketballPositions as $position)
                                 <option value="{{ $position }}" {{ old('basketball_position') == $position ? 'selected' : '' }}>
@@ -259,11 +250,24 @@
                                 @endforeach
                             </select>
                         </div>
+                        <div class="col-md-4 mb-1">
+                            <label class="form-label fw-semibold" style="font-size: 0.75rem;">
+                                Nomor Jersey <span class="text-danger">*</span>
+                            </label>
+                            <input type="number" 
+                                class="form-control form-control-sm @error('jersey_number') is-invalid @enderror"
+                                id="jersey_number" name="jersey_number" 
+                                value="{{ old('jersey_number') }}" 
+                                required
+                                min="0" max="99" 
+                                placeholder="0-99"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                        </div>
                     </div>
                     @endif
                 </div>
 
-                <!-- Section 3: Data Orang Tua - Compact -->
+                <!-- SECTION 3: Data Orang Tua -->
                 <div class="mb-3">
                     <div class="d-flex align-items-center mb-2">
                         <div class="icon-wrapper bg-info bg-opacity-10 p-1 rounded me-2" style="width: 28px; height: 28px;">
@@ -289,7 +293,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="col-md-6 mb-1">
                             <div class="card border h-100 p-2">
                                 <label class="form-label fw-semibold small mb-1">Ibu</label>
@@ -309,7 +312,7 @@
                     </div>
                 </div>
 
-                <!-- Section 4: Dokumen - Compact -->
+                <!-- SECTION 4: Dokumen Wajib -->
                 <div class="mb-3">
                     <div class="d-flex align-items-center mb-2">
                         <div class="icon-wrapper bg-danger bg-opacity-10 p-1 rounded me-2" style="width: 28px; height: 28px;">
@@ -332,7 +335,6 @@
                                 <input type="file" class="form-control form-control-sm @error('birth_certificate') is-invalid @enderror"
                                     name="birth_certificate" accept=".pdf" required>
                             </div>
-
                             <div class="col-md-6 mb-1">
                                 <label class="form-label fw-semibold small mb-1">
                                     Kartu Keluarga <span class="text-danger">*</span>
@@ -340,7 +342,6 @@
                                 <input type="file" class="form-control form-control-sm @error('kk') is-invalid @enderror"
                                     name="kk" accept=".pdf" required>
                             </div>
-
                             <div class="col-md-6 mb-1">
                                 <label class="form-label fw-semibold small mb-1">
                                     SHUN <span class="text-danger">*</span>
@@ -348,22 +349,6 @@
                                 <input type="file" class="form-control form-control-sm @error('shun') is-invalid @enderror"
                                     name="shun" accept=".pdf" required>
                             </div>
-
-                            <div class="col-md-6 mb-1">
-                                <label class="form-label fw-semibold small mb-1">
-                                    Laporan Identitas <span class="text-danger">*</span>
-                                </label>
-                                <input type="file" class="form-control form-control-sm @error('report_identity') is-invalid @enderror"
-                                    name="report_identity" accept=".pdf" required>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Dokumen Tambahan -->
-                    <div class="mb-3">
-                        <h6 class="fw-bold mb-2 small text-primary">Dokumen Tambahan</h6>
-                        
-                        <div class="row gx-1 gy-1 mb-2">
                             <div class="col-md-6 mb-1">
                                 <label class="form-label fw-semibold small mb-1">
                                     Raport Terakhir <span class="text-danger">*</span>
@@ -371,7 +356,6 @@
                                 <input type="file" class="form-control form-control-sm @error('last_report_card') is-invalid @enderror"
                                     name="last_report_card" accept=".pdf" required>
                             </div>
-
                             <div class="col-md-6 mb-1">
                                 <label class="form-label fw-semibold small mb-1">
                                     Foto Formal <span class="text-danger">*</span>
@@ -379,39 +363,141 @@
                                 <input type="file" class="form-control form-control-sm @error('formal_photo') is-invalid @enderror"
                                     name="formal_photo" accept=".jpg,.jpeg,.png" required>
                             </div>
-
                             <div class="col-md-6 mb-1">
                                 <label class="form-label fw-semibold small mb-1">
-                                    Surat Penugasan <small class="text-muted">(Opsional)</small>
+                                    Surat Penugasan <small class="text-muted"></small>
                                 </label>
                                 <input type="file" class="form-control form-control-sm @error('assignment_letter') is-invalid @enderror"
-                                    name="assignment_letter" accept=".pdf">
+                                    name="assignment_letter" accept=".pdf" required>
                             </div>
+                        </div>
+                    </div>
+                </div>
 
-                            @if($role === 'Leader')
-                            <div class="col-md-6 mb-1">
-                                <div class="card border-warning h-100 p-2">
+                <!-- 🔥🔥🔥 SECTION 5: KHUSUS LEADER - Upload Jersey Tim & Pembayaran -->
+                @if($role === 'Leader' && $category !== 'dancer')
+                <div class="mb-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="icon-wrapper bg-warning bg-opacity-10 p-1 rounded me-2" style="width: 28px; height: 28px;">
+                            <i class="fas fa-tshirt text-warning" style="font-size: 0.8rem;"></i>
+                        </div>
+                        <h6 class="mb-0 fw-bold text-dark small">Upload Jersey Tim</h6>
+                        <span class="badge bg-warning ms-2 small">Hanya Leader</span>
+                    </div>
+                    
+                    <div class="row gx-2 gy-2">
+                        <!-- Jersey Home -->
+                        <div class="col-md-4 mb-1">
+                            <div class="card border-warning h-100">
+                                <div class="card-body p-2">
+                                    <label class="form-label fw-bold small text-warning mb-1">
+                                        <i class="fas fa-home"></i> Jersey Home
+                                    </label>
+                                    <div class="jersey-preview-container mb-2" id="preview-home" style="display: none;">
+                                        <img id="img-preview-home" src="#" alt="Preview Jersey Home" 
+                                            class="img-fluid rounded border" style="max-height: 120px; width: 100%; object-fit: contain;">
+                                    </div>
+                                    <input type="file" 
+                                        class="form-control form-control-sm jersey-upload @error('jersey_home') is-invalid @enderror"
+                                        id="jersey_home" name="jersey_home" 
+                                        accept=".jpg,.jpeg,.png" 
+                                        data-preview="img-preview-home"
+                                        data-container="preview-home">
+                                    <small class="text-muted d-block mt-1">Foto jersey kandang</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Jersey Away -->
+                        <div class="col-md-4 mb-1">
+                            <div class="card border-warning h-100">
+                                <div class="card-body p-2">
+                                    <label class="form-label fw-bold small text-warning mb-1">
+                                        <i class="fas fa-plane"></i> Jersey Away
+                                    </label>
+                                    <div class="jersey-preview-container mb-2" id="preview-away" style="display: none;">
+                                        <img id="img-preview-away" src="#" alt="Preview Jersey Away" 
+                                            class="img-fluid rounded border" style="max-height: 120px; width: 100%; object-fit: contain;">
+                                    </div>
+                                    <input type="file" 
+                                        class="form-control form-control-sm jersey-upload @error('jersey_away') is-invalid @enderror"
+                                        id="jersey_away" name="jersey_away" 
+                                        accept=".jpg,.jpeg,.png"
+                                        data-preview="img-preview-away"
+                                        data-container="preview-away">
+                                    <small class="text-muted d-block mt-1">Foto jersey tandang</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Jersey Alternate -->
+                        <div class="col-md-4 mb-1">
+                            <div class="card border-warning h-100">
+                                <div class="card-body p-2">
+                                    <label class="form-label fw-bold small text-warning mb-1">
+                                        <i class="fas fa-tshirt"></i> Jersey Alternate
+                                    </label>
+                                    <div class="jersey-preview-container mb-2" id="preview-alternate" style="display: none;">
+                                        <img id="img-preview-alternate" src="#" alt="Preview Jersey Alternate" 
+                                            class="img-fluid rounded border" style="max-height: 120px; width: 100%; object-fit: contain;">
+                                    </div>
+                                    <input type="file" 
+                                        class="form-control form-control-sm jersey-upload @error('jersey_alternate') is-invalid @enderror"
+                                        id="jersey_alternate" name="jersey_alternate" 
+                                        accept=".jpg,.jpeg,.png"
+                                        data-preview="img-preview-alternate"
+                                        data-container="preview-alternate">
+                                    <small class="text-muted d-block mt-1">Foto jersey alternatif</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info mt-2 py-1 px-2 small">
+                        <i class="fas fa-info-circle"></i> Upload minimal 1 foto jersey tim (boleh salah satu saja).
+                    </div>
+                </div>
+                @endif
+
+                <!-- SECTION 6: Pembayaran & Submit -->
+                <div class="mb-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="icon-wrapper bg-success bg-opacity-10 p-1 rounded me-2" style="width: 28px; height: 28px;">
+                            <i class="fas fa-credit-card text-success" style="font-size: 0.8rem;"></i>
+                        </div>
+                        <h6 class="mb-0 fw-bold text-dark small">Pembayaran & Submit</h6>
+                    </div>
+                    
+                    <div class="row gx-1 gy-1">
+                        @if($role === 'Leader')
+                        <div class="col-md-12 mb-1">
+                            <div class="card border-warning">
+                                <div class="card-body p-2">
                                     <h6 class="fw-bold text-warning mb-1 small">
-                                        Bukti Pembayaran <span class="badge bg-danger ms-1 small">WAJIB</span>
+                                        <i class="fas fa-money-bill-wave"></i> Bukti Pembayaran <span class="badge bg-danger ms-1">WAJIB</span>
                                     </h6>
                                     <label class="form-label fw-semibold small mb-1">
-                                        Upload Bukti <span class="text-danger">*</span>
+                                        Upload Bukti Transfer <span class="text-danger">*</span>
                                     </label>
                                     <input type="file" class="form-control form-control-sm @error('payment_proof') is-invalid @enderror"
                                         name="payment_proof" accept=".jpg,.jpeg,.png,.pdf" required>
+                                    <small class="text-muted d-block mt-1">
+                                        Maks 2MB. Format: JPG, PNG, PDF
+                                    </small>
                                 </div>
                             </div>
-                            @else
-                            <div class="col-md-6 mb-1">
-                                <div class="card border-success h-100 p-2">
-                                    <div class="text-center p-1">
-                                        <i class="fas fa-check-circle text-success"></i>
-                                        <p class="mb-0 small fw-bold">Biaya Sudah Dibayar</p>
-                                    </div>
-                                </div>
-                            </div>
-                            @endif
                         </div>
+                        @else
+                        <div class="col-md-12 mb-1">
+                            <div class="card border-success">
+                                <div class="card-body p-2 text-center">
+                                    <i class="fas fa-check-circle text-success" style="font-size: 1.2rem;"></i>
+                                    <p class="mb-0 small fw-bold">Biaya Pendaftaran sudah dibayar oleh Leader Tim</p>
+                                    <p class="mb-0 text-muted small">Anda tidak perlu upload bukti pembayaran</p>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
                     </div>
                 </div>
 
@@ -420,7 +506,7 @@
                     <input class="form-check-input @error('terms') is-invalid @enderror"
                         type="checkbox" id="terms" name="terms" required>
                     <label class="form-check-label fw-medium small" for="terms" style="font-size: 0.8rem;">
-                        Saya menyetujui Syarat & Ketentuan dan memastikan data benar.
+                        Saya menyetujui Syarat & Ketentuan dan memastikan semua data yang diisi adalah benar.
                     </label>
                 </div>
 
@@ -432,9 +518,9 @@
                         </a>
                         <button type="submit" class="btn btn-primary btn-sm px-3">
                             @if($role === 'Leader')
-                            <i class="fas fa-crown me-1"></i>Daftar
+                            <i class="fas fa-crown me-1"></i>Daftar sebagai Leader
                             @else
-                            <i class="fas fa-paper-plane me-1"></i>Kirim
+                            <i class="fas fa-paper-plane me-1"></i>Kirim Pendaftaran
                             @endif
                         </button>
                     </div>
@@ -457,6 +543,42 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    
+    // Nomor Jersey validation
+    const jerseyNumber = document.getElementById('jersey_number');
+    if (jerseyNumber) {
+        jerseyNumber.addEventListener('input', function() {
+            if (this.value < 0) this.value = 0;
+            if (this.value > 99) this.value = 99;
+        });
+    }
+
+    // 🔥 PREVIEW FOTO JERSEY
+    const jerseyUploads = document.querySelectorAll('.jersey-upload');
+    jerseyUploads.forEach(input => {
+        input.addEventListener('change', function(e) {
+            const previewId = this.dataset.preview;
+            const containerId = this.dataset.container;
+            const previewContainer = document.getElementById(containerId);
+            const previewImg = document.getElementById(previewId);
+            
+            const file = e.target.files[0];
+            
+            if (file) {
+                const reader = new FileReader();
+                
+                reader.onload = function(event) {
+                    previewImg.src = event.target.result;
+                    previewContainer.style.display = 'block';
+                }
+                
+                reader.readAsDataURL(file);
+            } else {
+                previewContainer.style.display = 'none';
+                previewImg.src = '#';
+            }
+        });
+    });
 
     // File size validation
     const fileInputs = document.querySelectorAll('input[type="file"]');
@@ -465,11 +587,28 @@ document.addEventListener('DOMContentLoaded', function() {
             const file = e.target.files[0];
             if (!file) return;
 
-            let maxSize = this.name === 'payment_proof' ? 2 * 1024 * 1024 : 1 * 1024 * 1024;
+            let maxSize = 2 * 1024 * 1024; // 2MB default
+            
+            if (this.name.includes('jersey')) {
+                maxSize = 2 * 1024 * 1024; // 2MB untuk jersey
+            } else if (this.name === 'payment_proof') {
+                maxSize = 2 * 1024 * 1024; // 2MB untuk payment
+            } else {
+                maxSize = 1 * 1024 * 1024; // 1MB untuk dokumen lain
+            }
             
             if (file.size > maxSize) {
                 alert(`File terlalu besar! Maksimal ${maxSize / (1024 * 1024)}MB`);
                 this.value = '';
+                
+                // Hide preview jika ada
+                if (this.classList.contains('jersey-upload')) {
+                    const containerId = this.dataset.container;
+                    const previewContainer = document.getElementById(containerId);
+                    if (previewContainer) {
+                        previewContainer.style.display = 'none';
+                    }
+                }
             }
         });
     });
@@ -487,10 +626,37 @@ document.addEventListener('DOMContentLoaded', function() {
             } else if (input.type === 'checkbox' && !input.checked) {
                 isValid = false;
                 input.classList.add('is-invalid');
+            } else if (input.type === 'file' && input.hasAttribute('required')) {
+                // Untuk file yang required
+                if (!input.value) {
+                    isValid = false;
+                    input.classList.add('is-invalid');
+                }
             } else {
                 input.classList.remove('is-invalid');
             }
         });
+
+        // Validasi khusus: Untuk Leader Basket, minimal upload 1 foto jersey
+        @if($role === 'Leader' && $category !== 'dancer')
+        const jerseyHome = document.querySelector('input[name="jersey_home"]');
+        const jerseyAway = document.querySelector('input[name="jersey_away"]');
+        const jerseyAlt = document.querySelector('input[name="jersey_alternate"]');
+        
+        const hasJersey = (jerseyHome && jerseyHome.value) || 
+                         (jerseyAway && jerseyAway.value) || 
+                         (jerseyAlt && jerseyAlt.value);
+        
+        if (!hasJersey) {
+            isValid = false;
+            alert('Sebagai Leader, Anda wajib upload minimal 1 foto jersey tim!');
+            
+            // Highlight semua input jersey
+            [jerseyHome, jerseyAway, jerseyAlt].forEach(input => {
+                if (input) input.classList.add('is-invalid');
+            });
+        }
+        @endif
 
         if (!isValid) {
             e.preventDefault();
@@ -506,212 +672,49 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <style>
-/* Lebih lega sedikit di kanan kiri */
-.container { 
-    padding-top: 0.5rem !important;
-    padding-left: 0.75rem !important;
-    padding-right: 0.75rem !important;
+/* ... existing styles ... */
+
+/* Jersey Preview */
+.jersey-preview-container {
+    background: #f8f9fa;
+    padding: 0.5rem;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
 }
 
-/* Card lebih lebar sedikit */
-.card { 
-    border-radius: 8px; 
-    max-width: 800px !important;
-    margin: 0 auto;
+.jersey-preview-container img {
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
 }
 
-.card-header { 
-    border-radius: 8px 8px 0 0 !important; 
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
+/* Card border-warning highlight */
+.card.border-warning {
+    border-width: 2px;
+    transition: all 0.2s ease;
 }
 
-.bg-gradient-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+.card.border-warning:hover {
+    border-color: #ffc107;
+    box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
 }
 
-/* Form controls sedikit lebih lega */
-.form-control-sm, .form-select-sm {
-    padding: 0.3rem 0.6rem !important;
-    font-size: 0.8rem !important;
-    height: calc(1.5em + 0.6rem + 2px) !important;
-    border-radius: 4px !important;
+/* Invalid state untuk jersey */
+.is-invalid {
+    border-color: #dc3545 !important;
 }
 
-/* Labels sedikit lebih lega */
-.form-label {
-    font-size: 0.75rem !important;
-    margin-bottom: 0.15rem !important;
-    font-weight: 600;
+.is-invalid:focus {
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
 }
 
-/* Spacing sedikit lebih longgar */
-.mb-1 { margin-bottom: 0.3rem !important; }
-.mb-2 { margin-bottom: 0.6rem !important; }
-.mb-3 { margin-bottom: 1rem !important; }
-.p-2 { padding: 0.5rem !important; }
-.p-3 { padding: 0.8rem !important; }
-
-/* Grid dengan ruang sedikit lebih banyak */
-.row.gx-1 {
-    --bs-gutter-x: 0.4rem;
-}
-.row.gy-1 {
-    --bs-gutter-y: 0.4rem;
-}
-
-/* Alert sedikit lebih lebar */
-.alert {
-    padding: 0.6rem !important;
-    margin-bottom: 0.8rem !important;
-    font-size: 0.8rem !important;
-}
-
-/* Button sedikit lebih lebar */
-.btn-sm {
-    padding: 0.3rem 0.8rem !important;
-    font-size: 0.8rem !important;
-    border-radius: 4px !important;
-}
-
-/* Card body dengan sedikit lebih banyak ruang */
-.card-body {
-    padding: 1rem !important;
-}
-
-@media (min-width: 768px) {
-    .card-body {
-        padding: 1.25rem !important;
-    }
-}
-
-/* Badge sedikit lebih besar */
-.badge.small {
-    font-size: 0.7rem !important;
-    padding: 0.2rem 0.4rem !important;
-}
-
-/* Card dalam card sedikit lebih banyak ruang */
-.card .card {
-    padding: 0.5rem !important;
-}
-
-/* Responsive - lebih lega di desktop */
-@media (min-width: 992px) {
-    .container {
-        padding-left: 1.5rem !important;
-        padding-right: 1.5rem !important;
-    }
-    
-    .card {
-        max-width: 820px !important;
-    }
-}
-
-/* Responsive - mobile masih compact tapi dengan sedikit breathing room */
+/* Responsive untuk jersey section */
 @media (max-width: 768px) {
-    .container {
-        padding-left: 0.5rem !important;
-        padding-right: 0.5rem !important;
+    .col-md-4 {
+        margin-bottom: 0.5rem;
     }
     
-    .card-body {
-        padding: 0.75rem !important;
-    }
-    
-    .col-md-3, .col-md-6 {
-        margin-bottom: 0.4rem !important;
-    }
-    
-    .row.gx-1 {
-        --bs-gutter-x: 0.3rem;
-    }
-    .row.gy-1 {
-        --bs-gutter-y: 0.3rem;
-    }
-    
-    .form-control-sm, .form-select-sm {
-        padding: 0.25rem 0.5rem !important;
-        font-size: 0.75rem !important;
-    }
-    
-    .btn-sm {
-        padding: 0.25rem 0.6rem !important;
-        font-size: 0.75rem !important;
-    }
-    
-    .d-flex.justify-content-between {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-    
-    .btn-sm {
-        width: 100%;
-        margin-bottom: 0.25rem;
-    }
-}
-
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-    width: 6px;
-}
-
-::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #667eea;
-    border-radius: 3px;
-}
-
-/* Focus states */
-.form-control:focus, .form-select:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-    outline: none;
-}
-
-/* File input styling */
-input[type="file"] {
-    font-size: 0.75rem !important;
-}
-
-/* Checkbox sizing */
-.form-check-input {
-    width: 0.9em;
-    height: 0.9em;
-    margin-top: 0.15em;
-}
-
-.form-check-label {
-    font-size: 0.8rem !important;
-}
-
-/* Section headers */
-h6.small {
-    font-size: 0.85rem !important;
-    font-weight: 600;
-}
-
-/* Card hover effect minimal */
-.card:hover {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    transition: box-shadow 0.2s ease;
-}
-
-/* Border top dengan sedikit lebih banyak ruang */
-.border-top {
-    border-top: 1px solid #dee2e6 !important;
-    padding-top: 0.75rem !important;
-    margin-top: 0.75rem !important;
-}
-
-/* Container max-width untuk sangat besar screen */
-@media (min-width: 1400px) {
-    .container {
-        max-width: 900px;
-        margin: 0 auto;
+    .jersey-preview-container img {
+        max-height: 80px !important;
     }
 }
 </style>

@@ -214,10 +214,10 @@
 
                         <div class="col-md-3 mb-1">
                             <label class="form-label fw-semibold" style="font-size: 0.75rem;">
-                                Instagram <small class="text-muted">(Opsional)</small>
+                                Instagram <span class="text-danger">*</span>
                             </label>
                             <input type="text" class="form-control form-control-sm @error('instagram') is-invalid @enderror"
-                                id="instagram" name="instagram" value="{{ old('instagram') }}"
+                                id="instagram" name="instagram" value="{{ old('instagram') }}" required
                                 placeholder="@username">
                             @error('instagram')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -226,10 +226,10 @@
 
                         <div class="col-md-3 mb-1">
                             <label class="form-label fw-semibold" style="font-size: 0.75rem;">
-                                TikTok <small class="text-muted">(Opsional)</small>
+                                TikTok <span class="text-danger">*</span>
                             </label>
                             <input type="text" class="form-control form-control-sm @error('tiktok') is-invalid @enderror"
-                                id="tiktok" name="tiktok" value="{{ old('tiktok') }}"
+                                id="tiktok" name="tiktok" value="{{ old('tiktok') }}" required
                                 placeholder="@username">
                             @error('tiktok')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -471,10 +471,10 @@
 
                             <div class="col-md-6 mb-1">
                                 <label class="form-label fw-semibold small mb-1">
-                                    Surat Penugasan <small class="text-muted">(Opsional)</small>
+                                    Surat Penugasan <span class="text-danger">*</span>
                                 </label>
                                 <input type="file" class="form-control form-control-sm @error('assignment_letter') is-invalid @enderror"
-                                    name="assignment_letter" accept=".pdf">
+                                    name="assignment_letter" accept=".pdf" required>
                                 @error('assignment_letter')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror

@@ -16,64 +16,115 @@ use Illuminate\Support\Facades\Storage;
 
 class TeamController extends Controller
 {
+    /**
+     * Display team list with filters
+     */
+    /**
+     * 🔥🔥🔥 FIX: Tampilkan 1 baris per sekolah dengan informasi yang benar
+     */
     public function teamList(Request $request)
     {
-        $query = TeamList::query();
+        // Ambil semua sekolah yang punya tim
+        $schools = TeamList::select('school_name')
+            ->distinct()
+            ->orderBy('school_name')
+            ->get();
 
-        // Filter by school
+        $teamList = collect();
+
+        foreach ($schools as $school) {
+            // Ambil semua tim untuk sekolah ini
+            $teams = TeamList::where('school_name', $school->school_name)
+                ->orderBy('created_at', 'asc') // Urutkan dari yang pertama daftar
+                ->get();
+
+            if ($teams->count() > 0) {
+                // Tim PERTAMA yang mendaftar (ini yang akan tampil di tabel)
+                $firstTeam = $teams->first();
+
+                // Buat object gabungan
+                $mergedTeam = new \stdClass();
+                $mergedTeam->team_id = $firstTeam->team_id;
+                $mergedTeam->school_name = $firstTeam->school_name;
+                $mergedTeam->school_logo = $firstTeam->school_logo;
+                $mergedTeam->competition = $firstTeam->competition;
+                $mergedTeam->season = $firstTeam->season;
+                $mergedTeam->series = $firstTeam->series;
+                $mergedTeam->updated_at = $firstTeam->updated_at;
+                $mergedTeam->locked_status = $firstTeam->locked_status;
+                $mergedTeam->verification_status = $firstTeam->verification_status;
+
+                // 🔥 REG BY = registered_by dari tim PERTAMA (yang buat sekolah)
+                $mergedTeam->registered_by = $firstTeam->registered_by;
+
+                // 🔥 TEAM NAME = kategori tim PERTAMA + school_name
+                $mergedTeam->team_name = $firstTeam->team_category . ' - ' . $firstTeam->school_name;
+
+                // 🔥 Referral code - tampilkan yang pertama
+                $mergedTeam->referral_code = $firstTeam->referral_code;
+
+                // Koleksi semua kategori yang tersedia di sekolah ini (untuk badge)
+                $mergedTeam->categories = $teams->pluck('team_category')->unique()->values()->toArray();
+
+                $teamList->push($mergedTeam);
+            }
+        }
+
+        // Filter berdasarkan request
         if ($request->filled('school')) {
-            $query->where('school_name', $request->school);
+            $teamList = $teamList->where('school_name', $request->school);
         }
 
-        // Filter by status - HANYA unverified/verified
-        if ($request->filled('status')) {
-            $query->where('verification_status', $request->status);
-        }
-
-        // Filter by category
         if ($request->filled('category')) {
-            $query->where('team_category', $request->category);
-        }
-
-        // Filter by competition
-        if ($request->filled('competition')) {
-            $query->where('competition', 'like', '%' . $request->competition . '%');
-        }
-
-        // Filter by tahun (dari season)
-        if ($request->filled('year')) {
-            $query->where('season', 'like', '%' . $request->year . '%');
-        }
-
-        // Filter by locked status
-        if ($request->filled('locked')) {
-            $query->where('locked_status', $request->locked);
-        }
-
-        // Search
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('school_name', 'like', '%' . $search . '%')
-                    ->orWhere('team_name', 'like', '%' . $search . '%')
-                    ->orWhere('referral_code', 'like', '%' . $search . '%')
-                    ->orWhere('competition', 'like', '%' . $search . '%')
-                    ->orWhere('series', 'like', '%' . $search . '%')
-                    ->orWhere('registered_by', 'like', '%' . $search . '%');
+            $teamList = $teamList->filter(function ($item) use ($request) {
+                return in_array($request->category, $item->categories);
             });
         }
 
-        // Sort - DEFAULT: updated_at descending (data terbaru di atas)
+        if ($request->filled('status')) {
+            $teamList = $teamList->where('verification_status', $request->status);
+        }
+
+        if ($request->filled('locked')) {
+            $teamList = $teamList->where('locked_status', $request->locked);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $teamList = $teamList->filter(function ($item) use ($search) {
+                return str_contains(strtolower($item->school_name), strtolower($search)) ||
+                    str_contains(strtolower($item->registered_by), strtolower($search)) ||
+                    str_contains(strtolower($item->team_name), strtolower($search));
+            });
+        }
+
+        // Sort
         $sort = $request->get('sort', 'updated_at');
         $order = $request->get('order', 'desc');
 
-        // Validasi kolom sort untuk menghindari SQL injection
-        $allowedSortColumns = ['updated_at', 'created_at', 'school_name', 'team_category', 'verification_status', 'locked_status'];
-        $sort = in_array($sort, $allowedSortColumns) ? $sort : 'updated_at';
+        if ($sort == 'updated_at' || $sort == 'created_at') {
+            $teamList = $teamList->sortByDesc(function ($item) use ($sort) {
+                return $item->$sort;
+            });
+        } else {
+            $teamList = $teamList->sortBy($sort, SORT_REGULAR, $order == 'desc');
+        }
 
-        $query->orderBy($sort, $order);
+        // Pagination manual
+        $perPage = 50;
+        $currentPage = $request->get('page', 1);
+        $total = $teamList->count();
+        $items = $teamList->forPage($currentPage, $perPage);
 
-        // Get available years for filter
+        $teamList = new \Illuminate\Pagination\LengthAwarePaginator(
+            $items,
+            $total,
+            $perPage,
+            $currentPage,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+        // Get filter options
         $years = TeamList::selectRaw('DISTINCT season')
             ->whereNotNull('season')
             ->orderBy('season', 'desc')
@@ -81,28 +132,26 @@ class TeamController extends Controller
             ->unique()
             ->values();
 
-        // Get unique values for filters
-        $schools = TeamList::distinct('school_name')->orderBy('school_name')->pluck('school_name');
-        $competitions = TeamList::distinct('competition')->whereNotNull('competition')->orderBy('competition')->pluck('competition');
+        $schools = TeamList::distinct('school_name')
+            ->orderBy('school_name')
+            ->pluck('school_name');
 
-        // Pagination - 50 per page untuk data lebih banyak dalam satu halaman
-        $teamList = $query->paginate(50)->withQueryString();
+        $competitions = TeamList::distinct('competition')
+            ->whereNotNull('competition')
+            ->orderBy('competition')
+            ->pluck('competition');
 
         return view('team_verification.tv_team_list', compact('teamList', 'schools', 'competitions', 'years'));
     }
 
+    /**
+     * Export teams to Excel
+     */
     public function export(Request $request)
     {
-        // Apply same filters as teamList
         $query = $this->applyFilters($request);
-
-        // Get teams with filters applied
         $teams = $query->get();
-
-        // Generate filename with timestamp
         $filename = 'teams_export_' . date('Y-m-d_H-i') . '.xlsx';
-
-        // Export to Excel
         return Excel::download(new TeamsExport($teams), $filename);
     }
 
@@ -113,27 +162,21 @@ class TeamController extends Controller
         if ($request->filled('school')) {
             $query->where('school_name', $request->school);
         }
-
         if ($request->filled('status')) {
             $query->where('verification_status', $request->status);
         }
-
         if ($request->filled('category')) {
             $query->where('team_category', $request->category);
         }
-
         if ($request->filled('competition')) {
             $query->where('competition', 'like', '%' . $request->competition . '%');
         }
-
         if ($request->filled('year')) {
             $query->where('season', 'like', '%' . $request->year . '%');
         }
-
         if ($request->filled('locked')) {
             $query->where('locked_status', $request->locked);
         }
-
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -149,34 +192,26 @@ class TeamController extends Controller
     }
 
     /**
-     * Tampilkan halaman utama dengan semua kategori (SISTEM TAB BARU)
+     * Show team detail with tabs
      */
     public function teamShow($id)
     {
         $mainTeam = $this->getMainTeam($id);
-
-        // Ambil semua data tim untuk sekolah ini
         $teamData = $this->getAllTeamData($mainTeam->school_name);
-
-        // Pastikan activeTab dikirim dengan benar
         $activeTab = request()->get('tab', $this->getDefaultActiveTab($teamData));
+        $categories = ['Basket Putra', 'Basket Putri', 'Dancer'];
 
-        // Log untuk debugging
         Log::info('Team Show - Active Tab:', [
             'request_tab' => request()->get('tab'),
             'activeTab' => $activeTab,
             'default_tab' => $this->getDefaultActiveTab($teamData)
         ]);
 
-        // Get categories
-        $categories = ['Basket Putra', 'Basket Putri', 'Dancer'];
-
-        // **PERBAIKAN UTAMA: SELALU gunakan view utama tv_team_detail**
         return view('team_verification.tv_team_detail', compact('mainTeam', 'teamData', 'activeTab', 'categories'));
     }
 
     /**
-     * Helper method untuk mendapatkan tim utama berdasarkan ID
+     * Get main team by ID
      */
     private function getMainTeam($id)
     {
@@ -197,15 +232,13 @@ class TeamController extends Controller
     }
 
     /**
-     * Helper method untuk memastikan school_id konsisten di semua tabel
+     * Ensure consistent school_id across tables
      */
     private function ensureConsistentSchoolId($schoolName)
     {
-        // Cari school dari tabel schools
         $school = School::where('school_name', $schoolName)->first();
 
         if (!$school) {
-            // Buat sekolah baru jika tidak ada
             $school = School::create([
                 'school_name' => $schoolName,
                 'category_name' => 'SMA',
@@ -215,7 +248,6 @@ class TeamController extends Controller
             Log::info('Created new school: ' . $school->id . ' - ' . $schoolName);
         }
 
-        // Update semua tim dengan school_id yang benar
         $updatedTeams = TeamList::where('school_name', $schoolName)
             ->where(function ($query) use ($school) {
                 $query->whereNull('school_id')
@@ -231,46 +263,67 @@ class TeamController extends Controller
     }
 
     /**
-     * Helper method untuk mendapatkan semua data tim berdasarkan nama sekolah (PERBAIKAN UTAMA)
+     * 🔥🔥🔥 FIX UTAMA: Get all team data by school name
+     * FILTER OFFICIAL BERDASARKAN CATEGORY!
      */
     private function getAllTeamData($schoolName)
     {
         $teamData = [];
-
-        // Ambil semua tim dari sekolah ini
+        $schoolId = $this->ensureConsistentSchoolId($schoolName);
         $teams = TeamList::where('school_name', $schoolName)->get();
 
-        // 🔥 BASKET PUTRA - FILTER TEAM_ID
+        Log::info('=== GET ALL TEAM DATA ===', [
+            'school' => $schoolName,
+            'total_teams' => $teams->count()
+        ]);
+
+        // ========== BASKET PUTRA ==========
         $teamPutra = $teams->where('team_category', 'Basket Putra')->first();
         $teamData['Basket Putra'] = [
             'team' => $teamPutra,
             'players' => $teamPutra ? PlayerList::where('team_id', $teamPutra->team_id)
+                ->where('gender', 'Male')
                 ->orderByRaw("CASE WHEN role = 'Leader' THEN 0 ELSE 1 END")
                 ->orderBy('jersey_number', 'asc')
                 ->get() : collect(),
+            // ✅ FILTER OFFICIAL: HANYA category = 'basket_putra'
             'officials' => $teamPutra ? OfficialList::where('team_id', $teamPutra->team_id)
-                ->where('category', 'basket_putra')
-                ->orderByRaw("CASE WHEN role = 'Leader' THEN 0 ELSE 1 END")
+                ->where('category', 'basket_putra')  // FILTER PENTING!
+                ->orderBy('name', 'asc')
                 ->get() : collect(),
             'exists' => !is_null($teamPutra)
         ];
 
-        // 🔥 BASKET PUTRI - FILTER TEAM_ID
+        Log::info('Basket Putra:', [
+            'team_exists' => $teamData['Basket Putra']['exists'],
+            'players_count' => $teamData['Basket Putra']['players']->count(),
+            'officials_count' => $teamData['Basket Putra']['officials']->count(),
+        ]);
+
+        // ========== BASKET PUTRI ==========
         $teamPutri = $teams->where('team_category', 'Basket Putri')->first();
         $teamData['Basket Putri'] = [
             'team' => $teamPutri,
             'players' => $teamPutri ? PlayerList::where('team_id', $teamPutri->team_id)
+                ->where('gender', 'Female')
                 ->orderByRaw("CASE WHEN role = 'Leader' THEN 0 ELSE 1 END")
                 ->orderBy('jersey_number', 'asc')
                 ->get() : collect(),
+            // ✅ FILTER OFFICIAL: HANYA category = 'basket_putri'
             'officials' => $teamPutri ? OfficialList::where('team_id', $teamPutri->team_id)
-                ->where('category', 'basket_putri')
-                ->orderByRaw("CASE WHEN role = 'Leader' THEN 0 ELSE 1 END")
+                ->where('category', 'basket_putri')  // FILTER PENTING!
+                ->orderBy('name', 'asc')
                 ->get() : collect(),
             'exists' => !is_null($teamPutri)
         ];
 
-        // 🔥 DANCER - FILTER TEAM_ID
+        Log::info('Basket Putri:', [
+            'team_exists' => $teamData['Basket Putri']['exists'],
+            'players_count' => $teamData['Basket Putri']['players']->count(),
+            'officials_count' => $teamData['Basket Putri']['officials']->count(),
+        ]);
+
+        // ========== DANCER ==========
         $teamDancer = $teams->where('team_category', 'Dancer')->first();
         $teamData['Dancer'] = [
             'team' => $teamDancer,
@@ -278,115 +331,98 @@ class TeamController extends Controller
                 ->orderByRaw("CASE WHEN role = 'Leader' THEN 0 ELSE 1 END")
                 ->orderBy('name', 'asc')
                 ->get() : collect(),
+            // ✅ FILTER OFFICIAL: HANYA category = 'dancer'
             'officials' => $teamDancer ? OfficialList::where('team_id', $teamDancer->team_id)
-                ->where('category', 'dancer')
-                ->orderByRaw("CASE WHEN role = 'Leader' THEN 0 ELSE 1 END")
+                ->where('category', 'dancer')  // FILTER PENTING!
+                ->orderBy('name', 'asc')
                 ->get() : collect(),
             'exists' => !is_null($teamDancer)
         ];
+
+        Log::info('Dancer:', [
+            'team_exists' => $teamData['Dancer']['exists'],
+            'players_count' => $teamData['Dancer']['players']->count(),
+            'officials_count' => $teamData['Dancer']['officials']->count(),
+        ]);
+
+        Log::info('=== END GET ALL TEAM DATA ===');
 
         return $teamData;
     }
 
     /**
-     * Helper method untuk mendapatkan default active tab
+     * Get default active tab
      */
     private function getDefaultActiveTab($teamData)
     {
-        // Coba aktifkan tab pertama yang memiliki data
         foreach (['Basket Putra', 'Basket Putri', 'Dancer'] as $category) {
             if (isset($teamData[$category]['exists']) && $teamData[$category]['exists']) {
                 return $category;
             }
         }
-
-        // Jika tidak ada data, return kategori pertama
         return 'Basket Putra';
     }
 
     /**
-     * Helper method untuk mendapatkan tim berdasarkan kategori
-     */
-    private function getTeamByCategory($teamId, $category)
-    {
-        $team = TeamList::where('team_id', $teamId)
-            ->where('team_category', $category)
-            ->firstOrFail();
-
-        Log::info("Team {$category} found:", [
-            'team_id' => $team->team_id,
-            'school' => $team->school_name,
-            'category' => $team->team_category
-        ]);
-
-        return $team;
-    }
-
-    /**
-     * Helper method untuk mendapatkan tim utama dari tim kategori tertentu
-     */
-    private function getMainTeamFromTeam($team)
-    {
-        // Cari tim utama berdasarkan sekolah (yang pertama dibuat)
-        $mainTeam = TeamList::where('school_name', $team->school_name)
-            ->orderBy('team_id', 'asc')
-            ->first();
-
-        if (!$mainTeam) {
-            return $team; // Fallback to the team itself
-        }
-
-        return $mainTeam;
-    }
-
-    /**
-     * Map team category to official category
-     */
-    private function mapCategoryToOfficialCategory($teamCategory)
-    {
-        $mapping = [
-            'Basket Putra' => 'basket_putra',
-            'Basket Putri' => 'basket_putri',
-            'Dancer' => 'dancer'
-        ];
-
-        return $mapping[$teamCategory] ?? 'lainnya';
-    }
-
-    /**
-     * Halaman Detail Basket Putra dengan sistem tab
+     * Tab redirect methods
      */
     public function teamDetailBasketPutra($teamId)
     {
-        // Redirect ke sistem tab dengan parameter tab
         return redirect()->route('admin.team-list.show', [
             'id' => $teamId,
             'tab' => 'Basket Putra'
         ]);
     }
 
-    /**
-     * Halaman Detail Basket Putri dengan sistem tab
-     */
     public function teamDetailBasketPutri($teamId)
     {
-        // Redirect ke sistem tab dengan parameter tab
         return redirect()->route('admin.team-list.show', [
             'id' => $teamId,
             'tab' => 'Basket Putri'
         ]);
     }
 
-    /**
-     * Halaman Detail Dancer dengan sistem tab
-     */
     public function teamDetailDancer($teamId)
     {
-        // Redirect ke sistem tab dengan parameter tab
         return redirect()->route('admin.team-list.show', [
             'id' => $teamId,
             'tab' => 'Dancer'
         ]);
+    }
+
+    /**
+     * Team actions
+     */
+    public function lock($id)
+    {
+        $team = TeamList::where('team_id', $id)->firstOrFail();
+        $team->locked_status = 'locked';
+        $team->save();
+        return back()->with('success', 'Tim berhasil dikunci!');
+    }
+
+    public function unlock($id)
+    {
+        $team = TeamList::where('team_id', $id)->firstOrFail();
+        $team->locked_status = 'unlocked';
+        $team->save();
+        return back()->with('success', 'Tim berhasil dibuka!');
+    }
+
+    public function verify($id)
+    {
+        $team = TeamList::where('team_id', $id)->firstOrFail();
+        $team->verification_status = 'verified';
+        $team->save();
+        return back()->with('success', 'Tim berhasil diverifikasi!');
+    }
+
+    public function unverify($id)
+    {
+        $team = TeamList::where('team_id', $id)->firstOrFail();
+        $team->verification_status = 'unverified';
+        $team->save();
+        return back()->with('success', 'Verifikasi tim berhasil dibatalkan!');
     }
 
     public function teamVerification()
@@ -402,42 +438,9 @@ class TeamController extends Controller
         return view('team_verification.tv_team_awards');
     }
 
-    public function lock($id)
-    {
-        $team = TeamList::where('team_id', $id)->firstOrFail();
-        $team->locked_status = 'locked';
-        $team->save();
-
-        return back()->with('success', 'Tim berhasil dikunci!');
-    }
-
-    public function unlock($id)
-    {
-        $team = TeamList::where('team_id', $id)->firstOrFail();
-        $team->locked_status = 'unlocked';
-        $team->save();
-
-        return back()->with('success', 'Tim berhasil dibuka!');
-    }
-
-    public function verify($id)
-    {
-        $team = TeamList::where('team_id', $id)->firstOrFail();
-        $team->verification_status = 'verified';
-        $team->save();
-
-        return back()->with('success', 'Tim berhasil diverifikasi!');
-    }
-
-    public function unverify($id)
-    {
-        $team = TeamList::where('team_id', $id)->firstOrFail();
-        $team->verification_status = 'unverified';
-        $team->save();
-
-        return back()->with('success', 'Verifikasi tim berhasil dibatalkan!');
-    }
-
+    /**
+     * Player detail
+     */
     public function playerDetail($id)
     {
         $player = PlayerList::with('team')
@@ -456,6 +459,9 @@ class TeamController extends Controller
         return view('team_verification.tv_player_detail', compact('player', 'schoolName'));
     }
 
+    /**
+     * Dancer detail
+     */
     public function dancerDetail($id)
     {
         $dancer = DancerList::with('team')
@@ -479,7 +485,6 @@ class TeamController extends Controller
         $dancer = DancerList::where('dancer_id', $id)->firstOrFail();
         $dancer->verification_status = 'verified';
         $dancer->save();
-
         return back()->with('success', 'Dancer berhasil diverifikasi!');
     }
 
@@ -488,7 +493,6 @@ class TeamController extends Controller
         $dancer = DancerList::where('dancer_id', $id)->firstOrFail();
         $dancer->verification_status = 'unverified';
         $dancer->save();
-
         return back()->with('success', 'Verifikasi dancer berhasil dibatalkan!');
     }
 
@@ -497,10 +501,12 @@ class TeamController extends Controller
         $dancer = DancerList::where('dancer_id', $id)->firstOrFail();
         $dancer->verification_status = 'rejected';
         $dancer->save();
-
         return back()->with('success', 'Dancer berhasil ditolak!');
     }
 
+    /**
+     * Official detail
+     */
     public function officialDetail($id)
     {
         $official = OfficialList::with('team')
@@ -519,28 +525,8 @@ class TeamController extends Controller
         return view('team_verification.tv_official_detail', compact('official', 'schoolName'));
     }
 
-    public function checkLogoPath()
-    {
-        // Debug path logo
-        $teams = TeamList::whereNotNull('school_logo')->limit(5)->get();
-
-        $results = [];
-        foreach ($teams as $team) {
-            $path = public_path('uploads/school_logo/' . $team->school_logo);
-            $results[] = [
-                'team_id' => $team->team_id,
-                'school_name' => $team->school_name,
-                'school_logo' => $team->school_logo,
-                'exists' => file_exists($path),
-                'path' => $path
-            ];
-        }
-
-        return response()->json($results);
-    }
-
     /**
-     * FIX: Method untuk memperbaiki data school_id yang tidak konsisten
+     * Fix school data
      */
     public function fixSchoolData($schoolName)
     {
@@ -548,7 +534,6 @@ class TeamController extends Controller
             Log::info('=== FIX SCHOOL DATA START ===');
             Log::info('School Name: ' . $schoolName);
 
-            // 1. Cari atau buat sekolah
             $school = School::where('school_name', $schoolName)->first();
             if (!$school) {
                 $school = School::create([
@@ -560,20 +545,16 @@ class TeamController extends Controller
                 Log::info('Created new school: ID=' . $school->id);
             }
 
-            // 2. Update semua tim dengan school_id yang benar
             $teamsUpdated = TeamList::where('school_name', $schoolName)
                 ->update(['school_id' => $school->id]);
             Log::info('Updated ' . $teamsUpdated . ' teams');
 
-            // 3. Update semua player dengan school_id yang benar
-            // Pertama, cari semua team_id untuk sekolah ini
             $teamIds = TeamList::where('school_name', $schoolName)->pluck('team_id');
 
             $playersUpdated = PlayerList::whereIn('team_id', $teamIds)
                 ->update(['school_id' => $school->id]);
             Log::info('Updated ' . $playersUpdated . ' players');
 
-            // 4. Update semua dancer dengan school_name yang benar
             $dancersUpdated = DancerList::where('school_name', $schoolName)
                 ->update(['school_id' => $school->id]);
             Log::info('Updated ' . $dancersUpdated . ' dancers');

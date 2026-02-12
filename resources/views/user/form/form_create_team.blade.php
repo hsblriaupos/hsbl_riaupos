@@ -195,10 +195,9 @@
                             <div class="col-md-4">
                                 <label class="form-label fw-medium">
                                     <i class="fas fa-image me-2"></i>Logo Sekolah
-                                    <span class="text-muted small">(Opsional)</span>
                                 </label>
                                 <input type="file" class="form-control" id="school_logo_existing" 
-                                       name="school_logo" accept=".jpg,.jpeg,.png,.webp">
+                                       name="school_logo" accept=".jpg,.jpeg,.png,.webp" required>
                             </div>
                         </div>
                     </div>

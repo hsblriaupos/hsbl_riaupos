@@ -57,17 +57,17 @@
     <label>Ukuran Sepatu:</label>
     <input type="text" name="shoes_size" required><br>
 
-    <label>Posisi Basket (opsional):</label>
+    <label>Posisi Basket:</label>
     <input type="text" name="basketball_position"><br>
 
-    <label>Nomor Jersey (opsional):</label>
-    <input type="text" name="jersey_number"><br>
+    <label>Nomor Jersey:</label>
+    <input type="text" name="jersey_number" required><br>
 
-    <label>Instagram (opsional):</label>
-    <input type="text" name="instagram"><br>
+    <label>Instagram:</label>
+    <input type="text" name="instagram" required><br>
 
-    <label>TikTok (opsional):</label>
-    <input type="text" name="tiktok"><br>
+    <label>TikTok :</label>
+    <input type="text" name="tiktok" required><br>
 
     <label>Upload Akta Lahir:</label>
     <input type="file" name="birth_certificate" required><br>
@@ -87,8 +87,8 @@
     <label>Upload Foto Formal:</label>
     <input type="file" name="formal_photo" required><br>
 
-    <label>Upload Surat Penugasan (opsional):</label>
-    <input type="file" name="assignment_letter"><br>
+    <label>Upload Surat Penugasan:</label>
+    <input type="file" name="assignment_letter" required><br>
 
     <button type="submit">Submit Data Pemain</button>
 </form>

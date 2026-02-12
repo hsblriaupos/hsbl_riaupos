@@ -447,8 +447,13 @@ class FormDancerController extends Controller
             // ============================================
             // REDIRECT KE HALAMAN SUKSES
             // ============================================
+            // ============================================
+            // 🔥🔥🔥 FIX: REDIRECT KE HALAMAN SUKSES DENGAN TEAM_ID YANG BENAR
+            // ============================================
+            $successTeamId = $dancer->team_id; // PAKE team_id DARI DANCER!
+
             return redirect()->route('form.dancer.success', [
-                'team_id' => $teamId,
+                'team_id' => $successTeamId,
                 'dancer_id' => $dancer->dancer_id
             ])->with('success', '🎉 Pendaftaran dancer berhasil!');
         } catch (\Illuminate\Validation\ValidationException $e) {

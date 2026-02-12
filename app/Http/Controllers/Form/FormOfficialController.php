@@ -27,14 +27,23 @@ class FormOfficialController extends Controller
                 ->with('error', 'Tim ini sudah dikunci dan tidak dapat menambah official.');
         }
 
-        // Ambil session untuk menentukan role
-        $canBeLeader = session('current_can_be_leader', false);
-        $role = $canBeLeader ? 'Leader' : 'Member';
+        // ✅ CEK: Apakah tim ini valid untuk didaftarin official?
+        if (!$team->referral_code) {
+            return redirect()->route('form.team.choice')
+                ->with('error', 'Referral code tidak valid. Hubungi admin untuk bantuan.');
+        }
 
-        // Ambil kategori tim dari nama tim atau team_type
-        $teamCategory = $this->determineTeamCategory($team);
+        // ✅ CEK: Apakah tim ini adalah tim Official? (Kalo iya, jangan dijadiin official!)
+        if ($team->team_category === 'Official') {
+            return redirect()->route('form.team.choice')
+                ->with('error', 'Tim Official tidak dapat menambah official. Silakan gunakan referral code tim Basket Putra, Basket Putri, atau Dancer.');
+        }
 
-        return view('user.form.form_official', compact('team_id', 'team', 'role', 'canBeLeader', 'teamCategory'));
+        // KIRIM DATA KE VIEW
+        return view('user.form.form_official', compact(
+            'team_id',
+            'team'
+        ));
     }
 
     /**
@@ -45,11 +54,12 @@ class FormOfficialController extends Controller
         try {
             DB::beginTransaction();
 
+            // ==================== VALIDASI DASAR ====================
             $validator = Validator::make($request->all(), [
                 'team_id' => 'required|exists:team_list,team_id',
                 'nik' => 'required|unique:official_list,nik|digits:16',
                 'name' => 'required|string|max:255',
-                'birthdate' => 'required|date',
+                'birthdate' => 'required|date|before_or_equal:' . now()->subYears(18)->format('Y-m-d'),
                 'gender' => 'required|in:male,female',
                 'email' => 'required|email|unique:official_list,email',
                 'phone' => 'required|string|max:15',
@@ -57,9 +67,9 @@ class FormOfficialController extends Controller
                 'height' => 'nullable|numeric|min:100|max:250',
                 'weight' => 'nullable|numeric|min:30|max:200',
                 'team_role' => 'required|in:Coach,Manager,Medical Support,Assistant Coach,Pendamping',
-                'category' => 'required|in:basket_putra,basket_putri,dancer,lainnya', // Validasi baru
-                'tshirt_size' => 'nullable|string|max:10',
-                'shoes_size' => 'nullable|string|max:10',
+                'category' => 'required|in:basket_putra,basket_putri,dancer',
+                'tshirt_size' => 'nullable|in:S,M,L,XL,XXL',
+                'shoes_size' => 'nullable|integer|min:36|max:46',
                 'instagram' => 'nullable|string|max:255',
                 'tiktok' => 'nullable|string|max:255',
                 'formal_photo' => 'required|file|mimes:jpg,jpeg,png|max:2048',
@@ -70,10 +80,12 @@ class FormOfficialController extends Controller
                 'nik.unique' => 'NIK sudah terdaftar.',
                 'nik.digits' => 'NIK harus 16 digit.',
                 'email.unique' => 'Email sudah terdaftar.',
+                'birthdate.before_or_equal' => 'Usia minimal 18 tahun.',
                 'formal_photo.required' => 'Foto formal wajib diunggah.',
                 'identity_card.required' => 'Foto KTP/SIM wajib diunggah.',
                 'team_role.required' => 'Pilih peran dalam tim.',
-                'category.required' => 'Pilih kategori official.', // Pesan error baru
+                'category.required' => 'Pilih kategori official.',
+                'category.in' => 'Kategori tidak valid.',
                 'terms.required' => 'Anda harus menyetujui syarat dan ketentuan.',
                 'terms.accepted' => 'Anda harus menyetujui syarat dan ketentuan.',
             ]);
@@ -85,9 +97,18 @@ class FormOfficialController extends Controller
                     ->with('team_id', $request->team_id);
             }
 
-            $team = TeamList::findOrFail($request->team_id);
+            // ==================== VALIDASI TIM ====================
+            $team = TeamList::find($request->team_id);
+            
+            // ✅ CEK 1: Tim harus ada
+            if (!$team) {
+                return redirect()->back()
+                    ->with('error', 'Referral code tidak valid! Tim tidak ditemukan.')
+                    ->withInput()
+                    ->with('team_id', $request->team_id);
+            }
 
-            // Cek apakah tim sudah locked
+            // ✅ CEK 2: Tim tidak boleh locked
             if ($team->locked_status === 'locked') {
                 return redirect()->back()
                     ->with('error', 'Tim ini sudah dikunci dan tidak dapat menambah official.')
@@ -95,21 +116,84 @@ class FormOfficialController extends Controller
                     ->with('team_id', $request->team_id);
             }
 
-            // Cari atau buat sekolah
+            // ✅ CEK 3: Referral code harus ADA dan valid
+            if (!$team->referral_code) {
+                return redirect()->back()
+                    ->with('error', 'Referral code tidak valid atau sudah tidak digunakan. Hubungi admin.')
+                    ->withInput()
+                    ->with('team_id', $request->team_id);
+            }
+
+            // ✅ CEK 4: Tim tidak boleh bertipe 'Official'
+            if ($team->team_category === 'Official') {
+                return redirect()->back()
+                    ->with('error', 'Tim Official tidak dapat menambah official. Gunakan referral code tim Basket Putra, Basket Putri, atau Dancer.')
+                    ->withInput()
+                    ->with('team_id', $request->team_id);
+            }
+
+            // ==================== VALIDASI KATEGORI ====================
+            // Mapping kategori official ke kategori tim
+            $categoryMap = [
+                'basket_putra' => 'Basket Putra',
+                'basket_putri' => 'Basket Putri',
+                'dancer' => 'Dancer'
+            ];
+
+            $expectedTeamCategory = $categoryMap[$request->category] ?? null;
+
+            // ✅ CEK 5: Kategori harus cocok dengan tim!
+            if ($team->team_category !== $expectedTeamCategory) {
+                // Cari tim yang benar untuk kategori ini
+                $correctTeam = TeamList::where('school_name', $team->school_name)
+                    ->where('team_category', $expectedTeamCategory)
+                    ->whereNotNull('referral_code')
+                    ->first();
+
+                if ($correctTeam) {
+                    $message = "Referral code salah! Anda menggunakan kode untuk tim {$team->team_category}. "
+                             . "Gunakan referral code berikut untuk tim {$expectedTeamCategory}: "
+                             . "<br><strong style='background: #f0f0f0; padding: 5px 10px; border-radius: 5px;'>{$correctTeam->referral_code}</strong>";
+                    
+                    return redirect()->back()
+                        ->with('error', $message)
+                        ->withInput()
+                        ->with('team_id', $request->team_id);
+                }
+
+                return redirect()->back()
+                    ->with('error', "Referral code tidak sesuai! Kode ini untuk tim {$team->team_category}, bukan untuk {$expectedTeamCategory}.")
+                    ->withInput()
+                    ->with('team_id', $request->team_id);
+            }
+
+            // ✅ CEK 6: Cek apakah sudah pernah daftar sebagai official di tim ini
+            $existingOfficial = OfficialList::where('team_id', $request->team_id)
+                ->where('nik', $request->nik)
+                ->first();
+
+            if ($existingOfficial) {
+                return redirect()->back()
+                    ->with('error', 'Anda sudah terdaftar sebagai official di tim ini!')
+                    ->withInput()
+                    ->with('team_id', $request->team_id);
+            }
+
+            // ==================== CEK ATAU BUAT SEKOLAH ====================
             $school = School::where('school_name', $request->school)->first();
             if (!$school) {
                 $school = School::create([
                     'school_name' => $request->school,
                     'category_name' => 'SMA',
                     'type' => 'SWASTA',
-                    'city_id' => 1,
+                    'city_id' => 1, // Default city
                 ]);
 
                 // Update team dengan school_id baru
                 $team->update(['school_id' => $school->id]);
             }
 
-            // Handle file uploads
+            // ==================== HANDLE FILE UPLOADS ====================
             $formalPhotoPath = null;
             $licensePhotoPath = null;
             $identityCardPath = null;
@@ -126,27 +210,7 @@ class FormOfficialController extends Controller
                 $identityCardPath = $request->file('identity_card')->store('uploads/officials/identity_cards', 'public');
             }
 
-            // Cek jika ini official pertama, set sebagai Leader
-            // Gunakan session untuk menentukan apakah bisa jadi leader
-            $canBeLeader = session('current_can_be_leader', false);
-            $role = $canBeLeader ? 'Leader' : 'Member';
-
-            // Double check: jika sudah ada leader, tetap jadi member
-            if ($role === 'Leader') {
-                $existingLeaderCount = OfficialList::where('team_id', $request->team_id)
-                    ->where('role', 'Leader')
-                    ->count();
-
-                if ($existingLeaderCount > 0) {
-                    $role = 'Member';
-                }
-            }
-
-            // Create official dengan category
-            // Di App\Http\Controllers\Form\FormOfficialController.php
-            // Cari bagian storeOfficial, pastikan ini:
-
-            // Create official dengan category
+            // ==================== CREATE OFFICIAL ====================
             $official = OfficialList::create([
                 'team_id' => $request->team_id,
                 'school_id' => $school->id,
@@ -160,7 +224,7 @@ class FormOfficialController extends Controller
                 'height' => $request->height,
                 'weight' => $request->weight,
                 'team_role' => $request->team_role,
-                'category' => $request->category, 
+                'category' => $request->category,
                 'tshirt_size' => $request->tshirt_size,
                 'shoes_size' => $request->shoes_size,
                 'instagram' => $request->instagram,
@@ -168,26 +232,30 @@ class FormOfficialController extends Controller
                 'formal_photo' => $formalPhotoPath,
                 'license_photo' => $licensePhotoPath,
                 'identity_card' => $identityCardPath,
-                'role' => $role,
+                'role' => 'Member',
                 'verification_status' => 'unverified',
+                'is_finalized' => false,
+                'unlocked_by_admin' => false,
             ]);
 
             DB::commit();
 
-            // Clear session untuk official
-            session()->forget('current_can_be_leader');
-
+            // ✅ KALAU BERHASIL, LANGSUNG REDIRECT KE SUCCESS PAGE
             return redirect()->route('form.official.success', [
                 'team_id' => $request->team_id,
                 'official_id' => $official->official_id
-            ]);
+            ])->with('success', 'Pendaftaran official berhasil!');
+
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error storing official: ' . $e->getMessage());
+            Log::error('====================================');
+            Log::error('ERROR STORING OFFICIAL: ' . $e->getMessage());
             Log::error('Stack trace: ' . $e->getTraceAsString());
+            Log::error('Request data: ' . json_encode($request->all()));
+            Log::error('====================================');
 
             return redirect()->back()
-                ->with('error', 'Terjadi kesalahan saat menyimpan data: ' . $e->getMessage())
+                ->with('error', 'Terjadi kesalahan saat menyimpan data. Silakan coba lagi atau hubungi admin.')
                 ->withInput()
                 ->with('team_id', $request->team_id);
         }
@@ -198,7 +266,7 @@ class FormOfficialController extends Controller
      */
     public function showSuccessPage($team_id, $official_id)
     {
-        $official = OfficialList::findOrFail($official_id);
+        $official = OfficialList::with(['team', 'school'])->findOrFail($official_id);
         $team = TeamList::findOrFail($team_id);
 
         return view('user.form.form_official_success', compact('official', 'team'));
@@ -253,59 +321,36 @@ class FormOfficialController extends Controller
     }
 
     /**
-     * Check if leader already exists in team
+     * Get team categories for dropdown (Opsional - Kalo mau pake AJAX)
      */
-    public function checkLeaderExists(Request $request)
+    public function getTeamCategories($team_id)
     {
-        $exists = OfficialList::where('team_id', $request->team_id)
-            ->where('role', 'Leader')
-            ->exists();
-
-        return response()->json([
-            'exists' => $exists,
-            'message' => $exists ? 'Tim ini sudah memiliki Leader official' : 'Belum ada Leader official'
-        ]);
-    }
-
-    /**
-     * Check team payment status
-     */
-    public function checkTeamPayment(Request $request)
-    {
-        $team = TeamList::find($request->team_id);
-
+        $team = TeamList::find($team_id);
+        
         if (!$team) {
-            return response()->json([
-                'paid' => false,
-                'message' => 'Tim tidak ditemukan'
-            ]);
+            return response()->json([]);
         }
 
-        return response()->json([
-            'paid' => $team->payment_status === 'paid',
-            'message' => $team->payment_status === 'paid'
-                ? 'Tim sudah melakukan pembayaran'
-                : 'Tim belum melakukan pembayaran'
-        ]);
-    }
-
-    /**
-     * Determine team category from team name or type
-     */
-    private function determineTeamCategory($team)
-    {
-        $teamName = strtolower($team->team_name ?? '');
-
-        // Cek berdasarkan nama tim
-        if (str_contains($teamName, 'putra') || str_contains($teamName, 'boys')) {
-            return 'basket_putra';
-        } elseif (str_contains($teamName, 'putri') || str_contains($teamName, 'girls')) {
-            return 'basket_putri';
-        } elseif (str_contains($teamName, 'dancer') || str_contains($teamName, 'cheer')) {
-            return 'dancer';
+        $categories = [];
+        
+        // Tambahkan kategori dari team itu sendiri (kalo bukan 'Official')
+        if ($team->team_category && $team->team_category !== 'Official') {
+            $categoryValue = match($team->team_category) {
+                'Basket Putra' => 'basket_putra',
+                'Basket Putri' => 'basket_putri',
+                'Dancer' => 'dancer',
+                default => null
+            };
+            
+            if ($categoryValue) {
+                $categories[] = [
+                    'value' => $categoryValue,
+                    'label' => $team->team_category,
+                    'referral_code' => $team->referral_code
+                ];
+            }
         }
-
-        // Default
-        return 'basket_putra'; // atau 'lainnya' sesuai kebutuhan
+        
+        return response()->json($categories);
     }
 }

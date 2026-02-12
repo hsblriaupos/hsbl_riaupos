@@ -30,9 +30,14 @@ class TeamList extends Model
         'locked_status',
         'verification_status',
         'recommendation_letter',
+        'koran',
+        'jersey_home',        // 🔥 TAMBAHKAN
+        'jersey_away',        // 🔥 TAMBAHKAN
+        'jersey_alternate',   // 🔥 TAMBAHKAN
         'payment_proof',
         'payment_status',
-        'koran',
+        'is_leader_paid',
+        'payment_date',
         'created_at',
         'updated_at',
     ];
@@ -41,12 +46,15 @@ class TeamList extends Model
         'locked_status' => 'string',
         'verification_status' => 'string',
         'payment_status' => 'string',
+        'is_leader_paid' => 'boolean',
+        'payment_date' => 'datetime',
     ];
 
     protected $attributes = [
         'locked_status' => 'unlocked',
         'verification_status' => 'unverified',
         'payment_status' => 'pending',
+        'is_leader_paid' => false,
     ];
 
     /* ================= RELATION ================= */
@@ -66,9 +74,15 @@ class TeamList extends Model
         return $this->hasMany(OfficialList::class, 'team_id', 'team_id');
     }
 
+    public function dancers()
+    {
+        return $this->hasMany(DancerList::class, 'team_id', 'team_id');
+    }
+
     public function leader()
     {
-        return $this->belongsTo(User::class, 'registered_by', 'id');
+        return $this->belongsTo(PlayerList::class, 'registered_by', 'name')
+            ->where('role', 'Leader');
     }
 
     /* ================= BUSINESS LOGIC ================= */
@@ -91,7 +105,7 @@ class TeamList extends Model
     /* ================= ACCESSOR ================= */
 
     /**
-     * Accessor URL logo sekolah/tim (SATU-SATUNYA)
+     * Accessor URL logo sekolah/tim
      */
     public function getSchoolLogoUrlAttribute()
     {
@@ -114,6 +128,47 @@ class TeamList extends Model
 
         // 3️⃣ Default
         return asset('images/default-school-logo.png');
+    }
+
+    /**
+     * 🔥 Accessor URL Jersey Home
+     */
+    public function getJerseyHomeUrlAttribute()
+    {
+        if ($this->jersey_home) {
+            return Storage::url($this->jersey_home);
+        }
+        return null;
+    }
+
+    /**
+     * 🔥 Accessor URL Jersey Away
+     */
+    public function getJerseyAwayUrlAttribute()
+    {
+        if ($this->jersey_away) {
+            return Storage::url($this->jersey_away);
+        }
+        return null;
+    }
+
+    /**
+     * 🔥 Accessor URL Jersey Alternate
+     */
+    public function getJerseyAlternateUrlAttribute()
+    {
+        if ($this->jersey_alternate) {
+            return Storage::url($this->jersey_alternate);
+        }
+        return null;
+    }
+
+    /**
+     * 🔥 Cek apakah tim sudah upload jersey
+     */
+    public function hasJersey()
+    {
+        return !empty($this->jersey_home) || !empty($this->jersey_away) || !empty($this->jersey_alternate);
     }
 
     public function getVerificationStatusLabelAttribute()
@@ -143,6 +198,11 @@ class TeamList extends Model
         return $this->officials()->count();
     }
 
+    public function getDancersCountAttribute()
+    {
+        return $this->dancers()->count();
+    }
+
     /* ================= SCOPES ================= */
 
     public function scopeVerified($query)
@@ -165,6 +225,16 @@ class TeamList extends Model
         return $query->where('locked_status', 'unlocked');
     }
 
+    public function scopePaid($query)
+    {
+        return $query->where('is_leader_paid', true);
+    }
+
+    public function scopeUnpaid($query)
+    {
+        return $query->where('is_leader_paid', false);
+    }
+
     /* ================= HELPERS ================= */
 
     public function hasLogo()
@@ -175,5 +245,15 @@ class TeamList extends Model
     public function hasCustomLogo()
     {
         return !empty($this->school_logo);
+    }
+
+    public function hasPaymentProof()
+    {
+        return !empty($this->payment_proof);
+    }
+
+    public function hasReferralCode()
+    {
+        return !empty($this->referral_code);
     }
 }

@@ -3,45 +3,14 @@
 
 @section('content')
 <div class="container py-3 px-lg-4 px-md-3 px-sm-2">
-    <!-- Role Indicator - Compact -->
-    @if($role === 'Leader')
-    <div class="alert alert-warning border-warning bg-warning-subtle mb-3 py-2 px-2 shadow-sm mx-auto" style="max-width: 780px;">
-        <div class="d-flex align-items-center">
-            <div class="bg-warning text-white rounded-circle p-1 me-2" style="width: 30px; height: 30px;">
-                <i class="fas fa-crown"></i>
-            </div>
-            <div class="flex-grow-1">
-                <h6 class="mb-0 fw-bold small text-dark">Anda adalah Leader Official!</h6>
-                <p class="mb-0 text-muted" style="font-size: 0.75rem;">Official pertama yang mendaftar</p>
-            </div>
-        </div>
-    </div>
-    @else
-    <div class="alert alert-info border-info bg-info-subtle mb-3 py-2 px-2 shadow-sm mx-auto" style="max-width: 780px;">
-        <div class="d-flex align-items-center">
-            <div class="bg-info text-white rounded-circle p-1 me-2" style="width: 30px; height: 30px;">
-                <i class="fas fa-users"></i>
-            </div>
-            <div class="flex-grow-1">
-                <h6 class="mb-0 fw-bold small text-dark">Anda adalah Member Official</h6>
-                <p class="mb-0 text-muted" style="font-size: 0.75rem;">Bergabung dengan referral code</p>
-            </div>
-        </div>
-    </div>
-    @endif
-
     <!-- Main Form Card -->
     <div class="card border-0 shadow-sm mx-auto" style="max-width: 800px; border-radius: 8px; width: 100%;">
-        <!-- Card Header - Compact -->
+        <!-- Card Header -->
         <div class="card-header bg-gradient-warning text-white py-2 px-3 border-0">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="flex-grow-1">
                     <h5 class="mb-0 fw-bold small">
-                        @if($role === 'Leader')
-                        <i class="fas fa-crown me-1"></i>Form Leader Official
-                        @else
-                        <i class="fas fa-user-tie me-1"></i>Form Official
-                        @endif
+                        <i class="fas fa-user-tie me-1"></i>Form Pendaftaran Official
                     </h5>
                     <p class="mb-0 opacity-75" style="font-size: 0.7rem;">
                         {{ $team->school_name }} • {{ $team->team_name ?: 'Tim' }}
@@ -53,14 +22,98 @@
             </div>
         </div>
 
-        <!-- Form Content - Compact -->
+        <!-- Form Content -->
         <div class="card-body p-3 px-md-3 px-sm-2">
             <form id="officialForm" action="{{ route('form.official.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="team_id" value="{{ $team_id }}">
-                <input type="hidden" name="team_category" value="{{ $teamCategory }}">
 
-                <!-- Section 1: Data Pribadi -->
+                <!-- ========== SECTION PILIHAN KATEGORI ========== -->
+                <div class="mb-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="icon-wrapper bg-warning bg-opacity-10 p-1 rounded me-2" style="width: 32px; height: 32px;">
+                            <i class="fas fa-tag text-warning" style="font-size: 0.9rem;"></i>
+                        </div>
+                        <h6 class="mb-0 fw-bold text-dark">Pilih Kategori Official</h6>
+                    </div>
+                    
+                    <div class="alert alert-info border-info bg-info-subtle mb-3 py-2 px-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Pilih kategori tim yang akan Anda dampingi sebagai official.
+                    </div>
+                    
+                    <div class="row g-3 mb-2">
+                        <!-- Basket Putra -->
+                        <div class="col-md-4">
+                            <div class="category-card">
+                                <input type="radio" 
+                                    class="btn-check" 
+                                    name="category" 
+                                    id="category_basket_putra" 
+                                    value="basket_putra"
+                                    autocomplete="off"
+                                    {{ old('category') == 'basket_putra' ? 'checked' : '' }}
+                                    required>
+                                <label class="btn btn-outline-primary w-100 py-3" for="category_basket_putra">
+                                    <div class="d-flex flex-column align-items-center">
+                                        <i class="fas fa-basketball-ball fa-2x mb-2"></i>
+                                        <span class="fw-bold">BASKET PUTRA</span>
+                                        <small class="text-muted">Official tim putra</small>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Basket Putri -->
+                        <div class="col-md-4">
+                            <div class="category-card">
+                                <input type="radio" 
+                                    class="btn-check" 
+                                    name="category" 
+                                    id="category_basket_putri" 
+                                    value="basket_putri"
+                                    autocomplete="off"
+                                    {{ old('category') == 'basket_putri' ? 'checked' : '' }}
+                                    required>
+                                <label class="btn btn-outline-danger w-100 py-3" for="category_basket_putri">
+                                    <div class="d-flex flex-column align-items-center">
+                                        <i class="fas fa-basketball-ball fa-2x mb-2"></i>
+                                        <span class="fw-bold">BASKET PUTRI</span>
+                                        <small class="text-muted">Official tim putri</small>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Dancer -->
+                        <div class="col-md-4">
+                            <div class="category-card">
+                                <input type="radio" 
+                                    class="btn-check" 
+                                    name="category" 
+                                    id="category_dancer" 
+                                    value="dancer"
+                                    autocomplete="off"
+                                    {{ old('category') == 'dancer' ? 'checked' : '' }}
+                                    required>
+                                <label class="btn btn-outline-success w-100 py-3" for="category_dancer">
+                                    <div class="d-flex flex-column align-items-center">
+                                        <i class="fas fa-music fa-2x mb-2"></i>
+                                        <span class="fw-bold">DANCER</span>
+                                        <small class="text-muted">Official tim dancer</small>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    @error('category')
+                        <div class="text-danger small mt-2">
+                            <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
+                        </div>
+                    @enderror
+                </div>
+
+                <!-- ========== SECTION DATA PRIBADI ========== -->
                 <div class="mb-3">
                     <div class="d-flex align-items-center mb-2">
                         <div class="icon-wrapper bg-primary bg-opacity-10 p-1 rounded me-2" style="width: 28px; height: 28px;">
@@ -75,9 +128,14 @@
                             <label class="form-label fw-semibold" style="font-size: 0.75rem;">
                                 NIK <span class="text-danger">*</span>
                             </label>
-                            <input type="text" class="form-control form-control-sm @error('nik') is-invalid @enderror"
-                                id="nik" name="nik" value="{{ old('nik') }}" required
-                                placeholder="16 digit" maxlength="16"
+                            <input type="text" 
+                                class="form-control form-control-sm @error('nik') is-invalid @enderror"
+                                id="nik" 
+                                name="nik" 
+                                value="{{ old('nik') }}" 
+                                required
+                                placeholder="16 digit" 
+                                maxlength="16"
                                 oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                             <div class="invalid-feedback" id="nik-feedback"></div>
                             @error('nik')
@@ -87,11 +145,15 @@
 
                         <div class="col-md-3 mb-1">
                             <label class="form-label fw-semibold" style="font-size: 0.75rem;">
-                                Nama <span class="text-danger">*</span>
+                                Nama Lengkap <span class="text-danger">*</span>
                             </label>
-                            <input type="text" class="form-control form-control-sm @error('name') is-invalid @enderror"
-                                id="name" name="name" value="{{ old('name') }}" required
-                                placeholder="Nama lengkap">
+                            <input type="text" 
+                                class="form-control form-control-sm @error('name') is-invalid @enderror"
+                                id="name" 
+                                name="name" 
+                                value="{{ old('name') }}" 
+                                required
+                                placeholder="Sesuai KTP">
                             @error('name')
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
@@ -99,10 +161,14 @@
 
                         <div class="col-md-3 mb-1">
                             <label class="form-label fw-semibold" style="font-size: 0.75rem;">
-                                Tgl Lahir <span class="text-danger">*</span>
+                                Tanggal Lahir <span class="text-danger">*</span>
                             </label>
-                            <input type="date" class="form-control form-control-sm @error('birthdate') is-invalid @enderror"
-                                id="birthdate" name="birthdate" value="{{ old('birthdate') }}" required
+                            <input type="date" 
+                                class="form-control form-control-sm @error('birthdate') is-invalid @enderror"
+                                id="birthdate" 
+                                name="birthdate" 
+                                value="{{ old('birthdate') }}" 
+                                required
                                 max="{{ date('Y-m-d', strtotime('-18 years')) }}">
                             @error('birthdate')
                                 <div class="text-danger small mt-1">{{ $message }}</div>
@@ -114,7 +180,9 @@
                                 Jenis Kelamin <span class="text-danger">*</span>
                             </label>
                             <select class="form-select form-select-sm @error('gender') is-invalid @enderror"
-                                id="gender" name="gender" required>
+                                id="gender" 
+                                name="gender" 
+                                required>
                                 <option value="">Pilih</option>
                                 <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>Laki-laki</option>
                                 <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Perempuan</option>
@@ -131,8 +199,12 @@
                             <label class="form-label fw-semibold" style="font-size: 0.75rem;">
                                 WhatsApp <span class="text-danger">*</span>
                             </label>
-                            <input type="tel" class="form-control form-control-sm @error('phone') is-invalid @enderror"
-                                id="phone" name="phone" value="{{ old('phone') }}" required
+                            <input type="tel" 
+                                class="form-control form-control-sm @error('phone') is-invalid @enderror"
+                                id="phone" 
+                                name="phone" 
+                                value="{{ old('phone') }}" 
+                                required
                                 placeholder="081234567890"
                                 oninput="this.value = this.value.replace(/[^0-9+]/g, '')">
                             @error('phone')
@@ -144,8 +216,12 @@
                             <label class="form-label fw-semibold" style="font-size: 0.75rem;">
                                 Email <span class="text-danger">*</span>
                             </label>
-                            <input type="email" class="form-control form-control-sm @error('email') is-invalid @enderror"
-                                id="email" name="email" value="{{ old('email') }}" required
+                            <input type="email" 
+                                class="form-control form-control-sm @error('email') is-invalid @enderror"
+                                id="email" 
+                                name="email" 
+                                value="{{ old('email') }}" 
+                                required
                                 placeholder="email@example.com">
                             <div class="invalid-feedback" id="email-feedback"></div>
                             @error('email')
@@ -155,15 +231,17 @@
 
                         <div class="col-md-3 mb-1">
                             <label class="form-label fw-semibold" style="font-size: 0.75rem;">
-                                Peran Tim <span class="text-danger">*</span>
+                                Peran dalam Tim <span class="text-danger">*</span>
                             </label>
                             <select class="form-select form-select-sm @error('team_role') is-invalid @enderror"
-                                id="team_role" name="team_role" required>
-                                <option value="">Pilih</option>
+                                id="team_role" 
+                                name="team_role" 
+                                required>
+                                <option value="">Pilih Peran</option>
                                 <option value="Coach" {{ old('team_role') == 'Coach' ? 'selected' : '' }}>Pelatih</option>
+                                <option value="Assistant Coach" {{ old('team_role') == 'Assistant Coach' ? 'selected' : '' }}>Asisten Pelatih</option>
                                 <option value="Manager" {{ old('team_role') == 'Manager' ? 'selected' : '' }}>Manajer</option>
                                 <option value="Medical Support" {{ old('team_role') == 'Medical Support' ? 'selected' : '' }}>Dukungan Medis</option>
-                                <option value="Assistant Coach" {{ old('team_role') == 'Assistant Coach' ? 'selected' : '' }}>Asisten Pelatih</option>
                                 <option value="Pendamping" {{ old('team_role') == 'Pendamping' ? 'selected' : '' }}>Pendamping</option>
                             </select>
                             @error('team_role')
@@ -173,76 +251,13 @@
 
                         <div class="col-md-3 mb-1">
                             <label class="form-label fw-semibold" style="font-size: 0.75rem;">
-                                Kategori <span class="text-danger">*</span>
-                            </label>
-                            <select class="form-select form-select-sm @error('category') is-invalid @enderror"
-                                id="category" name="category" required>
-                                <option value="">Pilih Kategori</option>
-                                <option value="basket_putra" {{ (old('category') == 'basket_putra' || $teamCategory == 'basket_putra') ? 'selected' : '' }}>
-                                    Basket Putra
-                                </option>
-                                <option value="basket_putri" {{ (old('category') == 'basket_putri' || $teamCategory == 'basket_putri') ? 'selected' : '' }}>
-                                    Basket Putri
-                                </option>
-                                <option value="dancer" {{ (old('category') == 'dancer' || $teamCategory == 'dancer') ? 'selected' : '' }}>
-                                    Dancer
-                                </option>
-                                <option value="lainnya" {{ old('category') == 'lainnya' ? 'selected' : '' }}>
-                                    Lainnya
-                                </option>
-                            </select>
-                            <small class="form-text text-muted" style="font-size: 0.7rem;">
-                                Pilih kategori yang sesuai
-                            </small>
-                            @error('category')
-                                <div class="text-danger small mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <!-- Row 3 -->
-                    <div class="row gx-1 gy-1 mb-2">
-                        <div class="col-md-3 mb-1">
-                            <label class="form-label fw-semibold" style="font-size: 0.75rem;">
                                 Sekolah <span class="text-danger">*</span>
                             </label>
-                            <input type="text" class="form-control form-control-sm bg-light-subtle"
-                                value="{{ $team->school_name }}" readonly>
+                            <input type="text" 
+                                class="form-control form-control-sm bg-light"
+                                value="{{ $team->school_name }}" 
+                                readonly>
                             <input type="hidden" name="school" value="{{ $team->school_name }}">
-                        </div>
-
-                        <div class="col-md-3 mb-1">
-                            <label class="form-label fw-semibold" style="font-size: 0.75rem;">
-                                Instagram
-                            </label>
-                            <div class="input-group input-group-sm">
-                                <span class="input-group-text bg-light">
-                                    <i class="fab fa-instagram text-danger"></i>
-                                </span>
-                                <input type="text" class="form-control form-control-sm @error('instagram') is-invalid @enderror"
-                                    id="instagram" name="instagram" value="{{ old('instagram') }}"
-                                    placeholder="username">
-                            </div>
-                            @error('instagram')
-                                <div class="text-danger small mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="col-md-3 mb-1">
-                            <label class="form-label fw-semibold" style="font-size: 0.75rem;">
-                                TikTok
-                            </label>
-                            <div class="input-group input-group-sm">
-                                <span class="input-group-text bg-light">
-                                    <i class="fab fa-tiktok"></i>
-                                </span>
-                                <input type="text" class="form-control form-control-sm @error('tiktok') is-invalid @enderror"
-                                    id="tiktok" name="tiktok" value="{{ old('tiktok') }}"
-                                    placeholder="username">
-                            </div>
-                            @error('tiktok')
-                                <div class="text-danger small mt-1">{{ $message }}</div>
-                            @enderror
                         </div>
                     </div>
                 </div>
@@ -253,20 +268,23 @@
                         <div class="icon-wrapper bg-success bg-opacity-10 p-1 rounded me-2" style="width: 28px; height: 28px;">
                             <i class="fas fa-running text-success" style="font-size: 0.8rem;"></i>
                         </div>
-                        <h6 class="mb-0 fw-bold text-dark small">Data Fisik</h6>
+                        <h6 class="mb-0 fw-bold text-dark small">Data Fisik (Opsional)</h6>
                     </div>
                     
                     <div class="row gx-1 gy-1 mb-2">
                         <div class="col-md-3 mb-1">
                             <label class="form-label fw-semibold" style="font-size: 0.75rem;">
-                                Tinggi (cm)
+                                Tinggi Badan (cm)
                             </label>
-                            <input type="number" class="form-control form-control-sm @error('height') is-invalid @enderror"
-                                id="height" name="height" value="{{ old('height') }}"
-                                min="100" max="250" step="1" placeholder="170">
-                            <small class="form-text text-muted" style="font-size: 0.7rem;">
-                                Contoh: 170
-                            </small>
+                            <input type="number" 
+                                class="form-control form-control-sm @error('height') is-invalid @enderror"
+                                id="height" 
+                                name="height" 
+                                value="{{ old('height') }}"
+                                min="100" 
+                                max="250" 
+                                step="1" 
+                                placeholder="170">
                             @error('height')
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
@@ -274,14 +292,17 @@
 
                         <div class="col-md-3 mb-1">
                             <label class="form-label fw-semibold" style="font-size: 0.75rem;">
-                                Berat (kg)
+                                Berat Badan (kg)
                             </label>
-                            <input type="number" class="form-control form-control-sm @error('weight') is-invalid @enderror"
-                                id="weight" name="weight" value="{{ old('weight') }}"
-                                min="30" max="200" step="0.5" placeholder="65.5">
-                            <small class="form-text text-muted" style="font-size: 0.7rem;">
-                                Contoh: 65.5
-                            </small>
+                            <input type="number" 
+                                class="form-control form-control-sm @error('weight') is-invalid @enderror"
+                                id="weight" 
+                                name="weight" 
+                                value="{{ old('weight') }}"
+                                min="30" 
+                                max="200" 
+                                step="0.5" 
+                                placeholder="65.5">
                             @error('weight')
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
@@ -289,10 +310,11 @@
 
                         <div class="col-md-3 mb-1">
                             <label class="form-label fw-semibold" style="font-size: 0.75rem;">
-                                Uk. Kaos
+                                Ukuran Kaos
                             </label>
                             <select class="form-select form-select-sm @error('tshirt_size') is-invalid @enderror"
-                                id="tshirt_size" name="tshirt_size">
+                                id="tshirt_size" 
+                                name="tshirt_size">
                                 <option value="">Pilih</option>
                                 <option value="S" {{ old('tshirt_size') == 'S' ? 'selected' : '' }}>S</option>
                                 <option value="M" {{ old('tshirt_size') == 'M' ? 'selected' : '' }}>M</option>
@@ -307,10 +329,11 @@
 
                         <div class="col-md-3 mb-1">
                             <label class="form-label fw-semibold" style="font-size: 0.75rem;">
-                                Uk. Sepatu
+                                Ukuran Sepatu
                             </label>
                             <select class="form-select form-select-sm @error('shoes_size') is-invalid @enderror"
-                                id="shoes_size" name="shoes_size">
+                                id="shoes_size" 
+                                name="shoes_size">
                                 <option value="">Pilih</option>
                                 @for($i = 36; $i <= 46; $i++)
                                 <option value="{{ $i }}" {{ old('shoes_size') == $i ? 'selected' : '' }}>{{ $i }}</option>
@@ -323,7 +346,55 @@
                     </div>
                 </div>
 
-                <!-- Section 3: Upload Dokumen -->
+                <!-- Section 3: Sosial Media (Opsional) -->
+                <div class="mb-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="icon-wrapper bg-info bg-opacity-10 p-1 rounded me-2" style="width: 28px; height: 28px;">
+                            <i class="fas fa-hashtag text-info" style="font-size: 0.8rem;"></i>
+                        </div>
+                        <h6 class="mb-0 fw-bold text-dark small">Sosial Media (Opsional)</h6>
+                    </div>
+                    
+                    <div class="row gx-1 gy-1 mb-2">
+                        <div class="col-md-6 mb-1">
+                            <label class="form-label fw-semibold" style="font-size: 0.75rem;">
+                                Instagram
+                            </label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text bg-light">@</span>
+                                <input type="text" 
+                                    class="form-control form-control-sm @error('instagram') is-invalid @enderror"
+                                    id="instagram" 
+                                    name="instagram" 
+                                    value="{{ old('instagram') }}"
+                                    placeholder="username">
+                            </div>
+                            @error('instagram')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-md-6 mb-1">
+                            <label class="form-label fw-semibold" style="font-size: 0.75rem;">
+                                TikTok
+                            </label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text bg-light">@</span>
+                                <input type="text" 
+                                    class="form-control form-control-sm @error('tiktok') is-invalid @enderror"
+                                    id="tiktok" 
+                                    name="tiktok" 
+                                    value="{{ old('tiktok') }}"
+                                    placeholder="username">
+                            </div>
+                            @error('tiktok')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4: Upload Dokumen -->
                 <div class="mb-3">
                     <div class="d-flex align-items-center mb-2">
                         <div class="icon-wrapper bg-danger bg-opacity-10 p-1 rounded me-2" style="width: 28px; height: 28px;">
@@ -337,75 +408,69 @@
                         Format: JPG, JPEG, PNG (maks 2MB). Pastikan dokumen terbaca jelas.
                     </div>
                     
-                    <!-- Dokumen Wajib -->
-                    <div class="mb-3">
-                        <h6 class="fw-bold mb-2 small text-success">
-                            Dokumen Wajib <span class="badge bg-success ms-1 small">WAJIB</span>
-                        </h6>
-                        
-                        <div class="row gx-1 gy-1 mb-2">
-                            <div class="col-md-6 mb-1">
-                                <label class="form-label fw-semibold small mb-1">
-                                    Foto Formal <span class="text-danger">*</span>
-                                </label>
-                                <input type="file" class="form-control form-control-sm @error('formal_photo') is-invalid @enderror"
-                                    name="formal_photo" accept="image/*" required>
-                                <div class="form-text" style="font-size: 0.7rem;">
-                                    Formal 3x4, latar polos
-                                </div>
-                                <div class="mt-1">
-                                    <img id="formal_photo_preview" src="" alt="Preview" 
-                                         class="img-thumbnail d-none" style="max-height: 100px; max-width: 150px;">
-                                </div>
-                                @error('formal_photo')
-                                    <div class="text-danger small mt-1">{{ $message }}</div>
-                                @enderror
+                    <div class="row gx-1 gy-1 mb-2">
+                        <div class="col-md-6 mb-1">
+                            <label class="form-label fw-semibold small mb-1">
+                                Foto Formal 3x4 <span class="text-danger">*</span>
+                            </label>
+                            <input type="file" 
+                                class="form-control form-control-sm @error('formal_photo') is-invalid @enderror"
+                                name="formal_photo" 
+                                accept="image/*" 
+                                required>
+                            <small class="form-text text-muted" style="font-size: 0.7rem;">
+                                Background merah/biru, pakaian formal
+                            </small>
+                            <div class="mt-1">
+                                <img id="formal_photo_preview" src="" alt="Preview" 
+                                    class="img-thumbnail d-none" style="max-height: 100px; max-width: 150px;">
                             </div>
+                            @error('formal_photo')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
 
-                            <div class="col-md-6 mb-1">
-                                <label class="form-label fw-semibold small mb-1">
-                                    Foto KTP/SIM <span class="text-danger">*</span>
-                                </label>
-                                <input type="file" class="form-control form-control-sm @error('identity_card') is-invalid @enderror"
-                                    name="identity_card" accept="image/*" required>
-                                <div class="form-text" style="font-size: 0.7rem;">
-                                    Foto KTP/SIM yang berlaku
-                                </div>
-                                <div class="mt-1">
-                                    <img id="identity_card_preview" src="" alt="Preview" 
-                                         class="img-thumbnail d-none" style="max-height: 100px; max-width: 150px;">
-                                </div>
-                                @error('identity_card')
-                                    <div class="text-danger small mt-1">{{ $message }}</div>
-                                @enderror
+                        <div class="col-md-6 mb-1">
+                            <label class="form-label fw-semibold small mb-1">
+                                Foto KTP/SIM <span class="text-danger">*</span>
+                            </label>
+                            <input type="file" 
+                                class="form-control form-control-sm @error('identity_card') is-invalid @enderror"
+                                name="identity_card" 
+                                accept="image/*" 
+                                required>
+                            <small class="form-text text-muted" style="font-size: 0.7rem;">
+                                Foto jelas, tidak blur
+                            </small>
+                            <div class="mt-1">
+                                <img id="identity_card_preview" src="" alt="Preview" 
+                                    class="img-thumbnail d-none" style="max-height: 100px; max-width: 150px;">
                             </div>
+                            @error('identity_card')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
 
-                    <!-- Dokumen Tambahan -->
-                    <div class="mb-3">
-                        <h6 class="fw-bold mb-2 small text-primary">
-                            Dokumen Tambahan <span class="badge bg-info ms-1 small">OPSIONAL</span>
-                        </h6>
-                        
-                        <div class="row gx-1 gy-1 mb-2">
-                            <div class="col-md-6 mb-1">
-                                <label class="form-label fw-semibold small mb-1">
-                                    Lisensi/Sertifikat
-                                </label>
-                                <input type="file" class="form-control form-control-sm @error('license_photo') is-invalid @enderror"
-                                    name="license_photo" accept="image/*,.pdf">
-                                <div class="form-text" style="font-size: 0.7rem;">
-                                    Sertifikat pelatih/lisensi
-                                </div>
-                                <div class="mt-1">
-                                    <img id="license_photo_preview" src="" alt="Preview" 
-                                         class="img-thumbnail d-none" style="max-height: 100px; max-width: 150px;">
-                                </div>
-                                @error('license_photo')
-                                    <div class="text-danger small mt-1">{{ $message }}</div>
-                                @enderror
+                    <div class="row gx-1 gy-1">
+                        <div class="col-md-6 mb-1">
+                            <label class="form-label fw-semibold small mb-1">
+                                Lisensi/Sertifikat
+                            </label>
+                            <input type="file" 
+                                class="form-control form-control-sm @error('license_photo') is-invalid @enderror"
+                                name="license_photo" 
+                                accept="image/*,.pdf">
+                            <small class="form-text text-muted" style="font-size: 0.7rem;">
+                                Lisensi kepelatihan/sertifikat (opsional)
+                            </small>
+                            <div class="mt-1">
+                                <img id="license_photo_preview" src="" alt="Preview" 
+                                    class="img-thumbnail d-none" style="max-height: 100px; max-width: 150px;">
                             </div>
+                            @error('license_photo')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
                 </div>
@@ -413,9 +478,13 @@
                 <!-- Terms Agreement -->
                 <div class="form-check mb-3">
                     <input class="form-check-input @error('terms') is-invalid @enderror"
-                        type="checkbox" id="terms" name="terms" required>
+                        type="checkbox" 
+                        id="terms" 
+                        name="terms" 
+                        required>
                     <label class="form-check-label fw-medium small" for="terms" style="font-size: 0.8rem;">
-                        Saya menyetujui Syarat & Ketentuan dan memastikan data benar.
+                        Saya menyatakan bahwa data yang diisi adalah benar dan saya menyetujui 
+                        <a href="#" class="text-warning">Syarat & Ketentuan</a> yang berlaku.
                     </label>
                     @error('terms')
                         <div class="text-danger small mt-1">{{ $message }}</div>
@@ -429,11 +498,7 @@
                             <i class="fas fa-times me-1"></i>Batal
                         </a>
                         <button type="submit" class="btn btn-warning btn-sm px-3" id="submitBtn">
-                            @if($role === 'Leader')
-                            <i class="fas fa-crown me-1"></i>Daftar
-                            @else
-                            <i class="fas fa-paper-plane me-1"></i>Kirim
-                            @endif
+                            <i class="fas fa-paper-plane me-1"></i>Daftar Official
                         </button>
                     </div>
                 </div>
@@ -451,14 +516,39 @@ document.addEventListener('DOMContentLoaded', function() {
     const emailInput = document.getElementById('email');
     const submitBtn = document.getElementById('submitBtn');
     const birthdateInput = document.getElementById('birthdate');
-    const categorySelect = document.getElementById('category');
-    const teamRoleSelect = document.getElementById('team_role');
+    const categoryRadios = document.querySelectorAll('input[name="category"]');
     
     // Set max birthdate untuk usia minimal 18 tahun
     const today = new Date();
     const minBirthDate = new Date();
     minBirthDate.setFullYear(today.getFullYear() - 18);
     birthdateInput.max = minBirthDate.toISOString().split('T')[0];
+    
+    // Validasi kategori harus dipilih
+    function validateCategory() {
+        let isSelected = false;
+        categoryRadios.forEach(radio => {
+            if (radio.checked) isSelected = true;
+        });
+        
+        const categoryError = document.querySelector('.category-error');
+        if (!isSelected) {
+            if (!categoryError) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'text-danger small mt-2 category-error';
+                errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-1"></i>Pilih kategori official';
+                document.querySelector('.category-card').parentElement.parentElement.appendChild(errorDiv);
+            }
+            return false;
+        } else {
+            if (categoryError) categoryError.remove();
+            return true;
+        }
+    }
+    
+    categoryRadios.forEach(radio => {
+        radio.addEventListener('change', validateCategory);
+    });
     
     // Real-time NIK validation
     nikInput.addEventListener('blur', function() {
@@ -480,20 +570,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Auto-select category berdasarkan team_role
-    teamRoleSelect.addEventListener('change', function() {
-        const role = this.value;
-        if (role === 'Coach' || role === 'Assistant Coach') {
-            // Jika pelatih, set category berdasarkan tim atau pilihan user
-            if (categorySelect.value === '') {
-                const teamCategory = document.querySelector('input[name="team_category"]').value;
-                if (teamCategory) {
-                    categorySelect.value = teamCategory;
-                }
-            }
-        }
-    });
-    
     // Image preview
     document.querySelector('input[name="formal_photo"]').addEventListener('change', function(e) {
         previewImage(e.target, 'formal_photo_preview');
@@ -507,7 +583,7 @@ document.addEventListener('DOMContentLoaded', function() {
         previewImage(e.target, 'identity_card_preview');
     });
     
-    // File size validation
+    // File size and type validation
     const fileInputs = document.querySelectorAll('input[type="file"]');
     fileInputs.forEach(input => {
         input.addEventListener('change', function(e) {
@@ -517,17 +593,39 @@ document.addEventListener('DOMContentLoaded', function() {
             const maxSize = 2 * 1024 * 1024; // 2MB
             const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
             
-            // Check file type
-            if (!allowedTypes.includes(file.type) && file.type !== 'application/pdf') {
-                alert(`Format file tidak didukung! Hanya JPG, JPEG, PNG, atau PDF.`);
-                this.value = '';
-                resetPreview(this.name + '_preview');
-                return;
+            if (this.name !== 'license_photo') {
+                if (!allowedTypes.includes(file.type)) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Format Tidak Didukung',
+                        text: 'Format file harus JPG, JPEG, atau PNG!',
+                        confirmButtonColor: '#f59e0b'
+                    });
+                    this.value = '';
+                    resetPreview(this.name + '_preview');
+                    return;
+                }
+            } else {
+                if (!allowedTypes.includes(file.type) && file.type !== 'application/pdf') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Format Tidak Didukung',
+                        text: 'Format file harus JPG, JPEG, PNG, atau PDF!',
+                        confirmButtonColor: '#f59e0b'
+                    });
+                    this.value = '';
+                    resetPreview(this.name + '_preview');
+                    return;
+                }
             }
             
-            // Check file size
             if (file.size > maxSize) {
-                alert(`File terlalu besar! Maksimal 2MB`);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'File Terlalu Besar',
+                    text: 'Ukuran file maksimal 2MB!',
+                    confirmButtonColor: '#f59e0b'
+                });
                 this.value = '';
                 resetPreview(this.name + '_preview');
             }
@@ -539,14 +637,26 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         
         if (validateForm()) {
-            // Show confirmation
+            // Get selected category label
+            let categoryLabel = '';
+            categoryRadios.forEach(radio => {
+                if (radio.checked) {
+                    categoryLabel = radio.id.replace('category_', '').split('_').map(word => 
+                        word.charAt(0).toUpperCase() + word.slice(1)
+                    ).join(' ');
+                }
+            });
+            
             Swal.fire({
                 title: 'Konfirmasi Pendaftaran',
                 html: `
                     <div class="text-start">
-                        <p class="mb-2">Anda akan mendaftar sebagai <strong>${document.getElementById('team_role').options[document.getElementById('team_role').selectedIndex].text}</strong></p>
-                        <p class="mb-2">Kategori: <strong>${document.getElementById('category').options[document.getElementById('category').selectedIndex].text}</strong></p>
-                        <p class="mb-0 small text-muted">Pastikan data yang diisi sudah benar.</p>
+                        <p class="mb-2">Anda akan mendaftar sebagai:</p>
+                        <p class="mb-1 fw-bold">${document.getElementById('team_role').options[document.getElementById('team_role').selectedIndex].text}</p>
+                        <p class="mb-2">Kategori: <span class="badge bg-${categoryLabel.includes('Putra') ? 'primary' : categoryLabel.includes('Putri') ? 'danger' : 'success'}">${categoryLabel}</span></p>
+                        <p class="mb-2">Tim: <strong>{{ $team->school_name }}</strong></p>
+                        <hr>
+                        <p class="mb-0 small text-muted">Pastikan semua data dan dokumen sudah benar.</p>
                     </div>
                 `,
                 icon: 'question',
@@ -557,16 +667,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 cancelButtonText: 'Periksa Kembali'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Show loading state
                     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Memproses...';
                     submitBtn.disabled = true;
-                    
-                    // Submit form
                     form.submit();
                 }
             });
         } else {
-            // Scroll to first error
             const firstError = form.querySelector('.is-invalid');
             if (firstError) {
                 firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -579,6 +685,39 @@ document.addEventListener('DOMContentLoaded', function() {
                 confirmButtonText: 'OK',
                 confirmButtonColor: '#ffc107'
             });
+        }
+    });
+    
+    // Auto-fill birthday from NIK
+    nikInput.addEventListener('input', function() {
+        const nik = this.value;
+        if (nik.length === 16 && !birthdateInput.value) {
+            const day = nik.substr(6, 2);
+            const month = nik.substr(8, 2);
+            const year = nik.substr(10, 2);
+            
+            if (parseInt(day) >= 1 && parseInt(day) <= 31 && 
+                parseInt(month) >= 1 && parseInt(month) <= 12) {
+                
+                let fullYear;
+                const yearNum = parseInt(year);
+                
+                if (yearNum <= 40) {
+                    fullYear = 2000 + yearNum;
+                } else {
+                    fullYear = 1900 + yearNum;
+                }
+                
+                const dateStr = `${fullYear}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+                const dateObj = new Date(dateStr);
+                
+                if (!isNaN(dateObj.getTime())) {
+                    const age = today.getFullYear() - fullYear;
+                    if (age >= 18) {
+                        birthdateInput.value = dateStr;
+                    }
+                }
+            }
         }
     });
     
@@ -603,9 +742,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 showError(nikInput, data.message);
             }
         })
-        .catch(error => {
-            console.error('Error:', error);
-        });
+        .catch(error => console.error('Error:', error));
     }
     
     function checkEmailAvailability(email) {
@@ -628,9 +765,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 showError(emailInput, data.message);
             }
         })
-        .catch(error => {
-            console.error('Error:', error);
-        });
+        .catch(error => console.error('Error:', error));
     }
     
     function previewImage(input, previewId) {
@@ -660,8 +795,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function showError(input, message) {
         input.classList.remove('is-valid');
         input.classList.add('is-invalid');
-        const feedback = input.nextElementSibling;
-        if (feedback && feedback.classList.contains('invalid-feedback')) {
+        const feedbackId = input.id + '-feedback';
+        const feedback = document.getElementById(feedbackId);
+        if (feedback) {
             feedback.textContent = message;
         }
     }
@@ -674,6 +810,11 @@ document.addEventListener('DOMContentLoaded', function() {
         inputs.forEach(input => {
             input.classList.remove('is-invalid', 'is-valid');
         });
+        
+        // Check category
+        if (!validateCategory()) {
+            isValid = false;
+        }
         
         // Check required fields
         const requiredInputs = form.querySelectorAll('[required]');
@@ -688,6 +829,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     input.classList.add('is-invalid');
                     isValid = false;
                 }
+            } else if (input.type === 'radio') {
+                // Radio buttons are handled by validateCategory
             } else {
                 if (!input.value.trim()) {
                     input.classList.add('is-invalid');
@@ -708,7 +851,7 @@ document.addEventListener('DOMContentLoaded', function() {
             isValid = false;
         }
         
-        // Check age (min 18 years)
+        // Check age
         if (birthdateInput.value) {
             const birthDate = new Date(birthdateInput.value);
             const age = today.getFullYear() - birthDate.getFullYear();
@@ -718,14 +861,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             if (age < 18) {
-                showError(birthdateInput, 'Usia minimal 18 tahun untuk official');
+                showError(birthdateInput, 'Usia minimal 18 tahun');
                 isValid = false;
             }
         }
         
-        // Check category selection
-        if (!categorySelect.value) {
-            showError(categorySelect, 'Pilih kategori official');
+        // Check phone number
+        const phoneInput = document.getElementById('phone');
+        if (phoneInput.value && phoneInput.value.length < 10) {
+            showError(phoneInput, 'Nomor WhatsApp tidak valid');
             isValid = false;
         }
         
@@ -736,51 +880,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return re.test(email);
     }
-    
-    // Auto-fill birthday from NIK (if possible)
-    nikInput.addEventListener('input', function() {
-        const nik = this.value;
-        if (nik.length === 16 && !birthdateInput.value) {
-            // Try to extract birthdate from NIK (positions 6-13 in format DDMMYYYY)
-            const day = nik.substr(6, 2);
-            const month = nik.substr(8, 2);
-            const year = nik.substr(10, 2);
-            
-            // Validate day and month
-            if (parseInt(day) >= 1 && parseInt(day) <= 31 && 
-                parseInt(month) >= 1 && parseInt(month) <= 12) {
-                
-                // Determine century (for NIK, 00-40: 2000-2040, 41-99: 1941-1999)
-                let fullYear;
-                const yearNum = parseInt(year);
-                
-                if (yearNum <= 40) {
-                    fullYear = 2000 + yearNum;
-                } else {
-                    fullYear = 1900 + yearNum;
-                }
-                
-                // Check if date is valid
-                const dateStr = `${fullYear}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-                const dateObj = new Date(dateStr);
-                
-                if (!isNaN(dateObj.getTime())) {
-                    // Check if age is at least 18
-                    const today = new Date();
-                    const age = today.getFullYear() - fullYear;
-                    
-                    if (age >= 18) {
-                        birthdateInput.value = dateStr;
-                    }
-                }
-            }
-        }
-    });
 });
 </script>
 
 <style>
-/* Konsisten dengan form player */
 .container { 
     padding-top: 0.5rem !important;
     padding-left: 0.75rem !important;
@@ -819,8 +922,6 @@ document.addEventListener('DOMContentLoaded', function() {
 .mb-1 { margin-bottom: 0.3rem !important; }
 .mb-2 { margin-bottom: 0.6rem !important; }
 .mb-3 { margin-bottom: 1rem !important; }
-.p-2 { padding: 0.5rem !important; }
-.p-3 { padding: 0.8rem !important; }
 
 .row.gx-1 {
     --bs-gutter-x: 0.4rem;
@@ -845,11 +946,6 @@ document.addEventListener('DOMContentLoaded', function() {
     padding: 1rem !important;
 }
 
-.badge.small {
-    font-size: 0.7rem !important;
-    padding: 0.2rem 0.4rem !important;
-}
-
 .form-check-input {
     width: 0.9em;
     height: 0.9em;
@@ -860,24 +956,10 @@ document.addEventListener('DOMContentLoaded', function() {
     font-size: 0.8rem !important;
 }
 
-h6.small {
-    font-size: 0.85rem !important;
-    font-weight: 600;
-}
-
 .border-top {
     border-top: 1px solid #dee2e6 !important;
     padding-top: 0.75rem !important;
     margin-top: 0.75rem !important;
-}
-
-/* Specific untuk official */
-.bg-warning-subtle {
-    background-color: rgba(251, 191, 36, 0.1) !important;
-}
-
-.border-warning {
-    border-color: #fbbf24 !important;
 }
 
 .btn-warning {
@@ -918,45 +1000,47 @@ h6.small {
     justify-content: center;
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-    width: 6px;
+/* Category Card Styles */
+.category-card {
+    transition: all 0.3s;
 }
 
-::-webkit-scrollbar-track {
-    background: #f1f1f1;
+.btn-check:checked + .btn-outline-primary {
+    background-color: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
+    transform: scale(1.02);
+    box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3);
 }
 
-::-webkit-scrollbar-thumb {
-    background: #f59e0b;
-    border-radius: 3px;
+.btn-check:checked + .btn-outline-danger {
+    background-color: #dc3545;
+    color: white;
+    border-color: #dc3545;
+    transform: scale(1.02);
+    box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
 }
 
-/* Focus states */
-.form-control:focus, .form-select:focus {
-    border-color: #f59e0b;
-    box-shadow: 0 0 0 0.2rem rgba(245, 158, 11, 0.25);
-    outline: none;
+.btn-check:checked + .btn-outline-success {
+    background-color: #198754;
+    color: white;
+    border-color: #198754;
+    transform: scale(1.02);
+    box-shadow: 0 4px 10px rgba(25, 135, 84, 0.3);
+}
+
+.btn-outline-primary, .btn-outline-danger, .btn-outline-success {
+    border-width: 2px;
+    transition: all 0.2s;
+}
+
+.btn-outline-primary:hover, 
+.btn-outline-danger:hover, 
+.btn-outline-success:hover {
+    transform: translateY(-2px);
 }
 
 /* Responsive */
-@media (min-width: 768px) {
-    .card-body {
-        padding: 1.25rem !important;
-    }
-}
-
-@media (min-width: 992px) {
-    .container {
-        padding-left: 1.5rem !important;
-        padding-right: 1.5rem !important;
-    }
-    
-    .card {
-        max-width: 820px !important;
-    }
-}
-
 @media (max-width: 768px) {
     .container {
         padding-left: 0.5rem !important;
@@ -967,15 +1051,12 @@ h6.small {
         padding: 0.75rem !important;
     }
     
-    .col-md-3, .col-md-6 {
+    .col-md-3, .col-md-6, .col-md-4 {
         margin-bottom: 0.4rem !important;
     }
     
     .row.gx-1 {
         --bs-gutter-x: 0.3rem;
-    }
-    .row.gy-1 {
-        --bs-gutter-y: 0.3rem;
     }
     
     .form-control-sm, .form-select-sm {
@@ -995,19 +1076,15 @@ h6.small {
     
     .btn-sm {
         width: 100%;
-        margin-bottom: 0.25rem;
     }
     
     .img-thumbnail {
         max-height: 80px !important;
         max-width: 120px !important;
     }
-}
-
-@media (min-width: 1400px) {
-    .container {
-        max-width: 900px;
-        margin: 0 auto;
+    
+    .btn-outline-primary, .btn-outline-danger, .btn-outline-success {
+        padding: 0.5rem !important;
     }
 }
 
@@ -1020,29 +1097,12 @@ h6.small {
     border-color: #dc3545 !important;
 }
 
-/* Category specific styling */
-.category-option-basket_putra {
-    position: relative;
+.bg-info-subtle {
+    background-color: rgba(13, 202, 240, 0.1) !important;
 }
 
-.category-option-basket_putra::before {
-    content: "🏀";
-    margin-right: 5px;
-}
-
-.category-option-basket_putri::before {
-    content: "🏀";
-    margin-right: 5px;
-}
-
-.category-option-dancer::before {
-    content: "💃";
-    margin-right: 5px;
-}
-
-.category-option-lainnya::before {
-    content: "👥";
-    margin-right: 5px;
+.border-info {
+    border-color: #0dcaf0 !important;
 }
 </style>
 @endsection

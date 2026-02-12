@@ -222,7 +222,7 @@ class FormPlayerController extends Controller
     }
 
     /**
-     * Proses pendaftaran player (DIPERBAIKI DENGAN SCHOOL_ID YANG BENAR)
+     * Proses pendaftaran player (DIPERBAIKI DENGAN JERSEY UPLOAD)
      */
     public function storePlayer(Request $request)
     {
@@ -291,7 +291,7 @@ class FormPlayerController extends Controller
             }
 
             // ============================================
-            // VALIDASI RULES
+            // 🔥 VALIDASI RULES - TAMBAHKAN JERSEY UNTUK LEADER
             // ============================================
             $rules = [
                 'nik' => 'required|unique:player_list,nik',
@@ -317,7 +317,6 @@ class FormPlayerController extends Controller
                 'birth_certificate' => 'required|file|mimes:pdf|max:1024',
                 'kk' => 'required|file|mimes:pdf|max:1024',
                 'shun' => 'required|file|mimes:pdf|max:1024',
-                'report_identity' => 'required|file|mimes:pdf|max:1024',
                 'last_report_card' => 'required|file|mimes:pdf|max:1024',
                 'formal_photo' => 'required|file|mimes:jpg,jpeg,png|max:1024',
                 'assignment_letter' => 'nullable|file|mimes:pdf|max:1024',
@@ -333,7 +332,21 @@ class FormPlayerController extends Controller
             // Tambahkan field basket untuk non-dancer
             if ($category !== 'dancer') {
                 $rules['basketball_position'] = 'nullable|string|max:50';
-                $rules['jersey_number'] = 'nullable|numeric|min:0|max:99';
+                $rules['jersey_number'] = 'required|numeric|min:0|max:99'; // WAJIB DIISI
+            }
+
+            // 🔥🔥🔥 TAMBAHKAN VALIDASI JERSEY UNTUK LEADER BASKET
+            if ($isCaptain && $category !== 'dancer') {
+                $rules['jersey_home'] = 'nullable|file|mimes:jpg,jpeg,png|max:2048';
+                $rules['jersey_away'] = 'nullable|file|mimes:jpg,jpeg,png|max:2048';
+                $rules['jersey_alternate'] = 'nullable|file|mimes:jpg,jpeg,png|max:2048';
+                
+                // Validasi custom: minimal upload 1 foto jersey
+                if (!$request->hasFile('jersey_home') && 
+                    !$request->hasFile('jersey_away') && 
+                    !$request->hasFile('jersey_alternate')) {
+                    return back()->withErrors(['jersey' => 'Sebagai Leader, Anda wajib upload minimal 1 foto jersey tim.'])->withInput();
+                }
             }
 
             $validated = $request->validate($rules);
@@ -395,6 +408,48 @@ class FormPlayerController extends Controller
             // Buat folder
             Storage::disk('public')->makeDirectory('player_docs');
             Storage::disk('public')->makeDirectory('payment_proofs');
+            Storage::disk('public')->makeDirectory('jersey'); // 🔥 FOLDER UNTUK JERSEY
+
+            // ============================================
+            // 🔥🔥🔥 SIMPAN FOTO JERSEY UNTUK LEADER
+            // ============================================
+            $jerseyHomePath = null;
+            $jerseyAwayPath = null;
+            $jerseyAlternatePath = null;
+
+            if ($isCaptain && $category !== 'dancer') {
+                Log::info('👕 Processing jersey uploads for Leader...');
+                
+                // Buat folder jersey
+                Storage::disk('public')->makeDirectory('jersey');
+                
+                // Simpan jersey home
+                if ($request->hasFile('jersey_home')) {
+                    $file = $request->file('jersey_home');
+                    $extension = $file->getClientOriginalExtension();
+                    $filename = "{$schoolSlug}_jersey_home_{$timestamp}.{$extension}";
+                    $jerseyHomePath = $file->storeAs('jersey', $filename, 'public');
+                    Log::info('✅ Jersey Home saved: ' . $jerseyHomePath);
+                }
+                
+                // Simpan jersey away
+                if ($request->hasFile('jersey_away')) {
+                    $file = $request->file('jersey_away');
+                    $extension = $file->getClientOriginalExtension();
+                    $filename = "{$schoolSlug}_jersey_away_{$timestamp}.{$extension}";
+                    $jerseyAwayPath = $file->storeAs('jersey', $filename, 'public');
+                    Log::info('✅ Jersey Away saved: ' . $jerseyAwayPath);
+                }
+                
+                // Simpan jersey alternate
+                if ($request->hasFile('jersey_alternate')) {
+                    $file = $request->file('jersey_alternate');
+                    $extension = $file->getClientOriginalExtension();
+                    $filename = "{$schoolSlug}_jersey_alternate_{$timestamp}.{$extension}";
+                    $jerseyAlternatePath = $file->storeAs('jersey', $filename, 'public');
+                    Log::info('✅ Jersey Alternate saved: ' . $jerseyAlternatePath);
+                }
+            }
 
             // ============================================
             // 🔥 BAGIAN PENTING: SIMPAN BUKTI PEMBAYARAN & GENERATE REFERRAL CODE
@@ -442,9 +497,6 @@ class FormPlayerController extends Controller
                             'payment_date' => now(),
                         ]);
 
-                    // Update current team with payment proof
-                    $team->update(['payment_proof' => $paymentProofPath]);
-
                     Log::info('✅ Teams updated: ' . $updatedCount);
                     session(['player_referral_code' => $referralCodeGenerated]);
                 } else {
@@ -461,11 +513,22 @@ class FormPlayerController extends Controller
                             'payment_status' => 'paid',
                             'payment_date' => now(),
                         ]);
-
-                    // Add payment proof to current team only
-                    $team->update(['payment_proof' => $paymentProofPath]);
                 }
 
+                // 🔥🔥🔥 UPDATE JERSEY KE TEAM_LIST
+                $teamUpdateData = [
+                    'payment_proof' => $paymentProofPath,
+                ];
+                
+                // Tambahkan jersey jika diupload
+                if ($jerseyHomePath) $teamUpdateData['jersey_home'] = $jerseyHomePath;
+                if ($jerseyAwayPath) $teamUpdateData['jersey_away'] = $jerseyAwayPath;
+                if ($jerseyAlternatePath) $teamUpdateData['jersey_alternate'] = $jerseyAlternatePath;
+                
+                // Update team dengan data jersey
+                $team->update($teamUpdateData);
+                
+                Log::info('✅ Team updated with jersey data');
                 Log::info('✅ Payment processed successfully');
 
                 // 3. RELOAD TEAM DATA untuk dapat data terbaru
@@ -508,7 +571,6 @@ class FormPlayerController extends Controller
                 'birth_certificate' => $saveFile('birth_certificate', 'player_docs'),
                 'kk' => $saveFile('kk', 'player_docs'),
                 'shun' => $saveFile('shun', 'player_docs'),
-                'report_identity' => $saveFile('report_identity', 'player_docs'),
                 'last_report_card' => $saveFile('last_report_card', 'player_docs'),
                 'formal_photo' => $saveFile('formal_photo', 'player_docs'),
                 'assignment_letter' => $saveFile('assignment_letter', 'player_docs'),
@@ -526,7 +588,9 @@ class FormPlayerController extends Controller
             $player = PlayerList::create($playerData);
             Log::info('✅ Player created with ID: ' . $player->id .
                 ', Role: ' . $teamRole .
+                ', Jersey Number: ' . ($player->jersey_number ?? 'N/A') .
                 ', School ID: ' . $player->school_id);
+
             // ============================================
             // 🔥 PERBAIKAN: UPDATE REGISTERED_BY UNTUK TIM YANG SESUAI!
             // ============================================
@@ -602,10 +666,12 @@ class FormPlayerController extends Controller
             Log::info('Is Captain: ' . ($isCaptain ? 'YES' : 'NO'));
 
             // ============================================
-            // REDIRECT KE HALAMAN SUKSES
+            // 🔥🔥🔥 FIX: REDIRECT KE HALAMAN SUKSES DENGAN TEAM_ID YANG BENAR
             // ============================================
+            $successTeamId = $player->team_id; // PAKE team_id DARI PLAYER!
+
             return redirect()->route('form.player.success', [
-                'team_id' => $teamId,
+                'team_id' => $successTeamId,
                 'player_id' => $player->id
             ])->with('success', '🎉 Pendaftaran berhasil!');
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -619,7 +685,7 @@ class FormPlayerController extends Controller
     }
 
     /**
-     * Halaman sukses pendaftaran player (DIPERBAIKI)
+     * Halaman sukses pendaftaran player
      */
     public function showSuccessPage($team_id, $player_id)
     {
@@ -652,9 +718,12 @@ class FormPlayerController extends Controller
             Log::info('=== SUCCESS PAGE DEBUG ===');
             Log::info('Player Role from DB: ' . $player->role);
             Log::info('Player School ID: ' . $player->school_id);
+            Log::info('Player Jersey Number: ' . $player->jersey_number);
             Log::info('Team Referral Code: ' . ($team->referral_code ?: 'EMPTY/NULL'));
             Log::info('Team is_leader_paid: ' . ($team->is_leader_paid ? 'YES' : 'NO'));
-            Log::info('Team payment_proof: ' . ($team->payment_proof ? 'EXISTS' : 'NULL'));
+            Log::info('Team Jersey Home: ' . ($team->jersey_home ? 'EXISTS' : 'NULL'));
+            Log::info('Team Jersey Away: ' . ($team->jersey_away ? 'EXISTS' : 'NULL'));
+            Log::info('Team Jersey Alternate: ' . ($team->jersey_alternate ? 'EXISTS' : 'NULL'));
 
             // Cek apakah ada Leader lain di tim yang sama
             $otherLeaders = PlayerList::where('team_id', $team_id)

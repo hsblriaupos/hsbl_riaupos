@@ -36,6 +36,7 @@ use App\Http\Controllers\Student\SchoolDataProfileController;
 use App\Models\TermCondition;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 /*
 |--------------------------------------------------------------------------
@@ -594,6 +595,7 @@ Route::prefix('form')->name('form.')->group(function () {
     Route::get('/team/choice', [FormTeamController::class, 'showChoiceForm'])->name('team.choice');
     Route::get('/team/create', [FormTeamController::class, 'showCreateForm'])->name('team.create');
     Route::post('/team/create', [FormTeamController::class, 'createTeam'])->name('team.store');
+    Route::get('/team/success/{team_id}', [FormTeamController::class, 'showTeamSuccessPage'])->name('team.success');
 
     // JOIN TEAM FLOW
     Route::get('/team/join', [FormTeamController::class, 'showJoinForm'])->name('team.join');
@@ -670,15 +672,13 @@ Route::prefix('form')->name('form.')->group(function () {
     Route::prefix('official')->name('official.')->group(function () {
         Route::post('/check-nik', [FormOfficialController::class, 'checkNik'])->name('checkNik');
         Route::post('/check-email', [FormOfficialController::class, 'checkEmail'])->name('checkEmail');
-        Route::post('/check-leader', [FormOfficialController::class, 'checkLeaderExists'])->name('checkLeader');
-        Route::post('/check-team-payment', [FormOfficialController::class, 'checkTeamPayment'])->name('checkTeamPayment');
     });
 
     // ================= FIX REFERRAL CODES (Development Only) =================
     if (app()->environment('local')) {
         Route::get('/fix-referral-codes', function () {
             // Konversi empty string ke NULL
-            \DB::table('team_list')
+            DB::table('team_list')
                 ->where('referral_code', '')
                 ->orWhere('referral_code', 'NULL')
                 ->orWhereRaw('TRIM(referral_code) = ""')
@@ -688,9 +688,9 @@ Route::prefix('form')->name('form.')->group(function () {
         })->name('fix.referral.codes');
 
         Route::get('/check-referral-codes', function () {
-            $nullCount = \DB::table('team_list')->whereNull('referral_code')->count();
-            $emptyCount = \DB::table('team_list')->where('referral_code', '')->count();
-            $total = \DB::table('team_list')->count();
+            $nullCount = DB::table('team_list')->whereNull('referral_code')->count();
+            $emptyCount = DB::table('team_list')->where('referral_code', '')->count();
+            $total = DB::table('team_list')->count();
 
             return response()->json([
                 'total_teams' => $total,
