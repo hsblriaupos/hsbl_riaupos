@@ -7,1010 +7,843 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Models\User;
-use App\Models\TeamList;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Response;
 
 class ReviewDataController extends Controller
 {
     /**
-     * Menampilkan halaman review data kelengkapan student
-     * Mengambil SEMUA kolom dari tabel player_list, dancer_list, official_list
-     * berdasarkan kesamaan nama dengan users.name
+     * Display a listing of the user's registration data.
+     *
+     * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        $user = Auth::user();
-        $userName = $user->name;
-        
-        // Ambil SEMUA data dari ketiga tabel berdasarkan name yang sama dengan users.name
-        // Menggunakan DB::table agar bisa mengambil semua kolom tanpa harus mendefinisikan model
-        $playerData = DB::table('player_list')->where('name', $userName)->first();
-        $dancerData = DB::table('dancer_list')->where('name', $userName)->first();
-        $officialData = DB::table('official_list')->where('name', $userName)->first();
-        
-        // Tentukan data aktif (prioritas: player > dancer > official)
-        $activeData = null;
-        $activeTable = null;
-        
-        if ($playerData) {
-            $activeData = $playerData;
-            $activeTable = 'player';
-        } elseif ($dancerData) {
-            $activeData = $dancerData;
-            $activeTable = 'dancer';
-        } elseif ($officialData) {
-            $activeData = $officialData;
-            $activeTable = 'official';
-        }
-        
-        // Ambil semua team yang diikuti user berdasarkan team_id dari ketiga tabel
-        $teams = $this->getUserTeams($userName);
-        
-        // Ambil role per team untuk ditampilkan di blade
-        $teamRoles = [];
-        foreach ($teams as $team) {
-            $teamRoles[$team->team_id] = $this->getTeamRoles($userName, $team->team_id);
-        }
-        
-        // Hitung statistik kelengkapan
-        $stats = $this->calculateStatistics($user, $playerData, $dancerData, $officialData, $teams);
-        
-        // Cek requirements yang belum dipenuhi
-        $missingRequirements = $this->getMissingRequirements($user, $playerData, $dancerData, $officialData, $teams);
-        
-        // Kirim SEMUA data ke view
-        return view('user.event.profile.review-data', [
-            // User data
-            'user' => $user,
-            
-            // Complete data from all tables - SEMUA KOLOM
-            'playerData' => $playerData,      // Semua kolom dari player_list
-            'dancerData' => $dancerData,      // Semua kolom dari dancer_list
-            'officialData' => $officialData,  // Semua kolom dari official_list
-            
-            // Active data info
-            'activeData' => $activeData,
-            'activeTable' => $activeTable,
-            
-            // Teams and roles
-            'teams' => $teams,
-            'teamRoles' => $teamRoles,
-            
-            // Statistics
-            'stats' => $stats,
-            'missingRequirements' => $missingRequirements,
-            
-            // Counts for stats cards
-            'totalSchools' => count($teams),
-            'playerCount' => $playerData ? 1 : 0,
-            'dancerCount' => $dancerData ? 1 : 0,
-            'officialCount' => $officialData ? 1 : 0,
-        ]);
+        return view('user.event.profile.review-data');
     }
-    
+
     /**
-     * Menampilkan halaman checklist kelengkapan data
+     * Update review data (placeholder for future implementation).
+     *
+     * @param  Request  $request
+     * @return \Illuminate\Http\Response
      */
-    public function checklist()
+    public function update(Request $request)
     {
-        $user = Auth::user();
-        $userName = $user->name;
-        
-        // Ambil data dari ketiga tabel
-        $playerData = DB::table('player_list')->where('name', $userName)->first();
-        $dancerData = DB::table('dancer_list')->where('name', $userName)->first();
-        $officialData = DB::table('official_list')->where('name', $userName)->first();
-        
-        // Profile checklist dari tabel users
-        $profileChecklist = [
-            'name' => !empty($user->name),
-            'email' => !empty($user->email),
-            'nik' => !empty($user->nik),
-            'phone' => !empty($user->no_hp) || !empty($user->phone),
-            'birth_date' => !empty($user->birth_date) || !empty($user->birthdate),
-            'gender' => !empty($user->jenis_kelamin) || !empty($user->gender),
-            'address' => !empty($user->address),
-            'avatar' => !empty($user->avatar),
-            'email_verified' => !empty($user->email_verified_at),
-        ];
-        
-        // Role checklist
-        $roleChecklist = [
-            'has_player' => !is_null($playerData),
-            'has_dancer' => !is_null($dancerData),
-            'has_official' => !is_null($officialData),
-        ];
-        
-        // Documents checklist berdasarkan data yang ada di masing-masing tabel
-        $documentChecklist = $this->checkDocuments($userName, $playerData, $dancerData, $officialData);
-        
-        // Team checklist
-        $teams = $this->getUserTeams($userName);
-        $teamChecklist = [];
-        
-        foreach ($teams as $team) {
-            $teamChecklist[$team->team_id] = [
-                'team_name' => $team->school_name ?? $team->team_name ?? 'Team',
-                'team_id' => $team->team_id,
-                'verification_status' => $team->verification_status ?? 'pending',
-                'payment_status' => $team->payment_status ?? 'unpaid',
-                'player_complete' => $this->checkPlayerCompleteness($userName, $team->team_id),
-                'dancer_complete' => $this->checkDancerCompleteness($userName, $team->team_id),
-                'official_complete' => $this->checkOfficialCompleteness($userName, $team->team_id),
-            ];
-        }
-        
-        $checklist = [
-            'profile' => $profileChecklist,
-            'role' => $roleChecklist,
-            'documents' => $documentChecklist,
-            'teams' => $teamChecklist,
-        ];
-        
-        $completeness = $this->calculateCompleteness($checklist);
-        $completedItems = $this->countCompletedItems($checklist);
-        $totalItems = $this->countTotalItems($checklist);
-        
-        return view('user.event.profile.review-checklist', compact(
-            'user', 
-            'playerData', 
-            'dancerData', 
-            'officialData',
-            'checklist', 
-            'completeness',
-            'completedItems',
-            'totalItems'
-        ));
+        // This is a placeholder for future implementation
+        return redirect()->back()->with('info', 'Edit functionality will be available soon.');
     }
-    
+
     /**
-     * Menampilkan halaman kelengkapan data per team
-     */
-    public function completeness()
-    {
-        $user = Auth::user();
-        $userName = $user->name;
-        
-        // Ambil semua team
-        $teams = $this->getUserTeams($userName);
-        
-        // Data kelengkapan per team
-        $teamCompleteness = [];
-        
-        foreach ($teams as $team) {
-            // Ambil data player di team ini
-            $playerInTeam = DB::table('player_list')
-                ->where('name', $userName)
-                ->where('team_id', $team->team_id)
-                ->first();
-            
-            // Ambil data dancer di team ini
-            $dancerInTeam = DB::table('dancer_list')
-                ->where('name', $userName)
-                ->where('team_id', $team->team_id)
-                ->first();
-            
-            // Ambil data official di team ini
-            $officialInTeam = DB::table('official_list')
-                ->where('name', $userName)
-                ->where('team_id', $team->team_id)
-                ->first();
-            
-            $teamCompleteness[$team->team_id] = [
-                'team' => $team,
-                'player' => $playerInTeam ? $this->checkPlayerCompleteness($userName, $team->team_id, true) : null,
-                'dancer' => $dancerInTeam ? $this->checkDancerCompleteness($userName, $team->team_id, true) : null,
-                'official' => $officialInTeam ? $this->checkOfficialCompleteness($userName, $team->team_id, true) : null,
-                'payment' => $this->checkPaymentStatus($team->team_id),
-                'verification' => $this->checkVerificationStatus($team->team_id),
-                'team_leader' => $this->checkTeamLeader($team->team_id),
-                'member_count' => $this->getTeamMemberCount($team->team_id),
-            ];
-        }
-        
-        // Statistik global
-        $globalStats = [
-            'total_teams' => count($teams),
-            'teams_with_player' => DB::table('player_list')->where('name', $userName)->distinct('team_id')->count('team_id'),
-            'teams_with_dancer' => DB::table('dancer_list')->where('name', $userName)->distinct('team_id')->count('team_id'),
-            'teams_with_official' => DB::table('official_list')->where('name', $userName)->distinct('team_id')->count('team_id'),
-        ];
-        
-        return view('user.event.profile.review-completeness', compact(
-            'user', 
-            'teams', 
-            'teamCompleteness',
-            'globalStats'
-        ));
-    }
-    
-    /**
-     * Refresh data review
+     * Refresh review data (placeholder for future implementation).
+     *
+     * @param  Request  $request
+     * @return \Illuminate\Http\Response
      */
     public function refresh(Request $request)
     {
+        // This is a placeholder for future implementation
+        return redirect()->back()->with('success', 'Data refreshed successfully.');
+    }
+
+    /**
+     * View document in browser without forcing download.
+     *
+     * @param  string  $teamId
+     * @param  string  $documentType
+     * @return \Illuminate\Http\Response
+     */
+    public function viewDocument($teamId, $documentType)
+    {
         try {
-            // Clear session cache terkait review data
-            $keys = [
-                'review_stats_' . Auth::id(),
-                'review_checklist_' . Auth::id(),
-                'review_teams_' . Auth::id(),
-            ];
+            $currentUser = Auth::user();
+            $currentUserName = strtolower(trim($currentUser->name ?? ''));
             
-            foreach ($keys as $key) {
-                if (session()->has($key)) {
-                    session()->forget($key);
+            if (empty($currentUserName)) {
+                return redirect()->back()->with('error', 'User not found.');
+            }
+
+            // Find the record and document
+            $result = $this->findRecordAndDocument($teamId, $documentType, $currentUserName);
+            
+            if (!$result['success']) {
+                return redirect()->back()->with('error', $result['message']);
+            }
+
+            $record = $result['record'];
+            $filePath = $result['file_path'];
+            $fileName = $result['file_name'];
+            $recordType = $result['record_type'];
+            $documentType = $result['document_type'];
+
+            // Find the file
+            $fullPath = $this->findDocumentFile($filePath, $fileName, $recordType, $documentType);
+
+            if (!$fullPath || !File::exists($fullPath)) {
+                Log::error('Document file not found for viewing', [
+                    'path' => $filePath,
+                    'full_path' => $fullPath,
+                    'document_type' => $documentType
+                ]);
+                
+                // Try to find alternative path
+                $fullPath = $this->findAlternativeDocumentPath($record, $documentType, $fileName);
+                
+                if (!$fullPath || !File::exists($fullPath)) {
+                    return redirect()->back()->with('error', 'Document file not found on server.');
                 }
             }
-            
-            Log::info('User ' . Auth::user()->email . ' melakukan refresh data review');
-            
-            return redirect()->back()->with('success', 'Data review berhasil diperbarui!');
+
+            // Determine MIME type
+            $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+            $mimeTypes = [
+                'pdf' => 'application/pdf',
+                'jpg' => 'image/jpeg',
+                'jpeg' => 'image/jpeg',
+                'png' => 'image/png',
+                'gif' => 'image/gif',
+                'txt' => 'text/plain',
+                'doc' => 'application/msword',
+                'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'xls' => 'application/vnd.ms-excel',
+                'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            ];
+
+            $mime = $mimeTypes[$extension] ?? 'application/octet-stream';
+
+            // Return file as inline (view in browser)
+            return response()->file($fullPath, [
+                'Content-Type' => $mime,
+                'Content-Disposition' => 'inline; filename="' . $fileName . '"',
+                'Cache-Control' => 'no-cache, no-store, must-revalidate',
+                'Pragma' => 'no-cache',
+                'Expires' => '0'
+            ]);
+
         } catch (\Exception $e) {
-            Log::error('Error refresh review data: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Gagal memperbarui data. Silakan coba lagi.');
+            Log::error('Error viewing document: ' . $e->getMessage(), [
+                'team_id' => $teamId,
+                'document_type' => $documentType,
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->back()->with('error', 'Failed to view document: ' . $e->getMessage());
         }
     }
-    
+
     /**
-     * API endpoint untuk mendapatkan detail role user
+     * Download document for specific team and document type.
+     *
+     * @param  string  $teamId
+     * @param  string  $documentType
+     * @return \Illuminate\Http\Response
      */
-    public function getRoleDetails(Request $request, $role)
+    public function downloadDocument($teamId, $documentType)
     {
-        $user = Auth::user();
-        $userName = $user->name;
-        
-        switch ($role) {
-            case 'player':
-                $data = DB::table('player_list')->where('name', $userName)->get();
-                break;
-            case 'dancer':
-                $data = DB::table('dancer_list')->where('name', $userName)->get();
-                break;
-            case 'official':
-                $data = DB::table('official_list')->where('name', $userName)->get();
-                break;
-            default:
-                return response()->json(['error' => 'Invalid role'], 400);
+        try {
+            $currentUser = Auth::user();
+            $currentUserName = strtolower(trim($currentUser->name ?? ''));
+            
+            if (empty($currentUserName)) {
+                return redirect()->back()->with('error', 'User not found.');
+            }
+
+            // Find the record and document
+            $result = $this->findRecordAndDocument($teamId, $documentType, $currentUserName);
+            
+            if (!$result['success']) {
+                return redirect()->back()->with('error', $result['message']);
+            }
+
+            $record = $result['record'];
+            $filePath = $result['file_path'];
+            $fileName = $result['file_name'];
+            $recordType = $result['record_type'];
+            $documentType = $result['document_type'];
+
+            // Find the file
+            $fullPath = $this->findDocumentFile($filePath, $fileName, $recordType, $documentType);
+
+            if (!$fullPath || !File::exists($fullPath)) {
+                Log::error('Document file not found for download', [
+                    'path' => $filePath,
+                    'full_path' => $fullPath,
+                    'document_type' => $documentType
+                ]);
+                
+                // Try to find alternative path
+                $fullPath = $this->findAlternativeDocumentPath($record, $documentType, $fileName);
+                
+                if (!$fullPath || !File::exists($fullPath)) {
+                    return redirect()->back()->with('error', 'Document file not found on server.');
+                }
+            }
+
+            // Generate download filename
+            $downloadFilename = $this->generateDownloadFilename($record, $documentType, $fileName);
+
+            // Download the file
+            return response()->download($fullPath, $downloadFilename, [
+                'Content-Type' => 'application/octet-stream',
+                'Content-Disposition' => 'attachment; filename="' . $downloadFilename . '"',
+                'Cache-Control' => 'no-cache, no-store, must-revalidate',
+                'Pragma' => 'no-cache',
+                'Expires' => '0'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error downloading document: ' . $e->getMessage(), [
+                'team_id' => $teamId,
+                'document_type' => $documentType,
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->back()->with('error', 'Failed to download document: ' . $e->getMessage());
         }
-        
-        return response()->json($data);
     }
-    
+
     /**
-     * ========== PRIVATE METHODS ==========
+     * Find record and document information.
+     *
+     * @param  string  $teamId
+     * @param  string  $documentType
+     * @param  string  $userName
+     * @return array
      */
-    
-    /**
-     * Mendapatkan semua team yang diikuti user
-     * Berdasarkan team_id dari player_list, dancer_list, official_list
-     */
-    private function getUserTeams($userName)
+    private function findRecordAndDocument($teamId, $documentType, $userName)
     {
-        // Ambil team_id dari player_list
-        $playerTeamIds = DB::table('player_list')
-            ->where('name', $userName)
-            ->pluck('team_id')
-            ->toArray();
-        
-        // Ambil team_id dari dancer_list
-        $dancerTeamIds = DB::table('dancer_list')
-            ->where('name', $userName)
-            ->pluck('team_id')
-            ->toArray();
-        
-        // Ambil team_id dari official_list
-        $officialTeamIds = DB::table('official_list')
-            ->where('name', $userName)
-            ->pluck('team_id')
-            ->toArray();
-        
-        // Gabungkan semua team_id
-        $allTeamIds = array_merge($playerTeamIds, $dancerTeamIds, $officialTeamIds);
-        $allTeamIds = array_unique($allTeamIds);
-        
-        // Ambil detail team
-        $teams = DB::table('team_list')->whereIn('team_id', $allTeamIds)->get();
-        
-        return $teams;
-    }
-    
-    /**
-     * Mendapatkan role user di team tertentu
-     */
-    private function getTeamRoles($userName, $teamId)
-    {
-        $roles = [];
-        
-        // Cek sebagai player
+        $record = null;
+        $filePath = null;
+        $fileName = null;
+        $recordType = null;
+
+        // Check in player_list
         $player = DB::table('player_list')
-            ->where('name', $userName)
             ->where('team_id', $teamId)
+            ->whereRaw('LOWER(TRIM(name)) = ?', [$userName])
             ->first();
-            
-        if ($player) {
-            $roles[] = [
-                'role' => 'player',
-                'status' => $player->verification_status ?? 'pending',
-                'data' => $player,
-                'category' => $player->category ?? 'putra',
-                'verified' => ($player->verification_status ?? 'pending') === 'verified',
-                'verification_status' => $player->verification_status ?? 'pending',
+
+        if ($player && !empty($player->$documentType)) {
+            $record = $player;
+            $recordType = 'player';
+            $filePath = 'player_docs/' . basename($player->$documentType);
+            $fileName = basename($player->$documentType);
+        }
+
+        // If not found in player, check dancer_list
+        if (!$record) {
+            $dancer = DB::table('dancer_list')
+                ->where('team_id', $teamId)
+                ->whereRaw('LOWER(TRIM(name)) = ?', [$userName])
+                ->first();
+
+            if ($dancer && !empty($dancer->$documentType)) {
+                $record = $dancer;
+                $recordType = 'dancer';
+                $filePath = 'dancer_docs/' . basename($dancer->$documentType);
+                $fileName = basename($dancer->$documentType);
+            }
+        }
+
+        // If not found, check official_list
+        if (!$record) {
+            $official = DB::table('official_list')
+                ->where('team_id', $teamId)
+                ->whereRaw('LOWER(TRIM(name)) = ?', [$userName])
+                ->first();
+
+            if ($official && !empty($official->$documentType)) {
+                $record = $official;
+                $recordType = 'official';
+                
+                // Handle different document paths for officials
+                $documentPath = $this->getOfficialDocumentPath($documentType);
+                $filePath = $documentPath . '/' . basename($official->$documentType);
+                $fileName = basename($official->$documentType);
+            }
+        }
+
+        if (!$record) {
+            return [
+                'success' => false,
+                'message' => 'Document not found or you do not have permission to access it.'
             ];
         }
-        
-        // Cek sebagai dancer
-        $dancer = DB::table('dancer_list')
-            ->where('name', $userName)
-            ->where('team_id', $teamId)
-            ->first();
-            
-        if ($dancer) {
-            $roles[] = [
-                'role' => 'dancer',
-                'status' => $dancer->verification_status ?? 'pending',
-                'data' => $dancer,
-                'category' => $dancer->role ?? 'umum',
-                'verified' => ($dancer->verification_status ?? 'pending') === 'verified',
-                'verification_status' => $dancer->verification_status ?? 'pending',
+
+        if (empty($fileName)) {
+            return [
+                'success' => false,
+                'message' => 'Document file not specified.'
             ];
         }
-        
-        // Cek sebagai official
-        $official = DB::table('official_list')
-            ->where('name', $userName)
-            ->where('team_id', $teamId)
-            ->first();
-            
-        if ($official) {
-            $roles[] = [
-                'role' => 'official',
-                'status' => $official->verification_status ?? 'pending',
-                'data' => $official,
-                'position' => $official->team_role ?? $official->role ?? '',
-                'verified' => ($official->verification_status ?? 'pending') === 'verified',
-                'verification_status' => $official->verification_status ?? 'pending',
-            ];
-        }
-        
-        return $roles;
-    }
-    
-    /**
-     * Hitung statistik kelengkapan
-     */
-    private function calculateStatistics($user, $playerData, $dancerData, $officialData, $teams)
-    {
-        // Kelengkapan profile user - berdasarkan tabel users
-        $profileFields = ['nik', 'no_hp', 'birth_date', 'address', 'jenis_kelamin'];
-        $profileComplete = 0;
-        foreach ($profileFields as $field) {
-            if (!empty($user->$field)) {
-                $profileComplete++;
-            }
-        }
-        
-        // Kelengkapan data player - berdasarkan struktur kolom player_list
-        $playerComplete = 0;
-        $playerFields = ['nik', 'birthdate', 'gender', 'email', 'phone', 'grade', 'sttb_year', 
-                        'height', 'weight', 'tshirt_size', 'shoes_size', 'basketball_position', 
-                        'jersey_number', 'category', 'father_name', 'father_phone', 'mother_name', 'mother_phone'];
-        if ($playerData) {
-            foreach ($playerFields as $field) {
-                if (!empty($playerData->$field)) {
-                    $playerComplete++;
-                }
-            }
-        }
-        
-        // Kelengkapan data dancer - berdasarkan struktur kolom dancer_list
-        $dancerComplete = 0;
-        $dancerFields = ['nik', 'birthdate', 'gender', 'email', 'phone', 'grade', 'sttb_year',
-                        'height', 'weight', 'tshirt_size', 'shoes_size', 'father_name', 'father_phone', 
-                        'mother_name', 'mother_phone'];
-        if ($dancerData) {
-            foreach ($dancerFields as $field) {
-                if (!empty($dancerData->$field)) {
-                    $dancerComplete++;
-                }
-            }
-        }
-        
-        // Kelengkapan data official - berdasarkan struktur kolom official_list
-        $officialComplete = 0;
-        $officialFields = ['nik', 'birthdate', 'gender', 'email', 'phone', 'height', 'weight', 
-                          'tshirt_size', 'shoes_size', 'team_role'];
-        if ($officialData) {
-            foreach ($officialFields as $field) {
-                if (!empty($officialData->$field)) {
-                    $officialComplete++;
-                }
-            }
-        }
-        
-        // Status verifikasi team
-        $verifiedTeams = 0;
-        $pendingTeams = 0;
-        $rejectedTeams = 0;
-        
-        foreach ($teams as $team) {
-            if ($team->verification_status === 'verified') {
-                $verifiedTeams++;
-            } elseif ($team->verification_status === 'rejected') {
-                $rejectedTeams++;
-            } else {
-                $pendingTeams++;
-            }
-        }
-        
+
         return [
-            'profile_completeness' => [
-                'total' => count($profileFields),
-                'completed' => $profileComplete,
-                'percentage' => count($profileFields) > 0 ? round(($profileComplete / count($profileFields)) * 100) : 0,
+            'success' => true,
+            'record' => $record,
+            'record_type' => $recordType,
+            'file_path' => $filePath,
+            'file_name' => $fileName,
+            'document_type' => $documentType
+        ];
+    }
+
+    /**
+     * Find alternative document path.
+     *
+     * @param  object  $record
+     * @param  string  $documentType
+     * @param  string  $fileName
+     * @return string|null
+     */
+    private function findAlternativeDocumentPath($record, $documentType, $fileName)
+    {
+        $alternativePaths = [];
+
+        // Try different base paths
+        if ($record->type === 'player' || $record->type === 'dancer') {
+            $alternativePaths[] = public_path('uploads/' . $record->type . '_docs/' . $fileName);
+            $alternativePaths[] = storage_path('app/' . $record->type . '_docs/' . $fileName);
+            $alternativePaths[] = public_path('storage/' . $record->type . '_docs/' . $fileName);
+        } elseif ($record->type === 'official') {
+            $basePath = $this->getOfficialDocumentPath($documentType);
+            $alternativePaths[] = public_path($basePath . '/' . $fileName);
+            $alternativePaths[] = storage_path('app/public/' . $basePath . '/' . $fileName);
+            $alternativePaths[] = public_path('storage/' . $basePath . '/' . $fileName);
+        }
+
+        // Special case for payment proof
+        if ($documentType === 'payment_proof') {
+            $alternativePaths[] = public_path('payment_proofs/' . $fileName);
+            $alternativePaths[] = storage_path('app/public/payment_proofs/' . $fileName);
+            $alternativePaths[] = public_path('storage/payment_proofs/' . $fileName);
+        }
+
+        foreach ($alternativePaths as $path) {
+            if (File::exists($path)) {
+                return $path;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Get document path for official based on document type.
+     *
+     * @param  string  $documentType
+     * @return string
+     */
+    private function getOfficialDocumentPath($documentType)
+    {
+        $paths = [
+            'formal_photo' => 'uploads/officials/formal_photos',
+            'license_photo' => 'uploads/officials/license_photos',
+            'identity_card' => 'uploads/officials/identity_cards',
+        ];
+
+        return $paths[$documentType] ?? 'uploads/officials';
+    }
+
+    /**
+     * Find document file in various possible locations.
+     *
+     * @param  string  $filePath
+     * @param  string  $fileName
+     * @param  string  $recordType
+     * @param  string  $documentType
+     * @return string|null
+     */
+    private function findDocumentFile($filePath, $fileName, $recordType, $documentType)
+    {
+        // Possible locations to check
+        $locations = [
+            // Standard storage paths
+            storage_path('app/public/' . $filePath),
+            public_path('storage/' . $filePath),
+            public_path($filePath),
+            
+            // Direct paths
+            storage_path('app/public/' . dirname($filePath) . '/' . $fileName),
+            public_path('storage/' . dirname($filePath) . '/' . $fileName),
+            public_path(dirname($filePath) . '/' . $fileName),
+            
+            // Legacy paths
+            storage_path('app/' . $filePath),
+            base_path($filePath),
+        ];
+
+        // Add specific locations for player/dancer payment proof
+        if ($recordType === 'player' && $documentType === 'payment_proof') {
+            $locations[] = storage_path('app/public/payment_proofs/' . $fileName);
+            $locations[] = public_path('storage/payment_proofs/' . $fileName);
+            $locations[] = public_path('payment_proofs/' . $fileName);
+            $locations[] = storage_path('app/payment_proofs/' . $fileName);
+        }
+
+        // Add specific locations for officials
+        if ($recordType === 'official') {
+            $basePath = $this->getOfficialDocumentPath($documentType);
+            $locations[] = storage_path('app/public/' . $basePath . '/' . $fileName);
+            $locations[] = public_path('storage/' . $basePath . '/' . $fileName);
+            $locations[] = public_path($basePath . '/' . $fileName);
+            $locations[] = storage_path('app/' . $basePath . '/' . $fileName);
+        }
+
+        // Remove duplicates
+        $locations = array_unique($locations);
+
+        foreach ($locations as $location) {
+            if (File::exists($location) && !is_dir($location)) {
+                return $location;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Generate a meaningful filename for download.
+     *
+     * @param  object  $record
+     * @param  string  $documentType
+     * @param  string  $originalFileName
+     * @return string
+     */
+    private function generateDownloadFilename($record, $documentType, $originalFileName)
+    {
+        $extension = pathinfo($originalFileName, PATHINFO_EXTENSION);
+        $cleanName = preg_replace('/[^a-z0-9]+/', '-', strtolower($record->name ?? 'document'));
+        
+        $documentLabels = [
+            'birth_certificate' => 'Akta_Kelahiran',
+            'kk' => 'Kartu_Keluarga',
+            'shun' => 'SHUN',
+            'report_identity' => 'Identitas_Raport',
+            'last_report_card' => 'Raport_Terakhir',
+            'formal_photo' => 'Foto_Formal',
+            'assignment_letter' => 'Surat_Tugas',
+            'payment_proof' => 'Bukti_Pembayaran',
+            'license_photo' => 'Lisensi',
+            'identity_card' => 'KTP_SIM',
+        ];
+
+        $label = $documentLabels[$documentType] ?? ucfirst(str_replace('_', ' ', $documentType));
+        $teamId = $record->team_id ?? 'unknown';
+        
+        return sprintf(
+            '%s_%s_%s_%s.%s',
+            $cleanName,
+            $label,
+            $teamId,
+            date('Ymd'),
+            $extension
+        );
+    }
+
+    /**
+     * Get user statistics for dashboard.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getStatistics()
+    {
+        try {
+            $currentUser = Auth::user();
+            $currentUserName = strtolower(trim($currentUser->name ?? ''));
+
+            if (empty($currentUserName)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found'
+                ], 404);
+            }
+
+            // Count player records
+            $playerCount = DB::table('player_list')
+                ->whereRaw('LOWER(TRIM(name)) = ?', [$currentUserName])
+                ->count();
+
+            // Count dancer records
+            $dancerCount = DB::table('dancer_list')
+                ->whereRaw('LOWER(TRIM(name)) = ?', [$currentUserName])
+                ->count();
+
+            // Count official records
+            $officialCount = DB::table('official_list')
+                ->whereRaw('LOWER(TRIM(name)) = ?', [$currentUserName])
+                ->count();
+
+            // Count as leader/captain
+            $leaderCount = DB::table('player_list')
+                ->whereRaw('LOWER(TRIM(name)) = ?', [$currentUserName])
+                ->where('role', 'Leader')
+                ->count();
+
+            $dancerLeaderCount = DB::table('dancer_list')
+                ->whereRaw('LOWER(TRIM(name)) = ?', [$currentUserName])
+                ->where('role', 'Leader')
+                ->count();
+
+            $officialLeaderCount = DB::table('official_list')
+                ->whereRaw('LOWER(TRIM(name)) = ?', [$currentUserName])
+                ->where('role', 'Leader')
+                ->count();
+
+            // Get all team IDs
+            $teamIds = collect();
+            
+            $playerTeams = DB::table('player_list')
+                ->whereRaw('LOWER(TRIM(name)) = ?', [$currentUserName])
+                ->pluck('team_id');
+            $teamIds = $teamIds->concat($playerTeams);
+            
+            $dancerTeams = DB::table('dancer_list')
+                ->whereRaw('LOWER(TRIM(name)) = ?', [$currentUserName])
+                ->pluck('team_id');
+            $teamIds = $teamIds->concat($dancerTeams);
+            
+            $officialTeams = DB::table('official_list')
+                ->whereRaw('LOWER(TRIM(name)) = ?', [$currentUserName])
+                ->pluck('team_id');
+            $teamIds = $teamIds->concat($officialTeams);
+
+            $totalTeams = $teamIds->unique()->count();
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'total_records' => $playerCount + $dancerCount + $officialCount,
+                    'total_teams' => $totalTeams,
+                    'player_count' => $playerCount,
+                    'dancer_count' => $dancerCount,
+                    'official_count' => $officialCount,
+                    'leader_count' => $leaderCount + $dancerLeaderCount + $officialLeaderCount,
+                    'captain_count' => $leaderCount,
+                    'dancer_leader_count' => $dancerLeaderCount,
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error getting statistics: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get statistics'
+            ], 500);
+        }
+    }
+
+    /**
+     * Get detailed record by ID and type.
+     *
+     * @param  Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getRecordDetail(Request $request)
+    {
+        try {
+            $request->validate([
+                'id' => 'required',
+                'type' => 'required|in:player,dancer,official'
+            ]);
+
+            $currentUser = Auth::user();
+            $currentUserName = strtolower(trim($currentUser->name ?? ''));
+
+            if (empty($currentUserName)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found'
+                ], 404);
+            }
+
+            $record = null;
+
+            switch ($request->type) {
+                case 'player':
+                    $record = DB::table('player_list')
+                        ->select(
+                            'player_list.*',
+                            'team_list.school_name as team_school_name',
+                            'team_list.competition',
+                            'team_list.team_category',
+                            'team_list.season',
+                            'team_list.series'
+                        )
+                        ->leftJoin('team_list', 'player_list.team_id', '=', 'team_list.team_id')
+                        ->where('player_list.id', $request->id)
+                        ->whereRaw('LOWER(TRIM(player_list.name)) = ?', [$currentUserName])
+                        ->first();
+                    break;
+
+                case 'dancer':
+                    $record = DB::table('dancer_list')
+                        ->select(
+                            'dancer_list.*',
+                            'team_list.school_name as team_school_name',
+                            'team_list.competition',
+                            'team_list.team_category',
+                            'team_list.season',
+                            'team_list.series'
+                        )
+                        ->leftJoin('team_list', 'dancer_list.team_id', '=', 'team_list.team_id')
+                        ->where('dancer_list.id', $request->id)
+                        ->whereRaw('LOWER(TRIM(dancer_list.name)) = ?', [$currentUserName])
+                        ->first();
+                    break;
+
+                case 'official':
+                    $record = DB::table('official_list')
+                        ->select(
+                            'official_list.*',
+                            'team_list.school_name as team_school_name',
+                            'team_list.competition',
+                            'team_list.team_category',
+                            'team_list.season',
+                            'team_list.series'
+                        )
+                        ->leftJoin('team_list', 'official_list.team_id', '=', 'team_list.team_id')
+                        ->where('official_list.id', $request->id)
+                        ->whereRaw('LOWER(TRIM(official_list.name)) = ?', [$currentUserName])
+                        ->first();
+                    break;
+            }
+
+            if (!$record) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Record not found'
+                ], 404);
+            }
+
+            // Format dates
+            if (!empty($record->birthdate)) {
+                $record->birthdate_formatted = \Carbon\Carbon::parse($record->birthdate)->format('d M Y');
+            }
+            
+            if (!empty($record->created_at)) {
+                $record->created_at_formatted = \Carbon\Carbon::parse($record->created_at)->timezone('Asia/Jakarta')->format('d M Y H:i') . ' WIB';
+            }
+            
+            if (!empty($record->updated_at)) {
+                $record->updated_at_formatted = \Carbon\Carbon::parse($record->updated_at)->timezone('Asia/Jakarta')->format('d M Y H:i') . ' WIB';
+            }
+
+            // Check document existence
+            $documents = [];
+            $documentFields = $this->getDocumentFields($record->type ?? $request->type);
+            
+            foreach ($documentFields as $field) {
+                if (!empty($record->$field)) {
+                    $documents[$field] = [
+                        'exists' => true,
+                        'filename' => basename($record->$field),
+                        'url_view' => route('student.review.document.view', [
+                            'teamId' => $record->team_id,
+                            'documentType' => $field
+                        ]),
+                        'url_download' => route('student.review.document.download', [
+                            'teamId' => $record->team_id,
+                            'documentType' => $field
+                        ])
+                    ];
+                } else {
+                    $documents[$field] = ['exists' => false];
+                }
+            }
+            
+            $record->documents = $documents;
+
+            return response()->json([
+                'success' => true,
+                'data' => $record
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error getting record detail: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get record details'
+            ], 500);
+        }
+    }
+
+    /**
+     * Get document fields based on record type.
+     *
+     * @param  string  $type
+     * @return array
+     */
+    private function getDocumentFields($type)
+    {
+        $fields = [
+            'player' => [
+                'birth_certificate',
+                'kk',
+                'shun',
+                'report_identity',
+                'last_report_card',
+                'formal_photo',
+                'assignment_letter',
+                'payment_proof'
             ],
-            'player_completeness' => $playerData ? [
-                'total' => count($playerFields),
-                'completed' => $playerComplete,
-                'percentage' => count($playerFields) > 0 ? round(($playerComplete / count($playerFields)) * 100) : 0,
-            ] : null,
-            'dancer_completeness' => $dancerData ? [
-                'total' => count($dancerFields),
-                'completed' => $dancerComplete,
-                'percentage' => count($dancerFields) > 0 ? round(($dancerComplete / count($dancerFields)) * 100) : 0,
-            ] : null,
-            'official_completeness' => $officialData ? [
-                'total' => count($officialFields),
-                'completed' => $officialComplete,
-                'percentage' => count($officialFields) > 0 ? round(($officialComplete / count($officialFields)) * 100) : 0,
-            ] : null,
-            'team_stats' => [
-                'total' => count($teams),
-                'verified' => $verifiedTeams,
-                'pending' => $pendingTeams,
-                'rejected' => $rejectedTeams,
+            'dancer' => [
+                'birth_certificate',
+                'kk',
+                'shun',
+                'report_identity',
+                'last_report_card',
+                'formal_photo',
+                'assignment_letter',
+                'payment_proof'
             ],
-            'has_player' => !is_null($playerData),
-            'has_dancer' => !is_null($dancerData),
-            'has_official' => !is_null($officialData),
+            'official' => [
+                'formal_photo',
+                'license_photo',
+                'identity_card'
+            ]
         ];
+
+        return $fields[$type] ?? [];
     }
-    
+
     /**
-     * Mendapatkan daftar requirement yang belum dipenuhi
+     * Check if user has access to a specific team/record.
+     *
+     * @param  string  $teamId
+     * @param  string|null  $recordId
+     * @param  string|null  $recordType
+     * @return bool
      */
-    private function getMissingRequirements($user, $playerData, $dancerData, $officialData, $teams)
+    private function checkAccess($teamId, $recordId = null, $recordType = null)
     {
-        $missing = [];
-        
-        // Cek profile user
-        if (empty($user->nik)) {
-            $missing[] = [
-                'category' => 'profile',
-                'field' => 'NIK',
-                'message' => 'NIK belum diisi',
-                'route' => route('profile.edit'),
-                'priority' => 'high',
-            ];
+        $currentUser = Auth::user();
+        $currentUserName = strtolower(trim($currentUser->name ?? ''));
+
+        if (empty($currentUserName)) {
+            return false;
         }
-        
-        if (empty($user->no_hp)) {
-            $missing[] = [
-                'category' => 'profile',
-                'field' => 'Nomor Telepon',
-                'message' => 'Nomor telepon belum diisi',
-                'route' => route('profile.edit'),
-                'priority' => 'high',
-            ];
-        }
-        
-        if (empty($user->birth_date)) {
-            $missing[] = [
-                'category' => 'profile',
-                'field' => 'Tanggal Lahir',
-                'message' => 'Tanggal lahir belum diisi',
-                'route' => route('profile.edit'),
-                'priority' => 'high',
-            ];
-        }
-        
-        if (empty($user->address)) {
-            $missing[] = [
-                'category' => 'profile',
-                'field' => 'Alamat',
-                'message' => 'Alamat belum diisi',
-                'route' => route('profile.edit'),
-                'priority' => 'medium',
-            ];
-        }
-        
-        // Cek kelengkapan data player
-        if ($playerData) {
-            $playerRequired = [
-                'nik' => 'NIK',
-                'birthdate' => 'Tanggal Lahir',
-                'basketball_position' => 'Posisi Basket',
-                'jersey_number' => 'Nomor Punggung',
-                'height' => 'Tinggi Badan',
-                'weight' => 'Berat Badan',
-            ];
-            
-            foreach ($playerRequired as $field => $label) {
-                if (empty($playerData->$field)) {
-                    $missing[] = [
-                        'category' => 'player',
-                        'field' => $label,
-                        'message' => "Data player: $label belum diisi",
-                        'route' => route('profile.edit'),
-                        'priority' => 'high',
-                    ];
-                }
-            }
-        }
-        
-        // Cek kelengkapan data dancer
-        if ($dancerData) {
-            $dancerRequired = [
-                'nik' => 'NIK',
-                'birthdate' => 'Tanggal Lahir',
-                'height' => 'Tinggi Badan',
-                'weight' => 'Berat Badan',
-            ];
-            
-            foreach ($dancerRequired as $field => $label) {
-                if (empty($dancerData->$field)) {
-                    $missing[] = [
-                        'category' => 'dancer',
-                        'field' => $label,
-                        'message' => "Data dancer: $label belum diisi",
-                        'route' => route('profile.edit'),
-                        'priority' => 'high',
-                    ];
-                }
-            }
-        }
-        
-        // Cek kelengkapan data official
-        if ($officialData) {
-            $officialRequired = [
-                'nik' => 'NIK',
-                'birthdate' => 'Tanggal Lahir',
-                'team_role' => 'Jabatan',
-            ];
-            
-            foreach ($officialRequired as $field => $label) {
-                if (empty($officialData->$field)) {
-                    $missing[] = [
-                        'category' => 'official',
-                        'field' => $label,
-                        'message' => "Data official: $label belum diisi",
-                        'route' => route('profile.edit'),
-                        'priority' => 'high',
-                    ];
-                }
-            }
-        }
-        
-        // Cek team
-        if (count($teams) === 0) {
-            $missing[] = [
-                'category' => 'team',
-                'field' => 'Team',
-                'message' => 'Belum bergabung dengan team manapun',
-                'route' => route('form.team.choice'),
-                'priority' => 'high',
-            ];
-        }
-        
-        return $missing;
-    }
-    
-    /**
-     * Cek dokumen yang sudah diupload berdasarkan data di tabel
-     */
-    private function checkDocuments($userName, $playerData, $dancerData, $officialData)
-    {
-        $documents = [
-            // Dokumen umum
-            'formal_photo' => false,
-            'assignment_letter' => false,
-            
-            // Dokumen player & dancer
-            'birth_certificate' => false,
-            'kk' => false,
-            'shun' => false,
-            'report_identity' => false,
-            'last_report_card' => false,
-            
-            // Dokumen official
-            'license_photo' => false,
-            'identity_card' => false,
-            
-            // Dokumen player
-            'payment_proof' => false,
-        ];
-        
-        // Cek dari player_data
-        if ($playerData) {
-            $documents['formal_photo'] = $documents['formal_photo'] || !empty($playerData->formal_photo);
-            $documents['assignment_letter'] = $documents['assignment_letter'] || !empty($playerData->assignment_letter);
-            $documents['birth_certificate'] = $documents['birth_certificate'] || !empty($playerData->birth_certificate);
-            $documents['kk'] = $documents['kk'] || !empty($playerData->kk);
-            $documents['shun'] = $documents['shun'] || !empty($playerData->shun);
-            $documents['report_identity'] = $documents['report_identity'] || !empty($playerData->report_identity);
-            $documents['last_report_card'] = $documents['last_report_card'] || !empty($playerData->last_report_card);
-            $documents['payment_proof'] = $documents['payment_proof'] || !empty($playerData->payment_proof);
-        }
-        
-        // Cek dari dancer_data
-        if ($dancerData) {
-            $documents['formal_photo'] = $documents['formal_photo'] || !empty($dancerData->formal_photo);
-            $documents['assignment_letter'] = $documents['assignment_letter'] || !empty($dancerData->assignment_letter);
-            $documents['birth_certificate'] = $documents['birth_certificate'] || !empty($dancerData->birth_certificate);
-            $documents['kk'] = $documents['kk'] || !empty($dancerData->kk);
-            $documents['shun'] = $documents['shun'] || !empty($dancerData->shun);
-            $documents['report_identity'] = $documents['report_identity'] || !empty($dancerData->report_identity);
-            $documents['last_report_card'] = $documents['last_report_card'] || !empty($dancerData->last_report_card);
-        }
-        
-        // Cek dari official_data
-        if ($officialData) {
-            $documents['formal_photo'] = $documents['formal_photo'] || !empty($officialData->formal_photo);
-            $documents['license_photo'] = !empty($officialData->license_photo);
-            $documents['identity_card'] = !empty($officialData->identity_card);
-        }
-        
-        // Cek dari avatar user
-        $user = Auth::user();
-        $documents['avatar'] = !empty($user->avatar);
-        
-        return $documents;
-    }
-    
-    /**
-     * Cek kelengkapan data player
-     */
-    private function checkPlayerCompleteness($userName, $teamId, $detailed = false)
-    {
-        $player = DB::table('player_list')
-            ->where('name', $userName)
+
+        // Check if user is part of this team
+        $inPlayer = DB::table('player_list')
             ->where('team_id', $teamId)
-            ->first();
-            
-        if (!$player) {
-            return $detailed ? null : false;
-        }
-        
-        $requiredFields = ['nik', 'birthdate', 'basketball_position', 'jersey_number', 'height', 'weight', 'phone'];
-        $complete = true;
-        $missingFields = [];
-        
-        foreach ($requiredFields as $field) {
-            if (empty($player->$field)) {
-                $complete = false;
-                $missingFields[] = $field;
-            }
-        }
-        
-        if ($detailed) {
-            return [
-                'exists' => true,
-                'complete' => $complete,
-                'missing_fields' => $missingFields,
-                'verification_status' => $player->verification_status ?? 'pending',
-                'verified' => ($player->verification_status ?? 'pending') === 'verified',
-                'data' => $player,
-                'completeness_percentage' => count($requiredFields) > 0 
-                    ? round(((count($requiredFields) - count($missingFields)) / count($requiredFields)) * 100) 
-                    : 0,
-            ];
-        }
-        
-        return $complete;
-    }
-    
-    /**
-     * Cek kelengkapan data dancer
-     */
-    private function checkDancerCompleteness($userName, $teamId, $detailed = false)
-    {
-        $dancer = DB::table('dancer_list')
-            ->where('name', $userName)
+            ->whereRaw('LOWER(TRIM(name)) = ?', [$currentUserName])
+            ->exists();
+
+        if ($inPlayer) return true;
+
+        $inDancer = DB::table('dancer_list')
             ->where('team_id', $teamId)
-            ->first();
-            
-        if (!$dancer) {
-            return $detailed ? null : false;
-        }
-        
-        $requiredFields = ['nik', 'birthdate', 'height', 'weight', 'phone'];
-        $complete = true;
-        $missingFields = [];
-        
-        foreach ($requiredFields as $field) {
-            if (empty($dancer->$field)) {
-                $complete = false;
-                $missingFields[] = $field;
-            }
-        }
-        
-        if ($detailed) {
-            return [
-                'exists' => true,
-                'complete' => $complete,
-                'missing_fields' => $missingFields,
-                'verification_status' => $dancer->verification_status ?? 'pending',
-                'verified' => ($dancer->verification_status ?? 'pending') === 'verified',
-                'data' => $dancer,
-                'completeness_percentage' => count($requiredFields) > 0 
-                    ? round(((count($requiredFields) - count($missingFields)) / count($requiredFields)) * 100) 
-                    : 0,
-            ];
-        }
-        
-        return $complete;
-    }
-    
-    /**
-     * Cek kelengkapan data official
-     */
-    private function checkOfficialCompleteness($userName, $teamId, $detailed = false)
-    {
-        $official = DB::table('official_list')
-            ->where('name', $userName)
+            ->whereRaw('LOWER(TRIM(name)) = ?', [$currentUserName])
+            ->exists();
+
+        if ($inDancer) return true;
+
+        $inOfficial = DB::table('official_list')
             ->where('team_id', $teamId)
-            ->first();
+            ->whereRaw('LOWER(TRIM(name)) = ?', [$currentUserName])
+            ->exists();
+
+        return $inOfficial;
+    }
+
+    /**
+     * Verify that the authenticated user owns the requested data.
+     *
+     * @param  Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function verifyOwnership(Request $request)
+    {
+        try {
+            $request->validate([
+                'team_id' => 'required',
+                'record_id' => 'nullable',
+                'record_type' => 'nullable|in:player,dancer,official'
+            ]);
+
+            $hasAccess = $this->checkAccess(
+                $request->team_id,
+                $request->record_id,
+                $request->record_type
+            );
+
+            return response()->json([
+                'success' => true,
+                'has_access' => $hasAccess
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error verifying ownership: ' . $e->getMessage());
             
-        if (!$official) {
-            return $detailed ? null : false;
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to verify ownership'
+            ], 500);
         }
-        
-        $requiredFields = ['nik', 'birthdate', 'team_role', 'phone'];
-        $complete = true;
-        $missingFields = [];
-        
-        foreach ($requiredFields as $field) {
-            if (empty($official->$field)) {
-                $complete = false;
-                $missingFields[] = $field;
-            }
-        }
-        
-        if ($detailed) {
-            return [
-                'exists' => true,
-                'complete' => $complete,
-                'missing_fields' => $missingFields,
-                'verification_status' => $official->verification_status ?? 'pending',
-                'verified' => ($official->verification_status ?? 'pending') === 'verified',
-                'data' => $official,
-                'completeness_percentage' => count($requiredFields) > 0 
-                    ? round(((count($requiredFields) - count($missingFields)) / count($requiredFields)) * 100) 
-                    : 0,
-            ];
-        }
-        
-        return $complete;
     }
-    
+
     /**
-     * Cek status pembayaran team
+     * Get document thumbnail/preview if available.
+     *
+     * @param  string  $teamId
+     * @param  string  $documentType
+     * @return \Illuminate\Http\Response
      */
-    private function checkPaymentStatus($teamId)
+    public function getDocumentThumbnail($teamId, $documentType)
     {
-        $team = DB::table('team_list')->where('team_id', $teamId)->first();
-        
-        if (!$team) {
-            return [
-                'status' => 'unknown',
-                'paid' => false,
-                'label' => 'Unknown',
-                'class' => 'secondary',
-            ];
-        }
-        
-        $status = $team->payment_status ?? 'unpaid';
-        $paid = $status === 'paid';
-        
-        $label = 'Unpaid';
-        $class = 'danger';
-        
-        if ($status === 'paid') {
-            $label = 'Paid';
-            $class = 'success';
-        } elseif ($status === 'pending') {
-            $label = 'Pending';
-            $class = 'warning';
-        }
-        
-        return [
-            'status' => $status,
-            'paid' => $paid,
-            'label' => $label,
-            'class' => $class,
-            'date' => $team->payment_date ? Carbon::parse($team->payment_date)->format('d M Y') : null,
-            'method' => $team->payment_method ?? null,
-        ];
-    }
-    
-    /**
-     * Cek status verifikasi team
-     */
-    private function checkVerificationStatus($teamId)
-    {
-        $team = DB::table('team_list')->where('team_id', $teamId)->first();
-        
-        if (!$team) {
-            return [
-                'status' => 'unknown',
-                'verified' => false,
-                'label' => 'Unknown',
-                'class' => 'secondary',
-            ];
-        }
-        
-        $status = $team->verification_status ?? 'pending';
-        $verified = $status === 'verified';
-        
-        $label = 'Pending';
-        $class = 'warning';
-        
-        if ($status === 'verified') {
-            $label = 'Verified';
-            $class = 'success';
-        } elseif ($status === 'rejected') {
-            $label = 'Rejected';
-            $class = 'danger';
-        }
-        
-        return [
-            'status' => $status,
-            'verified' => $verified,
-            'label' => $label,
-            'class' => $class,
-            'notes' => $team->verification_notes ?? null,
-        ];
-    }
-    
-    /**
-     * Cek team leader
-     */
-    private function checkTeamLeader($teamId)
-    {
-        $team = DB::table('team_list')->where('team_id', $teamId)->first();
-        
-        if (!$team) {
-            return null;
-        }
-        
-        return [
-            'name' => $team->leader_name ?? null,
-            'email' => $team->leader_email ?? null,
-            'phone' => $team->leader_phone ?? null,
-        ];
-    }
-    
-    /**
-     * Hitung jumlah anggota team
-     */
-    private function getTeamMemberCount($teamId)
-    {
-        $playerCount = DB::table('player_list')->where('team_id', $teamId)->count();
-        $dancerCount = DB::table('dancer_list')->where('team_id', $teamId)->count();
-        $officialCount = DB::table('official_list')->where('team_id', $teamId)->count();
-        
-        return [
-            'players' => $playerCount,
-            'dancers' => $dancerCount,
-            'officials' => $officialCount,
-            'total' => $playerCount + $dancerCount + $officialCount,
-        ];
-    }
-    
-    /**
-     * Hitung persentase kelengkapan dari checklist
-     */
-    private function calculateCompleteness($checklist)
-    {
-        $totalItems = 0;
-        $completedItems = 0;
-        
-        // Hitung profile checklist
-        foreach ($checklist['profile'] as $item) {
-            $totalItems++;
-            if ($item) {
-                $completedItems++;
-            }
-        }
-        
-        // Hitung role checklist
-        foreach ($checklist['role'] as $item) {
-            $totalItems++;
-            // Role checklist dihitung sebagai item yang ada
-            if ($item) {
-                $completedItems++;
-            }
-        }
-        
-        // Hitung documents checklist
-        foreach ($checklist['documents'] as $item) {
-            $totalItems++;
-            if ($item) {
-                $completedItems++;
-            }
-        }
-        
-        // Hitung team checklist
-        foreach ($checklist['teams'] as $team) {
-            if (isset($team['player_complete']) && $team['player_complete'] !== null) {
-                $totalItems++;
-                if ($team['player_complete'] === true) {
-                    $completedItems++;
-                }
-            }
+        try {
+            $currentUser = Auth::user();
+            $currentUserName = strtolower(trim($currentUser->name ?? ''));
             
-            if (isset($team['dancer_complete']) && $team['dancer_complete'] !== null) {
-                $totalItems++;
-                if ($team['dancer_complete'] === true) {
-                    $completedItems++;
-                }
+            if (empty($currentUserName)) {
+                return response()->json(['error' => 'User not found'], 404);
             }
+
+            $result = $this->findRecordAndDocument($teamId, $documentType, $currentUserName);
             
-            if (isset($team['official_complete']) && $team['official_complete'] !== null) {
-                $totalItems++;
-                if ($team['official_complete'] === true) {
-                    $completedItems++;
-                }
+            if (!$result['success']) {
+                return response()->json(['error' => $result['message']], 404);
             }
+
+            $fileName = $result['file_name'];
+            $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+            
+            // Only return thumbnail for images
+            if (!in_array($extension, ['jpg', 'jpeg', 'png', 'gif'])) {
+                return response()->json(['error' => 'Thumbnail not available'], 404);
+            }
+
+            $fullPath = $this->findDocumentFile(
+                $result['file_path'], 
+                $fileName, 
+                $result['record_type'], 
+                $documentType
+            );
+
+            if (!$fullPath || !File::exists($fullPath)) {
+                return response()->json(['error' => 'File not found'], 404);
+            }
+
+            $mimeTypes = [
+                'jpg' => 'image/jpeg',
+                'jpeg' => 'image/jpeg',
+                'png' => 'image/png',
+                'gif' => 'image/gif',
+            ];
+
+            $mime = $mimeTypes[$extension] ?? 'image/jpeg';
+
+            return response()->file($fullPath, [
+                'Content-Type' => $mime,
+                'Cache-Control' => 'public, max-age=86400',
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error getting document thumbnail: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to get thumbnail'], 500);
         }
-        
-        return $totalItems > 0 ? round(($completedItems / $totalItems) * 100) : 0;
-    }
-    
-    /**
-     * Hitung jumlah item yang sudah lengkap
-     */
-    private function countCompletedItems($checklist)
-    {
-        $count = 0;
-        
-        foreach ($checklist['profile'] as $item) {
-            if ($item) $count++;
-        }
-        
-        foreach ($checklist['role'] as $item) {
-            if ($item) $count++;
-        }
-        
-        foreach ($checklist['documents'] as $item) {
-            if ($item) $count++;
-        }
-        
-        foreach ($checklist['teams'] as $team) {
-            if (isset($team['player_complete']) && $team['player_complete'] === true) $count++;
-            if (isset($team['dancer_complete']) && $team['dancer_complete'] === true) $count++;
-            if (isset($team['official_complete']) && $team['official_complete'] === true) $count++;
-        }
-        
-        return $count;
-    }
-    
-    /**
-     * Hitung total item keseluruhan
-     */
-    private function countTotalItems($checklist)
-    {
-        $total = count($checklist['profile']);
-        $total += count($checklist['role']);
-        $total += count($checklist['documents']);
-        
-        foreach ($checklist['teams'] as $team) {
-            if (isset($team['player_complete']) && $team['player_complete'] !== null) $total++;
-            if (isset($team['dancer_complete']) && $team['dancer_complete'] !== null) $total++;
-            if (isset($team['official_complete']) && $team['official_complete'] !== null) $total++;
-        }
-        
-        return $total;
     }
 }

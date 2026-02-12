@@ -1,6 +1,6 @@
 @extends('user.form.layout')
 
-@section('title', 'School Data List - HSBL Student Portal')
+@section('title', 'Event Histories - HSBL Student Portal')
 
 @section('content')
 <div class="container py-4">
@@ -14,19 +14,19 @@
                         <i class="fas fa-home me-1"></i>Dashboard
                     </a></li>
                     <li class="breadcrumb-item active" aria-current="page">
-                        <i class="fas fa-school me-1"></i>My Schools
+                        <i class="fas fa-history me-1"></i>Event Histories
                     </li>
                 </ol>
             </nav>
 
             <!-- Page Header -->
-            <div class="d-flex align-items-center mb-4">
+            <div class="d-flex align-items-center mb-2">
                 <div class="bg-primary bg-gradient rounded-circle p-3 me-3 shadow-sm">
-                    <i class="fas fa-school text-white fa-2x"></i>
+                    <i class="fas fa-history text-white fa-2x"></i>
                 </div>
                 <div>
-                    <h1 class="h3 mb-1 fw-bold">My Schools</h1>
-                    <p class="text-muted mb-0">View all schools you've joined for HSBL competition</p>
+                    <h1 class="h3 mb-1 fw-bold">Event Histories</h1>
+                    <p class="text-muted mb-0">My Team - Track all teams you've joined in HSBL competitions</p>
                 </div>
             </div>
         </div>
@@ -43,11 +43,11 @@
                 <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="text-muted mb-1">Total Schools</h6>
+                            <h6 class="text-muted mb-1">Total Teams</h6>
                             <h3 class="fw-bold mb-0 text-primary">{{ $totalSchools }}</h3>
                         </div>
                         <div class="bg-primary bg-opacity-10 rounded-circle p-3">
-                            <i class="fas fa-school text-primary fa-lg"></i>
+                            <i class="fas fa-users text-primary fa-lg"></i>
                         </div>
                     </div>
                 </div>
@@ -101,29 +101,22 @@
     </div>
     @endif
 
-    <!-- Schools List Card - Consistent with profile-edit style -->
+    <!-- Teams List Card - Consistent with profile-edit style -->
     <div class="card border-0 shadow-sm">
         <!-- Card Header -->
         <div class="card-header bg-white border-bottom py-3">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <h5 class="mb-0">
-                    <i class="fas fa-list-alt me-2 text-primary"></i>List of Schools
+                    <i class="fas fa-list-alt me-2 text-primary"></i>My Teams History
                 </h5>
-                <div class="d-flex align-items-center gap-3">
-                    <!-- Filter Buttons -->
-                    <div class="btn-group btn-group-sm" role="group">
-                        <button type="button" class="btn btn-outline-primary" onclick="filterByStatus('all')">All</button>
-                        <button type="button" class="btn btn-outline-success" onclick="filterByStatus('verified')">Verified</button>
-                        <button type="button" class="btn btn-outline-warning" onclick="filterByStatus('pending')">Pending</button>
-                        <button type="button" class="btn btn-outline-danger" onclick="filterByStatus('rejected')">Rejected</button>
-                    </div>
+                <div class="d-flex align-items-center">
                     <!-- Search Input -->
-                    <div class="input-group input-group-sm" style="width: 250px;">
+                    <div class="input-group input-group-sm" style="width: 280px;">
                         <span class="input-group-text bg-light border-end-0">
                             <i class="fas fa-search text-muted"></i>
                         </span>
                         <input type="text" class="form-control border-start-0 ps-0" id="searchInput" 
-                               placeholder="Search school name..." autocomplete="off">
+                               placeholder="Search team name..." autocomplete="off">
                     </div>
                 </div>
             </div>
@@ -136,33 +129,38 @@
                 <div class="text-center py-5">
                     <div class="avatar-container mx-auto mb-4" style="width: 100px; height: 100px;">
                         <div class="bg-light rounded-circle d-flex align-items-center justify-content-center w-100 h-100">
-                            <i class="fas fa-school text-muted fa-3x"></i>
+                            <i class="fas fa-users text-muted fa-3x"></i>
                         </div>
                     </div>
-                    <h4 class="text-muted mb-3">No Schools Found</h4>
-                    <p class="text-muted mb-4">You haven't joined any school team yet.</p>
+                    <h4 class="text-muted mb-3">No Teams Found</h4>
+                    <p class="text-muted mb-4">You haven't joined any team yet.</p>
                     <div class="alert alert-info alert-hsbl mx-auto" style="max-width: 600px;">
                         <div class="d-flex align-items-center">
                             <i class="fas fa-info-circle fa-lg me-3"></i>
                             <div class="text-start">
-                                <strong>How to join a school?</strong><br>
-                                <small>Register as a Player, Dancer, or Official through the registration forms. Your school data will appear here automatically.</small>
+                                <strong>How to join a team?</strong><br>
+                                <small>Register as a Player, Dancer, or Official through the registration forms. Your team data will appear here automatically.</small>
                             </div>
                         </div>
                     </div>
+                    <div class="mt-4">
+                        <a href="{{ route('form.team.choice') }}" class="btn btn-primary">
+                            <i class="fas fa-plus-circle me-2"></i>Join a Team
+                        </a>
+                    </div>
                 </div>
             @else
-                <!-- Table - Clean design without role duplication -->
+                <!-- Table - Clean design -->
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0" id="schoolsTable">
+                    <table class="table table-hover align-middle mb-0" id="teamsTable">
                         <thead class="bg-light">
                             <tr>
                                 <th width="50" class="ps-4">No</th>
-                                <th>School Information</th>
+                                <th>Team Information</th>
                                 <th>Competition</th>
                                 <th>My Roles</th>
                                 <th>Status</th>
-                                <th width="120" class="text-center pe-4">Action</th>
+                                <th width="120" class="text-center pe-4">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -226,14 +224,17 @@
                                         $logoPath = asset('school_logos/' . $logoFile);
                                     }
                                 }
+                                
+                                // Team ID untuk route
+                                $teamId = $school->team_id ?? $school->school_id;
                             @endphp
                             <tr data-status="{{ $school->verification_status }}" 
-                                data-school-id="{{ $school->school_id }}" 
-                                data-school-name="{{ strtolower($school->school_name) }}">
+                                data-team-id="{{ $teamId }}" 
+                                data-team-name="{{ strtolower($school->school_name) }}">
                                 <td class="ps-4 text-muted fw-medium">{{ $index + 1 }}</td>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        <!-- School Logo/Avatar -->
+                                        <!-- Team Logo/Avatar -->
                                         <div class="avatar-container me-3" style="width: 48px; height: 48px;">
                                             @if($logoPath)
                                             <img src="{{ $logoPath }}" 
@@ -247,7 +248,7 @@
                                             </div>
                                             @endif
                                         </div>
-                                        <!-- School Details -->
+                                        <!-- Team Details -->
                                         <div>
                                             <h6 class="mb-1 fw-semibold">{{ $school->school_name }}</h6>
                                             <p class="text-muted mb-0 small">
@@ -256,11 +257,6 @@
                                             <p class="text-muted mb-0 small">
                                                 <i class="fas fa-calendar me-1 text-primary"></i>{{ \Carbon\Carbon::parse($school->created_at)->format('d M Y') }}
                                             </p>
-                                            @if($school->team_id)
-                                            <p class="text-muted mb-0 small">
-                                                <i class="fas fa-hashtag me-1 text-primary"></i>Team: {{ $school->team_id }}
-                                            </p>
-                                            @endif
                                         </div>
                                     </div>
                                 </td>
@@ -315,10 +311,23 @@
                                     </div>
                                 </td>
                                 <td class="text-center pe-4">
-                                    <a href="{{ route('team.profile', $school->team_id ?? $school->school_id) }}" 
-                                       class="btn btn-sm btn-primary">
-                                        <i class="fas fa-info-circle me-1"></i>Detail
-                                    </a>
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <!-- Detail Button - Mengarah ke halaman edit team -->
+                                        <a href="{{ route('student.team.edit', $teamId) }}" 
+                                           class="btn btn-sm btn-outline-primary rounded-circle" 
+                                           title="Team Details"
+                                           style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-info-circle"></i>
+                                        </a>
+                                        
+                                        <!-- Team List Button - Mengarah ke halaman team list -->
+                                        <a href="{{ route('student.team.list.with_id', $teamId) }}" 
+                                           class="btn btn-sm btn-outline-success rounded-circle" 
+                                           title="Team Members"
+                                           style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-users"></i>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                             @endforeach
@@ -340,7 +349,7 @@
                             <i class="fas fa-info-circle fa-lg me-3"></i>
                             <div>
                                 <strong class="d-block mb-1">Information</strong>
-                                <p class="mb-0 small">This page displays all schools where you are registered as Player, Dancer, or Official. Data is automatically updated based on your registration records. Click the "Detail" button to view and edit school information.</p>
+                                <p class="mb-0 small">This page displays all teams where you are registered as Player, Dancer, or Official. Click the <i class="fas fa-info-circle"></i> icon to view team details, or the <i class="fas fa-users"></i> icon to see all team members.</p>
                             </div>
                         </div>
                     </div>
@@ -351,35 +360,20 @@
 </div>
 
 <script>
-// Table filtering
+// Table filtering with search
 function filterTable() {
     const input = document.getElementById('searchInput');
     const filter = input.value.toLowerCase().trim();
-    const table = document.getElementById('schoolsTable');
+    const table = document.getElementById('teamsTable');
     const tr = table.getElementsByTagName('tr');
     
     for (let i = 1; i < tr.length; i++) {
-        const schoolName = tr[i].getAttribute('data-school-name') || '';
+        const teamName = tr[i].getAttribute('data-team-name') || '';
         
-        if (schoolName.includes(filter)) {
+        if (teamName.includes(filter)) {
             tr[i].style.display = "";
         } else {
             tr[i].style.display = "none";
-        }
-    }
-}
-
-// Status filtering
-function filterByStatus(status) {
-    const table = document.getElementById('schoolsTable');
-    const tr = table.getElementsByTagName('tr');
-    
-    for (let i = 1; i < tr.length; i++) {
-        if (status === 'all') {
-            tr[i].style.display = "";
-        } else {
-            const rowStatus = tr[i].getAttribute('data-status');
-            tr[i].style.display = rowStatus === status ? "" : "none";
         }
     }
 }
@@ -500,21 +494,22 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 /* Button styles */
-.btn-sm {
-    padding: 0.4rem 1rem;
-    font-size: 0.8rem;
+.btn-outline-primary, .btn-outline-success {
+    transition: all 0.2s ease;
 }
 
-.btn-primary {
+.btn-outline-primary:hover {
     background-color: #1565c0;
-    border-color: #1565c0;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(21, 101, 192, 0.3);
 }
 
-.btn-primary:hover {
-    background-color: #0d47a1;
-    border-color: #0d47a1;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(21, 101, 192, 0.3);
+.btn-outline-success:hover {
+    background-color: #2e7d32;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(46, 125, 50, 0.3);
 }
 
 /* Responsive styles */
@@ -540,19 +535,9 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 @media (max-width: 576px) {
-    .btn-group {
-        width: 100%;
-    }
-    
-    .btn-group .btn {
-        flex: 1;
-        font-size: 0.75rem;
-        padding: 0.4rem 0.25rem;
-    }
-    
-    .btn-sm {
-        width: 100%;
-        padding: 0.4rem 0.5rem;
+    .btn-sm.rounded-circle {
+        width: 32px !important;
+        height: 32px !important;
     }
 }
 </style>

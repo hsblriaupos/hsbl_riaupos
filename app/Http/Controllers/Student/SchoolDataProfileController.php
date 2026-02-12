@@ -375,7 +375,7 @@ class SchoolDataProfileController extends Controller
     /**
      * Show the form for editing school data - PERBAIKAN DENGAN CACHE BUSTING
      */
-    public function edit($school_id = null)
+    public function edit($team_id = null)
     {
         try {
             $user = Auth::user();
@@ -384,35 +384,35 @@ class SchoolDataProfileController extends Controller
                 return redirect()->route('login')->with('error', 'Please login first.');
             }
 
-            // Jika tidak ada school_id, coba ambil dari route parameter
-            if (!$school_id) {
-                $school_id = request()->route('team_id') ?? request()->get('school_id');
+            // Jika tidak ada team_id, coba ambil dari route parameter
+            if (!$team_id) {
+                $team_id = request()->route('team_id') ?? request()->get('team_id') ?? request()->get('school_id');
             }
 
-            // Cari data team berdasarkan berbagai parameter
+            // Cari data team berdasarkan team_id (prioritas) atau school_id
             $team = null;
             
-            if ($school_id) {
+            if ($team_id) {
                 // Cari berdasarkan team_id
-                $team = TeamList::where('team_id', $school_id)->first();
+                $team = TeamList::where('team_id', $team_id)->first();
                 
                 // Jika tidak ditemukan, cari berdasarkan school_id
                 if (!$team) {
-                    $team = TeamList::where('school_id', $school_id)->first();
+                    $team = TeamList::where('school_id', $team_id)->first();
                 }
             }
 
             // Jika data tidak ditemukan
             if (!$team) {
-                Log::warning("Team not found for ID: {$school_id}");
-                return redirect()->route('schooldata.list')
+                Log::warning("Team not found for ID: {$team_id}");
+                return redirect()->route('student.event.histories')
                     ->with('error', 'School data not found. Please check your registration.');
             }
 
             // Verifikasi bahwa user memiliki akses ke sekolah ini
             if (!$this->hasAccessToSchool($user, $team->school_id, $team->school_name, $team->team_id)) {
                 Log::warning("User {$user->email} attempted to access unauthorized school: {$team->school_name}");
-                return redirect()->route('schooldata.list')
+                return redirect()->route('student.event.histories')
                     ->with('error', 'You do not have permission to access this school data.');
             }
 
@@ -447,15 +447,15 @@ class SchoolDataProfileController extends Controller
             $team->payment_proof_url = $this->getDocumentUrl($team->payment_proof, 'public', 'payment_proofs');
             $team->logo_url = $this->getSchoolLogoUrl($team->school_logo);
 
-            // Get timestamp for cache busting
-            $koranTimestamp = time();
-            if ($team->koran_url) {
-                $team->koran_url = $this->getDocumentUrl($team->koran, 'public', 'team_docs');
-            }
+            // Dapatkan ukuran file untuk ditampilkan di view
+            $team->koran_size = $this->getFileSize($team->koran, 'team_docs');
+            $team->recommendation_letter_size = $this->getFileSize($team->recommendation_letter, 'team_docs');
+            $team->payment_proof_size = $this->getFileSize($team->payment_proof, 'payment_proofs');
 
             return view('user.event.profile.schooldata-edit', [
                 'team' => $team,
-                'school_id' => $school_id,
+                'team_id' => $team->team_id,
+                'school_id' => $team->school_id,
                 'userRoles' => [
                     'isPlayer' => $playerLists->isNotEmpty(),
                     'isDancer' => $dancerLists->isNotEmpty(),
@@ -472,9 +472,198 @@ class SchoolDataProfileController extends Controller
             Log::error('Error in SchoolDataProfileController@edit: ' . $e->getMessage());
             Log::error('Trace: ' . $e->getTraceAsString());
             
-            return redirect()->route('schooldata.list')
+            return redirect()->route('student.event.histories')
                 ->with('error', 'Terjadi kesalahan saat memuat data sekolah. Error: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * 🔥 PERBAIKAN TOTAL: DOWNLOAD DOCUMENT - Menggunakan pendekatan yang berbeda
+     * Menggunakan ID sebagai parameter, bukan filename, untuk menghindari masalah encoding dan CORS
+     */
+    public function downloadDocument($teamId, $documentType)
+    {
+        try {
+            $user = Auth::user();
+            
+            if (!$user) {
+                return redirect()->route('login')->with('error', 'Please login first.');
+            }
+
+            Log::info('=== DOWNLOAD DOCUMENT STARTED ===');
+            Log::info('User: ' . $user->email);
+            Log::info('Team ID: ' . $teamId);
+            Log::info('Document Type: ' . $documentType);
+
+            // Validasi document type
+            $validTypes = ['koran', 'recommendation_letter', 'payment_proof'];
+            if (!in_array($documentType, $validTypes)) {
+                Log::error('Invalid document type: ' . $documentType);
+                return redirect()->back()->with('error', 'Invalid document type.');
+            }
+
+            // Cari data team
+            $team = TeamList::where('team_id', $teamId)->first();
+            
+            if (!$team) {
+                Log::error("Team not found for ID: {$teamId}");
+                return redirect()->back()->with('error', 'Team not found.');
+            }
+
+            // Verifikasi akses user
+            if (!$this->hasAccessToSchool($user, $team->school_id, $team->school_name, $team->team_id)) {
+                Log::warning("User {$user->email} attempted to download unauthorized document from team: {$team->team_id}");
+                return redirect()->back()->with('error', 'You do not have permission to download this document.');
+            }
+
+            // Dapatkan path file dari database
+            $filePath = $team->{$documentType};
+            
+            if (empty($filePath)) {
+                Log::error("No {$documentType} found for team: {$teamId}");
+                return redirect()->back()->with('error', 'Document not found.');
+            }
+
+            $fileName = basename($filePath);
+            $directory = 'team_docs';
+            
+            if ($documentType === 'payment_proof') {
+                $directory = 'payment_proofs';
+            }
+
+            // Tentukan path lengkap file
+            $fullPath = null;
+            
+            // Cek di storage
+            if (Storage::disk('public')->exists($directory . '/' . $fileName)) {
+                $fullPath = Storage::disk('public')->path($directory . '/' . $fileName);
+                Log::info("Found in storage: " . $directory . '/' . $fileName);
+            }
+            // Cek di public path
+            elseif (file_exists(public_path('storage/' . $directory . '/' . $fileName))) {
+                $fullPath = public_path('storage/' . $directory . '/' . $fileName);
+                Log::info("Found in public: " . $fullPath);
+            }
+            // Cek di public path tanpa storage
+            elseif (file_exists(public_path($directory . '/' . $fileName))) {
+                $fullPath = public_path($directory . '/' . $fileName);
+                Log::info("Found in public root: " . $fullPath);
+            }
+
+            if (!$fullPath || !file_exists($fullPath)) {
+                Log::error("File not found on disk: " . $filePath);
+                return redirect()->back()->with('error', 'File tidak ditemukan di server.');
+            }
+
+            // Dapatkan mime type
+            $mimeType = $this->getMimeTypeFromExtension($fileName);
+            
+            // Dapatkan nama file untuk download (format: JenisDocument_NamaSekolah_Timestamp.ext)
+            $schoolName = preg_replace('/[^a-zA-Z0-9_-]/', '_', $team->school_name);
+            $documentLabels = [
+                'koran' => 'Koran',
+                'recommendation_letter' => 'Rekomendasi',
+                'payment_proof' => 'Bukti_Pembayaran'
+            ];
+            $label = $documentLabels[$documentType] ?? ucfirst($documentType);
+            
+            $downloadName = $label . '_' . $schoolName . '_' . date('Ymd') . '.' . pathinfo($fileName, PATHINFO_EXTENSION);
+
+            // FORCE DOWNLOAD dengan headers yang tepat
+            $headers = [
+                'Content-Type' => $mimeType,
+                'Content-Disposition' => 'attachment; filename="' . $downloadName . '"',
+                'Content-Transfer-Encoding' => 'binary',
+                'Content-Length' => filesize($fullPath),
+                'Cache-Control' => 'no-cache, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0',
+                'Pragma' => 'no-cache',
+                'Expires' => '0',
+                'X-Content-Type-Options' => 'nosniff',
+            ];
+
+            Log::info('Download successful: ' . $downloadName);
+            Log::info('File path: ' . $fullPath);
+            Log::info('File size: ' . filesize($fullPath));
+            Log::info('Mime type: ' . $mimeType);
+
+            return response()->download($fullPath, $downloadName, $headers);
+
+        } catch (\Exception $e) {
+            Log::error('Error in downloadDocument: ' . $e->getMessage());
+            Log::error('Trace: ' . $e->getTraceAsString());
+            
+            return redirect()->back()->with('error', 'Gagal mendownload file. Error: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * 🔥 PERBAIKAN: Get file size for display
+     */
+    private function getFileSize($path, $directory = 'team_docs')
+    {
+        if (!$path) {
+            return null;
+        }
+
+        $fileName = basename($path);
+        
+        // Cek di storage
+        if (Storage::disk('public')->exists($directory . '/' . $fileName)) {
+            $bytes = Storage::disk('public')->size($directory . '/' . $fileName);
+            return $this->formatBytes($bytes);
+        }
+        
+        // Cek di public path
+        $filePath = public_path('storage/' . $directory . '/' . $fileName);
+        if (file_exists($filePath)) {
+            $bytes = filesize($filePath);
+            return $this->formatBytes($bytes);
+        }
+        
+        return null;
+    }
+
+    /**
+     * 🔥 PERBAIKAN: Format bytes to human readable
+     */
+    private function formatBytes($bytes, $precision = 2)
+    {
+        if ($bytes === null || $bytes === 0) {
+            return '0 B';
+        }
+        
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $i = 0;
+        while ($bytes >= 1024 && $i < count($units) - 1) {
+            $bytes /= 1024;
+            $i++;
+        }
+        return round($bytes, $precision) . ' ' . $units[$i];
+    }
+
+    /**
+     * 🔥 PERBAIKAN: Get mime type from file extension
+     */
+    private function getMimeTypeFromExtension($filename)
+    {
+        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        
+        $mimeTypes = [
+            'pdf' => 'application/pdf',
+            'doc' => 'application/msword',
+            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'xls' => 'application/vnd.ms-excel',
+            'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'gif' => 'image/gif',
+            'txt' => 'text/plain',
+            'zip' => 'application/zip',
+            'rar' => 'application/x-rar-compressed',
+        ];
+        
+        return $mimeTypes[$extension] ?? 'application/octet-stream';
     }
 
     /**
@@ -493,7 +682,6 @@ class SchoolDataProfileController extends Controller
             Log::info('User: ' . $user->email);
             Log::info('Team ID: ' . $request->team_id);
             Log::info('File exists: ' . ($request->hasFile('koran_file') ? 'YES' : 'NO'));
-            Log::info('Referer: ' . $request->headers->get('referer'));
 
             // Validasi input
             $validated = $request->validate([
@@ -515,7 +703,7 @@ class SchoolDataProfileController extends Controller
 
             // Verifikasi akses user
             if (!$this->hasAccessToSchool($user, $team->school_id, $team->school_name, $team->team_id)) {
-                return redirect()->route('schooldata.list')
+                return redirect()->route('student.event.histories')
                     ->with('error', 'You do not have permission to update this school data.');
             }
 
@@ -571,19 +759,9 @@ class SchoolDataProfileController extends Controller
 
                 DB::commit();
 
-                // Tentukan URL redirect dengan benar berdasarkan referer
-                $referer = $request->headers->get('referer');
-                $redirectUrl = null;
-                
-                if (strpos($referer, 'team/profile') !== false) {
-                    // Jika dari team/profile, kembali ke team/profile
-                    $redirectUrl = route('team.profile', ['team_id' => $team->team_id]);
-                    Log::info('Redirecting to team.profile: ' . $redirectUrl);
-                } else {
-                    // Jika dari schooldata/edit, kembali ke schooldata/edit
-                    $redirectUrl = route('schooldata.edit.id', ['school_id' => $team->school_id]);
-                    Log::info('Redirecting to schooldata.edit.id: ' . $redirectUrl);
-                }
+                // 🔥 PERBAIKAN: SELALU REDIRECT KE student.team.edit DENGAN team_id
+                $redirectUrl = route('student.team.edit', ['team_id' => $team->team_id]);
+                Log::info('Redirecting to student.team.edit: ' . $redirectUrl);
 
                 return redirect($redirectUrl)
                     ->with('success', 'Koran document has been successfully updated.')
@@ -631,7 +809,7 @@ class SchoolDataProfileController extends Controller
 
             // Cek apakah user memiliki akses ke sekolah ini
             if (!$this->hasAccessToSchool($user, $validated['school_id'], $validated['school_name'])) {
-                return redirect()->route('schooldata.list')->with('error', 'You do not have access to this school.');
+                return redirect()->route('student.event.histories')->with('error', 'You do not have access to this school.');
             }
 
             // Cari atau buat data team
@@ -665,7 +843,7 @@ class SchoolDataProfileController extends Controller
 
             $team->save();
 
-            return redirect()->route('schooldata.list')->with('success', 'School data updated successfully.');
+            return redirect()->route('student.event.histories')->with('success', 'School data updated successfully.');
 
         } catch (\Exception $e) {
             Log::error('Error in SchoolDataProfileController@update: ' . $e->getMessage());
@@ -690,11 +868,11 @@ class SchoolDataProfileController extends Controller
             $team = TeamList::where('school_id', $school_id)->first();
             
             if (!$team) {
-                return redirect()->route('schooldata.list')->with('error', 'School not found.');
+                return redirect()->route('student.event.histories')->with('error', 'School not found.');
             }
 
             if (!$this->hasAccessToSchool($user, $school_id, $team->school_name, $team->team_id)) {
-                return redirect()->route('schooldata.list')->with('error', 'You do not have access to this school.');
+                return redirect()->route('student.event.histories')->with('error', 'You do not have access to this school.');
             }
 
             DB::beginTransaction();
@@ -723,7 +901,7 @@ class SchoolDataProfileController extends Controller
 
                 DB::commit();
 
-                return redirect()->route('schooldata.list')->with('success', 'Successfully left the school team.');
+                return redirect()->route('student.event.histories')->with('success', 'Successfully left the school team.');
 
             } catch (\Exception $e) {
                 DB::rollBack();

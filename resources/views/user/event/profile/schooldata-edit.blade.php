@@ -1,10 +1,10 @@
 @extends('user.form.layout')
 
-@section('title', 'School Data Edit - HSBL Student Portal')
+@section('title', 'Team Details - HSBL Student Portal')
 
 @section('content')
 <div class="container py-4">
-    <!-- Header Section - Consistent with schooldata-list -->
+    <!-- Header Section - Consistent with event histories -->
     <div class="row mb-4">
         <div class="col-12">
             <!-- Breadcrumb -->
@@ -13,11 +13,11 @@
                     <li class="breadcrumb-item"><a href="{{ route('student.dashboard') }}" class="text-decoration-none">
                         <i class="fas fa-home me-1"></i>Dashboard
                     </a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('schooldata.list') }}" class="text-decoration-none">
-                        <i class="fas fa-school me-1"></i>My Schools
+                    <li class="breadcrumb-item"><a href="{{ route('student.event.histories') }}" class="text-decoration-none">
+                        <i class="fas fa-history me-1"></i>Event Histories
                     </a></li>
                     <li class="breadcrumb-item active" aria-current="page">
-                        <i class="fas fa-edit me-1"></i>School Data Details
+                        <i class="fas fa-info-circle me-1"></i>Team Details
                     </li>
                 </ol>
             </nav>
@@ -25,11 +25,11 @@
             <!-- Page Header -->
             <div class="d-flex align-items-center mb-4">
                 <div class="bg-primary bg-gradient rounded-circle p-3 me-3 shadow-sm">
-                    <i class="fas fa-school text-white fa-2x"></i>
+                    <i class="fas fa-users text-white fa-2x"></i>
                 </div>
                 <div>
-                    <h1 class="h3 mb-1 fw-bold">School Data Details</h1>
-                    <p class="text-muted mb-0">View and manage your school information and documents</p>
+                    <h1 class="h3 mb-1 fw-bold">Team Details</h1>
+                    <p class="text-muted mb-0">View and manage your team information and documents</p>
                 </div>
             </div>
         </div>
@@ -42,21 +42,35 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     @php
+        // Helper function untuk format file size
+        if (!function_exists('formatFileSize')) {
+            function formatFileSize($bytes) {
+                if ($bytes === null || $bytes === 0) return '0 B';
+                $units = ['B', 'KB', 'MB', 'GB'];
+                $i = 0;
+                while ($bytes >= 1024 && $i < count($units) - 1) {
+                    $bytes /= 1024;
+                    $i++;
+                }
+                return round($bytes, 2) . ' ' . $units[$i];
+            }
+        }
+
         // Gunakan data dari controller terlebih dahulu
         $team = $team ?? null;
-        $school_id = $school_id ?? request()->route('team_id') ?? request()->get('school_id');
+        $team_id = $team_id ?? $school_id ?? request()->route('team_id') ?? request()->get('school_id') ?? request()->get('team_id');
         
         // Fallback: jika tidak ada data dari controller, coba query manual
-        if (!$team && $school_id) {
-            $team = \DB::table('team_list')->where('team_id', $school_id)->first();
+        if (!$team && $team_id) {
+            $team = \DB::table('team_list')->where('team_id', $team_id)->first();
             if (!$team) {
-                $team = \DB::table('team_list')->where('school_id', $school_id)->first();
+                $team = \DB::table('team_list')->where('school_id', $team_id)->first();
             }
         }
         
         // Jika masih tidak ada data, tampilkan error
         if (!$team) {
-            echo '<div class="alert alert-danger">School data not found. Please check your registration.</div>';
+            echo '<div class="alert alert-danger">Team data not found. Please check your registration.</div>';
             return;
         }
         
@@ -65,13 +79,20 @@
         $isVerified = ($team->verification_status ?? 'pending') === 'verified';
         $isPaid = ($team->payment_status ?? 'unpaid') === 'paid';
         
-        // ============ PERBAIKAN: AMBIL URL DOKUMEN DENGAN CACHE BUSTING ============
+        // ============ AMBIL URL DOKUMEN DENGAN CACHE BUSTING ============
         
         // 1. RECOMMENDATION LETTER
         $recommendationLetterUrl = null;
         $recommendationLetterName = null;
+        $recommendationLetterSize = null;
         if (!empty($team->recommendation_letter)) {
             $recommendationLetterName = basename($team->recommendation_letter);
+            
+            // Dapatkan ukuran file
+            $recommendationPath = public_path('storage/team_docs/' . $recommendationLetterName);
+            if (file_exists($recommendationPath)) {
+                $recommendationLetterSize = formatFileSize(filesize($recommendationPath));
+            }
             
             if (isset($team->recommendation_letter_url)) {
                 $recommendationLetterUrl = $team->recommendation_letter_url;
@@ -83,18 +104,26 @@
                 }
             }
             
-            // Cache busting
+            // Cache busting - TAPI JANGAN DIGUNAKAN UNTUK DOWNLOAD
             if ($recommendationLetterUrl) {
-                $timestamp = time();
-                $recommendationLetterUrl .= '?v=' . $timestamp;
+                $recommendationLetterUrlView = $recommendationLetterUrl . '?v=' . time();
+            } else {
+                $recommendationLetterUrlView = $recommendationLetterUrl;
             }
         }
         
         // 2. KORAN - DENGAN CACHE BUSTING
         $koranUrl = null;
         $koranName = null;
+        $koranSize = null;
         if (!empty($team->koran)) {
             $koranName = basename($team->koran);
+            
+            // Dapatkan ukuran file
+            $koranPath = public_path('storage/team_docs/' . $koranName);
+            if (file_exists($koranPath)) {
+                $koranSize = formatFileSize(filesize($koranPath));
+            }
             
             if (isset($team->koran_url)) {
                 $koranUrl = $team->koran_url;
@@ -106,18 +135,26 @@
                 }
             }
             
-            // Cache busting - PASTIKAN URL SELALU BARU
+            // Cache busting - UNTUK VIEW SAJA, BUKAN UNTUK DOWNLOAD
             if ($koranUrl) {
-                $timestamp = time();
-                $koranUrl .= '?v=' . $timestamp;
+                $koranUrlView = $koranUrl . '?v=' . time();
+            } else {
+                $koranUrlView = $koranUrl;
             }
         }
         
         // 3. PAYMENT PROOF
         $paymentProofUrl = null;
         $paymentProofName = null;
+        $paymentProofSize = null;
         if (!empty($team->payment_proof)) {
             $paymentProofName = basename($team->payment_proof);
+            
+            // Dapatkan ukuran file
+            $paymentPath = public_path('storage/payment_proofs/' . $paymentProofName);
+            if (file_exists($paymentPath)) {
+                $paymentProofSize = formatFileSize(filesize($paymentPath));
+            }
             
             if (isset($team->payment_proof_url)) {
                 $paymentProofUrl = $team->payment_proof_url;
@@ -127,6 +164,11 @@
                 } elseif (file_exists(public_path('storage/payment_proofs/' . $paymentProofName))) {
                     $paymentProofUrl = asset('storage/payment_proofs/' . $paymentProofName);
                 }
+            }
+            
+            // Cache busting - UNTUK VIEW SAJA
+            if ($paymentProofUrl) {
+                $paymentProofUrlView = $paymentProofUrl . '?v=' . time();
             }
         }
         
@@ -151,21 +193,29 @@
             'isDancer' => false,
             'isOfficial' => false
         ];
+        
+        // 6. Gunakan team_id yang benar
+        $teamId = $team->team_id ?? $team->school_id ?? $team_id;
+        
+        // 7. Dapatkan ekstensi file untuk icon
+        $koranExtension = $koranName ? strtolower(pathinfo($koranName, PATHINFO_EXTENSION)) : null;
+        $recommendationExtension = $recommendationLetterName ? strtolower(pathinfo($recommendationLetterName, PATHINFO_EXTENSION)) : null;
+        $paymentExtension = $paymentProofName ? strtolower(pathinfo($paymentProofName, PATHINFO_EXTENSION)) : null;
     @endphp
 
     <!-- Main Content Card -->
     <div class="row g-4">
-        <!-- Left Column: School Info & Status -->
+        <!-- Left Column: Team Info & Status -->
         <div class="col-lg-4">
-            <!-- School Profile Card -->
+            <!-- Team Profile Card -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white border-bottom py-3">
                     <h5 class="mb-0">
-                        <i class="fas fa-university me-2 text-primary"></i>School Profile
+                        <i class="fas fa-users me-2 text-primary"></i>Team Profile
                     </h5>
                 </div>
                 <div class="card-body p-4">
-                    <!-- School Logo -->
+                    <!-- Team Logo -->
                     <div class="text-center mb-4">
                         <div class="avatar-container mx-auto mb-3" style="width: 120px; height: 120px;">
                             @if($logoUrl)
@@ -181,6 +231,7 @@
                             @endif
                         </div>
                         <h4 class="fw-bold mb-1">{{ $team->school_name }}</h4>
+                        <p class="text-muted small mb-0">Team ID: {{ $teamId }}</p>
                     </div>
 
                     <!-- Status Badges -->
@@ -225,7 +276,7 @@
                         <div class="d-flex align-items-center mb-2">
                             <i class="fas fa-user-tag text-primary me-3 fa-lg"></i>
                             <div>
-                                <small class="text-muted d-block">My Roles in this School</small>
+                                <small class="text-muted d-block">My Roles in this Team</small>
                                 <div class="d-flex flex-wrap gap-2 mt-1">
                                     @if($userRoles['isPlayer'])
                                     <span class="badge bg-success bg-opacity-10 text-success border border-success">
@@ -333,15 +384,28 @@
                         @if($paymentProofUrl)
                         <div class="d-flex align-items-center justify-content-between bg-light rounded p-2">
                             <div class="d-flex align-items-center">
-                                <i class="fas fa-file-pdf text-danger me-2 fa-lg"></i>
+                                @if($paymentExtension === 'pdf')
+                                    <i class="fas fa-file-pdf text-danger me-2 fa-lg"></i>
+                                @elseif(in_array($paymentExtension, ['jpg', 'jpeg', 'png', 'gif']))
+                                    <i class="fas fa-file-image text-info me-2 fa-lg"></i>
+                                @else
+                                    <i class="fas fa-file-alt text-secondary me-2 fa-lg"></i>
+                                @endif
                                 <div>
                                     <small class="d-block fw-medium">{{ $paymentProofName }}</small>
-                                    <small class="text-muted">Payment Proof</small>
+                                    <small class="text-muted">{{ $paymentProofSize ?? 'Unknown' }}</small>
                                 </div>
                             </div>
-                            <a href="{{ $paymentProofUrl }}" class="btn btn-sm btn-outline-primary" target="_blank">
-                                <i class="fas fa-download me-1"></i>View
-                            </a>
+                            <div class="d-flex gap-2">
+                                <a href="{{ $paymentProofUrlView ?? $paymentProofUrl }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                                    <i class="fas fa-eye me-1"></i>View
+                                </a>
+                                <!-- 🔥 PERBAIKAN: Gunakan route download yang BARU -->
+                                <a href="{{ route('student.document.download', ['teamId' => $teamId, 'documentType' => 'payment_proof']) }}" 
+                                   class="btn btn-sm btn-primary">
+                                    <i class="fas fa-download me-1"></i>Download
+                                </a>
+                            </div>
                         </div>
                         @else
                         <p class="text-muted small mb-0">
@@ -376,8 +440,26 @@
                         </div>
                         <div class="col-md-6">
                             <div class="bg-light rounded p-3">
+                                <small class="text-muted d-block mb-1">Team ID</small>
+                                <span class="fw-bold text-primary">{{ $teamId }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="bg-light rounded p-3">
                                 <small class="text-muted d-block mb-1">Referral Code</small>
                                 <span class="fw-bold text-primary">{{ $team->referral_code ?? 'N/A' }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="bg-light rounded p-3">
+                                <small class="text-muted d-block mb-1">Registration Date</small>
+                                <span class="fw-bold">
+                                    @if($team->created_at)
+                                        {{ \Carbon\Carbon::parse($team->created_at)->timezone('Asia/Jakarta')->format('d M Y, H:i') }} WIB
+                                    @else
+                                        N/A
+                                    @endif
+                                </span>
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -402,18 +484,6 @@
                             <div class="bg-light rounded p-3">
                                 <small class="text-muted d-block mb-1">Registered By</small>
                                 <span class="fw-bold">{{ $team->registered_by ?? 'Self' }}</span>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="bg-light rounded p-3">
-                                <small class="text-muted d-block mb-1">Registration Date</small>
-                                <span class="fw-bold">
-                                    @if($team->created_at)
-                                        {{ \Carbon\Carbon::parse($team->created_at)->timezone('Asia/Jakarta')->format('d M Y, H:i') }} WIB
-                                    @else
-                                        N/A
-                                    @endif
-                                </span>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -448,18 +518,25 @@
                     <div class="d-flex align-items-center justify-content-between bg-light rounded p-3">
                         <div class="d-flex align-items-center">
                             <div class="bg-primary bg-opacity-10 rounded-circle p-3 me-3">
-                                <i class="fas fa-file-pdf text-primary fa-lg"></i>
+                                @if($recommendationExtension === 'pdf')
+                                    <i class="fas fa-file-pdf text-primary fa-lg"></i>
+                                @else
+                                    <i class="fas fa-file-alt text-primary fa-lg"></i>
+                                @endif
                             </div>
                             <div>
                                 <span class="fw-medium d-block">{{ $recommendationLetterName }}</span>
-                                <small class="text-muted">Recommendation Letter</small>
+                                <small class="text-muted d-block">Recommendation Letter</small>
+                                <small class="text-muted">{{ $recommendationLetterSize ?? '' }}</small>
                             </div>
                         </div>
                         <div class="d-flex gap-2">
-                            <a href="{{ $recommendationLetterUrl }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                            <a href="{{ $recommendationLetterUrlView ?? $recommendationLetterUrl }}" class="btn btn-sm btn-outline-primary" target="_blank">
                                 <i class="fas fa-eye me-1"></i>View
                             </a>
-                            <a href="{{ $recommendationLetterUrl }}" class="btn btn-sm btn-primary" download>
+                            <!-- 🔥 PERBAIKAN: Gunakan route download yang BARU -->
+                            <a href="{{ route('student.document.download', ['teamId' => $teamId, 'documentType' => 'recommendation_letter']) }}" 
+                               class="btn btn-sm btn-primary">
                                 <i class="fas fa-download me-1"></i>Download
                             </a>
                         </div>
@@ -470,7 +547,7 @@
                             <i class="fas fa-exclamation-circle text-warning me-3 fa-lg"></i>
                             <div>
                                 <span class="fw-medium d-block">No Recommendation Letter</span>
-                                <small class="text-muted">This school has not uploaded a recommendation letter yet.</small>
+                                <small class="text-muted">This team has not uploaded a recommendation letter yet.</small>
                             </div>
                         </div>
                     </div>
@@ -478,22 +555,22 @@
                 </div>
             </div>
 
-            <!-- ========== PERBAIKAN UTAMA: KORAN DOCUMENT CARD DENGAN ROUTE KHUSUS ========== -->
+            <!-- ========== 🔥 PERBAIKAN UTAMA: KORAN DOCUMENT CARD DENGAN ROUTE DOWNLOAD BARU ========== -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white border-bottom py-3">
                     <div class="d-flex align-items-center">
                         <i class="fas fa-newspaper fa-lg me-3 text-primary"></i>
                         <div>
                             <h2 class="h5 mb-0">Koran / Newspaper Document</h2>
-                            <p class="mb-0 text-muted small">Upload or update your school's newspaper/document</p>
+                            <p class="mb-0 text-muted small">Upload or update your team's newspaper/document</p>
                         </div>
                     </div>
                 </div>
                 <div class="card-body p-4">
-                    <!-- 🔥 PERBAIKAN: Gunakan route khusus untuk update koran -->
-                    <form id="koran-form" method="POST" action="{{ route('schooldata.update.koran') }}" enctype="multipart/form-data">
+                    <!-- Form untuk upload koran -->
+                    <form id="koran-form" method="POST" action="{{ route('student.team.update.koran') }}" enctype="multipart/form-data">
                         @csrf
-                        <input type="hidden" name="team_id" value="{{ $team->team_id }}">
+                        <input type="hidden" name="team_id" value="{{ $teamId }}">
                         
                         <div class="row g-4">
                             <!-- Current Koran Document -->
@@ -503,7 +580,13 @@
                                 <div class="d-flex align-items-center justify-content-between bg-light rounded p-3 mb-3">
                                     <div class="d-flex align-items-center">
                                         <div class="bg-pink-100 rounded-circle p-3 me-3">
-                                            <i class="fas fa-file-pdf text-pink-600 fa-lg"></i>
+                                            @if($koranExtension === 'pdf')
+                                                <i class="fas fa-file-pdf text-pink-600 fa-lg"></i>
+                                            @elseif(in_array($koranExtension, ['jpg', 'jpeg', 'png', 'gif']))
+                                                <i class="fas fa-file-image text-pink-600 fa-lg"></i>
+                                            @else
+                                                <i class="fas fa-file-alt text-pink-600 fa-lg"></i>
+                                            @endif
                                         </div>
                                         <div>
                                             <span class="fw-medium d-block">{{ $koranName }}</span>
@@ -514,16 +597,20 @@
                                                     N/A
                                                 @endif
                                             </small>
+                                            @if($koranSize)
                                             <small class="text-muted d-block">
-                                                Last updated: {{ $team->koran ? 'Yes' : 'No' }}
+                                                Size: {{ $koranSize }}
                                             </small>
+                                            @endif
                                         </div>
                                     </div>
                                     <div class="d-flex gap-2">
-                                        <a href="{{ $koranUrl }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                                        <a href="{{ $koranUrlView ?? $koranUrl }}" class="btn btn-sm btn-outline-primary" target="_blank">
                                             <i class="fas fa-eye me-1"></i>View
                                         </a>
-                                        <a href="{{ $koranUrl }}" class="btn btn-sm btn-primary" download>
+                                        <!-- 🔥 PERBAIKAN: Gunakan route download yang BARU -->
+                                        <a href="{{ route('student.document.download', ['teamId' => $teamId, 'documentType' => 'koran']) }}" 
+                                           class="btn btn-sm btn-primary">
                                             <i class="fas fa-download me-1"></i>Download
                                         </a>
                                     </div>
@@ -534,7 +621,7 @@
                                         <i class="fas fa-info-circle text-info me-3 fa-lg"></i>
                                         <div>
                                             <span class="fw-medium d-block">No Document Uploaded</span>
-                                            <small class="text-muted">Please upload your school's newspaper/document using the form below.</small>
+                                            <small class="text-muted">Please upload your team's newspaper/document using the form below.</small>
                                         </div>
                                     </div>
                                 </div>
@@ -583,7 +670,7 @@
                                 </div>
                                 @else
                                 <button type="submit" class="btn btn-primary px-4" id="submit-koran-btn">
-                                    <i class="fas fa-save me-2"></i>Update Koran Document
+                                    <i class="fas fa-upload me-2"></i>Upload Koran Document
                                 </button>
                                 @endif
                             </div>
@@ -595,8 +682,13 @@
             <!-- Action Buttons -->
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <div>
-                    <a href="{{ route('schooldata.list') }}" class="btn btn-outline-secondary">
-                        <i class="fas fa-arrow-left me-2"></i>Back to Schools List
+                    <a href="{{ route('student.event.histories') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Event Histories
+                    </a>
+                </div>
+                <div>
+                    <a href="{{ route('student.team.list.with_id', $teamId) }}" class="btn btn-outline-success">
+                        <i class="fas fa-users me-2"></i>View Team Members
                     </a>
                 </div>
                 <div>
@@ -635,7 +727,7 @@ function clearFileInput() {
     document.getElementById('file-preview').style.display = 'none';
 }
 
-// 🔥 PERBAIKAN: Enhanced form submission dengan SweetAlert
+// Form submission dengan SweetAlert
 document.addEventListener('DOMContentLoaded', function() {
     const koranForm = document.getElementById('koran-form');
     if (koranForm) {
@@ -655,7 +747,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // Validasi ukuran file (max 5MB)
-            const fileSize = fileInput.files[0].size / 1024 / 1024; // in MB
+            const fileSize = fileInput.files[0].size / 1024 / 1024;
             if (fileSize > 5) {
                 e.preventDefault();
                 Swal.fire({
@@ -683,7 +775,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return false;
             }
             
-            // Show loading state dengan SweetAlert
+            // Show loading state
             Swal.fire({
                 title: 'Uploading...',
                 text: 'Please wait while your document is being uploaded.',
@@ -703,18 +795,16 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // 🔥 PERBAIKAN: Tampilkan SweetAlert untuk session messages
+    // Tampilkan SweetAlert untuk session messages
     @if(session('success'))
         Swal.fire({
             icon: 'success',
             title: 'Success!',
             text: '{{ session('success') }}',
             timer: 3000,
-            showConfirmButton: false,
-            didClose: () => {
-                // Reload page to show updated data
-                location.reload();
-            }
+            showConfirmButton: false
+        }).then(() => {
+            location.reload();
         });
     @endif
     
@@ -725,26 +815,23 @@ document.addEventListener('DOMContentLoaded', function() {
             text: '{{ session('error') }}',
             confirmButtonColor: '#d33',
             didClose: () => {
-                // Reset submit button
                 const submitBtn = document.getElementById('submit-koran-btn');
                 if (submitBtn) {
-                    submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Update Koran Document';
+                    submitBtn.innerHTML = '<i class="fas fa-upload me-2"></i>Upload Koran Document';
                     submitBtn.disabled = false;
                 }
             }
         });
     @endif
     
-    // Auto-hide alerts (non-SweetAlert alerts)
-    const alerts = document.querySelectorAll('.alert');
+    // Auto-hide alerts
+    const alerts = document.querySelectorAll('.alert:not(.alert-warning)');
     alerts.forEach(alert => {
-        if (!alert.classList.contains('alert-warning')) {
-            setTimeout(() => {
-                alert.style.transition = 'opacity 0.5s';
-                alert.style.opacity = '0';
-                setTimeout(() => alert.remove(), 500);
-            }, 5000);
-        }
+        setTimeout(() => {
+            alert.style.transition = 'opacity 0.5s';
+            alert.style.opacity = '0';
+            setTimeout(() => alert.remove(), 500);
+        }, 5000);
     });
 });
 </script>

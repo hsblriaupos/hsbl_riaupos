@@ -33,8 +33,11 @@ use App\Http\Controllers\Student\StudentSchoolController;
 use App\Http\Controllers\Student\StudentTeamController;
 // PERBAIKAN: Tambahkan controller untuk SchoolDataProfile
 use App\Http\Controllers\Student\SchoolDataProfileController;
-// ========== TAMBAHKAN: Controller untuk Review Data ==========
+// ========== TAMBAHKAN: Controller untuk Review Data dan Team List Profile ==========
 use App\Http\Controllers\Student\ReviewDataController;
+use App\Http\Controllers\Student\TeamListProfileController;
+// ========== HAPUS: TeamDetailController karena tidak ada ==========
+// use App\Http\Controllers\Student\TeamDetailController;
 use App\Models\TermCondition;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -169,7 +172,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/team-verification', [TeamController::class, 'teamVerification'])->name('tv_team_verification');
     Route::get('/team-awards', [TeamController::class, 'teamAwards'])->name('tv_team_awards');
 
-    // Tab System Routes - TAMBAHKAN INI
+    // Tab System Routes
     Route::get('/team/{id}/basket-putra', [TeamController::class, 'teamDetailBasketPutra'])
         ->name('team.detail.basket-putra');
     Route::get('/team/{id}/basket-putri', [TeamController::class, 'teamDetailBasketPutri'])
@@ -340,9 +343,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
 |--------------------------------------------------------------------------
 | 👨‍🎓 STUDENT AREA (Prefix: /student) - PROTECTED dengan middleware 'auth' saja
 |--------------------------------------------------------------------------
+| ✅ SEMUA ROUTE STUDENT DILINDUNGI DENGAN MIDDLEWARE AUTH
+| ✅ TERMASUK EVENT HISTORIES, TEAM EDIT, TEAM LIST, REVIEW DATA
+| ✅ DAN ROUTE DOWNLOAD DOKUMEN YANG BARU
+|--------------------------------------------------------------------------
 */
 Route::prefix('student')->name('student.')->middleware(['auth'])->group(function () {
-    // Dashboard Student - Arahkan ke form_team.blade.php sesuai permintaan
+    // Dashboard Student - Arahkan ke form_team.blade.php
     Route::get('/dashboard', function () {
         return view('user.form.form_team');
     })->name('dashboard');
@@ -353,7 +360,6 @@ Route::prefix('student')->name('student.')->middleware(['auth'])->group(function
     })->name('notifications');
 
     // ========== PROFILE MANAGEMENT ==========
-    // Profile Management
     Route::prefix('profile')->name('profile.')->group(function () {
         // Halaman profil utama
         Route::get('/', [StudentProfileController::class, 'index'])->name('index');
@@ -376,11 +382,11 @@ Route::prefix('student')->name('student.')->middleware(['auth'])->group(function
         // Email verification
         Route::post('/send-verification', [StudentProfileController::class, 'sendVerificationEmail'])->name('verification.send');
         
-        // PERBAIKAN: Tambahkan route untuk generate password token
+        // Route untuk generate password token
         Route::post('/generate-password-token', [StudentProfileController::class, 'generatePasswordToken'])
             ->name('generate.password.token');
             
-        // PERBAIKAN: Tambahkan route untuk verify auto token
+        // Route untuk verify auto token
         Route::post('/verify-auto-token', [StudentProfileController::class, 'verifyAutoToken'])
             ->name('verify.auto.token');
         
@@ -408,9 +414,6 @@ Route::prefix('student')->name('student.')->middleware(['auth'])->group(function
     });
 
     // ========== TEAM MANAGEMENT ==========
-    // Team List
-    Route::get('/team/list', [StudentTeamController::class, 'index'])->name('team.list');
-
     // Team Management (jika siswa punya tim)
     Route::get('/team/players', [StudentDashboardController::class, 'teamPlayers'])->name('team.players');
 
@@ -419,25 +422,131 @@ Route::prefix('student')->name('student.')->middleware(['auth'])->group(function
         return view('student.my_team');
     })->name('team');
 
+    // ========== ✅ EVENT HISTORIES ==========
+    // Halaman Event Histories - Menampilkan daftar tim tempat user bergabung
+    Route::get('/event/histories', [SchoolDataProfileController::class, 'index'])
+        ->name('event.histories');
+
+    // ========== ✅ TEAM DETAIL & EDIT ROUTES ==========
+    // 🔥 PERBAIKAN: GANTI TeamDetailController DENGAN SchoolDataProfileController
+    Route::get('/team/edit/{team_id}', [SchoolDataProfileController::class, 'edit'])
+        ->name('team.edit');
+    
+    // ✅ ALIAS UNTUK BACKWARD COMPATIBILITY - schooldata.edit.id
+    Route::get('/schooldata/edit/{school_id}', [SchoolDataProfileController::class, 'edit'])
+        ->name('schooldata.edit.id');
+    
+    // 🔥 PERBAIKAN: Update Team Data - Gunakan SchoolDataProfileController
+    Route::post('/team/update', [SchoolDataProfileController::class, 'update'])
+        ->name('team.update');
+    
+    // 🔥 PERBAIKAN: Update Koran Document - Gunakan SchoolDataProfileController
+    Route::post('/team/update-koran', [SchoolDataProfileController::class, 'updateKoran'])
+        ->name('student.team.update.koran');
+    
+    // ✅ ALIAS untuk kompatibilitas dengan blade yang menggunakan route('team.update.koran')
+    Route::post('/team/update-koran', [SchoolDataProfileController::class, 'updateKoran'])
+        ->name('team.update.koran');
+
+    // ========== ✅ TEAM LIST PROFILE ROUTES ==========
+    // Team List - Menampilkan daftar anggota dalam tim
+    Route::get('/team/list', [TeamListProfileController::class, 'index'])
+        ->name('team.list');
+    
+    // Team List dengan parameter team_id
+    Route::get('/team/list/{team_id}', [TeamListProfileController::class, 'index'])
+        ->name('team.list.with_id');
+    
+    // Detail Team Member
+    Route::get('/team/member/{id}/{type}', [TeamListProfileController::class, 'showMember'])
+        ->name('team.member.detail');
+
+    // ========== ✅ REVIEW DATA ROUTES (DIPERBAIKI) ==========
+    // Review Data - Halaman untuk mereview dan mengedit data pribadi user
+    Route::get('/review/data', [ReviewDataController::class, 'index'])
+        ->name('review.data');
+    
+    // Alias untuk student.review.my.data (sesuai dengan blade)
+    Route::get('/review-my-data', [ReviewDataController::class, 'index'])
+        ->name('review.my.data');
+    
+    // Update Review Data
+    Route::post('/review/data/update', [ReviewDataController::class, 'update'])
+        ->name('review.data.update');
+    
+    // Refresh Review Data
+    Route::post('/review/data/refresh', [ReviewDataController::class, 'refresh'])
+        ->name('review.data.refresh');
+
+    // ========== 🔥 ROUTE DOKUMEN UNTUK REVIEW DATA (DIPERBAIKI) ==========
+    // Route khusus untuk dokumen di halaman Review Data
+    // Menggunakan ReviewDataController sesuai dengan blade
+    Route::prefix('review-document')->name('review.document.')->group(function () {
+        // Route untuk VIEW dokumen (mata) - membuka di browser
+        Route::get('/view/{teamId}/{documentType}', 
+            [ReviewDataController::class, 'viewDocument'])
+            ->name('view')
+            ->where('teamId', '[0-9a-zA-Z-]+')
+            ->where('documentType', '[a-z_]+');
+        
+        // Route untuk DOWNLOAD dokumen (download)
+        Route::get('/download/{teamId}/{documentType}', 
+            [ReviewDataController::class, 'downloadDocument'])
+            ->name('download')
+            ->where('teamId', '[0-9a-zA-Z-]+')
+            ->where('documentType', '[a-z_]+');
+    });
+
+    // ========== 🔥 API ROUTES UNTUK REVIEW DATA ==========
+    Route::prefix('api')->name('api.')->group(function () {
+        Route::get('/review-statistics', [ReviewDataController::class, 'getStatistics'])
+            ->name('review.statistics');
+        Route::get('/review-detail', [ReviewDataController::class, 'getRecordDetail'])
+            ->name('review.detail');
+        Route::post('/verify-ownership', [ReviewDataController::class, 'verifyOwnership'])
+            ->name('verify.ownership');
+    });
+
+    // ========== 🔥 ROUTE DOWNLOAD DOKUMEN (UNTUK SCHOOL DATA PROFILE) ==========
+    // Route ini TETAP DIPERTAHANKAN untuk kompatibilitas dengan fitur lain
+    Route::prefix('document')->name('document.')->group(function () {
+        // Download koran, recommendation letter, payment proof
+        Route::get('/download/{teamId}/{documentType}', 
+            [SchoolDataProfileController::class, 'downloadDocument'])
+            ->name('download')
+            ->where('teamId', '[0-9a-zA-Z-]+')
+            ->where('documentType', 'koran|recommendation_letter|payment_proof');
+    });
+
+    // ========== ✅ TEAM PROFILE ROUTES ==========
+    // View Team Profile - Redirect ke halaman edit team
+    Route::get('/team/profile/{team_id}', function ($team_id) {
+        return redirect()->route('student.team.edit', $team_id);
+    })->name('team.profile');
+    
+    // Player Profile
+    Route::get('/player/profile/{id}', function ($id) {
+        return view('user.event.profile.player-profile', ['id' => $id]);
+    })->name('player.profile');
+    
+    // Dancer Profile
+    Route::get('/dancer/profile/{dancer_id}', function ($dancer_id) {
+        return view('user.event.profile.dancer-profile', ['dancer_id' => $dancer_id]);
+    })->name('dancer.profile');
+    
+    // Official Profile
+    Route::get('/official/profile/{official_id}', function ($official_id) {
+        return view('user.event.profile.official-profile', ['official_id' => $official_id]);
+    })->name('official.profile');
+
     // ========== SCHEDULE & RESULTS ==========
-    // Schedule & Results
     Route::get('/schedules', [StudentDashboardController::class, 'schedules'])->name('schedules');
     Route::get('/results', [StudentDashboardController::class, 'results'])->name('results');
 
     // ========== DOCUMENTS ==========
-    // Documents
     Route::prefix('documents')->name('documents.')->group(function () {
         Route::get('/', [StudentDashboardController::class, 'documents'])->name('index');
         Route::get('/download/{id}', [StudentDashboardController::class, 'downloadDocument'])->name('download');
-    });
-
-    // ========== 🔥 PERBAIKAN: TAMBAHKAN ROUTE REVIEW DATA ==========
-    // Review Data - Mengecek kelengkapan data sebelum registrasi
-    Route::prefix('review')->name('review.')->group(function () {
-        Route::get('/data', [ReviewDataController::class, 'index'])->name('data');
-        Route::get('/checklist', [ReviewDataController::class, 'checklist'])->name('checklist');
-        Route::get('/completeness', [ReviewDataController::class, 'completeness'])->name('completeness');
-        Route::post('/refresh', [ReviewDataController::class, 'refresh'])->name('refresh');
     });
 });
 
@@ -796,92 +905,338 @@ Route::get('/test-photos', function() {
 
 /*
 |--------------------------------------------------------------------------
-| 🔄 DIRECT ROUTES UNTUK DROPDOWN MENU (tanpa prefix student) - PERBAIKAN
+| 🔥 DIRECT ROUTES UNTUK DROPDOWN MENU (tanpa prefix student)
+|--------------------------------------------------------------------------
+| ROUTE INI UNTUK MENU DI DROPDOWN YANG MEMANGGIL DARI LAYOUT:
+| 1. Edit Profile → /profile/edit
+| 2. My Event Histories → /event/histories (redirect ke student.event.histories)
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])->group(function () {
+    // ========== PROFILE ROUTES ==========
     // Edit Profile - arahkan ke blade yang sesuai
     Route::get('/profile/edit', function () {
         return view('user.event.profile.profile-edit');
     })->name('profile.edit');
 
-    // 🔥 PERBAIKAN: Tambahkan route PUT untuk update profile
+    // Route PUT untuk update profile
     Route::put('/profile/update', function () {
-        // Sementara redirect ke student.profile.update sampai controller dibuat
         return redirect()->route('student.profile.update');
     })->name('profile.update');
-
-    // ========== PERBAIKAN: SCHOOL DATA ROUTES ==========
-    // My Schools (School Data List) - PERBAIKAN: menggunakan SchoolDataProfileController
-    Route::get('/schooldata', [SchoolDataProfileController::class, 'index'])->name('schooldata.list');
     
-    // Edit School Data - arahkan ke blade yang sesuai
-    Route::get('/schooldata/edit', function () {
-        return view('user.event.profile.schooldata-edit');
-    })->name('schooldata.edit');
+    // ========== REDIRECT UNTUK EVENT HISTORIES ==========
+    // Redirect dari /event/histories ke /student/event/histories
+    Route::get('/event/histories', function () {
+        return redirect()->route('student.event.histories');
+    })->name('event.histories');
     
-    // Edit School Data dengan parameter school_id
-    Route::get('/schooldata/edit/{school_id}', function ($school_id) {
-        return view('user.event.profile.schooldata-edit', ['school_id' => $school_id]);
-    })->name('schooldata.edit.id');
+    // ========== REDIRECT UNTUK TEAM EDIT ==========
+    // Redirect dari /team/edit/{id} ke /student/team/edit/{id}
+    Route::get('/team/edit/{team_id}', function ($team_id) {
+        return redirect()->route('student.team.edit', $team_id);
+    })->name('team.edit');
     
-    // Update School Data - route untuk POST update (general update)
-    Route::post('/schooldata/update', [SchoolDataProfileController::class, 'update'])->name('schooldata.update');
-    
-    // ========== 🔥 PERBAIKAN UTAMA: ROUTE KHUSUS UNTUK UPDATE KORAN ==========
-    // Route khusus untuk update koran document - TAMBAHKAN INI
-    Route::post('/schooldata/update-koran', [SchoolDataProfileController::class, 'updateKoran'])
-        ->name('schooldata.update.koran');
-    
-    // ========== 🔥 PERBAIKAN UTAMA: ROUTE TEAM PROFILE MENGARAH KE SCHOOLDATA-EDIT ==========
-    // View Team Profile - ARAHKAN KE HALAMAN EDIT SCHOOL DATA
-    Route::get('/team/profile/{team_id}', function ($team_id) {
-        // Arahkan ke halaman edit school data dengan parameter school_id
-        return view('user.event.profile.schooldata-edit', ['school_id' => $team_id]);
-    })->name('team.profile');
-    
-    // Player Profile
-    Route::get('/player/profile/{id}', function ($id) {
-        return view('user.event.profile.player-profile', ['id' => $id]);
-    })->name('player.profile');
-    
-    // Dancer Profile
-    Route::get('/dancer/profile/{dancer_id}', function ($dancer_id) {
-        return view('user.event.profile.dancer-profile', ['dancer_id' => $dancer_id]);
-    })->name('dancer.profile');
-    
-    // Official Profile
-    Route::get('/official/profile/{official_id}', function ($official_id) {
-        return view('user.event.profile.official-profile', ['official_id' => $official_id]);
-    })->name('official.profile');
-
-    // Team List - arahkan ke blade yang sesuai
+    // ========== REDIRECT UNTUK TEAM LIST ==========
+    // Redirect dari /team/list ke /student/team/list
     Route::get('/team/list', function () {
-        return view('user.event.profile.teamlist');
+        return redirect()->route('student.team.list');
     })->name('team.list');
-
-    // ========== 🔥 PERBAIKAN: TAMBAHKAN ALIAS UNTUK REVIEW DATA ==========
-    // Alias route untuk review.data yang digunakan di dropdown
+    
+    Route::get('/team/list/{team_id}', function ($team_id) {
+        return redirect()->route('student.team.list.with_id', $team_id);
+    })->name('team.list.with_id');
+    
+    // ========== REDIRECT UNTUK REVIEW DATA ==========
+    // Redirect dari /review/data ke /student/review/data
     Route::get('/review/data', function () {
         return redirect()->route('student.review.data');
     })->name('review.data');
+    
+    // Redirect dari /review-my-data ke /student/review-my-data
+    Route::get('/review-my-data', function () {
+        return redirect()->route('student.review.my.data');
+    })->name('review.my.data');
 });
 
-// ========== FALLBACK ROUTE UNTUK HANDLE SLUG YANG TIDAK DITEMUKAN ==========
+/*
+|--------------------------------------------------------------------------
+| ========== 🚀 ROUTE DEBUGGING FOTO ANGGOTA TIM ==========
+|--------------------------------------------------------------------------
+| ROUTE INI UNTUK DEBUGGING FORMAL PHOTO YANG TIDAK MUNCUL
+|--------------------------------------------------------------------------
+*/
+Route::prefix('debug')->name('debug.')->middleware(['auth'])->group(function () {
+    // Debug photo paths - Cek keberadaan file foto di berbagai lokasi
+    Route::get('/photo/{type}/{filename}', function($type, $filename) {
+        $paths = [];
+        $results = [];
+        
+        // Define base paths berdasarkan tipe
+        $basePaths = [
+            'official' => [
+                'storage/app/public/uploads/officials/formal_photos/',
+                'public/storage/uploads/officials/formal_photos/',
+                'public/uploads/officials/formal_photos/',
+                'uploads/officials/formal_photos/',
+            ],
+            'player' => [
+                'storage/app/public/player_docs/',
+                'public/storage/player_docs/',
+                'public/player_docs/',
+                'player_docs/',
+            ],
+            'dancer' => [
+                'storage/app/public/dancer_docs/',
+                'public/storage/dancer_docs/',
+                'public/dancer_docs/',
+                'dancer_docs/',
+            ]
+        ];
+        
+        $typePaths = $basePaths[$type] ?? $basePaths['official'];
+        $filename = basename($filename);
+        
+        foreach ($typePaths as $path) {
+            // Cek di full path
+            $fullPath = base_path($path . $filename);
+            $exists = file_exists($fullPath);
+            
+            // Cek di public path
+            $publicPath = public_path(str_replace(['storage/app/public/', 'public/'], '', $path) . $filename);
+            $publicExists = file_exists($publicPath);
+            
+            // Cek via Storage facade
+            $storagePath = str_replace(['storage/app/public/', 'public/'], '', $path) . $filename;
+            $storageExists = Storage::disk('public')->exists($storagePath);
+            
+            $results[] = [
+                'path' => $path . $filename,
+                'full_path' => $fullPath,
+                'exists_full' => $exists,
+                'public_path' => $publicPath,
+                'exists_public' => $publicExists,
+                'storage_path' => $storagePath,
+                'exists_storage' => $storageExists,
+                'url' => $storageExists ? Storage::url($storagePath) : null
+            ];
+        }
+        
+        // Cek juga dari database
+        $teamId = request()->get('team_id');
+        $dbData = [];
+        
+        if ($teamId) {
+            if ($type === 'official') {
+                $official = \App\Models\OfficialList::where('formal_photo', 'LIKE', '%' . $filename . '%')->first();
+                if ($official) {
+                    $dbData = [
+                        'id' => $official->id,
+                        'name' => $official->name,
+                        'formal_photo' => $official->formal_photo,
+                        'team_id' => $official->team_id
+                    ];
+                }
+            } elseif ($type === 'player') {
+                $player = \App\Models\PlayerList::where('formal_photo', 'LIKE', '%' . $filename . '%')->first();
+                if ($player) {
+                    $dbData = [
+                        'id' => $player->id,
+                        'name' => $player->name,
+                        'formal_photo' => $player->formal_photo,
+                        'team_id' => $player->team_id
+                    ];
+                }
+            } elseif ($type === 'dancer') {
+                $dancer = \App\Models\DancerList::where('formal_photo', 'LIKE', '%' . $filename . '%')->first();
+                if ($dancer) {
+                    $dbData = [
+                        'id' => $dancer->id,
+                        'name' => $dancer->name,
+                        'formal_photo' => $dancer->formal_photo,
+                        'team_id' => $dancer->team_id
+                    ];
+                }
+            }
+        }
+        
+        // Cek symlink
+        $storageLink = public_path('storage');
+        $storageLinkExists = is_link($storageLink);
+        $storageLinkTarget = $storageLinkExists ? readlink($storageLink) : null;
+        
+        return response()->json([
+            'success' => true,
+            'type' => $type,
+            'filename' => $filename,
+            'team_id' => $teamId,
+            'checks' => $results,
+            'database' => $dbData,
+            'system' => [
+                'storage_link_exists' => $storageLinkExists,
+                'storage_link_target' => $storageLinkTarget,
+                'base_path' => base_path(),
+                'public_path' => public_path(),
+                'storage_path' => storage_path(),
+            ]
+        ]);
+    })->name('photo.check');
+    
+    // Debug team photos - Cek semua foto dalam satu team
+    Route::get('/team/{teamId}', [TeamListProfileController::class, 'verifyPhotoPaths'])
+        ->name('team.photos');
+    
+    // Fix storage link
+    Route::get('/fix-storage-link', function() {
+        $storageLink = public_path('storage');
+        
+        // Hapus jika sudah ada
+        if (file_exists($storageLink) || is_link($storageLink)) {
+            if (is_link($storageLink)) {
+                unlink($storageLink);
+            } else {
+                rename($storageLink, $storageLink . '_backup_' . time());
+            }
+        }
+        
+        // Buat symlink baru
+        try {
+            $target = storage_path('app/public');
+            symlink($target, $storageLink);
+            $result = '✅ Storage link created successfully: ' . $target . ' → ' . $storageLink;
+        } catch (\Exception $e) {
+            $result = '❌ Failed to create storage link: ' . $e->getMessage();
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => $result,
+            'storage_link' => $storageLink,
+            'target' => $storageLinkExists ?? null
+        ]);
+    })->name('fix.storage.link');
+    
+    // Cek permissions
+    Route::get('/check-permissions', function() {
+        $paths = [
+            storage_path('app/public'),
+            storage_path('app/public/uploads'),
+            storage_path('app/public/uploads/officials'),
+            storage_path('app/public/uploads/officials/formal_photos'),
+            public_path('storage'),
+            public_path('uploads'),
+        ];
+        
+        $results = [];
+        foreach ($paths as $path) {
+            $results[] = [
+                'path' => $path,
+                'exists' => file_exists($path),
+                'is_writable' => is_writable($path),
+                'permission' => file_exists($path) ? substr(sprintf('%o', fileperms($path)), -4) : null,
+            ];
+        }
+        
+        return response()->json([
+            'success' => true,
+            'checks' => $results
+        ]);
+    })->name('check.permissions');
+});
+
+/*
+|--------------------------------------------------------------------------
+| ========== 🚀 API ROUTES UNTUK CEK FOTO (TANPA AUTH) ==========
+|--------------------------------------------------------------------------
+| ROUTE INI UNTUK DEBUGGING CEPAT - HANYA UNTUK DEVELOPMENT
+|--------------------------------------------------------------------------
+*/
+if (app()->environment('local', 'development')) {
+    // Public debug route - tanpa auth (hanya untuk development)
+    Route::get('/dev/debug-photo/{type}/{filename}', function($type, $filename) {
+        $filename = basename($filename);
+        $paths = [];
+        
+        // Cek di public/uploads/officials/formal_photos/
+        $officialPath = public_path('uploads/officials/formal_photos/' . $filename);
+        $officialExists = file_exists($officialPath);
+        
+        // Cek di public/storage/uploads/officials/formal_photos/
+        $storageOfficialPath = public_path('storage/uploads/officials/formal_photos/' . $filename);
+        $storageOfficialExists = file_exists($storageOfficialPath);
+        
+        // Cek di storage/app/public/uploads/officials/formal_photos/
+        $storageAppPath = storage_path('app/public/uploads/officials/formal_photos/' . $filename);
+        $storageAppExists = file_exists($storageAppPath);
+        
+        return response()->json([
+            'type' => $type,
+            'filename' => $filename,
+            'checks' => [
+                [
+                    'location' => 'public/uploads/officials/formal_photos/',
+                    'path' => $officialPath,
+                    'exists' => $officialExists,
+                    'url' => $officialExists ? asset('uploads/officials/formal_photos/' . $filename) : null
+                ],
+                [
+                    'location' => 'public/storage/uploads/officials/formal_photos/',
+                    'path' => $storageOfficialPath,
+                    'exists' => $storageOfficialExists,
+                    'url' => $storageOfficialExists ? asset('storage/uploads/officials/formal_photos/' . $filename) : null
+                ],
+                [
+                    'location' => 'storage/app/public/uploads/officials/formal_photos/',
+                    'path' => $storageAppPath,
+                    'exists' => $storageAppExists,
+                    'url' => $storageAppExists ? Storage::url('uploads/officials/formal_photos/' . $filename) : null
+                ]
+            ]
+        ]);
+    })->name('dev.debug.photo');
+    
+    // Test route untuk langsung cek URL
+    Route::get('/dev/test-official-photo/{filename}', function($filename) {
+        $filename = basename($filename);
+        $urls = [
+            'asset_uploads' => asset('uploads/officials/formal_photos/' . $filename),
+            'asset_storage' => asset('storage/uploads/officials/formal_photos/' . $filename),
+            'storage_url' => Storage::url('uploads/officials/formal_photos/' . $filename),
+        ];
+        
+        $exists = [
+            'public/uploads/officials/formal_photos/' . $filename => file_exists(public_path('uploads/officials/formal_photos/' . $filename)),
+            'public/storage/uploads/officials/formal_photos/' . $filename => file_exists(public_path('storage/uploads/officials/formal_photos/' . $filename)),
+            'storage/app/public/uploads/officials/formal_photos/' . $filename => file_exists(storage_path('app/public/uploads/officials/formal_photos/' . $filename)),
+        ];
+        
+        return response()->json([
+            'filename' => $filename,
+            'urls' => $urls,
+            'exists' => $exists,
+            'html_example' => '<img src="' . $urls['asset_storage'] . '?v=' . time() . '" style="max-width: 200px;">'
+        ]);
+    })->name('dev.test.official');
+}
+
+/*
+|--------------------------------------------------------------------------
+| ========== FALLBACK ROUTE UNTUK HANDLE SLUG YANG TIDAK DITEMUKAN ==========
+|--------------------------------------------------------------------------
+*/
 Route::fallback(function () {
     // Jika URL dimulai dengan /user/videos/, coba handle sebagai video detail
     if (request()->is('user/videos/*')) {
-        $slug = request()->segment(3); // Ambil segment ke-3 (slug)
+        $slug = request()->segment(3);
         return app()->make(App\Http\Controllers\User\UserVideosController::class)->callAction('show', [$slug]);
     }
     
     // Jika URL dimulai dengan /user/photos/, coba handle sebagai photo detail
     if (request()->is('user/photos/*')) {
-        $id = request()->segment(3); // Ambil segment ke-3 (id)
+        $id = request()->segment(3);
         return app()->make(App\Http\Controllers\User\UserPhotosController::class)->callAction('show', [$id]);
     }
     
-    // Jika URL menggunakan dot notation (user.media.gallery.*)
+    // Jika URL menggunakan dot notation
     $path = request()->path();
     if (strpos($path, '.') !== false) {
         $segments = explode('.', $path);
