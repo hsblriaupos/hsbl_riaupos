@@ -658,26 +658,33 @@
                                 <li><hr class="dropdown-divider dropdown-divider-custom mx-3"></li>
                             @endif
                             
-<!-- Dropdown Items -->
-<li>
-    <a class="dropdown-item-custom" href="{{ route('profile.edit') }}">
-        <i class="fas fa-user-edit text-primary"></i>
-        <span>Edit Profile</span>
-    </a>
-</li>
-<li>
-    <a class="dropdown-item-custom" href="{{ route('schooldata.list') }}">
-        <i class="fas fa-school text-success"></i>
-        <span>My Schools</span>
-    </a>
-</li>
-<li><hr class="dropdown-divider dropdown-divider-custom mx-3"></li>
-<li>
-    <a class="dropdown-item-custom" href="{{ route('team.list') }}">
-        <i class="fas fa-users text-info"></i>
-        <span>Team List</span>
-    </a>
-</li>
+                            <!-- Dropdown Items -->
+                            <li>
+                                <a class="dropdown-item-custom" href="{{ route('profile.edit') }}">
+                                    <i class="fas fa-user-edit text-primary"></i>
+                                    <span>Edit Profile</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item-custom" href="{{ route('schooldata.list') }}">
+                                    <i class="fas fa-school text-success"></i>
+                                    <span>My Schools</span>
+                                </a>
+                            </li>
+                            <!-- MENU REVIEW DATA - BARU DITAMBAHKAN -->
+                            <li>
+                                <a class="dropdown-item-custom" href="{{ route('review.data') }}">
+                                    <i class="fas fa-clipboard-list text-info"></i>
+                                    <span>Review Data</span>
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider dropdown-divider-custom mx-3"></li>
+                            <li>
+                                <a class="dropdown-item-custom" href="{{ route('team.list') }}">
+                                    <i class="fas fa-users text-info"></i>
+                                    <span>Team List</span>
+                                </a>
+                            </li>
                         </ul>
                     </div>
                     

@@ -33,6 +33,8 @@ use App\Http\Controllers\Student\StudentSchoolController;
 use App\Http\Controllers\Student\StudentTeamController;
 // PERBAIKAN: Tambahkan controller untuk SchoolDataProfile
 use App\Http\Controllers\Student\SchoolDataProfileController;
+// ========== TAMBAHKAN: Controller untuk Review Data ==========
+use App\Http\Controllers\Student\ReviewDataController;
 use App\Models\TermCondition;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -428,6 +430,15 @@ Route::prefix('student')->name('student.')->middleware(['auth'])->group(function
         Route::get('/', [StudentDashboardController::class, 'documents'])->name('index');
         Route::get('/download/{id}', [StudentDashboardController::class, 'downloadDocument'])->name('download');
     });
+
+    // ========== 🔥 PERBAIKAN: TAMBAHKAN ROUTE REVIEW DATA ==========
+    // Review Data - Mengecek kelengkapan data sebelum registrasi
+    Route::prefix('review')->name('review.')->group(function () {
+        Route::get('/data', [ReviewDataController::class, 'index'])->name('data');
+        Route::get('/checklist', [ReviewDataController::class, 'checklist'])->name('checklist');
+        Route::get('/completeness', [ReviewDataController::class, 'completeness'])->name('completeness');
+        Route::post('/refresh', [ReviewDataController::class, 'refresh'])->name('refresh');
+    });
 });
 
 /*
@@ -814,15 +825,19 @@ Route::middleware(['auth'])->group(function () {
         return view('user.event.profile.schooldata-edit', ['school_id' => $school_id]);
     })->name('schooldata.edit.id');
     
-    // Update School Data - route untuk POST update
+    // Update School Data - route untuk POST update (general update)
     Route::post('/schooldata/update', [SchoolDataProfileController::class, 'update'])->name('schooldata.update');
     
-    // Leave School - route untuk DELETE
-    Route::delete('/schooldata/{school_id}/leave', [SchoolDataProfileController::class, 'leave'])->name('schooldata.leave');
+    // ========== 🔥 PERBAIKAN UTAMA: ROUTE KHUSUS UNTUK UPDATE KORAN ==========
+    // Route khusus untuk update koran document - TAMBAHKAN INI
+    Route::post('/schooldata/update-koran', [SchoolDataProfileController::class, 'updateKoran'])
+        ->name('schooldata.update.koran');
     
-    // View Team Profile
+    // ========== 🔥 PERBAIKAN UTAMA: ROUTE TEAM PROFILE MENGARAH KE SCHOOLDATA-EDIT ==========
+    // View Team Profile - ARAHKAN KE HALAMAN EDIT SCHOOL DATA
     Route::get('/team/profile/{team_id}', function ($team_id) {
-        return view('user.event.profile.team-profile', ['team_id' => $team_id]);
+        // Arahkan ke halaman edit school data dengan parameter school_id
+        return view('user.event.profile.schooldata-edit', ['school_id' => $team_id]);
     })->name('team.profile');
     
     // Player Profile
@@ -844,6 +859,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/team/list', function () {
         return view('user.event.profile.teamlist');
     })->name('team.list');
+
+    // ========== 🔥 PERBAIKAN: TAMBAHKAN ALIAS UNTUK REVIEW DATA ==========
+    // Alias route untuk review.data yang digunakan di dropdown
+    Route::get('/review/data', function () {
+        return redirect()->route('student.review.data');
+    })->name('review.data');
 });
 
 // ========== FALLBACK ROUTE UNTUK HANDLE SLUG YANG TIDAK DITEMUKAN ==========
