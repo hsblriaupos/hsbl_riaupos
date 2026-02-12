@@ -97,9 +97,13 @@
                         <i class="fas fa-list-alt me-2"></i>List of Schools
                     </h5>
                     <div>
-                        <input type="text" class="form-control form-control-sm" id="searchInput" 
-                               placeholder="Search school..." style="width: 200px;" 
-                               onkeyup="filterTable()">
+                        <div class="input-group input-group-sm" style="width: 250px;">
+                            <span class="input-group-text bg-light">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                            <input type="text" class="form-control" id="searchInput" 
+                                   placeholder="Search school name or ID...">
+                        </div>
                     </div>
                 </div>
                 <div class="card-body">
@@ -133,50 +137,28 @@
                                 <tbody>
                                     @foreach($schools as $index => $school)
                                     @php
-                                        // Get user's roles in this school
-                                        $userRoles = [];
-                                        $isPlayer = false;
-                                        $isDancer = false;
-                                        $isOfficial = false;
-                                        $playerData = null;
-                                        $dancerData = null;
-                                        $officialData = null;
+                                        // GUNAKAN DATA YANG SUDAH DIPROSES DARI CONTROLLER
+                                        // Controller sudah attach data role ke $school object
+                                        $isPlayer = $school->isPlayer ?? false;
+                                        $isDancer = $school->isDancer ?? false;
+                                        $isOfficial = $school->isOfficial ?? false;
+                                        $playerRole = $school->playerRole ?? null;
+                                        $dancerRole = $school->dancerRole ?? null;
+                                        $officialRole = $school->officialRole ?? null;
+                                        $playerData = $school->playerData ?? null;
+                                        $dancerData = $school->dancerData ?? null;
+                                        $officialData = $school->officialData ?? null;
                                         
-                                        // Check if user is a player in this school
-                                        $playerData = $playerLists->where('school_id', $school->school_id)
-                                            ->where(function($query) use ($authUser) {
-                                                $query->where('email', $authUser->email)
-                                                      ->orWhere('nik', $authUser->nik);
-                                            })->first();
-                                        if ($playerData) {
-                                            $userRoles[] = 'Player';
-                                            $isPlayer = true;
-                                        }
-                                        
-                                        // Check if user is a dancer in this school
-                                        $dancerData = $dancerLists->where('school_name', $school->school_name)
-                                            ->where(function($query) use ($authUser) {
-                                                $query->where('email', $authUser->email)
-                                                      ->orWhere('nik', $authUser->nik);
-                                            })->first();
-                                        if ($dancerData) {
-                                            $userRoles[] = 'Dancer';
-                                            $isDancer = true;
-                                        }
-                                        
-                                        // Check if user is an official in this school
-                                        $officialData = $officialLists->where('school_id', $school->school_id)
-                                            ->where(function($query) use ($authUser) {
-                                                $query->where('email', $authUser->email)
-                                                      ->orWhere('nik', $authUser->nik);
-                                            })->first();
-                                        if ($officialData) {
-                                            $userRoles[] = 'Official';
-                                            $isOfficial = true;
-                                        }
+                                        // Debug data
+                                        // {{-- Uncomment for debugging: 
+                                        // <pre style="display:none;">School: {{ $school->school_name }}
+                                        // isPlayer: {{ $isPlayer ? 'YES' : 'NO' }}
+                                        // playerRole: {{ $playerRole }}
+                                        // playerData: {{ json_encode($playerData) }}</pre> 
+                                        // --}}
                                         
                                         // Determine team status badge
-                                        $statusBadge = '';
+                                        $statusText = '';
                                         $badgeClass = '';
                                         if ($school->verification_status === 'verified') {
                                             $badgeClass = 'bg-success';
@@ -193,7 +175,7 @@
                                         }
                                         
                                         // Payment status
-                                        $paymentBadge = '';
+                                        $paymentText = '';
                                         $paymentClass = '';
                                         if ($school->payment_status === 'paid') {
                                             $paymentClass = 'bg-success';
@@ -206,41 +188,18 @@
                                             $paymentText = 'Unpaid';
                                         }
                                         
-                                        // Logo path - FIXED LOGO PATH
-                                        $logoPath = null;
-                                        if ($school->school_logo) {
-                                            // Remove any URL encoding issues
+                                        // Logo path
+                                        $logoPath = $school->logo_url ?? null;
+                                        if (!$logoPath && $school->school_logo) {
                                             $logoFile = basename($school->school_logo);
-                                            
-                                            // Check multiple possible locations
                                             if (file_exists(public_path('storage/school_logos/' . $logoFile))) {
                                                 $logoPath = asset('storage/school_logos/' . $logoFile);
                                             } elseif (file_exists(public_path('school_logos/' . $logoFile))) {
                                                 $logoPath = asset('school_logos/' . $logoFile);
-                                            } elseif (file_exists(public_path('uploads/logo/' . $logoFile))) {
-                                                $logoPath = asset('uploads/logo/' . $logoFile);
-                                            } elseif (Storage::disk('public')->exists('school_logos/' . $logoFile)) {
-                                                $logoPath = Storage::disk('public')->url('school_logos/' . $logoFile);
-                                            } elseif (strpos($school->school_logo, 'http') === 0) {
-                                                $logoPath = $school->school_logo;
-                                            } elseif (strpos($school->school_logo, '/') === 0) {
-                                                $logoPath = asset($school->school_logo);
-                                            } else {
-                                                // If logo is just a filename, try with default path
-                                                $logoPath = asset('storage/school_logos/' . $logoFile);
                                             }
                                         }
-                                        
-                                        // Get role details - FIXED ROLE DATA
-                                        $playerRole = $playerData ? ($playerData->role ? ucfirst($playerData->role) : 'Player') : null;
-                                        $dancerRole = $dancerData ? ($dancerData->role ? ucfirst($dancerData->role) : 'Dancer') : null;
-                                        $officialRole = $officialData ? ($officialData->team_role ? ucfirst($officialData->team_role) : 'Official') : null;
-                                        
-                                        // Additional player details
-                                        $playerJersey = $playerData ? $playerData->jersey_number : null;
-                                        $playerPosition = $playerData ? $playerData->basketball_position : null;
                                     @endphp
-                                    <tr data-status="{{ $school->verification_status }}" data-school-id="{{ $school->school_id }}">
+                                    <tr data-status="{{ $school->verification_status }}" data-school-id="{{ $school->school_id }}" data-school-name="{{ strtolower($school->school_name) }}">
                                         <td class="text-center">{{ $index + 1 }}</td>
                                         <td>
                                             <div class="d-flex align-items-center">
@@ -264,6 +223,11 @@
                                                     <p class="text-muted mb-0 small">
                                                         <i class="fas fa-calendar me-1"></i>{{ \Carbon\Carbon::parse($school->created_at)->format('d M Y') }}
                                                     </p>
+                                                    @if($school->team_id)
+                                                    <p class="text-muted mb-0 small">
+                                                        <i class="fas fa-hashtag me-1"></i>Team: {{ $school->team_id }}
+                                                    </p>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </td>
@@ -312,6 +276,11 @@
                                                     @endif
                                                 </div>
                                                 @endif
+                                                @if(!$isPlayer && !$isDancer && !$isOfficial)
+                                                <span class="badge bg-secondary bg-opacity-20 text-secondary border border-secondary border-opacity-25">
+                                                    <i class="fas fa-question-circle me-1"></i>No Roles
+                                                </span>
+                                                @endif
                                             </div>
                                         </td>
                                         <td>
@@ -331,45 +300,45 @@
                                             </div>
                                         </td>
                                         <td class="text-center">
-                                            <button type="button" class="btn btn-sm btn-outline-primary" 
-                                                    onclick="showSchoolDetails({{ json_encode([
-                                                        'school_id' => $school->school_id,
-                                                        'school_name' => $school->school_name,
-                                                        'school_logo' => $logoPath,
-                                                        'competition' => $school->competition,
-                                                        'team_category' => $school->team_category,
-                                                        'season' => $school->season,
-                                                        'series' => $school->series,
-                                                        'referral_code' => $school->referral_code,
-                                                        'verification_status' => $school->verification_status,
-                                                        'payment_status' => $school->payment_status,
-                                                        'locked_status' => $school->locked_status,
-                                                        'is_leader_paid' => $school->is_leader_paid,
-                                                        'payment_date' => $school->payment_date,
-                                                        'created_at' => \Carbon\Carbon::parse($school->created_at)->format('d M Y'),
-                                                        'isPlayer' => $isPlayer,
-                                                        'isDancer' => $isDancer,
-                                                        'isOfficial' => $isOfficial,
-                                                        'playerRole' => $playerRole,
-                                                        'dancerRole' => $dancerRole,
-                                                        'officialRole' => $officialRole,
-                                                        'playerData' => $playerData ? [
-                                                            'id' => $playerData->id,
-                                                            'role' => $playerData->role,
-                                                            'jersey_number' => $playerData->jersey_number,
-                                                            'basketball_position' => $playerData->basketball_position
-                                                        ] : null,
-                                                        'dancerData' => $dancerData ? [
-                                                            'dancer_id' => $dancerData->dancer_id,
-                                                            'role' => $dancerData->role
-                                                        ] : null,
-                                                        'officialData' => $officialData ? [
-                                                            'official_id' => $officialData->official_id,
-                                                            'team_role' => $officialData->team_role
-                                                        ] : null
-                                                    ]) }})">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <button type="button" class="btn btn-outline-primary" 
+                                                        onclick="showSchoolDetails({{ json_encode([
+                                                            'school_id' => $school->school_id,
+                                                            'team_id' => $school->team_id ?? null,
+                                                            'school_name' => $school->school_name,
+                                                            'school_logo' => $logoPath,
+                                                            'competition' => $school->competition,
+                                                            'team_category' => $school->team_category,
+                                                            'season' => $school->season,
+                                                            'series' => $school->series,
+                                                            'referral_code' => $school->referral_code ?? null,
+                                                            'verification_status' => $school->verification_status,
+                                                            'payment_status' => $school->payment_status,
+                                                            'locked_status' => $school->locked_status ?? 'unlocked',
+                                                            'is_leader_paid' => $school->is_leader_paid ?? false,
+                                                            'payment_date' => $school->payment_date ? \Carbon\Carbon::parse($school->payment_date)->format('d M Y') : null,
+                                                            'created_at' => \Carbon\Carbon::parse($school->created_at)->format('d M Y'),
+                                                            'isPlayer' => $isPlayer,
+                                                            'isDancer' => $isDancer,
+                                                            'isOfficial' => $isOfficial,
+                                                            'playerRole' => $playerRole,
+                                                            'dancerRole' => $dancerRole,
+                                                            'officialRole' => $officialRole,
+                                                            'playerData' => $playerData,
+                                                            'dancerData' => $dancerData,
+                                                            'officialData' => $officialData
+                                                        ]) }})"
+                                                        title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                @if($isPlayer || $isDancer || $isOfficial)
+                                                <button type="button" class="btn btn-outline-danger" 
+                                                        onclick="confirmLeaveSchool('{{ $school->school_id }}', '{{ $school->school_name }}')"
+                                                        title="Leave School">
+                                                    <i class="fas fa-sign-out-alt"></i>
+                                                </button>
+                                                @endif
+                                            </div>
                                         </td>
                                     </tr>
                                     @endforeach
@@ -393,6 +362,12 @@
                                         <div>
                                             <h6 class="mb-1 fw-bold">Information</h6>
                                             <p class="mb-0 small">This page displays all schools where you are registered as Player, Dancer, or Official. Data is automatically updated based on your registration records.</p>
+                                            @if(count($schools) > 0)
+                                            <p class="mb-0 small mt-2">
+                                                <i class="fas fa-lightbulb me-1"></i>
+                                                <strong>Tip:</strong> Click the eye icon to view detailed information about each school and your roles.
+                                            </p>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -557,6 +532,31 @@
     </div>
 </div>
 
+<!-- Confirm Leave Modal -->
+<div class="modal fade" id="confirmLeaveModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Confirm Leave School
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to leave <strong id="leaveSchoolName"></strong>?</p>
+                <div class="alert alert-warning">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <small>This action will remove all your roles (Player, Dancer, Official) from this school and cannot be undone.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmLeaveBtn">Yes, Leave School</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 // Store user data for filtering
 const authUserEmail = "{{ auth()->user()->email ?? '' }}";
@@ -564,11 +564,13 @@ const authUserNik = "{{ auth()->user()->nik ?? '' }}";
 
 // Store current school ID for actions
 let currentSchoolId = null;
+let currentSchoolTeamId = null;
 
 // School details modal
 function showSchoolDetails(schoolData) {
     // Store school ID for action buttons
     currentSchoolId = schoolData.school_id;
+    currentSchoolTeamId = schoolData.team_id;
     
     // Set basic school info
     document.getElementById('modalSchoolName').textContent = schoolData.school_name;
@@ -832,22 +834,79 @@ function viewOfficialProfile(officialId) {
     }
 }
 
+// Leave school function
+function confirmLeaveSchool(schoolId, schoolName) {
+    document.getElementById('leaveSchoolName').textContent = schoolName;
+    
+    const confirmBtn = document.getElementById('confirmLeaveBtn');
+    confirmBtn.onclick = function() {
+        leaveSchool(schoolId);
+    };
+    
+    const modal = new bootstrap.Modal(document.getElementById('confirmLeaveModal'));
+    modal.show();
+}
+
+function leaveSchool(schoolId) {
+    if (!schoolId) return;
+    
+    // Show loading
+    const confirmBtn = document.getElementById('confirmLeaveBtn');
+    const originalText = confirmBtn.innerHTML;
+    confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+    confirmBtn.disabled = true;
+    
+    // Send leave request
+    fetch(`/student/school-data/leave/${schoolId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Close modals
+            bootstrap.Modal.getInstance(document.getElementById('confirmLeaveModal')).hide();
+            if (document.getElementById('schoolDetailsModal').classList.contains('show')) {
+                bootstrap.Modal.getInstance(document.getElementById('schoolDetailsModal')).hide();
+            }
+            
+            // Show success message and reload
+            showToast('Success', 'You have successfully left the school.', 'success');
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else {
+            showToast('Error', data.message || 'Failed to leave school.', 'error');
+            confirmBtn.innerHTML = originalText;
+            confirmBtn.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Error', 'An error occurred. Please try again.', 'error');
+        confirmBtn.innerHTML = originalText;
+        confirmBtn.disabled = false;
+    });
+}
+
 // Table filtering
 function filterTable() {
     const input = document.getElementById('searchInput');
-    const filter = input.value.toLowerCase();
+    const filter = input.value.toLowerCase().trim();
     const table = document.getElementById('schoolsTable');
     const tr = table.getElementsByTagName('tr');
     
     for (let i = 1; i < tr.length; i++) {
-        const tdSchoolInfo = tr[i].getElementsByTagName('td')[1];
-        if (tdSchoolInfo) {
-            const textValue = tdSchoolInfo.textContent.toLowerCase() || tdSchoolInfo.innerText.toLowerCase();
-            if (textValue.indexOf(filter) > -1) {
-                tr[i].style.display = "";
-            } else {
-                tr[i].style.display = "none";
-            }
+        const schoolName = tr[i].getAttribute('data-school-name') || '';
+        const schoolId = tr[i].getAttribute('data-school-id') || '';
+        
+        if (schoolName.includes(filter) || schoolId.includes(filter)) {
+            tr[i].style.display = "";
+        } else {
+            tr[i].style.display = "none";
         }
     }
 }
@@ -871,6 +930,42 @@ function filterByStatus(status) {
     }
 }
 
+// Toast notification
+function showToast(title, message, type = 'info') {
+    const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+    
+    const toastId = 'toast-' + Date.now();
+    const toastHtml = `
+        <div id="${toastId}" class="toast align-items-center text-bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <strong>${title}</strong><br>
+                    ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    `;
+    
+    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+    const toastElement = document.getElementById(toastId);
+    const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
+    toast.show();
+    
+    toastElement.addEventListener('hidden.bs.toast', function () {
+        this.remove();
+    });
+}
+
+function createToastContainer() {
+    const container = document.createElement('div');
+    container.id = 'toastContainer';
+    container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+    container.style.zIndex = '1060';
+    document.body.appendChild(container);
+    return container;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Auto-hide alerts
     const alerts = document.querySelectorAll('.alert');
@@ -883,11 +978,52 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Initialize tooltips
-    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
     const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
+    
+    // Search input event listener
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', filterTable);
+        searchInput.addEventListener('search', filterTable);
+    }
+    
+    // Add filter buttons if needed
+    addStatusFilterButtons();
 });
+
+function addStatusFilterButtons() {
+    const table = document.getElementById('schoolsTable');
+    if (!table) return;
+    
+    const statuses = ['all', 'verified', 'pending', 'rejected'];
+    const statusLabels = {
+        'all': 'All Schools',
+        'verified': 'Verified',
+        'pending': 'Pending',
+        'rejected': 'Rejected'
+    };
+    
+    const cardHeader = document.querySelector('.card-header-hsbl');
+    if (cardHeader) {
+        const filterDiv = document.createElement('div');
+        filterDiv.className = 'btn-group btn-group-sm mt-2 mt-md-0';
+        filterDiv.setAttribute('role', 'group');
+        
+        statuses.forEach(status => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = `btn btn-outline-${status === 'all' ? 'primary' : 'secondary'}`;
+            button.textContent = statusLabels[status];
+            button.onclick = () => filterByStatus(status);
+            filterDiv.appendChild(button);
+        });
+        
+        cardHeader.appendChild(filterDiv);
+    }
+}
 </script>
 
 <style>
@@ -945,6 +1081,11 @@ document.addEventListener('DOMContentLoaded', function() {
 .btn-outline-purple:hover {
     background-color: #7b1fa2;
     color: white;
+}
+
+.btn-group-sm .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
 }
 
 /* Modal Styles */
@@ -1011,7 +1152,7 @@ document.addEventListener('DOMContentLoaded', function() {
         text-align: center;
     }
     
-    #searchInput {
+    .card-header .input-group {
         width: 100% !important;
         margin-top: 10px;
     }
@@ -1033,6 +1174,11 @@ document.addEventListener('DOMContentLoaded', function() {
         padding: 0.5rem;
         font-size: 0.85rem;
     }
+    
+    .btn-group {
+        width: 100%;
+        justify-content: center;
+    }
 }
 
 @media (max-width: 576px) {
@@ -1047,6 +1193,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     .role-card {
         padding: 1rem !important;
+    }
+    
+    .btn-group .btn {
+        flex: 1;
+        font-size: 0.7rem;
     }
 }
 
@@ -1103,5 +1254,40 @@ document.addEventListener('DOMContentLoaded', function() {
     transform: translateY(-5px);
     box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
 }
+
+/* Loading spinner */
+.fa-spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Toast styles */
+.toast-container {
+    z-index: 1060;
+}
+
+.toast {
+    backdrop-filter: blur(10px);
+    background-color: rgba(var(--bs-info-rgb), 0.9) !important;
+}
+
+.toast.text-bg-success {
+    background-color: rgba(var(--bs-success-rgb), 0.9) !important;
+}
+
+.toast.text-bg-error {
+    background-color: rgba(var(--bs-danger-rgb), 0.9) !important;
+}
+
+.toast.text-bg-warning {
+    background-color: rgba(var(--bs-warning-rgb), 0.9) !important;
+}
 </style>
+
+<!-- CSRF Token for AJAX requests -->
+<meta name="csrf-token" content="{{ csrf_token() }}">
 @endsection
