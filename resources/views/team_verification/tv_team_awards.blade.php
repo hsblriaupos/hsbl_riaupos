@@ -1,5 +1,5 @@
 @extends('admin.layouts.app')
-@section('title', 'Team Verification - Coming Soon')
+@section('title', 'Team Awards - Coming Soon')
 
 @section('content')
 @include('partials.sweetalert')
@@ -9,10 +9,10 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="mb-1 mt-2" style="font-size: 1.4rem; font-weight: 600;">
-                <i class="fas fa-user-check me-2"></i> Team Verification
+                <i class="fas fa-trophy me-2" style="color: #f6c23e;"></i> Team Awards
             </h1>
             <p class="text-muted mb-0" style="font-size: 0.9rem;">
-                Verify and manage team registrations
+                Manage team awards and achievements
             </p>
         </div>
         <div class="text-muted" style="font-size: 0.9rem;">
@@ -27,8 +27,8 @@
                 <div class="card-body text-center py-5">
                     <!-- Icon -->
                     <div class="mb-4">
-                        <div class="bg-light-primary d-inline-flex p-4 rounded-circle">
-                            <i class="fas fa-tools fa-4x text-primary"></i>
+                        <div class="bg-light-warning d-inline-flex p-4 rounded-circle">
+                            <i class="fas fa-tools fa-4x" style="color: #f6c23e;"></i>
                         </div>
                     </div>
                     
@@ -39,7 +39,7 @@
                     
                     <!-- Description -->
                     <p class="text-muted mb-4" style="font-size: 1.1rem; max-width: 500px; margin: 0 auto;">
-                        Fitur verifikasi tim sedang kami siapkan untuk memberikan pengalaman terbaik dalam mengelola pendaftaran tim HSBL.
+                        Fitur team awards sedang kami siapkan untuk mengelola penghargaan, MVP, top skor, dan pencapaian tim HSBL dengan lebih baik.
                     </p>
                     
                     <!-- Back Button -->
@@ -58,27 +58,27 @@
         <div class="col-md-4 mb-3">
             <div class="card h-100 border-0 bg-light">
                 <div class="card-body text-center p-4">
-                    <i class="fas fa-clipboard-list fa-2x text-primary mb-3"></i>
-                    <h6 class="fw-bold">Verifikasi Data Tim</h6>
-                    <p class="small text-muted mb-0">Periksa dan verifikasi kelengkapan data tim basket & dancer</p>
+                    <i class="fas fa-medal fa-2x" style="color: #f6c23e; mb-3"></i>
+                    <h6 class="fw-bold mt-3">MVP & Top Skor</h6>
+                    <p class="small text-muted mb-0">Pemberian penghargaan pemain terbaik dan pencetak skor terbanyak</p>
                 </div>
             </div>
         </div>
         <div class="col-md-4 mb-3">
             <div class="card h-100 border-0 bg-light">
                 <div class="card-body text-center p-4">
-                    <i class="fas fa-image fa-2x text-success mb-3"></i>
-                    <h6 class="fw-bold">Validasi Dokumen</h6>
-                    <p class="small text-muted mb-0">Cek surat rekomendasi, koran, dan foto jersey</p>
+                    <i class="fas fa-award fa-2x" style="color: #f6c23e; mb-3"></i>
+                    <h6 class="fw-bold mt-3">Penghargaan Tim</h6>
+                    <p class="small text-muted mb-0">Rekap penghargaan juara, fair play, dan kategori khusus lainnya</p>
                 </div>
             </div>
         </div>
         <div class="col-md-4 mb-3">
             <div class="card h-100 border-0 bg-light">
                 <div class="card-body text-center p-4">
-                    <i class="fas fa-lock fa-2x text-warning mb-3"></i>
-                    <h6 class="fw-bold">Lock/Unlock Tim</h6>
-                    <p class="small text-muted mb-0">Kunci tim yang sudah diverifikasi untuk mencegah perubahan</p>
+                    <i class="fas fa-certificate fa-2x" style="color: #f6c23e; mb-3"></i>
+                    <h6 class="fw-bold mt-3">Sertifikat Digital</h6>
+                    <p class="small text-muted mb-0">Generate sertifikat penghargaan otomatis untuk tim dan pemain</p>
                 </div>
             </div>
         </div>
@@ -86,8 +86,8 @@
 </div>
 
 <style>
-.bg-light-primary {
-    background-color: rgba(78, 115, 223, 0.1);
+.bg-light-warning {
+    background-color: rgba(246, 194, 62, 0.1);
 }
 </style>
 @endsection
