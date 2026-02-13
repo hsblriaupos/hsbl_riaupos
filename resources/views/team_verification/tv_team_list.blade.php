@@ -161,9 +161,6 @@
     }
 
     /* ===== LEBAR KOLOM OPTIMAL (LEBIH KOMPAK) ===== */
-    /* Total: 70 + 60 + 120 + 160 + 110 + 85 + 85 + 120 + 85 + 90 = ~985px */
-
-    /* Logo Sekolah */
     .table th:nth-child(1),
     .table td:nth-child(1) {
         width: 70px !important;
@@ -173,7 +170,6 @@
         padding: 5px !important;
     }
 
-    /* Team Number */
     .table th:nth-child(2),
     .table td:nth-child(2) {
         width: 60px !important;
@@ -182,7 +178,6 @@
         text-align: center !important;
     }
 
-    /* School */
     .table th:nth-child(3),
     .table td:nth-child(3) {
         width: 120px !important;
@@ -191,7 +186,6 @@
         text-align: left !important;
     }
 
-    /* Team Name */
     .table th:nth-child(4),
     .table td:nth-child(4) {
         width: 100px !important;
@@ -200,7 +194,6 @@
         text-align: left !important;
     }
 
-    /* Competition */
     .table th:nth-child(5),
     .table td:nth-child(5) {
         width: 110px !important;
@@ -209,7 +202,6 @@
         text-align: left !important;
     }
 
-    /* Registered By */
     .table th:nth-child(6),
     .table td:nth-child(6) {
         width: 85px !important;
@@ -218,7 +210,6 @@
         text-align: center !important;
     }
 
-    /* Lock Status */
     .table th:nth-child(7),
     .table td:nth-child(7) {
         width: 85px !important;
@@ -227,7 +218,6 @@
         text-align: center !important;
     }
 
-    /* Verify Status */
     .table th:nth-child(8),
     .table td:nth-child(8) {
         width: 85px !important;
@@ -236,7 +226,6 @@
         text-align: center !important;
     }
 
-    /* Updated At */
     .table th:nth-child(9),
     .table td:nth-child(9) {
         width: 120px !important;
@@ -245,7 +234,6 @@
         text-align: center !important;
     }
 
-    /* Action */
     .table th:nth-child(10),
     .table td:nth-child(10) {
         width: 90px !important;
@@ -254,7 +242,7 @@
         text-align: center !important;
     }
 
-    /* ===== LOGO SEKOLAH ===== */
+    /* ===== LOGO SEKOLAH - FIXED ===== */
     .logo-container {
         display: flex;
         justify-content: center;
@@ -358,16 +346,6 @@
         -webkit-box-orient: vertical;
         overflow: hidden;
         max-height: 2.6em;
-    }
-
-    .team-category {
-        font-size: 0.7rem;
-        color: #718096;
-        background: #f1f5f9;
-        padding: 2px 6px;
-        border-radius: 3px;
-        display: inline-block;
-        width: fit-content;
     }
 
     .competition-info {
@@ -599,6 +577,54 @@
         color: white;
     }
 
+    /* ===== FILTER BUTTON ===== */
+    .btn-filter-submit {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 9px 18px;
+        border-radius: 7px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition: all 0.3s;
+        box-shadow: 0 2px 5px rgba(102, 126, 234, 0.15);
+        height: 38px;
+        width: 100%;
+    }
+
+    .btn-filter-submit:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(102, 126, 234, 0.25);
+        color: white;
+    }
+
+    .btn-reset {
+        background: white;
+        color: #4a5568;
+        border: 1px solid #e2e8f0;
+        padding: 9px 18px;
+        border-radius: 7px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition: all 0.3s;
+        height: 38px;
+        width: 100%;
+    }
+
+    .btn-reset:hover {
+        background: #f1f5f9;
+        border-color: #cbd5e0;
+        color: #2d3748;
+    }
+
     /* ===== EMPTY STATE ===== */
     .empty-state {
         padding: 50px 15px;
@@ -810,7 +836,7 @@
                 <div class="row g-3">
                     <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
                         <label class="filter-label">Sekolah</label>
-                        <select name="school" class="form-control form-control-sm">
+                        <select name="school" id="filter-school" class="form-control form-control-sm">
                             <option value="">Semua Sekolah</option>
                             @foreach($schools as $school)
                             <option value="{{ $school }}" {{ request('school') == $school ? 'selected' : '' }}>
@@ -822,7 +848,7 @@
 
                     <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
                         <label class="filter-label">Status Verifikasi</label>
-                        <select name="status" class="form-control form-control-sm">
+                        <select name="status" id="filter-status" class="form-control form-control-sm">
                             <option value="">Semua Status</option>
                             <option value="unverified" {{ request('status') == 'unverified' ? 'selected' : '' }}>Belum Verifikasi</option>
                             <option value="verified" {{ request('status') == 'verified' ? 'selected' : '' }}>Terverifikasi</option>
@@ -831,7 +857,7 @@
 
                     <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
                         <label class="filter-label">Kategori</label>
-                        <select name="category" class="form-control form-control-sm">
+                        <select name="category" id="filter-category" class="form-control form-control-sm">
                             <option value="">Semua Kategori</option>
                             <option value="Basket Putra" {{ request('category') == 'Basket Putra' ? 'selected' : '' }}>Basket Putra</option>
                             <option value="Basket Putri" {{ request('category') == 'Basket Putri' ? 'selected' : '' }}>Basket Putri</option>
@@ -841,7 +867,7 @@
 
                     <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
                         <label class="filter-label">Tahun</label>
-                        <select name="year" class="form-control form-control-sm">
+                        <select name="year" id="filter-year" class="form-control form-control-sm">
                             <option value="">Semua Tahun</option>
                             @foreach($years as $year)
                             <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>
@@ -853,7 +879,7 @@
 
                     <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
                         <label class="filter-label">Kompetisi</label>
-                        <select name="competition" class="form-control form-control-sm">
+                        <select name="competition" id="filter-competition" class="form-control form-control-sm">
                             <option value="">Semua Kompetisi</option>
                             @foreach($competitions as $comp)
                             <option value="{{ $comp }}" {{ request('competition') == $comp ? 'selected' : '' }}>
@@ -865,7 +891,7 @@
 
                     <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
                         <label class="filter-label">Status Kunci</label>
-                        <select name="locked" class="form-control form-control-sm">
+                        <select name="locked" id="filter-locked" class="form-control form-control-sm">
                             <option value="">Semua</option>
                             <option value="locked" {{ request('locked') == 'locked' ? 'selected' : '' }}>Terkunci</option>
                             <option value="unlocked" {{ request('locked') == 'unlocked' ? 'selected' : '' }}>Terbuka</option>
@@ -880,40 +906,40 @@
                             </span>
                             <input type="text"
                                 name="search"
+                                id="filter-search"
                                 class="form-control border-start-0"
                                 placeholder="Cari sekolah, tim, atau kompetisi..."
-                                value="{{ request('search') }}"
-                                onkeypress="if(event.keyCode==13) this.form.submit()">
+                                value="{{ request('search') }}">
                         </div>
                     </div>
 
                     <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
                         <label class="filter-label">Urutkan</label>
-                        <select name="sort" class="form-control form-control-sm">
+                        <select name="sort" id="filter-sort" class="form-control form-control-sm">
                             <option value="updated_at" {{ request('sort', 'updated_at') == 'updated_at' ? 'selected' : '' }}>Update Terbaru</option>
                             <option value="created_at" {{ request('sort') == 'created_at' ? 'selected' : '' }}>Pendaftaran</option>
                             <option value="school_name" {{ request('sort') == 'school_name' ? 'selected' : '' }}>Nama Sekolah</option>
-                            <option value="team_category" {{ request('sort') == 'team_category' ? 'selected' : '' }}>Kategori</option>
                         </select>
                     </div>
 
                     <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
                         <label class="filter-label">Urutan</label>
-                        <select name="order" class="form-control form-control-sm">
+                        <select name="order" id="filter-order" class="form-control form-control-sm">
                             <option value="desc" {{ request('order', 'desc') == 'desc' ? 'selected' : '' }}>Descending</option>
                             <option value="asc" {{ request('order') == 'asc' ? 'selected' : '' }}>Ascending</option>
                         </select>
                     </div>
 
-                    <div class="col-xl-1 col-lg-12 col-md-12 col-sm-12">
-                        <div class="d-flex h-100 align-items-end">
-                            <button type="button"
-                                onclick="document.getElementById('filterForm').reset(); document.getElementById('filterForm').submit();"
-                                class="btn btn-outline-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-2"
-                                style="height: 38px;"
-                                title="Reset semua filter">
-                                <i class="fas fa-redo"></i>
-                                <span class="d-none d-md-inline">Reset</span>
+                    <div class="col-xl-2 col-lg-6 col-md-6 col-sm-12">
+                        <label class="filter-label">&nbsp;</label>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn-filter-submit">
+                                <i class="fas fa-search me-1"></i>
+                                <span>Cari</span>
+                            </button>
+                            <button type="button" onclick="resetFilter()" class="btn-reset">
+                                <i class="fas fa-undo-alt me-1"></i>
+                                <span>Reset</span>
                             </button>
                         </div>
                     </div>
@@ -955,342 +981,341 @@
                     <tbody>
                         @forelse ($teamList as $team)
                         <tr>
-                            <!-- Logo Sekolah -->
+                            <!-- Logo Sekolah - FIXED -->
                             <td>
-                                <div class="logo-container" onclick="showLogoPopup('{{ $team->school_logo ? asset('storage/' . $team->school_logo) : '' }}', '{{ $team->school_name }}')">
-                                    @if($team->school_logo)
-                                    <!-- 🔥 PERBAIKAN: Gunakan storage path yang benar -->
+                                @if(!empty($team->school_logo))
+                                <div class="logo-container" onclick="showLogoPopup('{{ asset('storage/' . $team->school_logo) }}', '{{ addslashes($team->school_name) }}')">
                                     <img src="{{ asset('storage/' . $team->school_logo) }}"
                                         alt="Logo {{ $team->school_name }}"
                                         class="logo-img"
-                                        onerror="this.onerror=null; this.parentElement.innerHTML = '<div class=\" logo-placeholder\"><i class=\"fas fa-school\"></i><span>No Logo</span>
+                                        onerror="this.onerror=null; this.parentElement.innerHTML = '<div class=\'logo-placeholder\'><i class=\'fas fa-school\'></i><span>No Logo</span></div>'">
                                 </div>
                                 @else
-                                <div class="logo-placeholder">
-                                    <i class="fas fa-school"></i>
-                                    <span>No Logo</span>
+                                <div class="logo-container" onclick="showLogoPopup(null, '{{ addslashes($team->school_name) }}')">
+                                    <div class="logo-placeholder">
+                                        <i class="fas fa-school"></i>
+                                        <span>No Logo</span>
+                                    </div>
                                 </div>
                                 @endif
+                            </td>
+
+                            <!-- Team Number -->
+                            <td>
+                                <span class="team-number-badge" title="TEA{{ str_pad($team->team_id ?? $team->id, 7, '0', STR_PAD_LEFT) }}">
+                                    {{ str_pad($team->team_id ?? $team->id, 4, '0', STR_PAD_LEFT) }}
+                                </span>
+                            </td>
+
+                            <!-- School -->
+                            <td>
+                                <div class="school-info">
+                                    <div class="school-name" title="{{ $team->school_name ?? '' }}">
+                                        {{ Str::limit($team->school_name ?? '-', 25) }}
+                                    </div>
+                                    @if(!empty($team->season))
+                                    <div class="text-small">
+                                        <i class="fas fa-calendar-alt"></i>{{ Str::limit($team->season, 12) }}
+                                    </div>
+                                    @endif
+                                </div>
+                            </td>
+
+                            <!-- Team Name -->
+                            <td>
+                                <div class="team-meta">
+                                    <div class="team-name" title="{{ $team->team_name ?? '' }}">
+                                        {{ Str::limit($team->team_name ?? '-', 20) }}
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- Competition -->
+                            <td>
+                                <div class="competition-info">
+                                    <div class="competition-name" title="{{ $team->competition ?? '' }}">
+                                        {{ Str::limit($team->competition ?? '-', 28) }}
+                                    </div>
+                                    @if(!empty($team->series))
+                                    <div class="text-small">
+                                        <i class="fas fa-layer-group"></i>{{ Str::limit($team->series, 15) }}
+                                    </div>
+                                    @endif
+                                </div>
+                            </td>
+
+                            <!-- Registered By -->
+                            <td>
+                                <div class="registrant-info">
+                                    <div class="registrant-name" title="{{ $team->registered_by ?? '' }}">
+                                        {{ Str::limit($team->registered_by ?? '-', 15) }}
+                                    </div>
+                                    @if(!empty($team->referral_code))
+                                    <div class="text-small">
+                                        <i class="fas fa-hashtag"></i>{{ Str::limit($team->referral_code, 8) }}
+                                    </div>
+                                    @endif
+                                </div>
+                            </td>
+
+                            <!-- Lock Status -->
+                            <td>
+                                @if(($team->locked_status ?? '') == 'locked')
+                                <span class="status-badge badge-locked" title="LOCKED">
+                                    <i class="fas fa-lock"></i> LOCKED
+                                </span>
+                                @else
+                                <span class="status-badge badge-unlocked" title="UNLOCKED">
+                                    <i class="fas fa-unlock"></i> OPEN
+                                </span>
+                                @endif
+                            </td>
+
+                            <!-- Verify Status -->
+                            <td>
+                                @if(($team->verification_status ?? '') == 'verified')
+                                <span class="status-badge badge-verified" title="VERIFIED">
+                                    <i class="fas fa-check-circle"></i> VERIFIED
+                                </span>
+                                @else
+                                <span class="status-badge badge-unverified" title="UNVERIFIED">
+                                    <i class="fas fa-clock"></i> PENDING
+                                </span>
+                                @endif
+                            </td>
+
+                            <!-- Updated At -->
+                            <td class="date-cell">
+                                @if(!empty($team->updated_at))
+                                <div class="date-primary">{{ $team->updated_at instanceof \Carbon\Carbon ? $team->updated_at->format('d/m/Y') : date('d/m/Y', strtotime($team->updated_at)) }}</div>
+                                <div class="date-secondary">{{ $team->updated_at instanceof \Carbon\Carbon ? $team->updated_at->format('H:i') : date('H:i', strtotime($team->updated_at)) }}</div>
+                                @else
+                                <div class="date-primary">-</div>
+                                @endif
+                            </td>
+
+                            <!-- Action -->
+                            <td>
+                                <div class="action-buttons">
+                                    <!-- View -->
+                                    <a href="{{ route('admin.team-list.show', $team->team_id ?? $team->id) }}"
+                                        class="btn-action btn-view"
+                                        title="Lihat Detail">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+
+                                    <!-- Verify/Unverify -->
+                                    @if(($team->verification_status ?? '') == 'unverified')
+                                    <form action="{{ route('admin.team.verify', $team->team_id ?? $team->id) }}"
+                                        method="POST"
+                                        class="d-inline verify-form"
+                                        data-team-name="{{ addslashes($team->school_name ?? 'Tim') }}">
+                                        @csrf
+                                        <button type="submit"
+                                            class="btn-action btn-verify"
+                                            title="Verifikasi Tim">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+                                    @else
+                                    <form action="{{ route('admin.team.unverify', $team->team_id ?? $team->id) }}"
+                                        method="POST"
+                                        class="d-inline unverify-form"
+                                        data-team-name="{{ addslashes($team->school_name ?? 'Tim') }}">
+                                        @csrf
+                                        <button type="submit"
+                                            class="btn-action btn-unverify"
+                                            title="Batalkan Verifikasi">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </form>
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="10">
+                                <div class="empty-state">
+                                    <div class="empty-icon">
+                                        <i class="fas fa-users-slash"></i>
+                                    </div>
+                                    <h5 class="empty-title">Tidak ada data tim ditemukan</h5>
+                                    <p class="empty-text">
+                                        Coba sesuaikan filter pencarian atau tunggu pendaftaran dari peserta.
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
-            </td>
 
-            <!-- Team Number -->
-            <td>
-                <span class="team-number-badge" title="TEA{{ str_pad($team->team_id, 7, '0', STR_PAD_LEFT) }}">
-                    {{ str_pad($team->team_id, 4, '0', STR_PAD_LEFT) }}
-                </span>
-            </td>
-
-            <!-- School -->
-            <td>
-                <div class="school-info">
-                    <div class="school-name" title="{{ $team->school_name }}">
-                        {{ Str::limit($team->school_name, 25) }}
-                    </div>
-                    @if($team->season)
-                    <div class="text-small">
-                        <i class="fas fa-calendar-alt"></i>{{ Str::limit($team->season, 12) }}
-                    </div>
-                    @endif
-                </div>
-            </td>
-
-            <!-- Registered By -->
-            <td>
-                <div class="registrant-info">
-                    <div class="registrant-name" title="{{ $team->registered_by }}">
-                        {{ Str::limit($team->registered_by, 15) }}
-                    </div>
-                    <div class="text-small" style="color: #6b7280; font-size: 0.65rem;">
-                        <i class="fas fa-hashtag"></i> Pendaftar Awal
-                    </div>
-                </div>
-            </td>
-
-            <!-- Competition -->
-            <td>
-                <div class="competition-info">
-                    <div class="competition-name" title="{{ $team->competition }}">
-                        {{ Str::limit($team->competition, 28) }}
-                    </div>
-                    @if($team->series)
-                    <div class="text-small">
-                        <i class="fas fa-layer-group"></i>{{ Str::limit($team->series, 15) }}
-                    </div>
-                    @endif
-                </div>
-            </td>
-
-            <!-- Registered By -->
-            <td>
-                <div class="registrant-info">
-                    <div class="registrant-name" title="{{ $team->registered_by }}">
-                        {{ Str::limit($team->registered_by, 15) }}
-                    </div>
-                    @if($team->referral_code)
-                    <div class="text-small">
-                        <i class="fas fa-hashtag"></i>{{ Str::limit($team->referral_code, 8) }}
-                    </div>
-                    @endif
-                </div>
-            </td>
-
-            <!-- Lock Status -->
-            <td>
-                @if($team->locked_status == 'locked')
-                <span class="status-badge badge-locked" title="LOCKED">
-                    <i class="fas fa-lock"></i> LOCKED
-                </span>
-                @else
-                <span class="status-badge badge-unlocked" title="UNLOCKED">
-                    <i class="fas fa-unlock"></i> OPEN
-                </span>
-                @endif
-            </td>
-
-            <!-- Verify Status -->
-            <td>
-                @if($team->verification_status == 'verified')
-                <span class="status-badge badge-verified" title="VERIFIED">
-                    <i class="fas fa-check"></i> VERIFIED
-                </span>
-                @else
-                <span class="status-badge badge-unverified" title="UNVERIFIED">
-                    <i class="fas fa-clock"></i> PENDING
-                </span>
-                @endif
-            </td>
-
-            <!-- Updated At -->
-            <td class="date-cell">
-                @if($team->updated_at)
-                <div class="date-primary">{{ $team->updated_at->format('d/m/Y') }}</div>
-                <div class="date-secondary">{{ $team->updated_at->format('H:i') }}</div>
-                @else
-                <div class="date-primary">-</div>
-                @endif
-            </td>
-
-            <!-- Action -->
-            <td>
-                <div class="action-buttons">
-                    <!-- View -->
-                    <a href="{{ route('admin.team-list.show', $team->team_id) }}"
-                        class="btn-action btn-view"
-                        title="Lihat Detail">
-                        <i class="fas fa-eye"></i>
-                    </a>
-
-                    <!-- Verify/Unverify -->
-                    @if($team->verification_status == 'unverified')
-                    <form action="{{ route('admin.team.verify', $team->team_id) }}"
-                        method="POST"
-                        class="d-inline">
-                        @csrf
-                        <button type="submit"
-                            class="btn-action btn-verify"
-                            title="Verifikasi Tim"
-                            onclick="return confirm('Verifikasi tim {{ $team->school_name }}?')">
-                            <i class="fas fa-check"></i>
-                        </button>
-                    </form>
+            <!-- Pagination -->
+            @if($teamList->hasPages())
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    @if($teamList->total() > 0)
+                    Menampilkan <strong>{{ $teamList->firstItem() }} - {{ $teamList->lastItem() }}</strong>
+                    dari <strong>{{ $teamList->total() }}</strong> data
                     @else
-                    <form action="{{ route('admin.team.unverify', $team->team_id) }}"
-                        method="POST"
-                        class="d-inline">
-                        @csrf
-                        <button type="submit"
-                            class="btn-action btn-unverify"
-                            title="Batalkan Verifikasi"
-                            onclick="return confirm('Batalkan verifikasi tim {{ $team->school_name }}?')">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </form>
+                    Tidak ada data yang ditampilkan
                     @endif
                 </div>
-            </td>
-            </tr>
-            @empty
-            <tr>
-                <td colspan="10">
-                    <div class="empty-state">
-                        <div class="empty-icon">
-                            <i class="fas fa-users-slash"></i>
-                        </div>
-                        <h5 class="empty-title">Tidak ada data tim ditemukan</h5>
-                        <p class="empty-text">
-                            Coba sesuaikan filter pencarian atau tunggu pendaftaran dari peserta.
-                        </p>
-                    </div>
-                </td>
-            </tr>
-            @endforelse
-            </tbody>
-            </table>
-        </div>
 
-        <!-- Pagination -->
-        @if($teamList->hasPages())
-        <div class="pagination-container">
-            <div class="pagination-info">
-                <i class="fas fa-info-circle me-2"></i>
-                @if($teamList->total() > 0)
-                Menampilkan <strong>{{ $teamList->firstItem() }} - {{ $teamList->lastItem() }}</strong>
-                dari <strong>{{ $teamList->total() }}</strong> data
-                @else
-                Tidak ada data yang ditampilkan
-                @endif
-            </div>
-
-            <nav>
-                <ul class="custom-pagination">
-                    {{-- Previous Page Link --}}
-                    <li class="page-item {{ $teamList->onFirstPage() ? 'disabled' : '' }}">
-                        <a class="page-link"
-                            href="{{ $teamList->onFirstPage() ? '#' : $teamList->previousPageUrl() }}"
-                            aria-label="Previous">
-                            <i class="fas fa-chevron-left"></i>
-                        </a>
-                    </li>
-
-                    {{-- Page Numbers --}}
-                    @php
-                    $currentPage = $teamList->currentPage();
-                    $lastPage = $teamList->lastPage();
-                    $startPage = max($currentPage - 2, 1);
-                    $endPage = min($currentPage + 2, $lastPage);
-                    @endphp
-
-                    {{-- First page --}}
-                    @if($startPage > 1)
-                    <li class="page-item">
-                        <a class="page-link" href="{{ $teamList->url(1) }}">1</a>
-                    </li>
-                    @if($startPage > 2)
-                    <li class="page-item disabled">
-                        <span class="page-link">...</span>
-                    </li>
-                    @endif
-                    @endif
-
-                    {{-- Pages around current --}}
-                    @for ($i = $startPage; $i <= $endPage; $i++)
-                        <li class="page-item {{ $i == $currentPage ? 'active' : '' }}">
-                        @if($i == $currentPage)
-                        <span class="page-link">{{ $i }}</span>
-                        @else
-                        <a class="page-link" href="{{ $teamList->url($i) }}">{{ $i }}</a>
-                        @endif
+                <nav>
+                    <ul class="custom-pagination">
+                        {{-- Previous Page Link --}}
+                        <li class="page-item {{ $teamList->onFirstPage() ? 'disabled' : '' }}">
+                            <a class="page-link"
+                                href="{{ $teamList->onFirstPage() ? '#' : $teamList->previousPageUrl() }}"
+                                aria-label="Previous">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
                         </li>
-                        @endfor
 
-                        {{-- Last page --}}
-                        @if($endPage < $lastPage)
-                            @if($endPage < $lastPage - 1)
-                            <li class="page-item disabled">
+                        {{-- Page Numbers --}}
+                        @php
+                        $currentPage = $teamList->currentPage();
+                        $lastPage = $teamList->lastPage();
+                        $startPage = max($currentPage - 2, 1);
+                        $endPage = min($currentPage + 2, $lastPage);
+                        @endphp
+
+                        {{-- First page --}}
+                        @if($startPage > 1)
+                        <li class="page-item">
+                            <a class="page-link" href="{{ $teamList->url(1) }}">1</a>
+                        </li>
+                        @if($startPage > 2)
+                        <li class="page-item disabled">
                             <span class="page-link">...</span>
-                            </li>
-                            @endif
-                            <li class="page-item">
-                                <a class="page-link" href="{{ $teamList->url($lastPage) }}">{{ $lastPage }}</a>
-                            </li>
-                            @endif
+                        </li>
+                        @endif
+                        @endif
 
-                            {{-- Next Page Link --}}
-                            <li class="page-item {{ !$teamList->hasMorePages() ? 'disabled' : '' }}">
-                                <a class="page-link"
-                                    href="{{ !$teamList->hasMorePages() ? '#' : $teamList->nextPageUrl() }}"
-                                    aria-label="Next">
-                                    <i class="fas fa-chevron-right"></i>
-                                </a>
+                        {{-- Pages around current --}}
+                        @for ($i = $startPage; $i <= $endPage; $i++)
+                            <li class="page-item {{ $i == $currentPage ? 'active' : '' }}">
+                            @if($i == $currentPage)
+                            <span class="page-link">{{ $i }}</span>
+                            @else
+                            <a class="page-link" href="{{ $teamList->url($i) }}">{{ $i }}</a>
+                            @endif
                             </li>
-                </ul>
-            </nav>
+                            @endfor
+
+                            {{-- Last page --}}
+                            @if($endPage < $lastPage)
+                                @if($endPage < $lastPage - 1)
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                                @endif
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $teamList->url($lastPage) }}">{{ $lastPage }}</a>
+                                </li>
+                                @endif
+
+                                {{-- Next Page Link --}}
+                                <li class="page-item {{ !$teamList->hasMorePages() ? 'disabled' : '' }}">
+                                    <a class="page-link"
+                                        href="{{ !$teamList->hasMorePages() ? '#' : $teamList->nextPageUrl() }}"
+                                        aria-label="Next">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                    </ul>
+                </nav>
+            </div>
+            @endif
         </div>
-        @endif
     </div>
-</div>
 </div>
 
 @push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Reset filter button
-        const resetBtn = document.querySelector('button[onclick*="reset"]');
-        if (resetBtn) {
-            resetBtn.addEventListener('click', function() {
-                if (confirm('Reset semua filter ke pengaturan default?')) {
-                    const form = document.getElementById('filterForm');
-                    form.reset();
-                    form.submit();
-                }
-            });
-        }
-
-        // Auto-submit for filter changes
-        const filterSelects = document.querySelectorAll('select[name]');
-        filterSelects.forEach(select => {
-            select.addEventListener('change', function() {
-                this.form.submit();
-            });
-        });
-
-        // Enter key for search
-        const searchInput = document.querySelector('input[name="search"]');
-        if (searchInput) {
-            searchInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    this.form.submit();
-                }
-            });
-        }
-
-        // Confirmation for actions
-        const actionForms = document.querySelectorAll('form[action*="verify"], form[action*="unverify"]');
-        actionForms.forEach(form => {
-            form.addEventListener('submit', function(e) {
-                if (!confirm('Apakah Anda yakin?')) {
-                    e.preventDefault();
-                }
-            });
-        });
-
-        // Responsive table adjustments
-        function checkTableWidth() {
-            const screenWidth = window.innerWidth;
-            const container = document.querySelector('.table-container');
-
-            if (screenWidth < 1200) {
-                container.style.overflowX = 'auto';
-            } else {
-                container.style.overflowX = 'hidden';
+    // Function to reset filter - BENAR-BENAR RESET KE KOSONG
+    function resetFilter() {
+        Swal.fire({
+            title: 'Reset Filter',
+            text: 'Reset semua filter ke default? Semua data akan ditampilkan.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#667eea',
+            cancelButtonColor: '#718096',
+            confirmButtonText: 'Ya, Reset!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Dapatkan form
+                const form = document.getElementById('filterForm');
+                
+                // Reset semua select ke value pertama (biasanya value="")
+                const selects = form.querySelectorAll('select');
+                selects.forEach(select => {
+                    select.value = ''; // Set ke value kosong
+                });
+                
+                // Set default untuk sort dan order
+                const sortSelect = form.querySelector('select[name="sort"]');
+                if (sortSelect) sortSelect.value = 'updated_at';
+                
+                const orderSelect = form.querySelector('select[name="order"]');
+                if (orderSelect) orderSelect.value = 'desc';
+                
+                // Kosongkan semua input text
+                const inputs = form.querySelectorAll('input[type="text"]');
+                inputs.forEach(input => {
+                    input.value = '';
+                });
+                
+                // Submit form
+                form.submit();
             }
-        }
+        });
+    }
 
-        window.addEventListener('resize', checkTableWidth);
-        checkTableWidth(); // Initial check
-    });
+    // Alternative: Hard reset dengan redirect ke URL tanpa parameter
+    function hardResetFilter() {
+        Swal.fire({
+            title: 'Reset Filter',
+            text: 'Reset semua filter ke default? Semua data akan ditampilkan.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#667eea',
+            cancelButtonColor: '#718096',
+            confirmButtonText: 'Ya, Reset!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Redirect ke URL tanpa query parameters
+                window.location.href = "{{ route('admin.tv_team_list') }}";
+            }
+        });
+    }
 
     // Function to show logo popup
     function showLogoPopup(logoUrl, schoolName) {
         let htmlContent;
 
-        if (logoUrl && logoUrl !== '{{ asset('
-            storage / ') }}') {
+        if (logoUrl) {
             htmlContent = `
                 <div style="text-align: center;">
-                    <img src="${logoUrl}" alt="Logo ${schoolName}" class="logo-popup-img">
-                    <p style="color: #666; font-size: 14px; margin-top: 10px;">${schoolName}</p>
+                    <img src="${logoUrl}" alt="Logo ${schoolName}" style="max-width: 250px; max-height: 250px; border-radius: 8px; border: 2px solid #e2e8f0; padding: 8px; background: white;">
+                    <p style="color: #2d3748; font-size: 16px; font-weight: 600; margin-top: 15px;">${schoolName}</p>
                 </div>
             `;
         } else {
             htmlContent = `
                 <div style="text-align: center;">
                     <div style="width: 150px; height: 150px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #f7fafc, #edf2f7); border: 2px dashed #cbd5e0; border-radius: 8px; margin: 0 auto 15px;">
-                        <i class="fas fa-school" style="font-size: 2.5rem; color: #a0aec0; margin-bottom: 10px;"></i>
-                        <span style="color: #718096;">Logo Tidak Tersedia</span>
+                        <i class="fas fa-school" style="font-size: 3rem; color: #a0aec0; margin-bottom: 10px;"></i>
+                        <span style="color: #718096; font-size: 14px;">Logo Tidak Tersedia</span>
                     </div>
-                    <p style="color: #666; font-size: 14px;">${schoolName}</p>
+                    <p style="color: #2d3748; font-size: 16px; font-weight: 600;">${schoolName}</p>
                 </div>
             `;
         }
@@ -1301,10 +1326,132 @@
             showCloseButton: true,
             showConfirmButton: false,
             width: 400,
-            padding: '20px',
-            background: '#fff'
+            padding: '25px',
+            background: '#fff',
+            customClass: {
+                popup: 'logo-popup'
+            }
         });
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-submit untuk filter SELECT (kecuali sort dan order)
+        const filterSelects = document.querySelectorAll('select:not([name="sort"]):not([name="order"])');
+        filterSelects.forEach(select => {
+            select.addEventListener('change', function() {
+                this.form.submit();
+            });
+        });
+
+        // Confirmation for verify actions with SweetAlert
+        const verifyForms = document.querySelectorAll('.verify-form, .unverify-form');
+        verifyForms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const teamName = this.dataset.teamName || 'Tim';
+                const isVerify = this.classList.contains('verify-form');
+                const action = isVerify ? 'verifikasi' : 'batalkan verifikasi';
+
+                Swal.fire({
+                    title: 'Konfirmasi',
+                    text: `Apakah Anda yakin ingin ${action} tim ${teamName}?`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: isVerify ? '#48bb78' : '#ed8936',
+                    cancelButtonColor: '#718096',
+                    confirmButtonText: `Ya, ${isVerify ? 'Verifikasi' : 'Batalkan'}!`,
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+
+        // Check for any broken images and fix them
+        const logoImages = document.querySelectorAll('.logo-img');
+        logoImages.forEach(img => {
+            img.addEventListener('error', function() {
+                const container = this.parentElement;
+                container.innerHTML = `<div class="logo-placeholder">
+                    <i class="fas fa-school"></i>
+                    <span>No Logo</span>
+                </div>`;
+            });
+        });
+
+        // Responsive table adjustments
+        function checkTableWidth() {
+            const screenWidth = window.innerWidth;
+            const container = document.querySelector('.table-container');
+
+            if (container) {
+                if (screenWidth < 1200) {
+                    container.style.overflowX = 'auto';
+                } else {
+                    container.style.overflowX = 'hidden';
+                }
+            }
+        }
+
+        window.addEventListener('resize', checkTableWidth);
+        checkTableWidth();
+        
+        // Tambahkan tombol reset yang lebih jelas
+        console.log('Filter reset function ready');
+    });
 </script>
+
+<style>
+    /* Additional styles for logo popup */
+    .logo-popup {
+        border-radius: 12px !important;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .swal2-close {
+        color: #718096 !important;
+        font-size: 24px !important;
+    }
+
+    .swal2-close:hover {
+        color: #4a5568 !important;
+    }
+
+    /* Fix for logo container */
+    .logo-container {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .logo-img {
+        transition: transform 0.3s ease;
+    }
+
+    .logo-container:hover .logo-img {
+        transform: scale(1.1);
+    }
+
+    /* Style untuk button submit dan reset */
+    .btn-filter-submit,
+    .btn-reset {
+        transition: all 0.3s ease;
+    }
+
+    .btn-filter-submit i,
+    .btn-reset i {
+        font-size: 0.85rem;
+    }
+
+    @media (max-width: 576px) {
+
+        .btn-filter-submit,
+        .btn-reset {
+            padding: 8px 12px;
+            font-size: 0.8rem;
+        }
+    }
+</style>
 @endpush
 @endsection
