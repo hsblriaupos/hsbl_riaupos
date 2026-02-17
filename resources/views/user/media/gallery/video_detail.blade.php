@@ -283,53 +283,6 @@
                     </div>
                     @endif
                 </div>
-                
-                {{-- Video Details Card --}}
-                <div class="bg-white rounded-xl shadow-lg p-5 sm:p-6">
-                    <h3 class="text-xl font-semibold text-gray-900 mb-4 pb-3 border-b border-gray-200">Video Details</h3>
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center py-2">
-                            <span class="text-gray-600 font-medium">Title</span>
-                            <span class="font-semibold text-gray-800 text-right max-w-xs">{{ Str::limit($video->title, 40) }}</span>
-                        </div>
-                        <div class="flex justify-between items-center py-2 border-t border-gray-100">
-                            <span class="text-gray-600 font-medium">Video Type</span>
-                            <span class="font-semibold {{ $video->type === 'live' ? 'text-orange-600' : 'text-green-600' }}">
-                                {{ strtoupper($video->type) }}
-                            </span>
-                        </div>
-                        <div class="flex justify-between items-center py-2 border-t border-gray-100">
-                            <span class="text-gray-600 font-medium">Status</span>
-                            <span class="font-semibold text-green-600">PUBLISHED</span>
-                        </div>
-                        <div class="flex justify-between items-center py-2 border-t border-gray-100">
-                            <span class="text-gray-600 font-medium">Platform</span>
-                            <span class="font-semibold">
-                                @if($isYoutube)
-                                    <i class="fab fa-youtube text-red-500 mr-1.5"></i> YouTube
-                                @else
-                                    <i class="fas fa-video text-blue-500 mr-1.5"></i> Local Video
-                                @endif
-                            </span>
-                        </div>
-                        <div class="flex justify-between items-center py-2 border-t border-gray-100">
-                            <span class="text-gray-600 font-medium">Upload Date</span>
-                            <span class="font-semibold text-gray-800">{{ $video->created_at->format('d/m/Y') }}</span>
-                        </div>
-                        @if($video->view_count > 0)
-                        <div class="flex justify-between items-center py-2 border-t border-gray-100">
-                            <span class="text-gray-600 font-medium">Total Views</span>
-                            <span class="font-semibold text-blue-600">{{ number_format($video->view_count) }}</span>
-                        </div>
-                        @endif
-                        @if($video->updated_at->gt($video->created_at))
-                        <div class="flex justify-between items-center py-2 border-t border-gray-100">
-                            <span class="text-gray-600 font-medium">Last Updated</span>
-                            <span class="font-semibold text-gray-800">{{ $video->updated_at->format('d/m/Y') }}</span>
-                        </div>
-                        @endif
-                    </div>
-                </div>
             </div>
             
             {{-- Right Column - Sidebar --}}
@@ -470,6 +423,53 @@
                                class="block text-center px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition-colors font-medium text-sm">
                                 <i class="fas fa-list mr-2"></i>View All Videos
                             </a>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+
+                {{-- Video Details Card --}}
+                <div class="bg-white rounded-xl shadow-lg p-5 sm:p-6">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4 pb-3 border-b border-gray-200">Video Details</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center py-2">
+                            <span class="text-gray-600 font-medium">Title</span>
+                            <span class="font-semibold text-gray-800 text-right max-w-xs">{{ Str::limit($video->title, 40) }}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-t border-gray-100">
+                            <span class="text-gray-600 font-medium">Video Type</span>
+                            <span class="font-semibold {{ $video->type === 'live' ? 'text-orange-600' : 'text-green-600' }}">
+                                {{ strtoupper($video->type) }}
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-t border-gray-100">
+                            <span class="text-gray-600 font-medium">Status</span>
+                            <span class="font-semibold text-green-600">PUBLISHED</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-t border-gray-100">
+                            <span class="text-gray-600 font-medium">Platform</span>
+                            <span class="font-semibold">
+                                @if($isYoutube)
+                                    <i class="fab fa-youtube text-red-500 mr-1.5"></i> YouTube
+                                @else
+                                    <i class="fas fa-video text-blue-500 mr-1.5"></i> Local Video
+                                @endif
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-t border-gray-100">
+                            <span class="text-gray-600 font-medium">Upload Date</span>
+                            <span class="font-semibold text-gray-800">{{ $video->created_at->format('d/m/Y') }}</span>
+                        </div>
+                        @if($video->view_count > 0)
+                        <div class="flex justify-between items-center py-2 border-t border-gray-100">
+                            <span class="text-gray-600 font-medium">Total Views</span>
+                            <span class="font-semibold text-blue-600">{{ number_format($video->view_count) }}</span>
+                        </div>
+                        @endif
+                        @if($video->updated_at->gt($video->created_at))
+                        <div class="flex justify-between items-center py-2 border-t border-gray-100">
+                            <span class="text-gray-600 font-medium">Last Updated</span>
+                            <span class="font-semibold text-gray-800">{{ $video->updated_at->format('d/m/Y') }}</span>
                         </div>
                         @endif
                     </div>
