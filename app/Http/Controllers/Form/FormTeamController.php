@@ -503,11 +503,14 @@ class FormTeamController extends Controller
             $normalizedCategory = session('normalized_category', $this->normalizeCategory($team->team_category));
             $referralCode = session('referral_code', $team->referral_code);
 
+            // ✅ AMBIL TERMS & CONDITIONS UNTUK DITAMPILKAN DI SUCCESS PAGE
+            $latestTerm = \App\Models\TermCondition::orderBy('year', 'desc')->first();
+
             Log::info('Team success page for: ' . $team->school_name . ' - ' . $team->team_category);
             Log::info('Referral Code: ' . $referralCode);
             Log::info('Registered_by: ' . $team->registered_by);
 
-            return view('user.form.form_team_success', compact('team', 'normalizedCategory', 'referralCode'));
+            return view('user.form.form_team_success', compact('team', 'normalizedCategory', 'referralCode', 'latestTerm'));
         } catch (\Exception $e) {
             Log::error('❌ Error in showTeamSuccessPage: ' . $e->getMessage());
             return redirect()->route('form.team.choice')
@@ -643,5 +646,41 @@ class FormTeamController extends Controller
             'teams' => $teams,
             'count' => $teams->count()
         ]);
+    }
+
+    /**
+     * ✅ Download Syarat & Ketentuan Terbaru
+     */
+    public function downloadTerms()
+    {
+        $latestTerm = \App\Models\TermCondition::orderBy('year', 'desc')->first();
+
+        if (!$latestTerm || !$latestTerm->links) {
+            return redirect()->back()->with('error', 'Dokumen Syarat & Ketentuan tidak ditemukan.');
+        }
+
+        if ($latestTerm->is_file) {
+            return redirect()->away($latestTerm->getDirectDownloadLink());
+        } else {
+            return redirect()->away($latestTerm->links);
+        }
+    }
+
+    /**
+     * ✅ Preview Syarat & Ketentuan Terbaru
+     */
+    public function previewTerms()
+    {
+        $latestTerm = \App\Models\TermCondition::orderBy('year', 'desc')->first();
+
+        if (!$latestTerm || !$latestTerm->links) {
+            return redirect()->back()->with('error', 'Dokumen Syarat & Ketentuan tidak ditemukan.');
+        }
+
+        if ($latestTerm->is_file && $latestTerm->google_drive_embed_url) {
+            return redirect()->away($latestTerm->google_drive_embed_url);
+        } else {
+            return redirect()->away($latestTerm->links);
+        }
     }
 }

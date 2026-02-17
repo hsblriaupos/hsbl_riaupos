@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\TermCondition;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -28,11 +27,11 @@ class TermConditionController extends Controller
      */
     public function store(Request $request)
     {
-        // Validasi
+        // Validasi untuk link Google Drive
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:200',
             'year' => 'required|integer|min:2000|max:' . (date('Y') + 5),
-            'file' => 'required|file|mimes:pdf|max:2048', // Max 2MB
+            'links' => 'required|url|max:500',
         ], [
             'title.required' => 'Judul dokumen wajib diisi',
             'title.max' => 'Judul maksimal 200 karakter',
@@ -40,10 +39,9 @@ class TermConditionController extends Controller
             'year.integer' => 'Tahun harus berupa angka',
             'year.min' => 'Tahun minimal 2000',
             'year.max' => 'Tahun tidak boleh lebih dari ' . (date('Y') + 5),
-            'file.required' => 'File dokumen wajib diupload',
-            'file.file' => 'File harus berupa dokumen',
-            'file.mimes' => 'Format file harus PDF',
-            'file.max' => 'Ukuran file maksimal 2MB',
+            'links.required' => 'Link Google Drive wajib diisi',
+            'links.url' => 'Format link tidak valid',
+            'links.max' => 'Link maksimal 500 karakter',
         ]);
 
         if ($validator->fails()) {
@@ -54,47 +52,32 @@ class TermConditionController extends Controller
         }
 
         try {
-            // Upload file
-            if ($request->hasFile('file')) {
-                $file = $request->file('file');
-                
-                // Validasi ukuran file
-                if ($file->getSize() > 2 * 1024 * 1024) { // 2MB in bytes
-                    return redirect()->back()
-                        ->with('error', 'Ukuran file melebihi 2MB')
-                        ->withInput();
-                }
-                
-                // Validasi tipe file
-                if ($file->getClientOriginalExtension() !== 'pdf') {
-                    return redirect()->back()
-                        ->with('error', 'Hanya file PDF yang diizinkan')
-                        ->withInput();
-                }
-                
-                // Generate unique filename
-                $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                $sanitizedName = Str::slug($originalName, '_');
-                $filename = 'term_' . $sanitizedName . '_' . time() . '.pdf';
-                
-                // Simpan file ke storage
-                $path = $file->storeAs('public/term_conditions', $filename);
-                
-                // Simpan ke database
-                TermCondition::create([
-                    'title' => $request->title,
-                    'year' => $request->year,
-                    'document' => 'storage/term_conditions/' . $filename,
-                    'status' => 'active', // Default value
-                ]);
-
-                return redirect()->route('admin.term_conditions.index')
-                    ->with('success', 'Dokumen Syarat & Ketentuan berhasil diupload!');
+            // Validasi tambahan untuk Google Drive link
+            $links = trim($request->links);
+            
+            // Tambahkan https:// jika belum ada
+            if (!preg_match('/^https?:\/\//', $links)) {
+                $links = 'https://' . $links;
+            }
+            
+            // ✅ PERBAIKAN: Validasi apakah link Google Drive valid (file ATAU folder)
+            $validationResult = $this->isValidGoogleDriveLink($links);
+            if (!$validationResult['valid']) {
+                return redirect()->back()
+                    ->with('error', 'Link Google Drive tidak valid. ' . $validationResult['message'])
+                    ->withInput();
             }
 
-            return redirect()->back()
-                ->with('error', 'File tidak ditemukan')
-                ->withInput();
+            // Simpan ke database
+            TermCondition::create([
+                'title' => $request->title,
+                'year' => $request->year,
+                'links' => $links,
+                'status' => 'active', // Default value
+            ]);
+
+            return redirect()->route('admin.term_conditions.index')
+                ->with('success', 'Link Google Drive berhasil disimpan!');
 
         } catch (\Exception $e) {
             // Debug error untuk mengetahui penyebab sebenarnya
@@ -115,16 +98,7 @@ class TermConditionController extends Controller
         try {
             $term = TermCondition::findOrFail($id);
             
-            // Hapus file dari storage
-            if ($term->document) {
-                // Konversi path storage ke path file sebenarnya
-                $filePath = str_replace('storage/', 'public/', $term->document);
-                if (Storage::exists($filePath)) {
-                    Storage::delete($filePath);
-                }
-            }
-            
-            // Hapus dari database
+            // Hapus dari database (tidak perlu hapus file karena menggunakan link)
             $term->delete();
 
             return redirect()->route('admin.term_conditions.index')
@@ -155,15 +129,7 @@ class TermConditionController extends Controller
                 $term = TermCondition::find($id);
                 
                 if ($term) {
-                    // Hapus file dari storage
-                    if ($term->document) {
-                        $filePath = str_replace('storage/', 'public/', $term->document);
-                        if (Storage::exists($filePath)) {
-                            Storage::delete($filePath);
-                        }
-                    }
-                    
-                    // Hapus dari database
+                    // Hapus dari database (tidak perlu hapus file)
                     $term->delete();
                     $deletedCount++;
                 }
@@ -174,86 +140,6 @@ class TermConditionController extends Controller
 
         } catch (\Exception $e) {
             \Log::error('TermCondition Bulk Destroy Error: ' . $e->getMessage());
-            return redirect()->route('admin.term_conditions.index')
-                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Download the specified file.
-     */
-    public function download(string $id)
-    {
-        try {
-            $term = TermCondition::findOrFail($id);
-            
-            if (!$term->document) {
-                return redirect()->back()
-                    ->with('error', 'File tidak ditemukan');
-            }
-
-            // Get storage path
-            $filePath = str_replace('storage/', 'public/', $term->document);
-            
-            if (!Storage::exists($filePath)) {
-                return redirect()->back()
-                    ->with('error', 'File tidak ditemukan di server');
-            }
-
-            // Get original filename or generate one
-            $originalName = pathinfo($term->document, PATHINFO_FILENAME);
-            $filename = $originalName ?: 'syarat_ketentuan_' . $term->year . '.pdf';
-            
-            // Pastikan extension PDF
-            if (!Str::endsWith(strtolower($filename), '.pdf')) {
-                $filename .= '.pdf';
-            }
-
-            // Clean filename
-            $filename = preg_replace('/[^A-Za-z0-9_\-.]/', '_', $filename);
-
-            return Storage::download($filePath, $filename);
-
-        } catch (\Exception $e) {
-            \Log::error('TermCondition Download Error: ' . $e->getMessage());
-            return redirect()->route('admin.term_conditions.index')
-                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * View the specified file.
-     */
-    public function view(string $id)
-    {
-        try {
-            $term = TermCondition::findOrFail($id);
-            
-            if (!$term->document) {
-                return redirect()->back()
-                    ->with('error', 'File tidak ditemukan');
-            }
-
-            // Get storage path
-            $filePath = str_replace('storage/', 'public/', $term->document);
-            
-            if (!Storage::exists($filePath)) {
-                return redirect()->back()
-                    ->with('error', 'File tidak ditemukan di server');
-            }
-
-            // Get file content
-            $fileContent = Storage::get($filePath);
-            
-            // Get original filename
-            $originalName = pathinfo($term->document, PATHINFO_BASENAME);
-
-            return response($fileContent)
-                ->header('Content-Type', 'application/pdf')
-                ->header('Content-Disposition', 'inline; filename="' . ($originalName ?: 'document.pdf') . '"');
-
-        } catch (\Exception $e) {
-            \Log::error('TermCondition View Error: ' . $e->getMessage());
             return redirect()->route('admin.term_conditions.index')
                 ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
@@ -315,6 +201,7 @@ class TermConditionController extends Controller
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:200',
             'year' => 'required|integer|min:2000|max:' . (date('Y') + 5),
+            'links' => 'nullable|url|max:500',
             'status' => 'required|in:active,inactive,draft',
         ], [
             'title.required' => 'Judul dokumen wajib diisi',
@@ -323,6 +210,8 @@ class TermConditionController extends Controller
             'year.integer' => 'Tahun harus berupa angka',
             'year.min' => 'Tahun minimal 2000',
             'year.max' => 'Tahun tidak boleh lebih dari ' . (date('Y') + 5),
+            'links.url' => 'Format link tidak valid',
+            'links.max' => 'Link maksimal 500 karakter',
             'status.required' => 'Status wajib dipilih',
             'status.in' => 'Status tidak valid',
         ]);
@@ -337,9 +226,29 @@ class TermConditionController extends Controller
         try {
             $term = TermCondition::findOrFail($id);
             
+            // Proses link jika ada
+            $links = null;
+            if ($request->filled('links')) {
+                $links = trim($request->links);
+                
+                // Tambahkan https:// jika belum ada
+                if (!preg_match('/^https?:\/\//', $links)) {
+                    $links = 'https://' . $links;
+                }
+                
+                // ✅ PERBAIKAN: Validasi apakah link Google Drive valid (opsional untuk update)
+                $validationResult = $this->isValidGoogleDriveLink($links);
+                if (!$validationResult['valid']) {
+                    return redirect()->back()
+                        ->with('error', 'Link Google Drive tidak valid. ' . $validationResult['message'])
+                        ->withInput();
+                }
+            }
+            
             // Update data
             $term->title = $request->title;
             $term->year = $request->year;
+            $term->links = $links;
             $term->status = $request->status;
             $term->save();
             
@@ -351,6 +260,205 @@ class TermConditionController extends Controller
             return redirect()->back()
                 ->with('error', 'Terjadi kesalahan: ' . $e->getMessage())
                 ->withInput();
+        }
+    }
+
+    /**
+     * ✅ PERBAIKAN: Validasi Google Drive Link (FILE ATAU FOLDER)
+     * Return array dengan status valid dan pesan
+     */
+    private function isValidGoogleDriveLink($url)
+    {
+        // Pastikan URL mengandung drive.google.com
+        if (!str_contains($url, 'drive.google.com')) {
+            return [
+                'valid' => false,
+                'message' => 'URL harus dari domain drive.google.com'
+            ];
+        }
+
+        // Pattern untuk mendeteksi berbagai format URL Google Drive (FILE)
+        $filePatterns = [
+            '/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/',
+            '/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/',
+            '/drive\.google\.com\/uc\?.*id=([a-zA-Z0-9_-]+)/',
+            '/docs\.google\.com\/(?:document|spreadsheets|presentation)\/d\/([a-zA-Z0-9_-]+)/',
+        ];
+
+        // ✅ TAMBAHKAN: Pattern untuk FOLDER Google Drive
+        $folderPatterns = [
+            '/drive\.google\.com\/drive\/folders\/([a-zA-Z0-9_-]+)/',
+            '/drive\.google\.com\/folderview\?id=([a-zA-Z0-9_-]+)/',
+            '/drive\.google\.com\/drive\/u\/\d+\/folders\/([a-zA-Z0-9_-]+)/',
+        ];
+
+        // Cek pattern untuk file
+        foreach ($filePatterns as $pattern) {
+            if (preg_match($pattern, $url)) {
+                return [
+                    'valid' => true,
+                    'type' => 'file',
+                    'message' => 'Link file Google Drive valid'
+                ];
+            }
+        }
+
+        // ✅ Cek pattern untuk folder
+        foreach ($folderPatterns as $pattern) {
+            if (preg_match($pattern, $url)) {
+                return [
+                    'valid' => true,
+                    'type' => 'folder',
+                    'message' => 'Link folder Google Drive valid'
+                ];
+            }
+        }
+
+        return [
+            'valid' => false,
+            'message' => 'Format link tidak dikenali. Pastikan menggunakan link file atau folder Google Drive yang benar.'
+        ];
+    }
+
+    /**
+     * ✅ PERBAIKAN: Extract ID dari Google Drive link (FILE ATAU FOLDER)
+     */
+    private function extractGoogleDriveId($url)
+    {
+        // Pattern untuk file
+        $filePatterns = [
+            '/\/d\/([a-zA-Z0-9_-]+)/',
+            '/id=([a-zA-Z0-9_-]+)/',
+            '/file\/d\/([a-zA-Z0-9_-]+)/',
+            '/open\?id=([a-zA-Z0-9_-]+)/',
+        ];
+
+        // ✅ Pattern untuk folder
+        $folderPatterns = [
+            '/\/folders\/([a-zA-Z0-9_-]+)/',
+            '/folderview\?id=([a-zA-Z0-9_-]+)/',
+            '/\/u\/\d+\/folders\/([a-zA-Z0-9_-]+)/',
+        ];
+
+        // Cek pattern file
+        foreach ($filePatterns as $pattern) {
+            if (preg_match($pattern, $url, $matches)) {
+                return [
+                    'id' => $matches[1],
+                    'type' => 'file'
+                ];
+            }
+        }
+
+        // ✅ Cek pattern folder
+        foreach ($folderPatterns as $pattern) {
+            if (preg_match($pattern, $url, $matches)) {
+                return [
+                    'id' => $matches[1],
+                    'type' => 'folder'
+                ];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Get preview URL from Google Drive link
+     */
+    public function getPreviewUrl(string $id)
+    {
+        try {
+            $term = TermCondition::findOrFail($id);
+            
+            $validationResult = $this->isValidGoogleDriveLink($term->links);
+            if (!$validationResult['valid']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Link Google Drive tidak valid'
+                ], 400);
+            }
+
+            $extracted = $this->extractGoogleDriveId($term->links);
+            
+            // Buat embed URL berdasarkan tipe (file atau folder)
+            if ($extracted['type'] === 'file') {
+                $embedUrl = "https://drive.google.com/file/d/{$extracted['id']}/preview";
+            } else {
+                // Untuk folder, gunakan URL folder biasa (tidak bisa diembed)
+                $embedUrl = $term->links;
+            }
+
+            return response()->json([
+                'success' => true,
+                'embed_url' => $embedUrl,
+                'type' => $extracted['type'],
+                'title' => $term->title
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('TermCondition GetPreviewUrl Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Validate Google Drive link via AJAX
+     */
+    public function validateLink(Request $request)
+    {
+        $request->validate([
+            'links' => 'required|url'
+        ]);
+
+        $validationResult = $this->isValidGoogleDriveLink($request->links);
+        
+        // Extract file/folder ID jika valid
+        $extracted = null;
+        if ($validationResult['valid']) {
+            $extracted = $this->extractGoogleDriveId($request->links);
+        }
+
+        return response()->json([
+            'valid' => $validationResult['valid'],
+            'type' => $extracted['type'] ?? null,
+            'id' => $extracted['id'] ?? null,
+            'message' => $validationResult['message']
+        ]);
+    }
+
+    /**
+     * Get direct download link
+     */
+    public function getDirectDownloadLink(string $id)
+    {
+        try {
+            $term = TermCondition::findOrFail($id);
+            
+            $validationResult = $this->isValidGoogleDriveLink($term->links);
+            if (!$validationResult['valid']) {
+                return redirect()->back()
+                    ->with('error', 'Link Google Drive tidak valid');
+            }
+
+            $extracted = $this->extractGoogleDriveId($term->links);
+            
+            // Untuk file, buat link download langsung
+            if ($extracted['type'] === 'file') {
+                $downloadLink = "https://drive.google.com/uc?export=download&id={$extracted['id']}";
+                return redirect()->away($downloadLink);
+            }
+            
+            // Untuk folder, redirect ke folder itu sendiri
+            return redirect()->away($term->links);
+
+        } catch (\Exception $e) {
+            \Log::error('TermCondition GetDirectDownloadLink Error: ' . $e->getMessage());
+            return redirect()->route('admin.term_conditions.index')
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 }

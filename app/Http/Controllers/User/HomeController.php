@@ -5,14 +5,16 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\AddData;
 use App\Models\TeamList;
-use App\Models\MediaNews; // Ubah dari News ke MediaNews
+use App\Models\News; // Perbaikan: dari MediaNews ke News
 use App\Models\MatchData;
 use App\Models\MatchResult;
-use App\Models\MediaVideo; // Ubah dari Video ke MediaVideo
+use App\Models\Video; // Perbaikan: dari MediaVideo ke Video
 use App\Models\Sponsor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class HomeController extends Controller
 {
@@ -22,142 +24,242 @@ class HomeController extends Controller
     public function index()
     {
         try {
-            // Get total competitions - Hanya ambil data dari kolom competition
+            // Get total competitions
             $totalCompetitions = Cache::remember('total_competitions', 3600, function () {
                 try {
                     if (DB::getSchemaBuilder()->hasTable('add_data')) {
-                        // Ambil data unik dari kolom competition
                         return AddData::distinct('competition')->count('competition');
                     }
-                    return 12; // Fallback value jika tabel tidak ada
+                    return 12;
                 } catch (\Exception $e) {
-                    return 12; // Fallback value
+                    return 12;
                 }
             });
 
-            // Get total unique schools - dari tabel team_list kolom school_name
+            // Get total unique schools
             $totalSchools = Cache::remember('total_schools', 3600, function () {
                 try {
-                    if (!DB::getSchemaBuilder()->hasTable('team_list')) { // Ubah ke team_list
-                        return 24; // Fallback value
+                    if (!DB::getSchemaBuilder()->hasTable('team_list')) {
+                        return 24;
                     }
                     
                     if (DB::getSchemaBuilder()->hasColumn('team_list', 'school_name')) {
                         return TeamList::distinct('school_name')->count('school_name');
                     }
                     
-                    return 24; // Fallback value
+                    return 24;
                 } catch (\Exception $e) {
-                    return 24; // Fallback value
+                    return 24;
                 }
             });
 
-            // Get latest news (3 items) - dari tabel media_news
+            // Get latest news (4 items) - Menggunakan model News
             $latestNews = Cache::remember('latest_news_home', 1800, function () {
                 try {
-                    if (!DB::getSchemaBuilder()->hasTable('media_news')) { // Ubah ke media_news
+                    if (!DB::getSchemaBuilder()->hasTable('news')) {
                         return collect();
                     }
                     
-                    $query = DB::table('media_news'); // Gunakan DB::table untuk media_news
+                    $query = News::where('status', 'view'); // Sesuai dengan NewsController
                     
-                    if (DB::getSchemaBuilder()->hasColumn('media_news', 'status')) {
-                        $query->where(function($q) {
-                            $q->where('status', 'published')
-                              ->orWhere('status', 'active')
-                              ->orWhereNull('status');
-                        });
-                    }
-                    
-                    return $query->orderBy('created_at', 'desc')
-                        ->take(3)
-                        ->get(['id', 'title as title', 'content', 'created_at', 'thumbnail']); // Kolom tittle (bukan title)
+                    return $query->latest()
+                        ->take(4)
+                        ->get(['id', 'title', 'content', 'image', 'series', 'created_at']);
                 } catch (\Exception $e) {
+                    \Log::error('Error fetching latest news: ' . $e->getMessage());
                     return collect();
                 }
             });
 
-            // Get upcoming matches (3 items)
-            $upcomingMatches = Cache::remember('upcoming_matches_home', 900, function () {
+            // Get latest schedules (4 items)
+            $latestSchedules = Cache::remember('latest_schedules_home', 900, function () {
                 try {
                     if (!DB::getSchemaBuilder()->hasTable('match_data')) {
                         return collect();
                     }
                     
-                    $query = MatchData::where('date', '>=', now()->format('Y-m-d'));
+                    $query = MatchData::where(function($q) {
+                        $q->where('status', 'active')
+                          ->orWhere('status', 'published')
+                          ->orWhere('status', 'publish')
+                          ->orWhereNull('status');
+                    })
+                    ->whereNotNull('layout_image');
                     
-                    if (DB::getSchemaBuilder()->hasColumn('match_data', 'status')) {
-                        $query->where(function($q) {
-                            $q->where('status', 'published')
-                              ->orWhere('status', 'active')
-                              ->orWhereNull('status');
-                        });
-                    }
+                    $schedules = $query->latest('upload_date')
+                        ->take(4)
+                        ->get(['id', 'main_title', 'layout_image', 'series_name', 'upload_date', 'caption']);
                     
-                    return $query->orderBy('date', 'asc')
-                        ->orderBy('time', 'asc')
-                        ->take(3)
-                        ->get(['id', 'main_title as main_title', 'layout_image', 'date', 'time', 'venue']);
+                    // Format schedules data
+                    $schedules->transform(function ($schedule) {
+                        // Format image URL
+                        if ($schedule->layout_image) {
+                            if (str_starts_with($schedule->layout_image, 'http')) {
+                                $schedule->image_url = $schedule->layout_image;
+                            } elseif (!str_contains($schedule->layout_image, '/')) {
+                                $schedule->image_url = asset('images/schedule/' . $schedule->layout_image);
+                            } else {
+                                $schedule->image_url = asset($schedule->layout_image);
+                            }
+                        } else {
+                            $schedule->image_url = asset('images/default-schedule.jpg');
+                        }
+                        
+                        // Format date
+                        if ($schedule->upload_date) {
+                            try {
+                                $schedule->formatted_date = Carbon::parse($schedule->upload_date)
+                                    ->locale('id')
+                                    ->translatedFormat('j F Y');
+                            } catch (\Exception $e) {
+                                $schedule->formatted_date = $schedule->upload_date;
+                            }
+                        } else {
+                            $schedule->formatted_date = 'Date TBD';
+                        }
+                        
+                        return $schedule;
+                    });
+                    
+                    return $schedules;
                 } catch (\Exception $e) {
+                    \Log::error('Error fetching latest schedules: ' . $e->getMessage());
                     return collect();
                 }
             });
 
-            // Get latest results (3 items)
+            // Get latest results (4 items)
             $latestResults = Cache::remember('latest_results_home', 900, function () {
                 try {
                     if (!DB::getSchemaBuilder()->hasTable('match_results')) {
                         return collect();
                     }
                     
-                    $query = MatchResult::with(['team1:id,school_name', 'team2:id,school_name']);
+                    $results = MatchResult::with(['team1:id,school_name,logo', 'team2:id,school_name,logo'])
+                        ->whereIn('status', ['completed', 'done', 'publish', 'live'])
+                        ->latest('match_date')
+                        ->take(4)
+                        ->get();
                     
-                    if (DB::getSchemaBuilder()->hasColumn('match_results', 'status')) {
-                        $query->where(function($q) {
-                            $q->where('status', 'published')
-                              ->orWhere('status', 'active')
-                              ->orWhereNull('status');
-                        });
-                    }
+                    // Format results data sesuai ResultController
+                    $results->transform(function ($result) {
+                        // Format tanggal
+                        if ($result->match_date) {
+                            try {
+                                $result->match_date_formatted = Carbon::parse($result->match_date)
+                                    ->locale('id')
+                                    ->translatedFormat('j F Y');
+                                $result->match_time = Carbon::parse($result->match_date)->format('H:i');
+                            } catch (\Exception $e) {
+                                $result->match_date_formatted = $result->match_date;
+                                $result->match_time = '00:00';
+                            }
+                        } else {
+                            $result->match_date_formatted = 'Date TBD';
+                            $result->match_time = '00:00';
+                        }
+                        
+                        // Format logo dari relasi team
+                        if ($result->team1 && $result->team1->logo) {
+                            $result->team1_logo = str_starts_with($result->team1->logo, 'http') 
+                                ? $result->team1->logo 
+                                : (str_contains($result->team1->logo, '/') 
+                                    ? asset($result->team1->logo) 
+                                    : asset('storage/school_logos/' . $result->team1->logo));
+                        } else {
+                            $result->team1_logo = null;
+                        }
+                        
+                        if ($result->team2 && $result->team2->logo) {
+                            $result->team2_logo = str_starts_with($result->team2->logo, 'http') 
+                                ? $result->team2->logo 
+                                : (str_contains($result->team2->logo, '/') 
+                                    ? asset($result->team2->logo) 
+                                    : asset('storage/school_logos/' . $result->team2->logo));
+                        } else {
+                            $result->team2_logo = null;
+                        }
+                        
+                        // Team names
+                        $result->team1_name = $result->team1->school_name ?? 'Team A';
+                        $result->team2_name = $result->team2->school_name ?? 'Team B';
+                        
+                        // Score
+                        $result->score_1 = isset($result->team1_score) ? (int) $result->team1_score : 0;
+                        $result->score_2 = isset($result->team2_score) ? (int) $result->team2_score : 0;
+                        
+                        // Has scoresheet
+                        $result->has_scoresheet = !empty($result->scoresheet);
+                        
+                        return $result;
+                    });
                     
-                    return $query->orderBy('match_date', 'desc')
-                        ->take(3)
-                        ->get(['id', 'match_date', 'competition', 'series', 'phase', 'team1_id', 'team2_id', 'team1_score', 'team2_score']);
+                    return $results;
                 } catch (\Exception $e) {
+                    \Log::error('Error fetching latest results: ' . $e->getMessage());
                     return collect();
                 }
             });
 
-            // Get videos (3 items) - dari tabel media_videos
-            $videos = Cache::remember('videos_home', 1800, function () {
+            // Get videos (6 items) - Menggunakan model Video
+            $latestVideos = Cache::remember('latest_videos_home', 1800, function () {
                 try {
-                    if (!DB::getSchemaBuilder()->hasTable('media_videos')) { // Ubah ke media_videos
+                    if (!DB::getSchemaBuilder()->hasTable('videos')) { // Sesuaikan dengan nama tabel
                         return collect();
                     }
                     
-                    $query = DB::table('media_videos'); // Gunakan DB::table untuk media_videos
+                    $videos = Video::where('status', 'view') // Sesuai dengan VideoController
+                        ->latest()
+                        ->take(6)
+                        ->get(['id', 'title', 'thumbnail', 'youtube_link', 'duration', 'views', 'slug', 'created_at']);
                     
-                    if (DB::getSchemaBuilder()->hasColumn('media_videos', 'status')) {
-                        $query->where(function($q) {
-                            $q->where('status', 'active')
-                              ->orWhere('status', 'published');
-                        });
-                    }
+                    // Format video data
+                    $videos->transform(function ($video) {
+                        // Extract YouTube ID
+                        $video->is_youtube = false;
+                        $video->youtube_id = null;
+                        
+                        if (!empty($video->youtube_link)) {
+                            $videoId = $this->extractYouTubeId($video->youtube_link);
+                            if ($videoId) {
+                                $video->is_youtube = true;
+                                $video->youtube_id = $videoId;
+                                $video->thumbnail_url = "https://img.youtube.com/vi/{$videoId}/mqdefault.jpg";
+                            }
+                        }
+                        
+                        // If not YouTube or no thumbnail, use local thumbnail
+                        if (!$video->is_youtube && !empty($video->thumbnail)) {
+                            $video->thumbnail_url = str_starts_with($video->thumbnail, 'http') 
+                                ? $video->thumbnail 
+                                : asset($video->thumbnail);
+                        } elseif (!$video->is_youtube) {
+                            $video->thumbnail_url = asset('images/default-video.jpg');
+                        }
+                        
+                        // View count
+                        $video->view_count = $video->views ?? 0;
+                        
+                        // Format duration
+                        $video->duration_formatted = null;
+                        if ($video->duration && is_numeric($video->duration)) {
+                            $minutes = floor($video->duration / 60);
+                            $seconds = $video->duration % 60;
+                            $video->duration_formatted = sprintf("%d:%02d", $minutes, $seconds);
+                        }
+                        
+                        return $video;
+                    });
                     
-                    if (DB::getSchemaBuilder()->hasColumn('media_videos', 'type')) {
-                        $query->orderByRaw("CASE WHEN type = 'live' THEN 1 WHEN type = 'highlight' THEN 2 ELSE 3 END");
-                    }
-                    
-                    return $query->orderBy('created_at', 'desc')
-                        ->take(3)
-                        ->get(['id', 'title as title', 'thumbnail', 'youtube_link', 'type', 'created_at']);
+                    return $videos;
                 } catch (\Exception $e) {
+                    \Log::error('Error fetching videos: ' . $e->getMessage());
                     return collect();
                 }
             });
 
-            // Get sponsors grouped by category for the footer
-            $sponsors = Cache::remember('sponsors_home', 3600, function () {
+            // Get sponsors grouped by category
+            $groupedSponsors = Cache::remember('sponsors_home', 3600, function () {
                 try {
                     if (!DB::getSchemaBuilder()->hasTable('sponsors')) {
                         return collect();
@@ -166,10 +268,7 @@ class HomeController extends Controller
                     $query = Sponsor::query();
                     
                     if (DB::getSchemaBuilder()->hasColumn('sponsors', 'status')) {
-                        $query->where(function($q) {
-                            $q->where('status', 'active')
-                              ->orWhere('status', 'published');
-                        });
+                        $query->where('status', 'active');
                     }
                     
                     return $query->orderBy('category')
@@ -181,30 +280,15 @@ class HomeController extends Controller
                 }
             });
 
-            // Process images path
-            $upcomingMatches = $upcomingMatches->map(function ($match) {
-                if ($match->layout_image && !str_starts_with($match->layout_image, 'http')) {
-                    $match->layout_image = 'images/schedule/' . $match->layout_image;
-                }
-                return $match;
-            });
-
-            $videos = $videos->map(function ($video) {
-                if ($video->thumbnail && !str_starts_with($video->thumbnail, 'http')) {
-                    $video->thumbnail = 'storage/uploads/videos/' . $video->thumbnail;
-                }
-                return $video;
-            });
-
             // Prepare data for view
             $data = [
                 'totalCompetitions' => $totalCompetitions,
                 'totalSchools' => $totalSchools,
                 'latestNews' => $latestNews,
-                'upcomingMatches' => $upcomingMatches,
+                'latestSchedules' => $latestSchedules,
                 'latestResults' => $latestResults,
-                'videos' => $videos,
-                'groupedSponsors' => $sponsors,
+                'latestVideos' => $latestVideos,
+                'groupedSponsors' => $groupedSponsors,
             ];
 
             return view('user.dashboard', $data);
@@ -219,12 +303,37 @@ class HomeController extends Controller
                 'totalCompetitions' => 12,
                 'totalSchools' => 24,
                 'latestNews' => collect(),
-                'upcomingMatches' => collect(),
+                'latestSchedules' => collect(),
                 'latestResults' => collect(),
-                'videos' => collect(),
+                'latestVideos' => collect(),
                 'groupedSponsors' => collect(),
             ]);
         }
+    }
+
+    /**
+     * Extract YouTube ID from URL
+     */
+    private function extractYouTubeId($url)
+    {
+        if (empty($url)) return null;
+        
+        $patterns = [
+            '/youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/i',
+            '/youtu\.be\/([a-zA-Z0-9_-]{11})/i',
+            '/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/i',
+            '/youtube\.com\/watch\?.*v=([a-zA-Z0-9_-]{11})/i',
+            '/m\.youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/i',
+            '/youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/i',
+        ];
+        
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $url, $matches)) {
+                return $matches[1];
+            }
+        }
+        
+        return null;
     }
 
     /**
@@ -238,146 +347,29 @@ class HomeController extends Controller
             if ($request->has('widget')) {
                 switch ($request->widget) {
                     case 'competitions':
-                        try {
-                            if (DB::getSchemaBuilder()->hasTable('add_data')) {
-                                $widgets['competitions'] = AddData::distinct('competition')->count('competition');
-                            } else {
-                                $widgets['competitions'] = 12;
-                            }
-                        } catch (\Exception $e) {
-                            $widgets['competitions'] = 12;
-                        }
+                        $widgets['competitions'] = $this->getTotalCompetitions();
                         break;
                         
                     case 'schools':
-                        try {
-                            if (!DB::getSchemaBuilder()->hasTable('team_list')) { // Ubah ke team_list
-                                $widgets['schools'] = 24;
-                                break;
-                            }
-                            
-                            if (DB::getSchemaBuilder()->hasColumn('team_list', 'school_name')) {
-                                $widgets['schools'] = TeamList::distinct('school_name')->count('school_name');
-                            } else {
-                                $widgets['schools'] = 24;
-                            }
-                        } catch (\Exception $e) {
-                            $widgets['schools'] = 24;
-                        }
+                        $widgets['schools'] = $this->getTotalSchools();
                         break;
                         
                     case 'live_matches':
-                        try {
-                            if (!DB::getSchemaBuilder()->hasTable('match_data')) {
-                                $widgets['live_matches'] = 0;
-                                break;
-                            }
-                            
-                            $query = MatchData::where('date', now()->format('Y-m-d'));
-                            
-                            if (DB::getSchemaBuilder()->hasColumn('match_data', 'status')) {
-                                $query->where(function($q) {
-                                    $q->where('status', 'published')
-                                      ->orWhere('status', 'active')
-                                      ->orWhereNull('status');
-                                });
-                            }
-                            
-                            $widgets['live_matches'] = $query->count();
-                        } catch (\Exception $e) {
-                            $widgets['live_matches'] = 0;
-                        }
+                        $widgets['live_matches'] = $this->getLiveMatchesCount();
                         break;
                         
                     case 'latest_news':
-                        try {
-                            if (!DB::getSchemaBuilder()->hasTable('media_news')) { // Ubah ke media_news
-                                $widgets['latest_news'] = collect();
-                                break;
-                            }
-                            
-                            $query = DB::table('media_news');
-                            
-                            if (DB::getSchemaBuilder()->hasColumn('media_news', 'status')) {
-                                $query->where(function($q) {
-                                    $q->where('status', 'published')
-                                      ->orWhere('status', 'active')
-                                      ->orWhereNull('status');
-                                });
-                            }
-                            
-                            $widgets['latest_news'] = $query->orderBy('created_at', 'desc')
-                                ->take(5)
-                                ->get(['id', 'title as title', 'created_at']);
-                        } catch (\Exception $e) {
-                            $widgets['latest_news'] = collect();
-                        }
+                        $widgets['latest_news'] = $this->getLatestNews(5);
                         break;
                 }
             } else {
                 // Return all widgets
                 $widgets = [
-                    'competitions' => function() {
-                        try {
-                            if (DB::getSchemaBuilder()->hasTable('add_data')) {
-                                return AddData::distinct('competition')->count('competition');
-                            }
-                            return 12;
-                        } catch (\Exception $e) {
-                            return 12;
-                        }
-                    },
-                    'schools' => function() {
-                        try {
-                            if (!DB::getSchemaBuilder()->hasTable('team_list')) { // Ubah ke team_list
-                                return 24;
-                            }
-                            
-                            if (DB::getSchemaBuilder()->hasColumn('team_list', 'school_name')) {
-                                return TeamList::distinct('school_name')->count('school_name');
-                            }
-                            
-                            return 24;
-                        } catch (\Exception $e) {
-                            return 24;
-                        }
-                    },
-                    'live_matches' => function() {
-                        try {
-                            if (!DB::getSchemaBuilder()->hasTable('match_data')) {
-                                return 0;
-                            }
-                            
-                            $query = MatchData::where('date', now()->format('Y-m-d'));
-                            
-                            if (DB::getSchemaBuilder()->hasColumn('match_data', 'status')) {
-                                $query->where(function($q) {
-                                    $q->where('status', 'published')
-                                      ->orWhere('status', 'active')
-                                      ->orWhereNull('status');
-                                });
-                            }
-                            
-                            return $query->count();
-                        } catch (\Exception $e) {
-                            return 0;
-                        }
-                    },
-                    'today_results' => function() {
-                        try {
-                            if (DB::getSchemaBuilder()->hasTable('match_results')) {
-                                return MatchResult::whereDate('match_date', now()->format('Y-m-d'))->count();
-                            }
-                            return 0;
-                        } catch (\Exception $e) {
-                            return 0;
-                        }
-                    },
+                    'competitions' => $this->getTotalCompetitions(),
+                    'schools' => $this->getTotalSchools(),
+                    'live_matches' => $this->getLiveMatchesCount(),
+                    'today_results' => $this->getTodayResultsCount(),
                 ];
-
-                foreach ($widgets as $key => $callback) {
-                    $widgets[$key] = $callback();
-                }
             }
 
             return response()->json([
@@ -397,122 +389,121 @@ class HomeController extends Controller
     }
 
     /**
+     * Get total competitions
+     */
+    private function getTotalCompetitions()
+    {
+        try {
+            if (DB::getSchemaBuilder()->hasTable('add_data')) {
+                return AddData::distinct('competition')->count('competition');
+            }
+            return 12;
+        } catch (\Exception $e) {
+            return 12;
+        }
+    }
+
+    /**
+     * Get total schools
+     */
+    private function getTotalSchools()
+    {
+        try {
+            if (!DB::getSchemaBuilder()->hasTable('team_list')) {
+                return 24;
+            }
+            
+            if (DB::getSchemaBuilder()->hasColumn('team_list', 'school_name')) {
+                return TeamList::distinct('school_name')->count('school_name');
+            }
+            
+            return 24;
+        } catch (\Exception $e) {
+            return 24;
+        }
+    }
+
+    /**
+     * Get live matches count
+     */
+    private function getLiveMatchesCount()
+    {
+        try {
+            if (!DB::getSchemaBuilder()->hasTable('match_data')) {
+                return 0;
+            }
+            
+            $query = MatchData::where('date', now()->format('Y-m-d'));
+            
+            if (DB::getSchemaBuilder()->hasColumn('match_data', 'status')) {
+                $query->whereIn('status', ['published', 'active', 'live']);
+            }
+            
+            return $query->count();
+        } catch (\Exception $e) {
+            return 0;
+        }
+    }
+
+    /**
+     * Get today results count
+     */
+    private function getTodayResultsCount()
+    {
+        try {
+            if (DB::getSchemaBuilder()->hasTable('match_results')) {
+                return MatchResult::whereDate('match_date', now()->format('Y-m-d'))->count();
+            }
+            return 0;
+        } catch (\Exception $e) {
+            return 0;
+        }
+    }
+
+    /**
+     * Get latest news for widget
+     */
+    private function getLatestNews($limit = 5)
+    {
+        try {
+            if (!DB::getSchemaBuilder()->hasTable('news')) {
+                return collect();
+            }
+            
+            $query = News::where('status', 'view');
+            
+            return $query->latest()
+                ->take($limit)
+                ->get(['id', 'title', 'created_at']);
+        } catch (\Exception $e) {
+            return collect();
+        }
+    }
+
+    /**
      * Get dashboard statistics summary
      */
     public function statisticsSummary()
     {
         try {
             $stats = Cache::remember('dashboard_stats_summary', 300, function () {
-                $competitions = function() {
-                    try {
-                        if (DB::getSchemaBuilder()->hasTable('add_data')) {
-                            return [
-                                'total' => AddData::distinct('competition')->count('competition'),
-                                'this_month' => AddData::whereMonth('created_at', now()->month)
-                                    ->distinct('competition')
-                                    ->count('competition'),
-                            ];
-                        }
-                        return ['total' => 12, 'this_month' => 0];
-                    } catch (\Exception $e) {
-                        return ['total' => 12, 'this_month' => 0];
-                    }
-                };
-
-                $schools = function() {
-                    try {
-                        if (!DB::getSchemaBuilder()->hasTable('team_list')) { // Ubah ke team_list
-                            return ['total' => 24, 'active' => 0];
-                        }
-                        
-                        if (DB::getSchemaBuilder()->hasColumn('team_list', 'school_name')) {
-                            $total = TeamList::distinct('school_name')->count('school_name');
-                            $active = TeamList::where('verification_status', 'verified')
-                                ->distinct('school_name')
-                                ->count('school_name');
-                        } else {
-                            $total = 24;
-                            $active = 0;
-                        }
-                        
-                        return [
-                            'total' => $total,
-                            'active' => $active,
-                        ];
-                    } catch (\Exception $e) {
-                        return ['total' => 24, 'active' => 0];
-                    }
-                };
-
-                $matches = function() {
-                    try {
-                        if (!DB::getSchemaBuilder()->hasTable('match_data')) {
-                            return ['upcoming' => 0, 'completed' => 0];
-                        }
-                        
-                        $upcomingQuery = MatchData::where('date', '>=', now()->format('Y-m-d'));
-                        
-                        if (DB::getSchemaBuilder()->hasColumn('match_data', 'status')) {
-                            $upcomingQuery->where(function($q) {
-                                $q->where('status', 'published')
-                                  ->orWhere('status', 'active')
-                                  ->orWhereNull('status');
-                            });
-                        }
-                        
-                        $completed = DB::getSchemaBuilder()->hasTable('match_results') ? 
-                            MatchResult::count() : 0;
-                        
-                        return [
-                            'upcoming' => $upcomingQuery->count(),
-                            'completed' => $completed,
-                        ];
-                    } catch (\Exception $e) {
-                        return ['upcoming' => 0, 'completed' => 0];
-                    }
-                };
-
-                $media = function() {
-                    try {
-                        $newsCount = 0;
-                        $videosCount = 0;
-                        
-                        if (DB::getSchemaBuilder()->hasTable('media_news')) { // Ubah ke media_news
-                            $newsQuery = DB::table('media_news');
-                            if (DB::getSchemaBuilder()->hasColumn('media_news', 'status')) {
-                                $newsQuery->where(function($q) {
-                                    $q->where('status', 'published')
-                                      ->orWhere('status', 'active');
-                                });
-                            }
-                            $newsCount = $newsQuery->count();
-                        }
-                        
-                        if (DB::getSchemaBuilder()->hasTable('media_videos')) { // Ubah ke media_videos
-                            $videoQuery = DB::table('media_videos');
-                            if (DB::getSchemaBuilder()->hasColumn('media_videos', 'status')) {
-                                $videoQuery->where(function($q) {
-                                    $q->where('status', 'active')
-                                      ->orWhere('status', 'published');
-                                });
-                            }
-                            $videosCount = $videoQuery->count();
-                        }
-                        
-                        return [
-                            'news' => $newsCount,
-                            'videos' => $videosCount,
-                        ];
-                    } catch (\Exception $e) {
-                        return ['news' => 0, 'videos' => 0];
-                    }
-                };
-
                 return [
-                    'competitions' => $competitions(),
-                    'schools' => $schools(),
-                    'matches' => $matches(),
-                    'media' => $media()
+                    'competitions' => [
+                        'total' => $this->getTotalCompetitions(),
+                        'this_month' => $this->getCompetitionsThisMonth(),
+                    ],
+                    'schools' => [
+                        'total' => $this->getTotalSchools(),
+                        'active' => $this->getActiveSchools(),
+                    ],
+                    'matches' => [
+                        'upcoming' => $this->getUpcomingMatchesCount(),
+                        'completed' => $this->getCompletedMatchesCount(),
+                    ],
+                    'media' => [
+                        'news' => $this->getTotalNews(),
+                        'videos' => $this->getTotalVideos(),
+                    ]
                 ];
             });
 
@@ -532,38 +523,114 @@ class HomeController extends Controller
     }
 
     /**
-     * Simple dashboard data (without cache for debugging)
+     * Get competitions this month
      */
-    public function simpleData()
+    private function getCompetitionsThisMonth()
     {
         try {
-            // Simple counts without complex queries
-            $data = [
-                'totalCompetitions' => DB::getSchemaBuilder()->hasTable('add_data') ? 
-                    AddData::distinct('competition')->count('competition') : 12,
-                'totalSchools' => DB::getSchemaBuilder()->hasTable('team_list') ? // Ubah ke team_list
-                    TeamList::distinct('school_name')->count('school_name') : 24,
-                'newsCount' => DB::getSchemaBuilder()->hasTable('media_news') ? // Ubah ke media_news
-                    DB::table('media_news')->count() : 0,
-                'matchesCount' => DB::getSchemaBuilder()->hasTable('match_data') ? 
-                    MatchData::count() : 0,
-                'resultsCount' => DB::getSchemaBuilder()->hasTable('match_results') ? 
-                    MatchResult::count() : 0,
-                'videosCount' => DB::getSchemaBuilder()->hasTable('media_videos') ? // Ubah ke media_videos
-                    DB::table('media_videos')->count() : 0,
-            ];
-
-            return response()->json([
-                'success' => true,
-                'data' => $data
-            ]);
-            
+            if (DB::getSchemaBuilder()->hasTable('add_data')) {
+                return AddData::whereMonth('created_at', now()->month)
+                    ->distinct('competition')
+                    ->count('competition');
+            }
+            return 0;
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to load simple data',
-                'error' => $e->getMessage()
-            ], 500);
+            return 0;
+        }
+    }
+
+    /**
+     * Get active schools
+     */
+    private function getActiveSchools()
+    {
+        try {
+            if (!DB::getSchemaBuilder()->hasTable('team_list')) {
+                return 0;
+            }
+            
+            if (DB::getSchemaBuilder()->hasColumn('team_list', 'verification_status')) {
+                return TeamList::where('verification_status', 'verified')
+                    ->distinct('school_name')
+                    ->count('school_name');
+            }
+            
+            return 0;
+        } catch (\Exception $e) {
+            return 0;
+        }
+    }
+
+    /**
+     * Get upcoming matches count
+     */
+    private function getUpcomingMatchesCount()
+    {
+        try {
+            if (!DB::getSchemaBuilder()->hasTable('match_data')) {
+                return 0;
+            }
+            
+            $query = MatchData::where('date', '>=', now()->format('Y-m-d'));
+            
+            if (DB::getSchemaBuilder()->hasColumn('match_data', 'status')) {
+                $query->whereIn('status', ['published', 'active']);
+            }
+            
+            return $query->count();
+        } catch (\Exception $e) {
+            return 0;
+        }
+    }
+
+    /**
+     * Get completed matches count
+     */
+    private function getCompletedMatchesCount()
+    {
+        try {
+            if (DB::getSchemaBuilder()->hasTable('match_results')) {
+                return MatchResult::count();
+            }
+            return 0;
+        } catch (\Exception $e) {
+            return 0;
+        }
+    }
+
+    /**
+     * Get total news count
+     */
+    private function getTotalNews()
+    {
+        try {
+            if (!DB::getSchemaBuilder()->hasTable('news')) {
+                return 0;
+            }
+            
+            $query = News::where('status', 'view');
+            
+            return $query->count();
+        } catch (\Exception $e) {
+            return 0;
+        }
+    }
+
+    /**
+     * Get total videos count
+     */
+    private function getTotalVideos()
+    {
+        try {
+            if (!DB::getSchemaBuilder()->hasTable('videos')) {
+                return 0;
+            }
+            
+            $query = Video::where('status', 'view');
+            
+            return $query->count();
+        } catch (\Exception $e) {
+            return 0;
         }
     }
 
@@ -577,12 +644,11 @@ class HomeController extends Controller
                 'total_competitions',
                 'total_schools',
                 'latest_news_home',
-                'upcoming_matches_home',
+                'latest_schedules_home',
                 'latest_results_home',
-                'videos_home',
+                'latest_videos_home',
                 'sponsors_home',
                 'dashboard_stats_summary',
-                'recent_activities'
             ];
 
             foreach ($cacheKeys as $key) {
@@ -600,47 +666,6 @@ class HomeController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to clear cache'
-            ], 500);
-        }
-    }
-
-    /**
-     * Get database schema info for debugging
-     */
-    public function schemaInfo()
-    {
-        try {
-            // Update table names sesuai deskripsi
-            $tables = ['add_data', 'team_list', 'media_news', 'match_data', 'match_results', 'media_videos', 'sponsors'];
-            $schema = [];
-            
-            foreach ($tables as $table) {
-                if (DB::getSchemaBuilder()->hasTable($table)) {
-                    $columns = DB::getSchemaBuilder()->getColumnListing($table);
-                    $schema[$table] = [
-                        'exists' => true,
-                        'columns' => $columns,
-                        'count' => DB::table($table)->count()
-                    ];
-                } else {
-                    $schema[$table] = [
-                        'exists' => false,
-                        'columns' => [],
-                        'count' => 0
-                    ];
-                }
-            }
-            
-            return response()->json([
-                'success' => true,
-                'schema' => $schema
-            ]);
-            
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to get schema info',
-                'error' => $e->getMessage()
             ], 500);
         }
     }

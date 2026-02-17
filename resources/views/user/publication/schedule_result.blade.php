@@ -219,8 +219,6 @@
                                     </div>
                                 </div>
                                 
-                                <!-- HAPUS TULISAN "Preliminary Round" -->
-                                
                                 <!-- Download Button for Desktop -->
                                 <button onclick="downloadScheduleImage('{{ $imageUrl }}', '{{ $fileName }}')"
                                         class="w-full mt-3 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-sm hover:shadow text-xs font-medium flex items-center justify-center">
@@ -264,23 +262,6 @@
                     </div>
                 </div>
             @endif
-        </div>
-        
-        <!-- ✅ FLOATING BUTTON UNTUK SCHEDULES SECTION -->
-        <div class="fixed bottom-6 right-6 z-40 group" id="schedulesFloatingBtn">
-            <button onclick="downloadTermsAndConditions()"
-                    class="flex items-center justify-center w-14 h-14 md:w-16 md:h-16 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue-300"
-                    title="Download Term and Condition">
-                <i class="fas fa-file-contract text-lg md:text-xl"></i>
-            </button>
-            
-            <!-- ✅ Tooltip -->
-            <div class="absolute bottom-full right-0 mb-2 hidden md:block opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                <div class="bg-gray-800 text-white text-xs font-medium px-3 py-1.5 rounded-lg whitespace-nowrap shadow-lg">
-                    Download Term and Condition
-                    <div class="absolute top-full right-3 -mt-1 border-4 border-transparent border-t-gray-800"></div>
-                </div>
-            </div>
         </div>
     </section>
 
@@ -727,16 +708,6 @@ function showSection(section) {
         }
     });
     
-    // Show/hide floating button
-    const floatingBtn = document.getElementById('schedulesFloatingBtn');
-    if (floatingBtn) {
-        if (section === 'schedules') {
-            floatingBtn.style.display = 'block';
-        } else {
-            floatingBtn.style.display = 'none';
-        }
-    }
-    
     // Update URL without page reload (for bookmarking)
     const url = new URL(window.location);
     url.searchParams.set('tab', section);
@@ -768,26 +739,6 @@ function downloadScheduleImage(imageUrl, fileName) {
         button.innerHTML = originalContent;
         button.disabled = false;
     }, 2000);
-}
-
-// ✅ Fungsi untuk download Terms and Conditions
-function downloadTermsAndConditions() {
-    console.log('Downloading terms and conditions');
-    
-    // Tampilkan loading indicator
-    const button = event.currentTarget;
-    const originalContent = button.innerHTML;
-    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-    button.disabled = true;
-    
-    // Redirect ke route download terms
-    window.location.href = "{{ route('user.download_terms') }}";
-    
-    // Reset button setelah 3 detik
-    setTimeout(() => {
-        button.innerHTML = originalContent;
-        button.disabled = false;
-    }, 3000);
 }
 
 // Image Modal Functions
@@ -936,16 +887,6 @@ img {
     max-width: 100%;
     height: auto;
     display: block;
-}
-
-/* ✅ Floating Button Styles */
-#schedulesFloatingBtn {
-    transition: all 0.3s ease;
-}
-
-/* Tooltip dengan transisi smooth */
-#schedulesFloatingBtn .group-hover\:opacity-100 {
-    transition: opacity 0.3s ease;
 }
 
 /* Responsive adjustments */

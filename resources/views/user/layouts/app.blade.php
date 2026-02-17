@@ -31,10 +31,38 @@
             --gray-800: #1f2937;
         }
 
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            border-radius: 10px;
+            border: 2px solid #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, var(--dark-blue), var(--primary-blue));
+        }
+
+        /* Firefox Scrollbar */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary-blue) #f1f1f1;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         /* Button Template Styles */
@@ -319,6 +347,30 @@
 
         .animate-fadeInUp {
             animation: fadeInUp 0.5s ease-out;
+        }
+
+        /* Content wrapper spacing - Mobile First Approach */
+        .content-wrapper {
+            margin-top: 0.75rem; /* 12px on mobile - lebih ke atas */
+        }
+
+        /* Tablet */
+        @media (min-width: 640px) {
+            .content-wrapper {
+                margin-top: 1.25rem; /* 20px on tablet */
+            }
+        }
+
+        /* Desktop */
+        @media (min-width: 1024px) {
+            .content-wrapper {
+                margin-top: 2rem; /* 32px on desktop */
+            }
+        }
+
+        /* Untuk halaman dengan header yang lebih besar, beri sedikit jarak */
+        .page-header + .content-wrapper {
+            margin-top: 0.5rem; /* 8px jika ada page header */
         }
     </style>
 
@@ -624,13 +676,13 @@
         </div>
     </div>
 
-{{-- ==================== MAIN CONTENT ==================== --}}
-<main class="flex-grow w-full animate-fadeInUp">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
-        {{-- Page Content --}}
-        @yield('content')
-    </div>
-</main>
+    {{-- ==================== MAIN CONTENT with adjusted mobile margin ==================== --}}
+    <main class="flex-grow w-full animate-fadeInUp content-wrapper">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {{-- Page Content --}}
+            @yield('content')
+        </div>
+    </main>
 
     {{-- ==================== SPONSORS SECTION (Background Putih) ==================== --}}
     <div class="w-full bg-white py-8">
@@ -784,7 +836,7 @@
         </div>
     </footer>
 
-    {{-- JavaScript untuk Floating Navigation --}}
+    {{-- JavaScript untuk Floating Navigation dan Scrollbar --}}
     <script>
         // Smooth scroll untuk anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {

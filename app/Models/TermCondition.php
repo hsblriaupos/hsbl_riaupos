@@ -11,27 +11,29 @@ class TermCondition extends Model
 
     protected $fillable = [
         'title',
+        'links', // ✅ MENYIMPAN LINK GOOGLE DRIVE (FILE ATAU FOLDER)
         'year',
-        'document',
         'status',
     ];
 
     protected $casts = [
         'year' => 'integer',
-        'status' => 'string', // ✅ TAMBAHKAN CASTING UNTUK STATUS
+        'status' => 'string',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
 
     protected $appends = [
-        'download_url',
-        'file_path',
         'status_badge',
         'status_text',
-        'file_size_formatted',
-        'original_filename',
-        'file_exists',
-        'is_pdf',
+        'google_drive_info', // ✅ INFORMASI LENGKAP (ID DAN TIPE)
+        'google_drive_file_id', // ✅ FILE ID (UNTUK FILE)
+        'google_drive_folder_id', // ✅ FOLDER ID (UNTUK FOLDER)
+        'google_drive_embed_url', // ✅ EMBED URL (HANYA UNTUK FILE)
+        'has_valid_link', // ✅ CEK VALIDITAS LINK
+        'link_type', // ✅ TIPE LINK: 'file' ATAU 'folder'
+        'is_file', // ✅ CEK APakah FILE
+        'is_folder', // ✅ CEK APAKAH FOLDER
     ];
 
     /**
@@ -68,54 +70,136 @@ class TermCondition extends Model
     }
 
     /**
-     * Get download URL
+     * Scope untuk mencari berdasarkan link (jika ada)
      */
-    public function getDownloadUrlAttribute()
+    public function scopeHasLink($query)
     {
-        if (!$this->document) {
-            return null;
-        }
-
-        // Jika document sudah mengandung 'storage/', gunakan langsung
-        if (strpos($this->document, 'storage/') === 0) {
-            return Storage::url($this->document);
-        }
-
-        // Jika hanya nama file, tambahkan path default
-        return Storage::url('term_conditions/' . $this->document);
+        return $query->whereNotNull('links')->where('links', '!=', '');
     }
 
     /**
-     * Get file path untuk storage
+     * ✅ PERBAIKAN: Ambil informasi lengkap Google Drive (ID dan tipe)
      */
-    public function getFilePathAttribute()
+    public function getGoogleDriveInfoAttribute()
     {
-        if (!$this->document) {
+        if (!$this->links) {
             return null;
         }
 
-        // Konversi URL path ke storage path
-        if (strpos($this->document, 'storage/') === 0) {
-            return str_replace('storage/', 'public/', $this->document);
+        $url = $this->links;
+
+        // Pattern untuk FILE Google Drive
+        $filePatterns = [
+            '/\/d\/([a-zA-Z0-9_-]+)/',
+            '/id=([a-zA-Z0-9_-]+)/',
+            '/file\/d\/([a-zA-Z0-9_-]+)/',
+            '/open\?id=([a-zA-Z0-9_-]+)/',
+            '/uc\?.*id=([a-zA-Z0-9_-]+)/',
+        ];
+
+        // ✅ Pattern untuk FOLDER Google Drive
+        $folderPatterns = [
+            '/\/folders\/([a-zA-Z0-9_-]+)/',
+            '/folderview\?id=([a-zA-Z0-9_-]+)/',
+            '/\/drive\/folders\/([a-zA-Z0-9_-]+)/',
+            '/\/drive\/u\/\d+\/folders\/([a-zA-Z0-9_-]+)/',
+        ];
+
+        // Cek pattern file
+        foreach ($filePatterns as $pattern) {
+            if (preg_match($pattern, $url, $matches)) {
+                return [
+                    'id' => $matches[1],
+                    'type' => 'file'
+                ];
+            }
         }
 
-        return 'public/term_conditions/' . $this->document;
+        // Cek pattern folder
+        foreach ($folderPatterns as $pattern) {
+            if (preg_match($pattern, $url, $matches)) {
+                return [
+                    'id' => $matches[1],
+                    'type' => 'folder'
+                ];
+            }
+        }
+
+        return null;
     }
 
     /**
-     * Cek apakah file ada di storage
+     * ✅ PERBAIKAN: Ambil Google Drive File ID (untuk file)
      */
-    public function getFileExistsAttribute()
+    public function getGoogleDriveFileIdAttribute()
     {
-        if (!$this->file_path) {
-            return false;
+        $info = $this->google_drive_info;
+        
+        if ($info && $info['type'] === 'file') {
+            return $info['id'];
         }
 
-        try {
-            return Storage::exists($this->file_path);
-        } catch (\Exception $e) {
-            return false;
+        return null;
+    }
+
+    /**
+     * ✅ PERBAIKAN: Ambil Google Drive Folder ID (untuk folder)
+     */
+    public function getGoogleDriveFolderIdAttribute()
+    {
+        $info = $this->google_drive_info;
+        
+        if ($info && $info['type'] === 'folder') {
+            return $info['id'];
         }
+
+        return null;
+    }
+
+    /**
+     * ✅ PERBAIKAN: Dapatkan tipe link (file/folder)
+     */
+    public function getLinkTypeAttribute()
+    {
+        $info = $this->google_drive_info;
+        return $info ? $info['type'] : null;
+    }
+
+    /**
+     * ✅ PERBAIKAN: Cek apakah link adalah file
+     */
+    public function getIsFileAttribute()
+    {
+        return $this->link_type === 'file';
+    }
+
+    /**
+     * ✅ PERBAIKAN: Cek apakah link adalah folder
+     */
+    public function getIsFolderAttribute()
+    {
+        return $this->link_type === 'folder';
+    }
+
+    /**
+     * ✅ PERBAIKAN: Generate embed URL untuk Google Drive (HANYA UNTUK FILE)
+     */
+    public function getGoogleDriveEmbedUrlAttribute()
+    {
+        if (!$this->is_file || !$this->google_drive_file_id) {
+            return null;
+        }
+
+        // URL untuk preview/embed Google Drive
+        return "https://drive.google.com/file/d/{$this->google_drive_file_id}/preview";
+    }
+
+    /**
+     * ✅ PERBAIKAN: Cek apakah link valid (mengandung file ID ATAU folder ID)
+     */
+    public function getHasValidLinkAttribute()
+    {
+        return !is_null($this->google_drive_info);
     }
 
     /**
@@ -123,7 +207,6 @@ class TermCondition extends Model
      */
     public function getStatusBadgeAttribute()
     {
-        // ✅ PERBAIKAN: Gunakan status yang sudah di-cast
         $status = strtolower($this->status);
         
         return match($status) {
@@ -139,7 +222,6 @@ class TermCondition extends Model
      */
     public function getStatusTextAttribute()
     {
-        // ✅ PERBAIKAN: Gunakan status yang sudah di-cast
         $status = strtolower($this->status);
         
         return match($status) {
@@ -151,86 +233,12 @@ class TermCondition extends Model
     }
 
     /**
-     * Get original filename
-     */
-    public function getOriginalFilenameAttribute()
-    {
-        if (!$this->document) {
-            return null;
-        }
-
-        // Jika path URL, ambil nama file saja
-        if (strpos($this->document, '/') !== false) {
-            return basename($this->document);
-        }
-
-        return $this->document;
-    }
-
-    /**
-     * Get file size
-     */
-    public function getFileSizeAttribute()
-    {
-        if (!$this->file_path || !$this->file_exists) {
-            return null;
-        }
-
-        try {
-            return Storage::size($this->file_path);
-        } catch (\Exception $e) {
-            return null;
-        }
-    }
-
-    /**
-     * Get formatted file size
-     */
-    public function getFileSizeFormattedAttribute()
-    {
-        $size = $this->file_size;
-        
-        if (!$size) {
-            return '0 KB';
-        }
-
-        $units = ['B', 'KB', 'MB', 'GB'];
-        
-        for ($i = 0; $size >= 1024 && $i < count($units) - 1; $i++) {
-            $size /= 1024;
-        }
-
-        return round($size, 2) . ' ' . $units[$i];
-    }
-
-    /**
-     * Get file extension
-     */
-    public function getFileExtensionAttribute()
-    {
-        if (!$this->document) {
-            return null;
-        }
-
-        return strtolower(pathinfo($this->document, PATHINFO_EXTENSION));
-    }
-
-    /**
-     * Check if file is PDF
-     */
-    public function getIsPdfAttribute()
-    {
-        return $this->file_extension === 'pdf';
-    }
-
-    /**
-     * Validasi sebelum menyimpan
+     * ✅ PERBAIKAN: Validasi sebelum menyimpan
      */
     protected static function boot()
     {
         parent::boot();
 
-        // ✅ PERBAIKAN: Validasi sebelum menyimpan
         static::saving(function ($model) {
             // Pastikan status memiliki nilai default jika null
             if (empty($model->status)) {
@@ -247,21 +255,17 @@ class TermCondition extends Model
             if ($model->year < 2000 || $model->year > date('Y') + 5) {
                 throw new \Exception('Tahun harus antara 2000 dan ' . (date('Y') + 5));
             }
-        });
 
-        // ✅ PERBAIKAN: Hapus file ketika model dihapus
-        static::deleting(function ($model) {
-            if ($model->file_path) {
-                try {
-                    if (Storage::exists($model->file_path)) {
-                        Storage::delete($model->file_path);
-                    }
-                } catch (\Exception $e) {
-                    // Log error tetapi jangan hentikan proses
-                    \Log::error('Gagal menghapus file term condition: ' . $e->getMessage());
+            // ✅ VALIDASI LINK GOOGLE DRIVE (WAJIB VALID)
+            if (!empty($model->links)) {
+                // Cek apakah link Google Drive valid (file ATAU folder)
+                if (!$model->has_valid_link) {
+                    throw new \Exception('Link Google Drive tidak valid. Pastikan menggunakan link file atau folder Google Drive yang benar.');
                 }
             }
         });
+
+        // ✅ TIDAK PERLU LAGI MENGHAPUS FILE KARENA MENGGUNAKAN LINK
     }
 
     /**
@@ -292,6 +296,31 @@ class TermCondition extends Model
         } else {
             throw new \Exception('Tahun harus antara 2000 dan ' . ($currentYear + 5));
         }
+    }
+
+    /**
+     * Set links dengan validasi
+     */
+    public function setLinksAttribute($value)
+    {
+        // Bersihkan URL dari whitespace
+        $value = trim($value);
+        
+        // Jika kosong, set ke null
+        if (empty($value)) {
+            $this->attributes['links'] = null;
+            return;
+        }
+
+        // Hapus trailing slash
+        $value = rtrim($value, '/');
+
+        // Tambahkan https:// jika tidak ada protocol
+        if (!preg_match('/^https?:\/\//', $value)) {
+            $value = 'https://' . $value;
+        }
+
+        $this->attributes['links'] = $value;
     }
 
     /**
@@ -331,6 +360,14 @@ class TermCondition extends Model
     }
 
     /**
+     * Check if has valid Google Drive link
+     */
+    public function hasValidLink()
+    {
+        return $this->has_valid_link;
+    }
+
+    /**
      * Activate document
      */
     public function activate()
@@ -349,23 +386,75 @@ class TermCondition extends Model
     }
 
     /**
-     * Get storage path with fallback
+     * ✅ PERBAIKAN: Get direct download link untuk Google Drive (HANYA UNTUK FILE)
      */
-    public function getStoragePath()
+    public function getDirectDownloadLink()
     {
-        return $this->file_path;
+        if (!$this->is_file || !$this->google_drive_file_id) {
+            return $this->links; // Untuk folder, kembalikan link folder
+        }
+
+        return "https://drive.google.com/uc?export=download&id={$this->google_drive_file_id}";
     }
 
     /**
-     * Get public URL with fallback
+     * ✅ PERBAIKAN: Get thumbnail/image preview URL (HANYA UNTUK FILE)
      */
-    public function getPublicUrl()
+    public function getThumbnailUrl()
     {
-        return $this->download_url;
+        if (!$this->is_file || !$this->google_drive_file_id) {
+            return null;
+        }
+
+        return "https://drive.google.com/thumbnail?id={$this->google_drive_file_id}";
     }
 
     /**
-     * Get document info array
+     * ✅ PERBAIKAN: Get view URL (untuk file atau folder)
+     */
+    public function getViewUrl()
+    {
+        if ($this->is_file) {
+            return "https://drive.google.com/file/d/{$this->google_drive_file_id}/view";
+        }
+        
+        return $this->links; // Untuk folder, kembalikan link asli
+    }
+
+    /**
+     * ✅ PERBAIKAN: Get icon class berdasarkan tipe
+     */
+    public function getIconClassAttribute()
+    {
+        if ($this->is_file) {
+            return 'fa-file-pdf text-danger';
+        } elseif ($this->is_folder) {
+            return 'fa-folder text-warning';
+        }
+        
+        return 'fa-link text-primary';
+    }
+
+    /**
+     * ✅ PERBAIKAN: Get formatted link untuk display
+     */
+    public function getFormattedLinkAttribute()
+    {
+        if (!$this->links) {
+            return null;
+        }
+
+        if ($this->is_file) {
+            return 'File PDF';
+        } elseif ($this->is_folder) {
+            return 'Folder';
+        }
+
+        return 'Link';
+    }
+
+    /**
+     * ✅ PERBAIKAN: Get document info array (LENGKAP)
      */
     public function getDocumentInfo()
     {
@@ -375,10 +464,19 @@ class TermCondition extends Model
             'year' => $this->year,
             'status' => $this->status,
             'status_text' => $this->status_text,
-            'file_exists' => $this->file_exists,
-            'file_size' => $this->file_size_formatted,
-            'original_filename' => $this->original_filename,
-            'download_url' => $this->download_url,
+            'links' => $this->links,
+            'has_valid_link' => $this->has_valid_link,
+            'link_type' => $this->link_type,
+            'is_file' => $this->is_file,
+            'is_folder' => $this->is_folder,
+            'google_drive_file_id' => $this->google_drive_file_id,
+            'google_drive_folder_id' => $this->google_drive_folder_id,
+            'embed_url' => $this->google_drive_embed_url,
+            'view_url' => $this->getViewUrl(),
+            'download_url' => $this->getDirectDownloadLink(),
+            'thumbnail_url' => $this->getThumbnailUrl(),
+            'icon_class' => $this->icon_class,
+            'formatted_link' => $this->formatted_link,
             'created_at' => $this->created_at->format('d/m/Y H:i'),
             'updated_at' => $this->updated_at->format('d/m/Y H:i'),
         ];

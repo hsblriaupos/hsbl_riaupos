@@ -259,19 +259,38 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::delete('/news/{id}', [AdminNewsController::class, 'destroy'])->name('news.destroy');
     Route::delete('/news/bulk/delete', [AdminNewsController::class, 'bulkDestroy'])->name('news.bulk-destroy');
 
-    // Terms & Conditions Management
+    // ========== ✅ TERMS & CONDITIONS MANAGEMENT (DIPERBAIKI UNTUK GOOGLE DRIVE) ==========
     Route::prefix('term-conditions')->name('term_conditions.')->group(function () {
+        // Main routes
         Route::get('/', [TermConditionController::class, 'index'])->name('index');
         Route::post('/', [TermConditionController::class, 'store'])->name('store');
-        Route::delete('/destroy-selected', [TermConditionController::class, 'destroySelected'])->name('destroySelected');
+        Route::get('/{id}/edit', [TermConditionController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [TermConditionController::class, 'update'])->name('update');
         Route::delete('/{id}', [TermConditionController::class, 'destroy'])->name('destroy');
         
-        // Route untuk download dan view
-        Route::get('/{id}/download', [TermConditionController::class, 'download'])->name('download');
-        Route::get('/{id}/view', [TermConditionController::class, 'view'])->name('view');
+        // Bulk actions
+        Route::delete('/destroy-selected', [TermConditionController::class, 'destroySelected'])->name('destroySelected');
+        
+        // Toggle status
+        Route::patch('/{id}/toggle-status', [TermConditionController::class, 'toggleStatus'])->name('toggleStatus');
+        
+        // ========== ✅ ROUTE BARU UNTUK GOOGLE DRIVE ==========
+        // Validate Google Drive link via AJAX
+        Route::post('/validate-link', [TermConditionController::class, 'validateLink'])->name('validateLink');
+        
+        // Get preview URL for modal
+        Route::get('/{id}/preview', [TermConditionController::class, 'getPreviewUrl'])->name('preview');
+        
+        // Direct download link (redirect ke Google Drive)
+        Route::get('/{id}/direct-download', [TermConditionController::class, 'getDirectDownloadLink'])->name('directDownload');
         
         // Route alias untuk backward compatibility
         Route::get('/sponsor', [TermConditionController::class, 'index'])->name('sponsor');
+        
+        // ========== ❌ ROUTE LAMA YANG TIDAK DIGUNAKAN LAGI ==========
+        // Route berikut TIDAK DIGUNAKAN karena menggunakan Google Drive
+        // Route::get('/{id}/download', [TermConditionController::class, 'download'])->name('download');
+        // Route::get('/{id}/view', [TermConditionController::class, 'view'])->name('view');
     });
 
     // ========== MEDIA GALLERY ROUTES ==========
@@ -692,16 +711,28 @@ Route::prefix('user')->name('user.')->group(function () {
         })->name('developer');
     });
 
-    // Download Terms & Conditions
+    // ========== ✅ PERBAIKAN: DOWNLOAD TERMS & CONDITIONS (GOOGLE DRIVE) ==========
+    // Download latest Terms & Conditions - Redirect ke Google Drive
     Route::get('/download-terms', function () {
         $latestTerm = TermCondition::orderBy('year', 'desc')->first();
 
-        if (!$latestTerm || !Storage::disk('public')->exists($latestTerm->file_path)) {
+        if (!$latestTerm || !$latestTerm->links) {
             abort(404, 'Dokumen tidak ditemukan.');
         }
 
-        return Storage::disk('public')->download($latestTerm->file_path, 'SyaratKetentuan-' . $latestTerm->year . '.pdf');
+        return redirect()->away($latestTerm->getDirectDownloadLink());
     })->name('download_terms');
+
+    // View latest Terms & Conditions - Redirect ke Google Drive embed
+    Route::get('/view-terms', function () {
+        $latestTerm = TermCondition::orderBy('year', 'desc')->first();
+
+        if (!$latestTerm || !$latestTerm->links) {
+            abort(404, 'Dokumen tidak ditemukan.');
+        }
+
+        return redirect()->away($latestTerm->google_drive_embed_url);
+    })->name('view_terms');
 
     // PERBAIKAN: Statistics Page untuk User
     Route::get('/statistics', [UserStatisticsController::class, 'index'])->name('statistics');
