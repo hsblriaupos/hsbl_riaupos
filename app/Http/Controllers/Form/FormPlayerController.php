@@ -49,7 +49,40 @@ class FormPlayerController extends Controller
             $isCaptain = false;
 
             // Cek session untuk menentukan apakah user boleh jadi Leader
-            $canBeLeader = session('current_can_be_leader', false);
+            // Di bagian penentuan role, setelah dapat $canBeLeader dari session
+$canBeLeader = session('current_can_be_leader', false);
+$isNewTeamForCategory = session('is_new_team_for_category', false); // 🔥 AMBIL DARI SESSION
+
+Log::info('Session check:', [
+    'current_can_be_leader' => session('current_can_be_leader'),
+    'is_new_team_for_category' => session('is_new_team_for_category'),
+    'created_team_id' => session('created_team_id'),
+    'join_referral_code' => session('join_referral_code'),
+    'team_id_from_session' => session('current_team_id')
+]);
+
+// Jika boleh jadi Leader dari session
+if ($canBeLeader) {
+    // Cek apakah sudah ada Leader di kategori ini
+    $existingLeaderCount = PlayerList::where('team_id', $team_id)
+        ->where('category', $category)
+        ->where('role', 'Leader')
+        ->count();
+
+    Log::info('Existing Leader count in ' . $category . ': ' . $existingLeaderCount);
+
+    // Jika belum ada Leader di kategori ini, atau ini adalah kategori baru, bisa jadi Leader
+    if ($existingLeaderCount === 0 || $isNewTeamForCategory) {
+        $role = 'Leader';
+        $isCaptain = true;
+        Log::info('✅ User CAN register as Leader (from session, no leader in category yet or new category)');
+    } else {
+        Log::info('❌ User must register as Player (leader already exists in category)');
+    }
+} else {
+    Log::info('❌ User cannot be leader from session');
+}
+
 
             Log::info('Session check:', [
                 'current_can_be_leader' => session('current_can_be_leader'),

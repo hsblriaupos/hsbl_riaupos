@@ -1,305 +1,285 @@
 @extends('user.form.layout')
+
 @section('title', 'Pilih Posisi - HSBL')
 
 @section('content')
-<div class="container py-5">
+<div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card shadow border-0">
-                <!-- Header -->
-                <div class="card-header bg-gradient-primary text-white py-4">
+            <!-- Card -->
+            <div class="card border-0 shadow-sm" style="border-radius: 16px;">
+                <!-- Header Simple -->
+                <div class="card-header bg-white border-0 pt-4 px-4">
                     <div class="d-flex align-items-center">
-                        <a href="{{ route('form.team.choice') }}" class="text-white me-3">
+                        <a href="{{ route('form.team.join') }}" class="text-secondary me-3">
                             <i class="fas fa-arrow-left"></i>
                         </a>
                         <div>
-                            <h2 class="mb-0">🎯 Pilih Posisi & Kategori</h2>
-                            <p class="mb-0 opacity-75">Pilih posisi dan kategori yang sesuai dengan peran Anda</p>
+                            <h5 class="fw-semibold mb-1">Pilih Posisi & Kategori</h5>
+                            <p class="text-muted small mb-0">Pilih peran Anda dalam tim</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Form Selection -->
-                <div class="card-body p-5">
+                <!-- Body -->
+                <div class="card-body p-4">
+                    <!-- Tampilkan error jika ada -->
+                    @if(session('error'))
+                        <div class="alert alert-danger bg-soft-danger border-0 py-2 px-3 mb-4" style="border-radius: 8px;">
+                            <small><i class="fas fa-exclamation-circle me-1"></i>{{ session('error') }}</small>
+                        </div>
+                    @endif
+
                     <form action="{{ route('form.team.join.select-role') }}" method="POST">
                         @csrf
+                        <input type="hidden" name="referral_code" value="{{ $referralCode ?? old('referral_code') }}">
 
-                        <!-- Referral Code (Dari URL/Form Sebelumnya) -->
-                        <input type="hidden" name="referral_code" value="{{ $referralCode }}">
-
-                        <!-- Info Box -->
-                        <div class="alert alert-info mb-4">
-                            <i class="fas fa-info-circle me-2"></i>
-                            <strong>Penting!</strong> Pilih posisi dan kategori sesuai dengan peran Anda dalam tim.
-                            Pilihan ini akan menentukan form pendaftaran yang akan Anda isi.
-                        </div>
-
-                        <!-- Role Selection -->
-                        <div class="mb-4">
-                            <h5 class="text-primary mb-3">
-                                <i class="fas fa-users me-2"></i>Pilih Posisi
-                            </h5>
-
-                            <div class="row g-3">
-                                <!-- Basket Putra -->
-                                <div class="col-md-6">
-                                    <div class="form-check-card">
-                                        <input class="form-check-input visually-hidden"
-                                            type="radio"
-                                            name="team_category"
-                                            id="basket_putra"
-                                            value="Basket Putra"
-                                            {{ old('team_category') == 'Basket Putra' ? 'checked' : '' }}
-                                            required>
-                                        <label class="form-check-label card-hover" for="basket_putra">
-                                            <div class="card border-2 h-100">
-                                                <div class="card-body text-center p-4">
-                                                    <div class="mb-3">
-                                                        <i class="fas fa-basketball-ball fa-3x text-primary"></i>
-                                                    </div>
-                                                    <h5 class="card-title">🏀 Basket Putra</h5>
-                                                    <p class="card-text text-muted small">
-                                                        Pemain basket putra (boys)
-                                                    </p>
-                                                    <div class="mt-3">
-                                                        <span class="badge bg-primary bg-opacity-10 text-primary">
-                                                            <i class="fas fa-male me-1"></i>Putra
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <!-- Basket Putri -->
-                                <div class="col-md-6">
-                                    <div class="form-check-card">
-                                        <input class="form-check-input visually-hidden"
-                                            type="radio"
-                                            name="team_category"
-                                            id="basket_putri"
-                                            value="Basket Putri"
-                                            {{ old('team_category') == 'Basket Putri' ? 'checked' : '' }}>
-                                        <label class="form-check-label card-hover" for="basket_putri">
-                                            <div class="card border-2 h-100">
-                                                <div class="card-body text-center p-4">
-                                                    <div class="mb-3">
-                                                        <i class="fas fa-basketball-ball fa-3x text-danger"></i>
-                                                    </div>
-                                                    <h5 class="card-title">🏀 Basket Putri</h5>
-                                                    <p class="card-text text-muted small">
-                                                        Pemain basket putri (girls)
-                                                    </p>
-                                                    <div class="mt-3">
-                                                        <span class="badge bg-danger bg-opacity-10 text-danger">
-                                                            <i class="fas fa-female me-1"></i>Putri
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <!-- Dancer -->
-                                <div class="col-md-6 mt-3">
-                                    <div class="form-check-card">
-                                        <input class="form-check-input visually-hidden"
-                                            type="radio"
-                                            name="team_category"
-                                            id="dancer"
-                                            value="Dancer"
-                                            {{ old('team_category') == 'Dancer' ? 'checked' : '' }}>
-                                        <label class="form-check-label card-hover" for="dancer">
-                                            <div class="card border-2 h-100">
-                                                <div class="card-body text-center p-4">
-                                                    <div class="mb-3">
-                                                        <i class="fas fa-music fa-3x text-success"></i>
-                                                    </div>
-                                                    <h5 class="card-title">💃 Dancer</h5>
-                                                    <p class="card-text text-muted small">
-                                                        Tim penari (cheerleaders)
-                                                    </p>
-                                                    <div class="mt-3">
-                                                        <span class="badge bg-success bg-opacity-10 text-success">
-                                                            <i class="fas fa-star me-1"></i>Dancer
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <!-- Official (AKTIFKAN) -->
-                                <div class="col-md-6 mt-3">
-                                    <div class="form-check-card">
-                                        <input class="form-check-input visually-hidden"
-                                            type="radio"
-                                            name="team_category"
-                                            id="official"
-                                            value="Official"
-                                            {{ old('team_category') == 'Official' ? 'checked' : '' }}> <!-- Hapus disabled -->
-                                        <label class="form-check-label card-hover" for="official">
-                                            <div class="card border-2 h-100">
-                                                <div class="card-body text-center p-4">
-                                                    <div class="mb-3">
-                                                        <i class="fas fa-clipboard-list fa-3x text-warning"></i>
-                                                    </div>
-                                                    <h5 class="card-title">📋 Official</h5>
-                                                    <p class="card-text text-muted small">
-                                                        Official tim (pelatih, manajer, pendamping)
-                                                    </p>
-                                                    <div class="mt-3">
-                                                        <span class="badge bg-warning bg-opacity-10 text-warning">
-                                                            <i class="fas fa-user-tie me-1"></i>Official
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </label>
-                                    </div>
+                        <!-- Info Singkat -->
+                        <div class="bg-light rounded-3 p-3 mb-4">
+                            <div class="d-flex">
+                                <i class="fas fa-info-circle text-primary me-2 mt-1"></i>
+                                <div>
+                                    <small class="text-muted">Pilih posisi yang sesuai. Form pendaftaran akan menyesuaikan pilihan Anda.</small>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Role Info -->
-                        <div class="alert alert-warning">
-                            <h6><i class="fas fa-exclamation-triangle me-2"></i>Informasi Penting:</h6>
-                            <ul class="mb-0 small">
-                                <li><strong>Basket Putra/Putri:</strong> Form pendaftaran pemain basket dengan data teknis (posisi, jersey, dll)</li>
-                                <li><strong>Dancer:</strong> Form khusus untuk penari</li>
-                                <li><strong>Official:</strong> Form untuk pelatih/manajer tim (coming soon)</li>
-                                <li class="text-primary fw-bold">Jika kategori ini belum memiliki Leader/Kapten yang membayar, Anda bisa mendaftar sebagai Leader</li>
-                            </ul>
+                        <!-- Pilihan Posisi - Semua Ukuran Sama -->
+                        <div class="row g-3 mb-4">
+                            <!-- Basket Putra -->
+                            <div class="col-md-6">
+                                <div class="position-card">
+                                    <input type="radio" 
+                                           class="position-radio" 
+                                           name="team_category" 
+                                           id="basket_putra" 
+                                           value="Basket Putra"
+                                           {{ old('team_category') == 'Basket Putra' ? 'checked' : '' }}
+                                           required>
+                                    <label for="basket_putra" class="position-label">
+                                        <div class="p-3">
+                                            <div class="text-center mb-2">
+                                                <i class="fas fa-basketball-ball text-primary" style="font-size: 2rem;"></i>
+                                            </div>
+                                            <h6 class="fw-semibold text-center mb-1">Basket Putra</h6>
+                                            <p class="text-muted small text-center mb-2">Pemain basket putra</p>
+                                            <div class="text-center">
+                                                <span class="badge bg-primary bg-opacity-10 text-primary px-2 py-1">Putra</span>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Basket Putri -->
+                            <div class="col-md-6">
+                                <div class="position-card">
+                                    <input type="radio" 
+                                           class="position-radio" 
+                                           name="team_category" 
+                                           id="basket_putri" 
+                                           value="Basket Putri"
+                                           {{ old('team_category') == 'Basket Putri' ? 'checked' : '' }}>
+                                    <label for="basket_putri" class="position-label">
+                                        <div class="p-3">
+                                            <div class="text-center mb-2">
+                                                <i class="fas fa-basketball-ball text-danger" style="font-size: 2rem;"></i>
+                                            </div>
+                                            <h6 class="fw-semibold text-center mb-1">Basket Putri</h6>
+                                            <p class="text-muted small text-center mb-2">Pemain basket putri</p>
+                                            <div class="text-center">
+                                                <span class="badge bg-danger bg-opacity-10 text-danger px-2 py-1">Putri</span>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Dancer -->
+                            <div class="col-md-6">
+                                <div class="position-card">
+                                    <input type="radio" 
+                                           class="position-radio" 
+                                           name="team_category" 
+                                           id="dancer" 
+                                           value="Dancer"
+                                           {{ old('team_category') == 'Dancer' ? 'checked' : '' }}>
+                                    <label for="dancer" class="position-label">
+                                        <div class="p-3">
+                                            <div class="text-center mb-2">
+                                                <i class="fas fa-music text-success" style="font-size: 2rem;"></i>
+                                            </div>
+                                            <h6 class="fw-semibold text-center mb-1">Dancer</h6>
+                                            <p class="text-muted small text-center mb-2">Tim penari</p>
+                                            <div class="text-center">
+                                                <span class="badge bg-success bg-opacity-10 text-success px-2 py-1">Dancer</span>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Official -->
+                            <div class="col-md-6">
+                                <div class="position-card">
+                                    <input type="radio" 
+                                           class="position-radio" 
+                                           name="team_category" 
+                                           id="official" 
+                                           value="Official"
+                                           {{ old('team_category') == 'Official' ? 'checked' : '' }}>
+                                    <label for="official" class="position-label">
+                                        <div class="p-3">
+                                            <div class="text-center mb-2">
+                                                <i class="fas fa-clipboard-list text-warning" style="font-size: 2rem;"></i>
+                                            </div>
+                                            <h6 class="fw-semibold text-center mb-1">Official</h6>
+                                            <p class="text-muted small text-center mb-2">Pelatih/manajer tim</p>
+                                            <div class="text-center">
+                                                <span class="badge bg-warning bg-opacity-10 text-warning px-2 py-1">Official</span>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Submit Button -->
-                        <div class="text-center mt-4">
-                            <button type="submit" class="btn btn-primary btn-lg px-5 py-3">
-                                <i class="fas fa-arrow-right me-2"></i> Lanjut ke Form Pendaftaran
-                            </button>
-                            <a href="{{ route('form.team.join') }}" class="btn btn-outline-secondary ms-3">
-                                <i class="fas fa-arrow-left me-2"></i> Kembali
+                        <!-- Info Leader -->
+                        <div class="alert alert-primary bg-opacity-10 border-0 py-2 px-3 mb-4" style="background: rgba(67, 97, 238, 0.05); border-radius: 8px;">
+                            <small>
+                                <i class="fas fa-star text-primary me-1"></i>
+                                <span class="text-dark">Jika belum ada Leader, Anda bisa mendaftar sebagai Leader/Kapten tim</span>
+                            </small>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('form.team.join') }}" class="btn btn-outline-secondary flex-fill">
+                                Kembali
                             </a>
+                            <button type="submit" class="btn btn-primary flex-fill" id="submitBtn">
+                                Lanjut <i class="fas fa-arrow-right ms-1"></i>
+                            </button>
                         </div>
                     </form>
                 </div>
             </div>
 
-            <!-- Additional Info -->
-            <div class="text-center mt-4">
-                <p class="text-muted">
-                    Bingung memilih posisi? Hubungi Kapten tim Anda di:
-                    <a href="https://wa.me/628xxxxxxxxxx" class="text-primary fw-bold">
-                        <i class="fab fa-whatsapp me-1"></i>WhatsApp Kapten
-                    </a>
-                </p>
+            <!-- Help Text -->
+            <div class="text-center mt-3">
+                <small class="text-muted">
+                    <i class="fas fa-question-circle me-1"></i>
+                    Bingung? Hubungi Kapten tim Anda
+                </small>
             </div>
         </div>
     </div>
 </div>
 
 <style>
-    .form-check-card {
+    /* Position Cards */
+    .position-card {
         position: relative;
+        width: 100%;
     }
-
-    .form-check-input:checked+.form-check-label .card {
-        border-color: var(--primary-color) !important;
-        background: rgba(66, 165, 245, 0.05);
-        transform: translateY(-5px);
-        box-shadow: 0 5px 15px rgba(66, 165, 245, 0.2);
-    }
-
-    .card-hover:hover .card {
-        transform: translateY(-3px);
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-        cursor: pointer;
-    }
-
-    .card {
-        transition: all 0.3s;
-        border: 2px solid #e9ecef;
-    }
-
-    .bg-gradient-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-
-    .badge {
-        padding: 5px 10px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-    }
-
-    .visually-hidden {
+    
+    .position-radio {
         position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        border: 0;
+        opacity: 0;
+        width: 0;
+        height: 0;
     }
-
-    /* Animation for selection */
-    @keyframes pulse {
-        0% {
-            transform: scale(1);
-        }
-
-        50% {
-            transform: scale(1.02);
-        }
-
-        100% {
-            transform: scale(1);
-        }
+    
+    .position-label {
+        display: block;
+        cursor: pointer;
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        background: white;
+        transition: all 0.2s;
+        height: 100%;
     }
-
-    .form-check-input:checked+.form-check-label .card {
-        animation: pulse 0.5s ease-in-out;
+    
+    .position-label:hover {
+        border-color: #4361ee;
+        background: #f8f9ff;
+    }
+    
+    .position-radio:checked + .position-label {
+        border-color: #4361ee;
+        background: #f0f4ff;
+        box-shadow: 0 4px 8px rgba(67, 97, 238, 0.1);
+    }
+    
+    /* Badges */
+    .badge {
+        font-weight: normal;
+        border-radius: 20px;
+    }
+    
+    .bg-soft-danger {
+        background: rgba(249, 65, 68, 0.1);
+    }
+    
+    /* Buttons */
+    .btn {
+        padding: 0.6rem 1rem;
+        font-size: 0.95rem;
+        border-radius: 8px;
+    }
+    
+    .btn-primary {
+        background: #4361ee;
+        border-color: #4361ee;
+    }
+    
+    .btn-primary:hover {
+        background: #3a56d4;
+        border-color: #3a56d4;
+    }
+    
+    .btn-outline-secondary {
+        border-color: #dee2e6;
+        color: #6c757d;
+    }
+    
+    .btn-outline-secondary:hover {
+        background: #f8f9fa;
+        border-color: #adb5bd;
+        color: #495057;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .position-label {
+            padding: 0.5rem !important;
+        }
+        
+        .position-label i {
+            font-size: 1.5rem !important;
+        }
+        
+        .position-label h6 {
+            font-size: 0.9rem;
+        }
+        
+        .position-label p {
+            font-size: 0.7rem;
+        }
     }
 </style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const cards = document.querySelectorAll('.form-check-label');
-
-        cards.forEach(card => {
-            card.addEventListener('click', function() {
-                // Remove active class from all cards
-                cards.forEach(c => {
-                    c.querySelector('.card').classList.remove('border-primary');
-                    c.querySelector('.card').classList.add('border-2');
-                });
-
-                // Add active class to selected card
-                const radio = this.previousElementSibling;
-                if (!radio.disabled) {
-                    radio.checked = true;
-                    this.querySelector('.card').classList.add('border-primary');
-                    this.querySelector('.card').classList.remove('border-2');
-                }
-            });
-        });
-
-        // Handle disabled options
-        const disabledCards = document.querySelectorAll('input[disabled] + .form-check-label');
-        disabledCards.forEach(card => {
-            card.addEventListener('click', function(e) {
-                e.preventDefault();
-                Swal.fire({
-                    icon: 'info',
-                    title: 'Coming Soon!',
-                    text: 'Fitur ini akan segera hadir. Pilih opsi lain yang tersedia.',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#667eea'
-                });
-            });
+        const form = document.querySelector('form');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        form.addEventListener('submit', function(e) {
+            // Tampilkan loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Memproses...';
+            
+            // Form akan submit secara normal
         });
     });
 </script>
