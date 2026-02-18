@@ -644,7 +644,6 @@ class FormTeamController extends Controller
             'count' => $teams->count()
         ]);
     }
-<<<<<<< HEAD
 
     /**
      * ✅ Download Syarat & Ketentuan Terbaru
@@ -682,6 +681,3 @@ class FormTeamController extends Controller
         }
     }
 }
-=======
-}
->>>>>>> 8205add309977eadbd168ea201721274cc31f878
