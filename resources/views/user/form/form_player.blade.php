@@ -867,7 +867,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return false;
         }
         @endif
-
+        @endif
 
         // Terms checkbox
         if (!document.getElementById('terms').checked) {
