@@ -159,8 +159,7 @@ class FormTeamController extends Controller
 
     /**
      * 🔥🔥🔥 FIX UTAMA: Process role selection 
-     * ✅ PERBAIKAN: JANGAN PERNAH membuat tim baru di team_list untuk Dancer/Official/Basket lain
-     * ✅ PERBAIKAN: Semua anggota baru cukup masuk ke tabel player_list/dancer_list/official_list
+     * ✅ PERBAIKAN: Jika belum ada tim untuk kategori Basket, user bisa membuatnya sebagai Leader
      */
     public function processRoleSelection(Request $request)
     {
@@ -189,38 +188,41 @@ class FormTeamController extends Controller
         $playerCategory = $this->normalizeCategory($validated['team_category']);
 
         // ✅ CEK APAKAH ADA TIM DENGAN KATEGORI YANG DIPILIH?
-        // Untuk Basket Putra/Putri: cek apakah sudah ada tim khusus kategori tsb
-        // Untuk Dancer/Official: tetap pakai primary team
         $targetTeamId = $primaryTeam->team_id;
         $targetTeamCategory = $primaryTeam->team_category;
+        $isNewTeamForCategory = false;
 
+        // Untuk Basket Putra/Putri: cek apakah sudah ada tim khusus kategori tsb
         if (in_array($validated['team_category'], ['Basket Putra', 'Basket Putri'])) {
             // 🔥 CEK APAKAH SUDAH ADA TIM BASKET DENGAN KATEGORI INI?
             $existingBasketTeam = TeamList::where('school_name', $primaryTeam->school_name)
                 ->where('season', $primaryTeam->season)
                 ->where('team_category', $validated['team_category'])
                 ->first();
-            
+
             if ($existingBasketTeam) {
                 // ✅ SUDAH ADA: gunakan tim yang sudah ada
                 $targetTeamId = $existingBasketTeam->team_id;
                 $targetTeamCategory = $existingBasketTeam->team_category;
+                $isNewTeamForCategory = false;
                 Log::info('✅ Using existing basket team: ' . $targetTeamId);
             } else {
-                // ❌ BELUM ADA: JANGAN BUAT TIM BARU!
-                // Kategori Basket hanya bisa didaftarkan oleh LEADER/PENDAPTAR PERTAMA
-                // Member biasa tidak boleh membuat tim basket baru
-                Log::warning('❌ Member mencoba membuat tim basket baru: ' . $validated['team_category']);
-                return redirect()->back()
-                    ->with('error', 'Tim ' . $validated['team_category'] . ' untuk sekolah ini belum tersedia. Silakan hubungi pendaftar utama untuk membuat tim ' . $validated['team_category'] . '.')
-                    ->withInput();
+                // ✅ BELUM ADA: User akan jadi Leader untuk kategori baru ini
+                // Kita akan gunakan primary team sebagai referensi, tapi nanti di form player
+                // akan dibuatkan tim baru untuk kategori ini
+                $isNewTeamForCategory = true;
+                Log::info('🆕 User will create new team for category: ' . $validated['team_category']);
             }
         }
 
         // ✅ CEK LEADER LOGIC
         $canBeLeader = false;
 
-        if ($validated['team_category'] === 'Official') {
+        if ($isNewTeamForCategory) {
+            // Jika ini kategori baru, user OTOMATIS jadi Leader
+            $canBeLeader = true;
+            Log::info('✅ User will be Leader for new category');
+        } elseif ($validated['team_category'] === 'Official') {
             $existingLeaderCount = OfficialList::where('team_id', $targetTeamId)
                 ->where('role', 'Leader')
                 ->count();
@@ -237,7 +239,7 @@ class FormTeamController extends Controller
                 $canBeLeader = true;
             }
         } else {
-            // Basket Putra/Putri
+            // Basket Putra/Putri (untuk tim yang sudah ada)
             if ($primaryTeam->is_leader_paid) {
                 $existingLeaderCount = PlayerList::where('team_id', $targetTeamId)
                     ->where('category', $playerCategory)
@@ -259,16 +261,18 @@ class FormTeamController extends Controller
             'join_school_name' => $primaryTeam->school_name,
             'join_season' => $primaryTeam->season,
             'current_can_be_leader' => $canBeLeader,
+            'is_new_team_for_category' => $isNewTeamForCategory, // 🔥 TAMBAHKAN INI
         ]);
 
         Log::info('✅ Session set for role selection:', [
             'team_id' => $targetTeamId,
             'team_category' => $validated['team_category'],
             'player_category' => $playerCategory,
-            'canBeLeader' => $canBeLeader ? 'YES' : 'NO'
+            'canBeLeader' => $canBeLeader ? 'YES' : 'NO',
+            'is_new_team' => $isNewTeamForCategory ? 'YES' : 'NO'
         ]);
 
-        // ✅ REDIRECT KE FORM YANG SESUAI - PASTI PAKAI TEAM_ID YANG SUDAH ADA!
+        // ✅ REDIRECT KE FORM YANG SESUAI
         switch ($validated['team_category']) {
             case 'Basket Putra':
             case 'Basket Putri':
@@ -293,12 +297,6 @@ class FormTeamController extends Controller
         }
     }
 
-    /**
-     * Process CREATE TEAM - 🔥 FIXED LENGKAP!
-     * ✅ PERBAIKAN: Hanya tim PERTAMA yang boleh mengisi registered_by
-     * ✅ PERBAIKAN: Tim berikutnya akan menggunakan registered_by dari tim pertama
-     * ✅ PERBAIKAN: Setiap kategori tim mendapatkan referral code sendiri
-     */
     public function createTeam(Request $request)
     {
         try {
@@ -369,7 +367,7 @@ class FormTeamController extends Controller
             if ($existingTeamForCategory) {
                 // 🔥 SUDAH ADA TIM UNTUK KATEGORI INI
                 Log::info('⚠️ Team already exists for category: ' . $validated['team_category']);
-                
+
                 $team = $existingTeamForCategory;
                 $referralCode = $team->referral_code;
 
@@ -412,7 +410,7 @@ class FormTeamController extends Controller
 
             // 🔥🔥🔥 GENERATE UNIK REFERRAL CODE UNTUK SETIAP KATEGORI
             $referralCode = strtoupper(Str::random(8));
-            
+
             // Pastikan referral code unik
             while (TeamList::where('referral_code', $referralCode)->exists()) {
                 $referralCode = strtoupper(Str::random(8));
@@ -477,7 +475,6 @@ class FormTeamController extends Controller
             return redirect()->route('form.team.success', [
                 'team_id' => $team->team_id
             ])->with('success', 'Tim ' . $validated['team_category'] . ' berhasil dibuat! Silakan lengkapi data diri Anda sebagai Kapten.');
-
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('❌ Validation error: ', $e->errors());
             return back()->withErrors($e->errors())->withInput();
@@ -647,6 +644,7 @@ class FormTeamController extends Controller
             'count' => $teams->count()
         ]);
     }
+<<<<<<< HEAD
 
     /**
      * ✅ Download Syarat & Ketentuan Terbaru
@@ -684,3 +682,6 @@ class FormTeamController extends Controller
         }
     }
 }
+=======
+}
+>>>>>>> 8205add309977eadbd168ea201721274cc31f878
