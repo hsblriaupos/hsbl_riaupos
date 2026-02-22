@@ -369,18 +369,11 @@
         </div>
     </div>
 
-    <!-- System Status -->
+    <!-- Simple Version Footer -->
     <div class="row mt-3">
         <div class="col-12">
-            <div class="card border-0 shadow-sm bg-light">
-                <div class="card-body py-2 px-3">
-                    <div class="d-flex align-items-center gap-3" style="font-size: 0.7rem;">
-                        <span class="text-secondary">System</span>
-                        <span class="d-flex align-items-center gap-1"><span class="bg-success" style="width: 6px; height: 6px; border-radius: 50%;"></span> Database</span>
-                        <span class="d-flex align-items-center gap-1"><span class="bg-success" style="width: 6px; height: 6px; border-radius: 50%;"></span> Storage</span>
-                        <span class="d-flex align-items-center gap-1"><span class="bg-success" style="width: 6px; height: 6px; border-radius: 50%;"></span> Cache</span>
-                    </div>
-                </div>
+            <div class="text-center text-secondary" style="font-size: 0.65rem;">
+                HSBL v2.0 • {{ now()->format('Y') }}
             </div>
         </div>
     </div>

@@ -65,6 +65,36 @@
             border-radius: 8px;
         }
 
+        /* Burger Icon Button - muncul di mobile */
+        .burger-btn {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: none;
+            margin-right: 15px;
+            padding: 5px;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .burger-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .burger-btn:active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .burger-btn {
+                display: block;
+            }
+        }
+
         /* ================================
            WRAPPER UTAMA
            ================================ */
@@ -72,10 +102,11 @@
             display: flex;
             min-height: 100vh;
             padding-top: 70px;
+            position: relative;
         }
 
         /* ================================
-           SIDEBAR
+           SIDEBAR - Ukuran tetap 250px
            ================================ */
         .admin-sidebar {
             width: 250px;
@@ -90,10 +121,46 @@
             overflow-x: hidden;
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
             z-index: 1020;
-            transition: width 0.3s ease;
+            transition: transform 0.3s ease;
         }
 
-        /* Sidebar content (sama seperti sebelumnya) */
+        /* Di desktop, sidebar selalu visible */
+        @media (min-width: 769px) {
+            .admin-sidebar {
+                transform: translateX(0) !important;
+            }
+        }
+
+        /* Di mobile, sidebar bisa di-toggle */
+        @media (max-width: 768px) {
+            .admin-sidebar {
+                transform: translateX(-100%);
+                box-shadow: 4px 0 10px rgba(0, 0, 0, 0.2);
+                width: 250px; /* Tetap 250px */
+            }
+
+            .admin-sidebar.show {
+                transform: translateX(0);
+            }
+
+            /* Overlay gelap di belakang sidebar */
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 70px;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 1010;
+            }
+
+            .sidebar-overlay.show {
+                display: block;
+            }
+        }
+
+        /* Sidebar content */
         .admin-sidebar h2 {
             margin: 25px 0 15px 20px;
             font-size: 0.85rem;
@@ -159,7 +226,6 @@
             background: rgba(0, 0, 0, 0.2);
         }
 
-        .admin-has-submenu:hover .admin-submenu,
         .admin-has-submenu.active .admin-submenu {
             display: block;
         }
@@ -187,7 +253,7 @@
         }
 
         /* ================================
-           CONTENT AREA (PERBAIKAN UTAMA)
+           CONTENT AREA
            ================================ */
         .admin-content {
             flex: 1;
@@ -196,6 +262,13 @@
             flex-direction: column;
             min-height: calc(100vh - 70px);
             background: #f8f9fa;
+            transition: margin-left 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .admin-content {
+                margin-left: 0;
+            }
         }
 
         .admin-content-wrapper {
@@ -204,8 +277,14 @@
             width: 100%;
         }
 
+        @media (max-width: 768px) {
+            .admin-content-wrapper {
+                padding: 15px;
+            }
+        }
+
         /* ================================
-           FOOTER (PERBAIKAN)
+           FOOTER
            ================================ */
         .admin-footer {
             background: #1a252f;
@@ -217,7 +296,6 @@
             width: 100%;
             flex-shrink: 0;
             margin-top: auto;
-            /* PENTING: dorong footer ke bawah */
         }
 
         .admin-footer p {
@@ -225,9 +303,16 @@
             line-height: 1.5;
         }
 
+        @media (max-width: 576px) {
+            .admin-footer {
+                font-size: 0.7rem;
+                padding: 10px 5px;
+            }
+        }
+
         /* ================================
-   TABS STYLING - FIXED VERSION
-   ================================ */
+           TABS STYLING
+           ================================ */
         .admin-tabs-wrapper {
             background: white;
             border-bottom: 1px solid #e5e7eb;
@@ -236,12 +321,6 @@
             width: 100%;
             position: relative;
             z-index: 100;
-        }
-
-        .admin-tabs-container {
-            max-width: 100%;
-            padding: 0;
-            margin: 0;
         }
 
         .admin-tabs-nav {
@@ -314,7 +393,6 @@
             text-transform: uppercase;
         }
 
-        /* Responsive Tabs */
         @media (max-width: 768px) {
             .admin-tabs-item {
                 min-width: 90px;
@@ -346,137 +424,6 @@
             }
         }
 
-        /* ================================
-           MAIN CONTENT STYLING
-           ================================ */
-        .admin-main-content {
-            background: white;
-            border-radius: 8px;
-            padding: 25px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-            margin-bottom: 20px;
-            width: 100%;
-            overflow-x: auto;
-        }
-
-        .admin-page-title {
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 8px;
-            font-size: 1.5rem;
-        }
-
-        /* ================================
-           RESPONSIVE DESIGN
-           ================================ */
-        @media (max-width: 991px) {
-            .admin-sidebar {
-                width: 220px;
-            }
-
-            .admin-content {
-                margin-left: 220px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .admin-sidebar {
-                width: 70px;
-            }
-
-            .admin-sidebar h2 {
-                text-align: center;
-                padding: 0;
-                margin: 20px 0 10px;
-                font-size: 0.7rem;
-            }
-
-            .admin-menu-list>li>a span,
-            .admin-dropdown-title span {
-                display: none;
-            }
-
-            .admin-menu-list>li>a i,
-            .admin-dropdown-title i {
-                margin: 0 auto;
-                font-size: 1.2rem;
-            }
-
-            .admin-menu-list>li>a,
-            .admin-dropdown-title {
-                justify-content: center;
-                padding: 12px 0;
-            }
-
-            .admin-submenu li a span {
-                display: none;
-            }
-
-            .admin-submenu li a {
-                justify-content: center;
-                padding: 8px 0;
-            }
-
-            .admin-submenu li a i {
-                margin: 0;
-            }
-
-            .admin-content {
-                margin-left: 70px;
-            }
-
-            .admin-content-wrapper {
-                padding: 15px;
-            }
-
-            .admin-tabs-wrapper {
-                padding: 0 15px;
-                margin: -15px -15px 15px -15px;
-            }
-
-            .admin-tabs-item {
-                min-width: 80px;
-                padding: 10px 8px;
-            }
-
-            .admin-footer {
-                font-size: 0.75rem;
-                padding: 10px 0;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .admin-topbar {
-                padding: 0 15px;
-            }
-
-            .admin-topbar h4 {
-                font-size: 0.9rem;
-            }
-
-            .admin-topbar img {
-                height: 35px;
-            }
-
-            .admin-content-wrapper {
-                padding: 10px;
-            }
-
-            .admin-tabs-item {
-                min-width: 70px;
-                padding: 8px 4px;
-            }
-
-            .admin-tabs-item .tab-label {
-                font-size: 0.7rem;
-            }
-
-            .admin-footer {
-                font-size: 0.7rem;
-                padding: 8px 5px;
-            }
-        }
-
         /* Utility */
         .overflow-auto {
             overflow: auto !important;
@@ -498,9 +445,14 @@
 </head>
 
 <body>
-    <!-- HEADER -->
+    <!-- HEADER dengan Burger Icon -->
     <header class="admin-topbar">
         <div class="d-flex align-items-center">
+            <!-- Burger Icon Button (muncul di mobile) -->
+            <button class="burger-btn" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+
             <a href="{{ route('admin.dashboard') }}" class="d-flex align-items-center text-decoration-none">
                 <img src="{{ asset('uploads/logo/hsbl.png') }}" alt="HSBL Logo">
                 <h4 class="ms-3 mb-0 d-none d-sm-block">Riau Pos - Honda HSBL Administrator</h4>
@@ -523,10 +475,13 @@
         </div>
     </header>
 
+    <!-- Overlay untuk mobile (klik di luar sidebar untuk menutup) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <!-- MAIN WRAPPER -->
     <div class="admin-wrapper">
         <!-- SIDEBAR -->
-        <aside class="admin-sidebar">
+        <aside class="admin-sidebar" id="adminSidebar">
             <!-- Sidebar content tetap sama -->
             <h2>Main</h2>
             <ul class="admin-menu-list">
@@ -614,13 +569,13 @@
             </ul>
         </aside>
 
-        <!-- CONTENT AREA (STRUKTUR DIPERBAIKI) -->
-        <main class="admin-content">
+        <!-- CONTENT AREA -->
+        <main class="admin-content" id="adminContent">
             <div class="admin-content-wrapper">
                 @yield('content')
             </div>
 
-            <!-- FOOTER - PASTI DI BAWAH -->
+            <!-- FOOTER -->
             <footer class="admin-footer">
                 <p class="mb-0">Copyright © {{ date('Y') }} HSBL Riau Pos. All Rights Reserved.</p>
                 <p class="mb-0">Developed by: Mutia Rizkianti | Wafiq Wardatul Khairani</p>
@@ -632,8 +587,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // Toggle submenu dengan klik (untuk mobile)
         document.addEventListener('DOMContentLoaded', function() {
+            // Toggle submenu dengan klik
             const dropdownTitles = document.querySelectorAll('.admin-dropdown-title');
 
             dropdownTitles.forEach(title => {
@@ -658,6 +613,55 @@
                     link.classList.add('active');
                     link.closest('.admin-has-submenu').classList.add('active');
                 }
+            });
+
+            // ===== SIDEBAR TOGGLE UNTUK MOBILE =====
+            const sidebar = document.getElementById('adminSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const toggleBtn = document.getElementById('sidebarToggle');
+
+            function openSidebar() {
+                sidebar.classList.add('show');
+                overlay.classList.add('show');
+                document.body.style.overflow = 'hidden'; // Prevent scrolling
+            }
+
+            function closeSidebar() {
+                sidebar.classList.remove('show');
+                overlay.classList.remove('show');
+                document.body.style.overflow = ''; // Restore scrolling
+            }
+
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (sidebar.classList.contains('show')) {
+                        closeSidebar();
+                    } else {
+                        openSidebar();
+                    }
+                });
+            }
+
+            if (overlay) {
+                overlay.addEventListener('click', closeSidebar);
+            }
+
+            // Close sidebar on window resize if screen becomes larger
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    closeSidebar();
+                }
+            });
+
+            // Close sidebar when clicking a menu item on mobile
+            const menuItems = document.querySelectorAll('.admin-menu-list a');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        closeSidebar();
+                    }
+                });
             });
         });
     </script>
