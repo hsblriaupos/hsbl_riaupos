@@ -366,7 +366,7 @@
                         {{-- LinkedIn --}}
                         <div class="flex items-center">
                             <i class="fab fa-linkedin-in text-gray-400 mr-3 w-5"></i>
-                            <a href="https://id.linkedin.com/in/wafiq-wardatul-khairani-1bb976294" 
+                            <a href="https://www.linkedin.com/in/wafiq-wardatul-khairani-a382873b1/" 
                                target="_blank"
                                class="text-sm text-gray-700 hover:text-blue-700 transition-colors">
                                 Wafiq Wardatul Khairani

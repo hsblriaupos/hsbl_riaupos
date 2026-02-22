@@ -8,16 +8,18 @@
     ];
 @endphp
 
-<div class="admin-tabs-container">
-    <nav class="admin-tabs-nav">
-        @foreach($tabs as $key => $tab)
-            @php $isActive = ($activeTab === $key); @endphp
-            
-            <a href="{{ route($tab['route']) }}" 
-               class="admin-tabs-item {{ $isActive ? 'active' : '' }}">
-                <i class="{{ $tab['icon'] }} tab-icon"></i>
-                <span class="tab-label">{{ $tab['label'] }}</span>
-            </a>
-        @endforeach
-    </nav>
+<div class="admin-tabs-wrapper">
+    <div class="admin-tabs-container">
+        <nav class="admin-tabs-nav">
+            @foreach($tabs as $key => $tab)
+                @php $isActive = ($activeTab === $key); @endphp
+                
+                <a href="{{ route($tab['route']) }}" 
+                   class="admin-tabs-item {{ $isActive ? 'active' : '' }}">
+                    <i class="{{ $tab['icon'] }} tab-icon"></i>
+                    <span class="tab-label">{{ $tab['label'] }}</span>
+                </a>
+            @endforeach
+        </nav>
+    </div>
 </div>
