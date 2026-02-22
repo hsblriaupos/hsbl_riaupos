@@ -231,7 +231,7 @@
                         </div>
                         <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 leading-tight">
                             <span class="animate-pulse-slow inline-block">Welcome to project alumni</span><br>
-                            <span class="text-yellow-300 animate-bounce-slow inline-block">HSBL Riau Pos</span>
+                            <span class="text-yellow-300 animate-bounce-slow inline-block">HSBL Riau </span>
                         </h1>
                         <p class="text-lg text-blue-100 mb-6 max-w-2xl animate-pulse-slow animation-delay-1000">
                             The biggest student basketball competition in Riau, where young talents showcase their skills and fighting spirit.
