@@ -229,107 +229,120 @@
         filter: invert(1) grayscale(100%) brightness(200%);
     }
 
-    /* ===== RESPONSIVE FIX - SATU VERSION ===== */
+    /* ===== RESPONSIVE FIX - FINAL VERSION ===== */
     @media (max-width: 768px) {
+
+        /* Fix body overflow */
+        body {
+            overflow-x: hidden !important;
+            width: 100% !important;
+            position: relative !important;
+        }
+
+        .admin-content-wrapper {
+            padding-left: 5px !important;
+            padding-right: 5px !important;
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
+        }
 
         /* Container */
         .container {
-            padding-left: 10px !important;
-            padding-right: 10px !important;
+            padding-left: 3px !important;
+            padding-right: 3px !important;
+            max-width: 100% !important;
+            margin: 0 auto !important;
+            width: 100% !important;
+            overflow-x: hidden !important;
+        }
+
+        /* Force all rows to be full width */
+        .row {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            width: 100% !important;
+        }
+
+        /* Force all columns to be full width */
+        .row>[class*="col-"] {
+            padding-left: 3px !important;
+            padding-right: 3px !important;
+            width: 100% !important;
+            flex: 0 0 100% !important;
             max-width: 100% !important;
         }
 
         /* Form inputs jadi full width */
         .row.g-3>[class*="col-"] {
-            width: 100%;
-            flex: 0 0 100%;
-            max-width: 100%;
+            width: 100% !important;
+            flex: 0 0 100% !important;
+            max-width: 100% !important;
+            padding-left: 3px !important;
+            padding-right: 3px !important;
         }
 
         /* Button submit di HP */
         .col-md-6.d-flex.align-items-end {
             margin-top: 10px;
+            width: 100% !important;
+            padding-left: 3px !important;
+            padding-right: 3px !important;
         }
 
         /* Data Cards - Force 1 column */
         .col-md-4,
         .col-md-6 {
-            width: 100%;
-            flex: 0 0 100%;
-            max-width: 100%;
+            width: 100% !important;
+            flex: 0 0 100% !important;
+            max-width: 100% !important;
+            padding-left: 3px !important;
+            padding-right: 3px !important;
         }
 
         /* Card styling */
+        .card {
+            width: 100% !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+        }
+
         .card-body {
-            padding: 12px;
+            padding: 10px;
         }
 
         .data-card {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
+            width: 100% !important;
         }
 
         .data-card-header {
-            padding: 10px 12px;
+            padding: 8px 10px;
             font-size: 0.9rem;
         }
 
         .data-card-body {
-            padding: 8px;
+            padding: 6px;
             max-height: 250px;
         }
 
         /* Data items - horizontal */
         .data-item {
-            padding: 8px 6px;
+            padding: 6px 4px;
             flex-direction: row;
             align-items: center;
-            gap: 8px;
-        }
-
-        .data-text {
-            font-size: 0.85rem;
-            max-width: 70%;
-            word-break: break-word;
-        }
-
-        .action-buttons {
-            gap: 4px;
-            align-self: auto;
-        }
-
-        .btn-action {
-            width: 28px;
-            height: 28px;
-            font-size: 0.75rem;
-        }
-
-        .page-title {
-            font-size: 1.2rem;
-        }
-
-        .page-subtitle {
-            font-size: 0.8rem;
-        }
-
-        .badge-count {
-            font-size: 0.7rem;
-            padding: 1px 6px;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .container {
-            padding-left: 5px !important;
-            padding-right: 5px !important;
-        }
-
-        .data-item {
-            padding: 6px 4px;
+            gap: 6px;
+            width: 100%;
         }
 
         .data-text {
             font-size: 0.8rem;
             max-width: 65%;
+            word-break: break-word;
+        }
+
+        .action-buttons {
+            gap: 3px;
+            align-self: auto;
         }
 
         .btn-action {
@@ -340,28 +353,85 @@
 
         .page-title {
             font-size: 1.1rem;
+            padding-left: 3px;
+        }
+
+        .page-subtitle {
+            font-size: 0.75rem;
+            padding-left: 3px;
+        }
+
+        .badge-count {
+            font-size: 0.65rem;
+            padding: 1px 5px;
+        }
+
+        /* Fix any potential overflow */
+        * {
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .admin-content-wrapper {
+            padding-left: 3px !important;
+            padding-right: 3px !important;
+        }
+
+        .container {
+            padding-left: 2px !important;
+            padding-right: 2px !important;
+        }
+
+        .row>[class*="col-"] {
+            padding-left: 2px !important;
+            padding-right: 2px !important;
+        }
+
+        .data-item {
+            padding: 5px 2px;
+        }
+
+        .data-text {
+            font-size: 0.75rem;
+            max-width: 60%;
+        }
+
+        .btn-action {
+            width: 24px;
+            height: 24px;
+            font-size: 0.65rem;
+        }
+
+        .page-title {
+            font-size: 1rem;
         }
 
         .card-header {
-            padding: 8px 12px;
+            padding: 6px 8px;
         }
 
         .card-body {
-            padding: 12px;
+            padding: 8px;
         }
 
         .form-label {
-            font-size: 0.8rem;
-            margin-bottom: 4px;
+            font-size: 0.7rem;
+            margin-bottom: 3px;
         }
 
         .form-control {
-            padding: 6px 10px;
-            font-size: 0.85rem;
+            padding: 5px 6px;
+            font-size: 0.75rem;
+        }
+
+        .badge-count {
+            font-size: 0.6rem;
+            padding: 1px 4px;
         }
     }
 </style>
-
 @endpush
 
 <div class="container" style="max-width: 100%; padding-left: 15px; padding-right: 15px;">
