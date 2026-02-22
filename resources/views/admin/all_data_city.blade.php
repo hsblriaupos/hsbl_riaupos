@@ -85,6 +85,22 @@
         background-color: #2980b9;
     }
     
+    .btn-secondary {
+        background-color: #95a5a6;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .btn-secondary:hover {
+        background-color: #7f8c8d;
+    }
+    
     .table-container {
         overflow-x: auto;
     }
@@ -166,27 +182,205 @@
         background-color: #bbdefb;
     }
     
-    /* Responsive */
+    /* Modal Styles */
+    .modal-header {
+        background-color: #3498db;
+        color: white;
+        border-radius: 8px 8px 0 0;
+        padding: 12px 16px;
+    }
+
+    .modal-title {
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .btn-close-white {
+        filter: invert(1) grayscale(100%) brightness(200%);
+    }
+
+    /* ===== RESPONSIVE FIX - FINAL VERSION ===== */
     @media (max-width: 768px) {
+        /* Fix body overflow */
+        body {
+            overflow-x: hidden !important;
+            width: 100% !important;
+            position: relative !important;
+        }
+        
+        .admin-content-wrapper {
+            padding-left: 5px !important;
+            padding-right: 5px !important;
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
+        }
+        
+        /* Container */
+        .container {
+            padding-left: 3px !important;
+            padding-right: 3px !important;
+            max-width: 100% !important;
+            margin: 0 auto !important;
+            width: 100% !important;
+            overflow-x: hidden !important;
+        }
+
+        /* Force all rows to be full width */
+        .row {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            width: 100% !important;
+        }
+        
+        /* Force all columns to be full width */
+        .row > [class*="col-"] {
+            padding-left: 3px !important;
+            padding-right: 3px !important;
+            width: 100% !important;
+            flex: 0 0 100% !important;
+            max-width: 100% !important;
+        }
+
+        /* Button submit di HP */
+        .text-end {
+            width: 100% !important;
+            padding-left: 3px !important;
+            padding-right: 3px !important;
+        }
+
+        .btn-submit {
+            width: 100% !important;
+            margin-top: 10px;
+        }
+
+        /* Card styling */
+        .card {
+            width: 100% !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+        }
+        
         .card-body {
-            padding: 12px;
+            padding: 10px;
+        }
+
+        .card-header {
+            padding: 10px 12px;
+            font-size: 0.9rem;
+        }
+
+        /* Table styling */
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .data-table {
+            font-size: 0.8rem;
+            min-width: 100%;
         }
         
         .data-table th,
         .data-table td {
-            padding: 8px 10px;
-            font-size: 0.85rem;
+            padding: 8px 6px;
+            white-space: nowrap;
         }
         
         .action-icons {
-            flex-direction: column;
-            align-items: center;
+            flex-direction: row;
+            gap: 4px;
+        }
+
+        .action-icon {
+            width: 28px;
+            height: 28px;
+            font-size: 0.75rem;
+        }
+
+        .page-title {
+            font-size: 1.2rem;
+            padding-left: 3px;
+        }
+
+        .page-subtitle {
+            font-size: 0.8rem;
+            padding-left: 3px;
+        }
+        
+        .badge {
+            font-size: 0.7rem;
+            padding: 2px 6px;
+        }
+        
+        /* Fix any potential overflow */
+        * {
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .admin-content-wrapper {
+            padding-left: 3px !important;
+            padding-right: 3px !important;
+        }
+        
+        .container {
+            padding-left: 2px !important;
+            padding-right: 2px !important;
+        }
+
+        .row > [class*="col-"] {
+            padding-left: 2px !important;
+            padding-right: 2px !important;
+        }
+
+        .data-table {
+            font-size: 0.75rem;
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: 6px 4px;
+        }
+        
+        .action-icon {
+            width: 26px;
+            height: 26px;
+            font-size: 0.7rem;
+        }
+
+        .page-title {
+            font-size: 1.1rem;
+        }
+
+        .card-header {
+            padding: 8px 10px;
+        }
+
+        .card-body {
+            padding: 8px;
+        }
+
+        .form-label {
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+        }
+
+        .form-control {
+            padding: 6px 8px;
+            font-size: 0.85rem;
+        }
+        
+        .badge {
+            font-size: 0.6rem;
+            padding: 2px 5px;
         }
     }
 </style>
 @endpush
 
-<div class="container">
+<div class="container" style="max-width: 100%; padding-left: 15px; padding-right: 15px;">
     <!-- Page Header -->
     <div class="page-header">
         <h1 class="page-title mt-2">
@@ -377,6 +571,43 @@
                 });
             });
         }
+
+        // Delete confirmation with SweetAlert
+        const deleteButtons = document.querySelectorAll('.btn-delete');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const form = this.closest('form');
+                const itemName = this.getAttribute('data-item-name') || 'item ini';
+                
+                Swal.fire({
+                    title: 'Yakin ingin menghapus?',
+                    html: `Anda akan menghapus kota <strong>"${itemName}"</strong>`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Ya, hapus!',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Menghapus...',
+                            text: 'Sedang menghapus data',
+                            allowOutsideClick: false,
+                            showConfirmButton: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+                        setTimeout(() => {
+                            form.submit();
+                        }, 500);
+                    }
+                });
+            });
+        });
 
         // Edit Form
         const editForm = document.getElementById('editCityForm');
