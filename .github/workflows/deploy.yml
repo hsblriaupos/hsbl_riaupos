@@ -1,0 +1,27 @@
+name: Auto Deploy to IDCloudHost VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add VPS to known hosts
+        run: |
+          ssh-keyscan -H 103.176.79.235 >> ~/.ssh/known_hosts
+
+      - name: Run deploy script
+        run: |
+          ssh hondahsblriaupos@103.176.79.235 "bash /var/www/riauposhsbl.com/deploy.sh"
