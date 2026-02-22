@@ -229,152 +229,264 @@
         filter: invert(1) grayscale(100%) brightness(200%);
     }
 
-    /* Responsive */
+    /* ===== RESPONSIVE ===== */
     @media (max-width: 768px) {
+
+        /* Container */
+        .container {
+            padding-left: 10px !important;
+            padding-right: 10px !important;
+            max-width: 100% !important;
+        }
+
+        /* Form inputs jadi full width */
+        .row.g-3>[class*="col-"] {
+            width: 100%;
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+
+        /* Button submit di HP */
+        .col-md-6.d-flex.align-items-end {
+            margin-top: 10px;
+        }
+
+        /* Data Cards - Force 1 column */
+        .col-md-4,
+        .col-md-6 {
+            width: 100%;
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+
+        /* Card styling */
         .card-body {
             padding: 12px;
         }
 
+        .data-card {
+            margin-bottom: 15px;
+        }
+
+        .data-card-header {
+            padding: 10px 12px;
+            font-size: 0.9rem;
+        }
+
         .data-card-body {
-            padding: 10px;
+            padding: 8px;
+            max-height: 250px;
+        }
+
+        /* Data items - horizontal, jangan column */
+        .data-item {
+            padding: 8px 6px;
+            flex-direction: row;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .data-text {
+            font-size: 0.85rem;
+            max-width: 70%;
+            word-break: break-word;
+        }
+
+        .action-buttons {
+            gap: 4px;
+            align-self: auto;
+        }
+
+        .btn-action {
+            width: 28px;
+            height: 28px;
+            font-size: 0.75rem;
+        }
+
+        /* Typography */
+        .page-title {
+            font-size: 1.2rem;
+        }
+
+        .page-subtitle {
+            font-size: 0.8rem;
+        }
+
+        .badge-count {
+            font-size: 0.7rem;
+            padding: 1px 6px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .container {
+            padding-left: 5px !important;
+            padding-right: 5px !important;
+        }
+
+        .data-item {
+            padding: 6px 4px;
+        }
+
+        .data-text {
+            font-size: 0.8rem;
+            max-width: 65%;
+        }
+
+        .btn-action {
+            width: 26px;
+            height: 26px;
+            font-size: 0.7rem;
+        }
+
+        .page-title {
+            font-size: 1.1rem;
+        }
+
+        .card-header {
+            padding: 8px 12px;
+        }
+
+        .card-body {
+            padding: 12px;
+        }
+
+        .form-label {
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+        }
+
+        .form-control {
+            padding: 6px 10px;
+            font-size: 0.85rem;
+        }
+    
+
+    /* ===== TAMBAHAN RESPONSIVE UNTUK HP ===== */
+    @media (max-width: 768px) {
+
+        /* Container */
+        .container {
+            padding-left: 10px !important;
+            padding-right: 10px !important;
+            max-width: 100% !important;
+        }
+
+        /* Form inputs jadi full width */
+        .row.g-3>[class*="col-"] {
+            width: 100%;
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+
+        /* Button submit di HP */
+        .col-md-6.d-flex.align-items-end {
+            margin-top: 10px;
+        }
+
+        /* Data Cards */
+        .col-md-4,
+        .col-md-6 {
+            width: 100%;
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+
+        .data-card {
+            margin-bottom: 15px;
+        }
+
+        .data-card-header {
+            padding: 10px 12px;
+            font-size: 0.9rem;
+        }
+
+        .data-card-body {
+            padding: 8px;
+            max-height: 250px;
         }
 
         .data-item {
             padding: 8px 6px;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 8px;
+            /* Hapus flex-direction: column biar tetap horizontal */
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .data-text {
+            font-size: 0.85rem;
+            max-width: 70%;
         }
 
         .action-buttons {
-            align-self: flex-end;
+            gap: 4px;
+            align-self: auto;
+            /* Kembalikan ke default */
         }
 
-        /* ===== TAMBAHAN RESPONSIVE UNTUK HP ===== */
-        @media (max-width: 768px) {
-
-            /* Container */
-            .container {
-                padding-left: 10px !important;
-                padding-right: 10px !important;
-                max-width: 100% !important;
-            }
-
-            /* Form inputs jadi full width */
-            .row.g-3>[class*="col-"] {
-                width: 100%;
-                flex: 0 0 100%;
-                max-width: 100%;
-            }
-
-            /* Button submit di HP */
-            .col-md-6.d-flex.align-items-end {
-                margin-top: 10px;
-            }
-
-            /* Data Cards */
-            .col-md-4,
-            .col-md-6 {
-                width: 100%;
-                flex: 0 0 100%;
-                max-width: 100%;
-            }
-
-            .data-card {
-                margin-bottom: 15px;
-            }
-
-            .data-card-header {
-                padding: 10px 12px;
-                font-size: 0.9rem;
-            }
-
-            .data-card-body {
-                padding: 8px;
-                max-height: 250px;
-            }
-
-            .data-item {
-                padding: 8px 6px;
-                /* Hapus flex-direction: column biar tetap horizontal */
-                flex-direction: row;
-                align-items: center;
-            }
-
-            .data-text {
-                font-size: 0.85rem;
-                max-width: 70%;
-            }
-
-            .action-buttons {
-                gap: 4px;
-                align-self: auto;
-                /* Kembalikan ke default */
-            }
-
-            .btn-action {
-                width: 28px;
-                height: 28px;
-                font-size: 0.75rem;
-            }
-
-            .page-title {
-                font-size: 1.2rem;
-            }
-
-            .page-subtitle {
-                font-size: 0.8rem;
-            }
-
-            .badge-count {
-                font-size: 0.7rem;
-                padding: 1px 6px;
-            }
+        .btn-action {
+            width: 28px;
+            height: 28px;
+            font-size: 0.75rem;
         }
 
-        @media (max-width: 576px) {
-            .container {
-                padding-left: 5px !important;
-                padding-right: 5px !important;
-            }
-
-            .data-item {
-                padding: 6px 4px;
-            }
-
-            .data-text {
-                font-size: 0.8rem;
-                max-width: 65%;
-            }
-
-            .btn-action {
-                width: 26px;
-                height: 26px;
-                font-size: 0.7rem;
-            }
-
-            .page-title {
-                font-size: 1.1rem;
-            }
-
-            .card-header {
-                padding: 8px 12px;
-            }
-
-            .card-body {
-                padding: 12px;
-            }
-
-            .form-label {
-                font-size: 0.8rem;
-                margin-bottom: 4px;
-            }
-
-            .form-control {
-                padding: 6px 10px;
-                font-size: 0.85rem;
-            }
+        .page-title {
+            font-size: 1.2rem;
         }
+
+        .page-subtitle {
+            font-size: 0.8rem;
+        }
+
+        .badge-count {
+            font-size: 0.7rem;
+            padding: 1px 6px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .container {
+            padding-left: 5px !important;
+            padding-right: 5px !important;
+        }
+
+        .data-item {
+            padding: 6px 4px;
+        }
+
+        .data-text {
+            font-size: 0.8rem;
+            max-width: 65%;
+        }
+
+        .btn-action {
+            width: 26px;
+            height: 26px;
+            font-size: 0.7rem;
+        }
+
+        .page-title {
+            font-size: 1.1rem;
+        }
+
+        .card-header {
+            padding: 8px 12px;
+        }
+
+        .card-body {
+            padding: 12px;
+        }
+
+        .form-label {
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+        }
+
+        .form-control {
+            padding: 6px 10px;
+            font-size: 0.85rem;
+        }
+    }
     }
 </style>
 @endpush
