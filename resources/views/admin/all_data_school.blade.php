@@ -239,19 +239,139 @@
         color: #7f8c8d;
         margin-right: 15px;
     }
-    
-    /* Responsive */
+
+    /* Modal Styles */
+    .modal-header {
+        background-color: #3498db;
+        color: white;
+        border-radius: 8px 8px 0 0;
+        padding: 12px 16px;
+    }
+
+    .modal-title {
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .btn-close-white {
+        filter: invert(1) grayscale(100%) brightness(200%);
+    }
+
+    /* ===== RESPONSIVE FIX - SAMA KAYAK ALL_DATA ===== */
     @media (max-width: 768px) {
+        /* Fix body overflow */
+        body {
+            overflow-x: hidden !important;
+            width: 100% !important;
+            position: relative !important;
+        }
+        
+        .admin-content-wrapper {
+            padding-left: 5px !important;
+            padding-right: 5px !important;
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
+        }
+        
+        /* Container */
+        .container {
+            padding-left: 3px !important;
+            padding-right: 3px !important;
+            max-width: 100% !important;
+            margin: 0 auto !important;
+            width: 100% !important;
+            overflow-x: hidden !important;
+        }
+
+        /* Force all rows to be full width */
+        .row {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            width: 100% !important;
+        }
+        
+        /* Force all columns to be full width */
+        .row > [class*="col-"] {
+            padding-left: 3px !important;
+            padding-right: 3px !important;
+            width: 100% !important;
+            flex: 0 0 100% !important;
+            max-width: 100% !important;
+        }
+
+        /* Button submit di HP */
+        .text-end {
+            width: 100% !important;
+            padding-left: 3px !important;
+            padding-right: 3px !important;
+        }
+
+        .btn-submit, .btn-secondary {
+            width: 100% !important;
+            margin-top: 10px;
+            margin-right: 0 !important;
+        }
+
+        /* Card styling */
+        .card {
+            width: 100% !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+        }
+        
         .card-body {
-            padding: 12px;
+            padding: 10px;
+        }
+
+        .card-header {
+            padding: 10px 12px;
+            font-size: 0.9rem;
+        }
+
+        /* Table styling */
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .data-table {
+            font-size: 0.8rem;
+            min-width: 100%;
         }
         
         .data-table th,
         .data-table td {
-            padding: 8px 10px;
-            font-size: 0.85rem;
+            padding: 8px 6px;
+            white-space: nowrap;
         }
         
+        .action-icons {
+            flex-direction: row;
+            gap: 4px;
+        }
+
+        .action-icon {
+            width: 28px;
+            height: 28px;
+            font-size: 0.75rem;
+        }
+
+        .page-title {
+            font-size: 1.2rem;
+            padding-left: 3px;
+        }
+
+        .page-subtitle {
+            font-size: 0.8rem;
+            padding-left: 3px;
+        }
+
+        .badge {
+            font-size: 0.7rem;
+            padding: 3px 6px;
+        }
+
+        /* Filter Section */
         .filter-form {
             flex-direction: column;
             align-items: stretch;
@@ -259,12 +379,102 @@
         
         .filter-select, .search-box {
             max-width: 100%;
+            width: 100%;
+        }
+
+        .search-box {
+            display: flex;
+        }
+
+        .pagination-info {
+            margin-right: 0;
+            margin-bottom: 10px;
+        }
+        
+        /* Fix any potential overflow */
+        * {
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .admin-content-wrapper {
+            padding-left: 3px !important;
+            padding-right: 3px !important;
+        }
+        
+        .container {
+            padding-left: 2px !important;
+            padding-right: 2px !important;
+        }
+
+        .row > [class*="col-"] {
+            padding-left: 2px !important;
+            padding-right: 2px !important;
+        }
+
+        .data-table {
+            font-size: 0.75rem;
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: 6px 4px;
+        }
+        
+        .action-icon {
+            width: 26px;
+            height: 26px;
+            font-size: 0.7rem;
+        }
+
+        .page-title {
+            font-size: 1.1rem;
+        }
+
+        .card-header {
+            padding: 8px 10px;
+        }
+
+        .card-body {
+            padding: 8px;
+        }
+
+        .form-label {
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+        }
+
+        .form-control, .form-select {
+            padding: 6px 8px;
+            font-size: 0.85rem;
+        }
+        
+        .badge {
+            font-size: 0.65rem;
+            padding: 2px 4px;
+        }
+
+        /* Filter buttons */
+        .d-flex.justify-content-between {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .d-flex.align-items-center.gap-2 {
+            flex-direction: column;
+            width: 100%;
+        }
+
+        select[name="per_page"] {
+            width: 100% !important;
         }
     }
 </style>
 @endpush
 
-<div class="container">
+<div class="container" style="max-width: 100%; padding-left: 15px; padding-right: 15px;">
     <!-- Page Header -->
     <div class="page-header">
         <h1 class="page-title mt-2">
@@ -357,7 +567,7 @@
                 
                 <select name="category_filter" class="form-control filter-select" onchange="this.form.submit()">
                     <option value="">Semua Kategori</option>
-                    @foreach($categories as $category)
+                    @foreach(['SMA', 'SMK', 'MA'] as $category)
                     <option value="{{ $category }}" {{ request('category_filter') == $category ? 'selected' : '' }}>
                         {{ $category }}
                     </option>
@@ -366,7 +576,7 @@
                 
                 <select name="type_filter" class="form-control filter-select" onchange="this.form.submit()">
                     <option value="">Semua Jenis</option>
-                    @foreach($types as $type)
+                    @foreach(['NEGERI', 'SWASTA'] as $type)
                     <option value="{{ $type }}" {{ request('type_filter') == $type ? 'selected' : '' }}>
                         {{ $type }}
                     </option>
@@ -531,7 +741,7 @@
                 <h5 class="modal-title">
                     <i class="fas fa-edit me-2"></i> Edit Sekolah
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="editForm" method="POST" action="{{ url('/admin/school/edit') }}">
