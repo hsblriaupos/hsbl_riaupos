@@ -95,10 +95,17 @@
         font-weight: 500;
         cursor: pointer;
         transition: background-color 0.2s;
+        margin-right: 10px;
     }
 
     .btn-secondary:hover {
         background-color: #7f8c8d;
+    }
+
+    .btn-sm {
+        padding: 4px 10px;
+        font-size: 0.8rem;
+        border-radius: 4px;
     }
 
     /* ===== DATA LIST CARDS ===== */
@@ -137,6 +144,20 @@
         overflow-y: auto;
     }
 
+    /* Scrollbar styling */
+    .data-card-body::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .data-card-body::-webkit-scrollbar-track {
+        background: #f1f5f9;
+    }
+
+    .data-card-body::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+    }
+
     .data-item {
         display: flex;
         justify-content: space-between;
@@ -164,6 +185,7 @@
     .action-buttons {
         display: flex;
         gap: 5px;
+        flex-shrink: 0;
     }
 
     .btn-action {
@@ -250,31 +272,226 @@
         filter: invert(1) grayscale(100%) brightness(200%);
     }
 
-    /* Responsive */
+    /* ===== RESPONSIVE FIX - OPTIMIZED ===== */
     @media (max-width: 768px) {
+        /* Fix body overflow */
+        body {
+            overflow-x: hidden !important;
+            width: 100% !important;
+        }
+
+        .admin-content-wrapper {
+            padding-left: 8px !important;
+            padding-right: 8px !important;
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
+        }
+
+        /* Container */
+        .container {
+            padding-left: 5px !important;
+            padding-right: 5px !important;
+            max-width: 100% !important;
+            margin: 0 auto !important;
+            width: 100% !important;
+        }
+
+        /* Force all rows to be full width */
+        .row {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            width: 100% !important;
+        }
+
+        /* Force all columns to be full width */
+        .row>[class*="col-"] {
+            padding-left: 5px !important;
+            padding-right: 5px !important;
+            width: 100% !important;
+            flex: 0 0 100% !important;
+            max-width: 100% !important;
+        }
+
+        /* Button submit di HP */
+        .text-end {
+            width: 100% !important;
+            padding-left: 5px !important;
+            padding-right: 5px !important;
+        }
+
+        .btn-submit,
+        .btn-secondary {
+            width: 100% !important;
+            margin-top: 8px;
+            margin-right: 0 !important;
+        }
+
+        /* Card styling */
+        .card {
+            width: 100% !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            margin-bottom: 15px;
+        }
+
         .card-body {
             padding: 12px;
         }
 
-        .data-card-body {
-            padding: 10px;
+        .card-header {
+            padding: 10px 12px;
+            font-size: 0.9rem;
         }
 
+        /* Header flex untuk mobile */
+        .card-header.d-flex {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 10px;
+        }
+
+        /* Data Cards */
+        .col-md-6 {
+            width: 100% !important;
+            flex: 0 0 100% !important;
+            max-width: 100% !important;
+        }
+
+        .data-card {
+            margin-bottom: 15px;
+        }
+
+        .data-card-header {
+            padding: 10px 12px;
+            font-size: 0.9rem;
+        }
+
+        .data-card-body {
+            padding: 8px;
+            max-height: 250px;
+        }
+
+        /* Data items - horizontal */
         .data-item {
             padding: 8px 6px;
-            flex-direction: column;
-            align-items: flex-start;
+            flex-direction: row;
+            align-items: center;
             gap: 8px;
         }
 
+        .data-text {
+            font-size: 0.85rem;
+            max-width: 70%;
+            word-break: break-word;
+        }
+
         .action-buttons {
-            align-self: flex-end;
+            gap: 4px;
+            align-self: auto;
+        }
+
+        .btn-action {
+            width: 28px;
+            height: 28px;
+            font-size: 0.75rem;
+        }
+
+        .page-title {
+            font-size: 1.2rem;
+            padding-left: 5px;
+        }
+
+        .page-subtitle {
+            font-size: 0.8rem;
+            padding-left: 5px;
+        }
+
+        .badge-count {
+            font-size: 0.7rem;
+            padding: 1px 6px;
+        }
+
+        .award-badge {
+            padding: 3px 8px;
+            font-size: 0.7rem;
+            margin-right: 5px;
+        }
+
+        /* Fix any potential overflow */
+        * {
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .admin-content-wrapper {
+            padding-left: 5px !important;
+            padding-right: 5px !important;
+        }
+
+        .container {
+            padding-left: 3px !important;
+            padding-right: 3px !important;
+        }
+
+        .row>[class*="col-"] {
+            padding-left: 3px !important;
+            padding-right: 3px !important;
+        }
+
+        .data-item {
+            padding: 6px 4px;
+        }
+
+        .data-text {
+            font-size: 0.8rem;
+            max-width: 65%;
+        }
+
+        .btn-action {
+            width: 26px;
+            height: 26px;
+            font-size: 0.7rem;
+        }
+
+        .page-title {
+            font-size: 1.1rem;
+        }
+
+        .card-header {
+            padding: 8px 10px;
+        }
+
+        .card-body {
+            padding: 8px;
+        }
+
+        .form-label {
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+        }
+
+        .form-control {
+            padding: 6px 8px;
+            font-size: 0.85rem;
+        }
+
+        .badge-count {
+            font-size: 0.65rem;
+            padding: 1px 5px;
+        }
+
+        .award-badge {
+            padding: 2px 6px;
+            font-size: 0.65rem;
+            margin-right: 4px;
         }
     }
 </style>
 @endpush
 
-<div class="container">
+<div class="container" style="max-width: 100%; padding-left: 15px; padding-right: 15px;">
     <!-- Page Header -->
     <div class="page-header">
         <h1 class="page-title mt-2">
@@ -340,7 +557,7 @@
         <div class="card-header d-flex justify-content-between align-items-center">
             <div>
                 <i class="fas fa-list me-2"></i> Daftar Award
-                <span class="badge-count">{{ $awardTypes->count() + $awardCategories->count() }}</span>
+                <span class="badge-count ms-2">{{ $awardTypes->count() + $awardCategories->count() }}</span>
             </div>
         </div>
 
@@ -464,7 +681,6 @@
             </div>
 
             <div class="modal-body">
-                <!-- PERBAIKAN: route('admin.data.edit') -->
                 <form id="editAwardForm" method="POST" action="{{ route('admin.data.edit') }}">
                     @csrf
                     <input type="hidden" name="table" value="awards">
@@ -689,5 +905,4 @@
     });
 </script>
 @endpush
-
 @endsection
