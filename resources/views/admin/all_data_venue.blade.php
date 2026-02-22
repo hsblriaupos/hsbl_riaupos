@@ -103,6 +103,12 @@
         background-color: #7f8c8d;
     }
 
+    .btn-sm {
+        padding: 4px 10px;
+        font-size: 0.8rem;
+        border-radius: 4px;
+    }
+
     .table-container {
         overflow-x: auto;
     }
@@ -179,8 +185,9 @@
 
     .action-icons {
         display: flex;
-        gap: 8px;
+        gap: 6px;
         justify-content: center;
+        flex-wrap: wrap;
     }
 
     .action-icon {
@@ -216,7 +223,7 @@
         background-color: #fecaca;
     }
 
-    /* ===== SECTION FILTER YANG DIPERBAIKI ===== */
+    /* Filter Section */
     .filter-section {
         background-color: #f8fafc;
         padding: 12px 16px;
@@ -231,17 +238,15 @@
     }
 
     .filter-select {
-        min-width: 180px;
+        min-width: 150px;
+        max-width: 200px;
         flex: 1;
     }
 
     .search-box {
         flex: 2;
         min-width: 250px;
-    }
-
-    .input-group .form-control:focus {
-        z-index: 3;
+        max-width: 300px;
     }
 
     .input-group .btn-outline-secondary {
@@ -256,7 +261,7 @@
         color: #495057;
     }
 
-    /* ===== PAGINATION YANG SERAGAM ===== */
+    /* Pagination */
     .pagination-container {
         background: #f8fafc !important;
         padding: 16px 24px !important;
@@ -325,11 +330,7 @@
         cursor: not-allowed;
     }
 
-    /* ============================================
-       MODAL GAMBAR - UKURAN LEBIH KECIL & RAPI
-       ============================================ */
-    
-    /* Modal Container - UKURAN DIPERKECIL LAGI */
+    /* Modal Gambar - Ukuran Lebih Kecil */
     .modal-dialog.modal-sm {
         max-width: 450px !important;
         margin-top: 30px !important;
@@ -344,7 +345,6 @@
         box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
     }
 
-    /* Modal Header */
     .modal-header {
         padding: 10px 15px;
         background-color: #f8f9fa;
@@ -358,7 +358,6 @@
         color: #2c3e50;
     }
 
-    /* Modal Body - Container Gambar */
     .modal-body {
         padding: 0;
         flex: 1;
@@ -377,7 +376,6 @@
         min-height: 180px;
     }
 
-    /* Styling Gambar */
     #modalImage {
         transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         cursor: zoom-in;
@@ -394,7 +392,6 @@
         box-shadow: 0 3px 15px rgba(0, 0, 0, 0.2);
     }
 
-    /* Modal Footer */
     .modal-footer {
         padding: 8px 15px;
         background-color: #f8f9fa;
@@ -402,17 +399,6 @@
         flex-shrink: 0;
     }
 
-    /* Efek Hover untuk Container Gambar */
-    .image-container:hover #modalImage:not(.zoomed) {
-        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.18);
-    }
-
-    /* Smooth transition untuk modal */
-    .modal.fade .modal-dialog {
-        transition: transform 0.3s ease-out, opacity 0.3s ease-out;
-    }
-
-    /* Styling tombol close */
     .btn-close {
         padding: 6px;
         opacity: 0.7;
@@ -424,57 +410,205 @@
         opacity: 1;
     }
 
-    /* Responsive */
+    /* ===== RESPONSIVE FIX - OPTIMIZED ===== */
     @media (max-width: 768px) {
+        /* Fix body overflow */
+        body {
+            overflow-x: hidden !important;
+            width: 100% !important;
+        }
+
+        .admin-content-wrapper {
+            padding-left: 8px !important;
+            padding-right: 8px !important;
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
+        }
+
+        /* Container */
+        .container {
+            padding-left: 5px !important;
+            padding-right: 5px !important;
+            max-width: 100% !important;
+            margin: 0 auto !important;
+            width: 100% !important;
+        }
+
+        /* Force all rows to be full width */
+        .row {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            width: 100% !important;
+        }
+
+        /* Force all columns to be full width */
+        .row>[class*="col-"] {
+            padding-left: 5px !important;
+            padding-right: 5px !important;
+            width: 100% !important;
+            flex: 0 0 100% !important;
+            max-width: 100% !important;
+        }
+
+        /* Button submit di HP */
+        .text-end {
+            width: 100% !important;
+            padding-left: 5px !important;
+            padding-right: 5px !important;
+        }
+
+        .btn-submit,
+        .btn-secondary {
+            width: 100% !important;
+            margin-top: 8px;
+            margin-right: 0 !important;
+        }
+
+        /* Card styling */
+        .card {
+            width: 100% !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            margin-bottom: 15px;
+        }
+
         .card-body {
             padding: 12px;
         }
 
-        .data-table th,
-        .data-table td {
-            padding: 8px 10px;
-            font-size: 0.85rem;
+        .card-header {
+            padding: 10px 12px;
+            font-size: 0.9rem;
         }
 
+        /* Header flex untuk mobile */
+        .card-header.d-flex {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 10px;
+        }
+
+        .card-header.d-flex > div:last-child {
+            width: 100%;
+            display: flex;
+            gap: 8px;
+            justify-content: flex-start;
+        }
+
+        .card-header.d-flex .btn-sm {
+            padding: 6px 10px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+        }
+
+        /* Table styling */
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 0;
+        }
+
+        .data-table {
+            font-size: 0.8rem;
+            min-width: 600px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 8px 6px;
+        }
+
+        .action-icons {
+            gap: 4px;
+        }
+
+        .action-icon {
+            width: 28px;
+            height: 28px;
+            font-size: 0.75rem;
+        }
+
+        .page-title {
+            font-size: 1.2rem;
+            padding-left: 5px;
+        }
+
+        .page-subtitle {
+            font-size: 0.8rem;
+            padding-left: 5px;
+        }
+
+        .badge {
+            font-size: 0.7rem;
+            padding: 3px 6px;
+        }
+
+        /* Filter Section */
         .filter-form {
             flex-direction: column;
             align-items: stretch;
+            gap: 8px;
         }
 
         .filter-select,
         .search-box {
             max-width: 100%;
-            min-width: 100%;
+            width: 100%;
         }
 
+        .search-box {
+            display: flex;
+        }
+
+        .search-box input {
+            flex: 1;
+        }
+
+        .d-flex.align-items-center.gap-2 {
+            flex-direction: column;
+            width: 100%;
+            gap: 8px;
+        }
+
+        select[name="per_page"] {
+            width: 100% !important;
+        }
+
+        .pagination-info {
+            margin-right: 0;
+            margin-bottom: 5px;
+            font-size: 0.8rem;
+        }
+
+        /* Image thumbnail */
         .img-thumbnail {
             width: 50px;
             height: 50px;
         }
-        
+
         /* Modal Responsive */
         .modal-dialog.modal-sm {
             max-width: 90% !important;
             margin: 20px auto !important;
         }
-        
+
         .image-container {
             max-height: 45vh;
             padding: 10px;
         }
-        
+
         #modalImage.zoomed {
             transform: scale(1.15);
         }
-        
+
         .modal-header {
             padding: 8px 12px;
         }
-        
+
         .modal-footer {
             padding: 6px 12px;
         }
-        
+
         /* Pagination responsive */
         .pagination-container {
             flex-direction: column;
@@ -482,58 +616,150 @@
             text-align: center;
             padding: 14px 20px !important;
         }
-    }
 
-    @media (max-width: 576px) {
-        .modal-dialog.modal-sm {
-            max-width: 95% !important;
-            margin: 15px auto !important;
-        }
-        
-        .image-container {
-            max-height: 40vh;
-            padding: 8px;
-        }
-        
-        .modal-header,
-        .modal-footer {
-            padding: 6px 10px;
-        }
-        
-        .modal-title {
-            font-size: 0.9rem;
-        }
-        
-        #modalImage.zoomed {
-            transform: scale(1.1);
-        }
-        
-        .btn-close {
-            padding: 4px;
-            font-size: 0.7rem;
-        }
-        
         .custom-pagination {
             flex-wrap: wrap;
             justify-content: center;
         }
+
+        /* Fix any potential overflow */
+        * {
+            max-width: 100%;
+            box-sizing: border-box;
+        }
     }
 
-    /* Untuk device mobile kecil */
+    @media (max-width: 576px) {
+        .admin-content-wrapper {
+            padding-left: 5px !important;
+            padding-right: 5px !important;
+        }
+
+        .container {
+            padding-left: 3px !important;
+            padding-right: 3px !important;
+        }
+
+        .row>[class*="col-"] {
+            padding-left: 3px !important;
+            padding-right: 3px !important;
+        }
+
+        .card-header.d-flex > div:last-child {
+            flex-wrap: wrap;
+        }
+
+        .btn-sm {
+            flex: 1;
+            text-align: center;
+        }
+
+        .data-table {
+            font-size: 0.75rem;
+            min-width: 550px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 6px 4px;
+        }
+
+        .action-icon {
+            width: 26px;
+            height: 26px;
+            font-size: 0.7rem;
+        }
+
+        .page-title {
+            font-size: 1.1rem;
+        }
+
+        .card-header {
+            padding: 8px 10px;
+        }
+
+        .card-body {
+            padding: 8px;
+        }
+
+        .form-label {
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+        }
+
+        .form-control,
+        .form-select {
+            padding: 6px 8px;
+            font-size: 0.85rem;
+        }
+
+        .badge {
+            font-size: 0.65rem;
+            padding: 2px 5px;
+        }
+
+        /* Image thumbnail */
+        .img-thumbnail {
+            width: 40px;
+            height: 40px;
+        }
+
+        .img-thumbnail:hover {
+            transform: scale(1.5);
+        }
+
+        /* Modal lebih kecil */
+        .modal-dialog.modal-sm {
+            max-width: 95% !important;
+            margin: 15px auto !important;
+        }
+
+        .image-container {
+            max-height: 40vh;
+            padding: 8px;
+        }
+
+        .modal-header,
+        .modal-footer {
+            padding: 6px 10px;
+        }
+
+        .modal-title {
+            font-size: 0.9rem;
+        }
+
+        #modalImage.zoomed {
+            transform: scale(1.1);
+        }
+
+        .btn-close {
+            padding: 4px;
+            font-size: 0.7rem;
+        }
+
+        .pagination-info {
+            font-size: 0.75rem;
+        }
+    }
+
     @media (max-width: 400px) {
         .modal-dialog.modal-sm {
             max-width: 98% !important;
             margin: 10px auto !important;
         }
-        
+
         .image-container {
             max-height: 35vh;
+        }
+
+        .data-table {
+            min-width: 500px;
         }
     }
 </style>
 @endpush
 
-<div class="container">
+<div class="container" style="max-width: 100%; padding-left: 15px; padding-right: 15px;">
     <!-- Header Halaman -->
     <div class="page-header">
         <h1 class="page-title mt-2">
@@ -688,10 +914,7 @@
                             <td>
                                 <div class="d-flex align-items-center">
                                     <i class="fas fa-map-marker-alt text-primary me-2"></i>
-                                    <div>
-                                        <div class="fw-medium">{{ $venue->venue_name }}</div>
-                                        <small class="text-muted">ID: {{ $venue->id }}</small>
-                                    </div>
+                                    <span class="fw-medium">{{ $venue->venue_name }}</span>
                                 </div>
                             </td>
                             <td>
@@ -765,7 +988,7 @@
                 </table>
             </div>
 
-            <!-- Pagination - SELALU TAMPIL -->
+            <!-- Pagination -->
             <div class="pagination-container">
                 <div class="pagination-info">
                     <i class="fas fa-info-circle me-2"></i>
@@ -846,7 +1069,7 @@
     </div>
 </div>
 
-<!-- Image Modal - UKURAN LEBIH KECIL -->
+<!-- Image Modal - Ukuran Lebih Kecil -->
 <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content">
@@ -990,12 +1213,20 @@
     // DOM Ready function
     document.addEventListener('DOMContentLoaded', function() {
         // Auto submit filter ketika select berubah
-        const filterSelects = document.querySelectorAll('#filterForm select');
+        const filterSelects = document.querySelectorAll('#filterForm select:not([name="per_page"])');
         filterSelects.forEach(select => {
             select.addEventListener('change', function() {
                 document.getElementById('filterForm').submit();
             });
         });
+
+        // Submit ketika per_page berubah
+        const perPageSelect = document.querySelector('select[name="per_page"]');
+        if (perPageSelect) {
+            perPageSelect.addEventListener('change', function() {
+                document.getElementById('filterForm').submit();
+            });
+        }
 
         // Form validation untuk tambah venue
         const addForm = document.getElementById('addVenueForm');
@@ -1020,7 +1251,7 @@
                     submitBtn.disabled = true;
                     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Menyimpan...';
                     
-                    // Tampilkan toast loading (bukan popup besar)
+                    // Tampilkan toast loading
                     const Toast = Swal.mixin({
                         toast: true,
                         position: 'top-end',
@@ -1091,7 +1322,8 @@
             button.addEventListener('click', function(e) {
                 e.preventDefault();
                 const form = this.closest('form');
-                const venueName = form.closest('tr').querySelector('.fw-medium').textContent;
+                const row = form.closest('tr');
+                const venueName = row ? row.querySelector('.fw-medium').textContent : 'venue ini';
 
                 Swal.fire({
                     title: 'Hapus Data Venue?',
@@ -1112,8 +1344,9 @@
                                 Swal.showLoading();
                             }
                         });
-
-                        form.submit();
+                        setTimeout(() => {
+                            form.submit();
+                        }, 500);
                     }
                 });
             });
@@ -1128,29 +1361,6 @@
                 backdrops.forEach(backdrop => backdrop.remove());
             });
         });
-
-        // Tambah event untuk tombol search
-        const searchBtn = document.querySelector('.search-box button[type="submit"]');
-        if (searchBtn) {
-            searchBtn.addEventListener('click', function(e) {
-                const form = this.closest('form');
-                const searchInput = form.querySelector('input[name="search"]');
-                
-                // Jika search input kosong, submit seperti biasa
-                if (!searchInput.value.trim()) {
-                    return true;
-                }
-                
-                // Tampilkan loading kecil untuk search
-                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-                this.disabled = true;
-                
-                setTimeout(() => {
-                    this.innerHTML = '<i class="fas fa-search"></i>';
-                    this.disabled = false;
-                }, 1000);
-            });
-        }
     });
 </script>
 @endpush
