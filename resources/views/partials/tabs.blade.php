@@ -23,3 +23,37 @@
         </nav>
     </div>
 </div>
+
+<style>
+/* ===== RESPONSIVE TABS - TAMBAHKAN INI ===== */
+@media (max-width: 768px) {
+    .admin-tabs-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-bottom: 15px;
+    }
+    
+    .admin-tabs-nav {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 2px;
+        min-width: max-content;
+        padding-bottom: 2px;
+    }
+    
+    .admin-tabs-item {
+        flex: 0 0 auto;
+        min-width: 70px;
+        padding: 8px 10px;
+    }
+    
+    .admin-tabs-item .tab-icon {
+        font-size: 0.9rem;
+        margin-bottom: 2px;
+    }
+    
+    .admin-tabs-item .tab-label {
+        font-size: 0.65rem;
+    }
+}
+</style>
