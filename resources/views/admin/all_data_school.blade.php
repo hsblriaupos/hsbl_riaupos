@@ -10,131 +10,227 @@
 
 @push('styles')
 <style>
-    /* ===== TYPOGRAPHY ===== */
     .page-header {
-        margin-bottom: 1.25rem;
+        margin-bottom: 25px;
     }
-
+    
     .page-title {
-        font-size: 1.25rem;
-        font-weight: 500;
-        color: #1e293b;
-        margin-bottom: 0.25rem;
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 5px;
     }
-
+    
     .page-subtitle {
-        color: #64748b;
-        font-size: 0.8rem;
-        font-weight: 400;
+        color: #7f8c8d;
+        font-size: 0.9rem;
     }
-
-    /* ===== CARD STYLING ===== */
+    
     .card {
-        border: 1px solid #e2e8f0;
-        border-radius: 10px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        margin-bottom: 1.25rem;
-        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
     }
-
+    
     .card-header {
-        background-color: #f8fafc;
-        border-bottom: 1px solid #e2e8f0;
-        padding: 0.75rem 1rem;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #e0e0e0;
+        padding: 12px 16px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #2c3e50;
+    }
+    
+    .card-body {
+        padding: 16px;
+    }
+    
+    .form-label {
         font-size: 0.9rem;
         font-weight: 500;
-        color: #334155;
-        border-radius: 10px 10px 0 0;
-    }
-
-    .card-body {
-        padding: 1rem;
-    }
-
-    /* ===== FORM ELEMENTS ===== */
-    .form-label {
-        font-size: 0.8rem;
-        font-weight: 500;
-        color: #475569;
-        margin-bottom: 0.25rem;
+        color: #2c3e50;
+        margin-bottom: 6px;
         display: block;
     }
-
-    .form-control,
-    .form-select {
-        border: 1px solid #cbd5e1;
-        border-radius: 6px;
-        padding: 0.5rem 0.75rem;
-        font-size: 0.85rem;
+    
+    .form-control, .form-select {
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        padding: 8px 12px;
+        font-size: 0.9rem;
         width: 100%;
         transition: all 0.2s;
-        color: #1e293b;
-        font-weight: 400;
     }
-
-    /* ===== BUTTONS ===== */
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        outline: none;
+    }
+    
     .btn-submit {
-        background-color: #3b82f6;
+        background-color: #3498db;
         color: white;
         border: none;
-        border-radius: 6px;
-        padding: 0.5rem 1rem;
-        font-size: 0.85rem;
+        border-radius: 5px;
+        padding: 8px 16px;
+        font-size: 0.9rem;
         font-weight: 500;
         cursor: pointer;
-        transition: all 0.2s;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
+        transition: background-color 0.2s;
     }
-
+    
     .btn-submit:hover {
-        background-color: #2563eb;
+        background-color: #2980b9;
     }
-
+    
     .btn-secondary {
-        background-color: #f1f5f9;
-        color: #475569;
-        border: 1px solid #cbd5e1;
-        border-radius: 6px;
-        padding: 0.5rem 1rem;
-        font-size: 0.85rem;
+        background-color: #95a5a6;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 8px 16px;
+        font-size: 0.9rem;
         font-weight: 500;
         cursor: pointer;
-        transition: all 0.2s;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
+        transition: background-color 0.2s;
     }
 
     .btn-secondary:hover {
-        background-color: #e2e8f0;
-        color: #1e293b;
+        background-color: #7f8c8d;
     }
-
+    
     .btn-sm {
-        padding: 0.3rem 0.8rem;
+        padding: 4px 10px;
+        font-size: 0.8rem;
+        border-radius: 4px;
+    }
+    
+    .table-container {
+        overflow-x: auto;
+    }
+    
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+    
+    .data-table th {
+        background-color: #f8f9fa;
+        padding: 10px 12px;
+        text-align: left;
+        font-weight: 600;
+        color: #2c3e50;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .data-table td {
+        padding: 10px 12px;
+        border-bottom: 1px solid #f0f0f0;
+        vertical-align: middle;
+    }
+    
+    .data-table tbody tr:hover {
+        background-color: #f8fafc;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 30px;
+        color: #95a5a6;
+        font-size: 0.9rem;
+    }
+    
+    .empty-state i {
+        font-size: 2rem;
+        margin-bottom: 10px;
+        color: #bdc3c7;
+    }
+    
+    .badge {
+        padding: 4px 10px;
+        border-radius: 20px;
         font-size: 0.75rem;
-        border-radius: 6px;
+        font-weight: 500;
+        display: inline-block;
+    }
+    
+    .badge-primary {
+        background-color: #e3f2fd;
+        color: #1565c0;
+        border: 1px solid #bbdefb;
+    }
+    
+    .badge-success {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+        border: 1px solid #c8e6c9;
+    }
+    
+    .badge-warning {
+        background-color: #fff3e0;
+        color: #ef6c00;
+        border: 1px solid #ffcc80;
+    }
+    
+    .action-icons {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+    }
+    
+    .action-icon {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+        font-size: 0.85rem;
+    }
+    
+    .edit-icon {
+        background-color: #e3f2fd;
+        color: #1976d2;
+        border: 1px solid #bbdefb;
+    }
+    
+    .edit-icon:hover {
+        background-color: #bbdefb;
+    }
+    
+    .delete-icon {
+        background-color: #fef2f2;
+        color: #dc2626;
+        border: 1px solid #fecaca;
+    }
+    
+    .delete-icon:hover {
+        background-color: #fecaca;
     }
 
-    /* ===== FILTER SECTION ===== */
+    /* Filter Section */
     .filter-section {
         background-color: #f8fafc;
-        padding: 0.75rem 1rem;
-        border-bottom: 1px solid #e2e8f0;
+        padding: 12px 16px;
+        border-bottom: 1px solid #e0e0e0;
     }
 
     .filter-form {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.5rem;
+        gap: 10px;
         align-items: center;
     }
 
     .filter-select {
-        min-width: 140px;
-        max-width: 180px;
+        min-width: 150px;
+        max-width: 200px;
     }
 
     .search-box {
@@ -143,218 +239,163 @@
         max-width: 300px;
     }
 
-    /* ===== TABLE STYLING - VERSI HP OPTIMIZED ===== */
-    .table-responsive {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        margin: 0;
-    }
-
-    .table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 0.8rem;
-        color: #334155;
-    }
-
-    .table th {
-        background-color: #f8fafc;
-        padding: 0.5rem 0.4rem;
-        text-align: left;
-        font-weight: 500;
-        color: #475569;
-        border-bottom: 1px solid #e2e8f0;
-        white-space: nowrap;
-    }
-
-    .table td {
-        padding: 0.4rem 0.4rem;
-        border-bottom: 1px solid #f1f5f9;
-        vertical-align: middle;
-        font-weight: 400;
-    }
-
-    .table tbody tr:hover {
-        background-color: #f8fafc;
-    }
-
-    /* ===== BADGE STYLING ===== */
-    .badge {
-        padding: 0.15rem 0.5rem;
-        border-radius: 20px;
-        font-size: 0.7rem;
-        font-weight: 400;
-        display: inline-block;
-        border: 1px solid transparent;
-    }
-
-    .badge-primary {
-        background-color: #eff6ff;
-        color: #1d4ed8;
-        border-color: #bfdbfe;
-    }
-
-    .badge-success {
-        background-color: #f0fdf4;
-        color: #166534;
-        border-color: #bbf7d0;
-    }
-
-    .badge-warning {
-        background-color: #fefce8;
-        color: #854d0e;
-        border-color: #fef08a;
-    }
-
-    /* ===== ACTION BUTTONS ===== */
-    .action-buttons {
-        display: flex;
-        gap: 2px;
-        justify-content: center;
-    }
-
-    .btn-action {
-        width: 28px;
-        height: 28px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 4px;
-        border: 1px solid transparent;
-        cursor: pointer;
-        transition: all 0.2s;
-        font-size: 0.75rem;
-        background: transparent;
-    }
-
-    .btn-edit {
-        background-color: #e3f2fd;
-        color: #1976d2;
-        border-color: #bbdefb;
-    }
-
-    .btn-edit:hover {
-        background-color: #bbdefb;
-    }
-
-    .btn-delete {
-        background-color: #fef2f2;
-        color: #dc2626;
-        border-color: #fecaca;
-    }
-
-    .btn-delete:hover {
-        background-color: #fecaca;
-    }
-
-    /* ===== EMPTY STATE ===== */
-    .empty-state {
-        text-align: center;
-        padding: 2rem;
-        color: #94a3b8;
-        font-size: 0.85rem;
-    }
-
-    .empty-state i {
-        font-size: 2.5rem;
-        margin-bottom: 0.75rem;
-        color: #cbd5e1;
-    }
-
-    /* ===== PAGINATION ===== */
+    /* Pagination */
     .pagination-container {
-        padding: 0.75rem 1rem;
-        border-top: 1px solid #e2e8f0;
+        padding: 15px 20px;
+        border-top: 1px solid #e0e0e0;
         display: flex;
         justify-content: flex-end;
     }
 
     .pagination {
-        gap: 0.15rem;
+        gap: 5px;
         margin: 0;
         padding: 0;
     }
 
     .page-link {
         border-radius: 4px !important;
-        color: #475569;
+        color: #4a5568;
         border: 1px solid #e2e8f0;
-        padding: 0.25rem 0.5rem;
-        font-size: 0.75rem;
+        padding: 0.4rem 0.7rem;
+        font-size: 0.85rem;
         transition: all 0.2s;
         background: white;
-        min-width: 30px;
-        text-align: center;
+    }
+
+    .page-link:hover {
+        background-color: #f1f5f9;
+        border-color: #cbd5e0;
+        color: #2d3748;
     }
 
     .page-item.active .page-link {
-        background: #3b82f6;
-        border-color: #3b82f6;
+        background: #3498db;
+        border-color: #3498db;
         color: white;
     }
 
-    /* ===== RESPONSIVE FIX - VERSI LAMA YANG UDAH OK ===== */
+    .page-item.disabled .page-link {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background: #f1f5f9;
+    }
+
+    /* Modal Styles */
+    .modal-header {
+        background-color: #3498db;
+        color: white;
+        border-radius: 8px 8px 0 0;
+        padding: 12px 16px;
+    }
+
+    .modal-title {
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .btn-close-white {
+        filter: invert(1) grayscale(100%) brightness(200%);
+    }
+
+    /* ===== RESPONSIVE FIX - SAMA KAYAK CITY ===== */
     @media (max-width: 768px) {
+        /* Fix body overflow */
         body {
-            overflow-x: hidden;
+            overflow-x: hidden !important;
+            width: 100% !important;
+            position: relative !important;
         }
-
+        
         .admin-content-wrapper {
-            padding-left: 0.5rem !important;
-            padding-right: 0.5rem !important;
+            padding-left: 5px !important;
+            padding-right: 5px !important;
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
         }
-
+        
+        /* Container */
         .container {
-            padding-left: 0.25rem !important;
-            padding-right: 0.25rem !important;
+            padding-left: 3px !important;
+            padding-right: 3px !important;
             max-width: 100% !important;
+            margin: 0 auto !important;
+            width: 100% !important;
+            overflow-x: hidden !important;
         }
 
-        /* Force all columns to full width */
-        .row>[class*="col-"] {
-            padding-left: 0.25rem !important;
-            padding-right: 0.25rem !important;
+        /* Force all rows to be full width */
+        .row {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            width: 100% !important;
+        }
+        
+        /* Force all columns to be full width */
+        .row > [class*="col-"] {
+            padding-left: 3px !important;
+            padding-right: 3px !important;
             width: 100% !important;
             flex: 0 0 100% !important;
             max-width: 100% !important;
         }
 
-        /* Buttons full width */
-        .text-end,
-        .d-flex.justify-content-end {
-            width: 100%;
+        /* Button submit di HP */
+        .text-end {
+            width: 100% !important;
+            padding-left: 3px !important;
+            padding-right: 3px !important;
         }
 
-        .btn-submit,
-        .btn-secondary {
-            width: 100%;
-            margin-top: 0.5rem;
+        .btn-submit, .btn-secondary {
+            width: 100% !important;
+            margin-top: 10px;
             margin-right: 0 !important;
         }
 
-        /* Card header */
+        /* Card header flex untuk mobile */
         .card-header.d-flex {
             flex-direction: column;
             align-items: flex-start !important;
-            gap: 0.75rem;
+            gap: 10px;
         }
 
-        .card-header.d-flex>div:last-child {
+        .card-header.d-flex > div:last-child {
             width: 100%;
             display: flex;
-            gap: 0.5rem;
+            gap: 8px;
+            justify-content: flex-start;
         }
 
         .card-header.d-flex .btn-sm {
+            padding: 6px 10px;
+            font-size: 0.75rem;
+            white-space: nowrap;
             flex: 1;
             text-align: center;
         }
 
-        /* Filter section */
+        /* Card styling */
+        .card {
+            width: 100% !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+        }
+        
+        .card-body {
+            padding: 10px;
+        }
+
+        .card-header {
+            padding: 10px 12px;
+            font-size: 0.9rem;
+        }
+
+        /* Filter Section */
         .filter-form {
             flex-direction: column;
             align-items: stretch;
-            gap: 0.5rem;
+            gap: 8px;
         }
 
         .filter-select,
@@ -371,29 +412,93 @@
             flex: 1;
         }
 
-        /* Table styling - yang bikin ok di HP */
-        .table-responsive {
+        /* Table styling - INI YANG PENTING! */
+        .table-container {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
-            margin: 0;
+        }
+        
+        .data-table {
+            font-size: 0.8rem;
+            min-width: 100%; /* UBAH DARI 700px JADI 100% */
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: 8px 6px;
+            white-space: nowrap;
+        }
+        
+        .action-icons {
+            flex-direction: row;
+            gap: 4px;
         }
 
-        .table {
-            min-width: 650px;
+        .action-icon {
+            width: 28px;
+            height: 28px;
             font-size: 0.75rem;
         }
 
-        .table th,
-        .table td {
-            padding: 0.35rem 0.3rem;
+        .page-title {
+            font-size: 1.2rem;
+            padding-left: 3px;
         }
 
+        .page-subtitle {
+            font-size: 0.8rem;
+            padding-left: 3px;
+        }
+        
         .badge {
-            font-size: 0.65rem;
-            padding: 0.1rem 0.4rem;
+            font-size: 0.7rem;
+            padding: 2px 6px;
         }
 
-        .btn-action {
+        /* Pagination */
+        .pagination-container {
+            justify-content: center;
+            padding: 12px 15px;
+        }
+
+        .page-link {
+            padding: 0.3rem 0.6rem;
+            font-size: 0.75rem;
+        }
+        
+        /* Fix any potential overflow */
+        * {
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .admin-content-wrapper {
+            padding-left: 3px !important;
+            padding-right: 3px !important;
+        }
+        
+        .container {
+            padding-left: 2px !important;
+            padding-right: 2px !important;
+        }
+
+        .row > [class*="col-"] {
+            padding-left: 2px !important;
+            padding-right: 2px !important;
+        }
+
+        .data-table {
+            font-size: 0.75rem;
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: 6px 4px;
+        }
+        
+        .action-icon {
             width: 26px;
             height: 26px;
             font-size: 0.7rem;
@@ -403,56 +508,38 @@
             font-size: 1.1rem;
         }
 
-        .page-subtitle {
-            font-size: 0.75rem;
+        .card-header {
+            padding: 8px 10px;
         }
 
-        .pagination-container {
-            justify-content: center;
+        .card-body {
+            padding: 8px;
+        }
+
+        .form-label {
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+        }
+
+        .form-control, .form-select {
+            padding: 6px 8px;
+            font-size: 0.85rem;
+        }
+        
+        .badge {
+            font-size: 0.6rem;
+            padding: 2px 5px;
         }
 
         .page-link {
-            padding: 0.2rem 0.4rem;
+            padding: 0.25rem 0.5rem;
             font-size: 0.7rem;
-            min-width: 28px;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .container {
-            padding-left: 0.15rem !important;
-            padding-right: 0.15rem !important;
-        }
-
-        .table {
-            min-width: 600px;
-            font-size: 0.7rem;
-        }
-
-        .table th,
-        .table td {
-            padding: 0.3rem 0.25rem;
-        }
-
-        .badge {
-            font-size: 0.6rem;
-            padding: 0.1rem 0.3rem;
-        }
-
-        .btn-action {
-            width: 24px;
-            height: 24px;
-            font-size: 0.65rem;
-        }
-
-        .page-title {
-            font-size: 1rem;
         }
     }
 </style>
 @endpush
 
-<div class="container" style="max-width: 100%; padding-left: 10px; padding-right: 10px;">
+<div class="container" style="max-width: 100%; padding-left: 15px; padding-right: 15px;">
     <!-- Page Header -->
     <div class="page-header">
         <h1 class="page-title mt-2">
@@ -469,9 +556,9 @@
         <div class="card-body">
             <form action="{{ url('/admin/school/store') }}" method="POST" id="addSchoolForm">
                 @csrf
-                <div class="row g-1">
+                <div class="row g-3">
                     <div class="col-md-6">
-                        <div class="mb-2">
+                        <div class="mb-3">
                             <label for="school_name" class="form-label">Nama Sekolah <span class="text-danger">*</span></label>
                             <input type="text"
                                 name="school_name"
@@ -482,7 +569,7 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="mb-2">
+                        <div class="mb-3">
                             <label for="city_id" class="form-label">Kota <span class="text-danger">*</span></label>
                             <select name="city_id" id="city_id" class="form-select" required>
                                 <option value="">-- Pilih Kota --</option>
@@ -493,7 +580,7 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="mb-2">
+                        <div class="mb-3">
                             <label for="category_name" class="form-label">Kategori <span class="text-danger">*</span></label>
                             <select name="category_name" id="category_name" class="form-select" required>
                                 <option value="">-- Pilih Kategori --</option>
@@ -504,7 +591,7 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="mb-2">
+                        <div class="mb-3">
                             <label for="type" class="form-label">Jenis <span class="text-danger">*</span></label>
                             <select name="type" id="type" class="form-select" required>
                                 <option value="">-- Pilih Jenis --</option>
@@ -515,12 +602,12 @@
                         </div>
                     </div>
                 </div>
-                <div class="d-flex justify-content-end gap-2 mt-2">
+                <div class="text-end mt-3">
                     <button type="reset" class="btn-secondary">
-                        <i class="fas fa-redo me-1"></i> Reset
+                        <i class="fas fa-redo me-2"></i> Reset
                     </button>
                     <button type="submit" class="btn-submit">
-                        <i class="fas fa-plus me-1"></i> Tambah Sekolah
+                        <i class="fas fa-plus me-2"></i> Tambah Sekolah
                     </button>
                 </div>
             </form>
@@ -596,34 +683,35 @@
         <div class="card-header d-flex justify-content-between align-items-center">
             <div>
                 <i class="fas fa-list me-2"></i> Daftar Sekolah
-                <span class="badge bg-secondary ms-1">{{ $schools->total() }}</span>
+                <span class="badge bg-primary ms-2">{{ $schools->total() }}</span>
             </div>
             <div class="d-flex gap-1">
+                <a href="{{ url('/admin/school') }}" class="btn-secondary btn-sm">
+                    <i class="fas fa-redo me-1"></i> Reset
+                </a>
                 <a href="{{ url('/admin/export/school') }}" class="btn-submit btn-sm">
                     <i class="fas fa-file-export me-1"></i> Export
                 </a>
             </div>
         </div>
         <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table">
+            <div class="table-container">
+                <table class="data-table">
                     <thead>
                         <tr>
-                            <th style="width: 45px;">No.</th>
+                            <th style="width: 50px;">No.</th>
                             <th>Nama Sekolah</th>
-                            <th style="width: 80px;">Kategori</th>
-                            <th style="width: 80px;">Jenis</th>
-                            <th style="width: 100px;">Kota</th>
-                            <th style="width: 70px;" class="text-center">Aksi</th>
+                            <th style="width: 90px;">Kategori</th>
+                            <th style="width: 90px;">Jenis</th>
+                            <th style="width: 120px;">Kota</th>
+                            <th style="width: 100px;" class="text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($schools as $index => $school)
                         <tr>
-                            <td class="text-secondary">{{ $schools->firstItem() + $index }}</td>
-                            <td>
-                                {{ $school->school_name }}
-                            </td>
+                            <td class="text-center">{{ $schools->firstItem() + $index }}</td>
+                            <td>{{ $school->school_name }}</td>
                             <td>
                                 <span class="badge badge-primary">
                                     {{ $school->category_name }}
@@ -640,13 +728,11 @@
                                 </span>
                                 @endif
                             </td>
-                            <td>
-                                {{ $school->city->city_name ?? 'N/A' }}
-                            </td>
+                            <td>{{ $school->city->city_name ?? 'N/A' }}</td>
                             <td class="text-center">
-                                <div class="action-buttons">
+                                <div class="action-icons">
                                     <button type="button"
-                                        class="btn-action btn-edit"
+                                        class="action-icon edit-icon"
                                         title="Edit"
                                         data-bs-toggle="modal"
                                         data-bs-target="#editModal"
@@ -665,7 +751,7 @@
                                         <input type="hidden" name="table" value="schools">
                                         <input type="hidden" name="id" value="{{ $school->id }}">
                                         <button type="button"
-                                            class="btn-action btn-delete btn-delete-item"
+                                            class="action-icon delete-icon btn-delete"
                                             title="Hapus">
                                             <i class="fas fa-trash"></i>
                                         </button>
@@ -675,13 +761,13 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="6" class="text-center py-5">
+                            <td colspan="6">
                                 <div class="empty-state">
                                     <i class="fas fa-school"></i>
                                     <p>Belum ada data sekolah.</p>
                                     @if(request()->hasAny(['search', 'city_filter', 'category_filter', 'type_filter']))
-                                    <a href="{{ url('/admin/school') }}" class="btn btn-outline-primary btn-sm mt-2">
-                                        <i class="fas fa-redo me-1"></i> Reset Filter
+                                    <a href="{{ url('/admin/school') }}" class="btn btn-primary btn-sm mt-2">
+                                        Reset Filter
                                     </a>
                                     @endif
                                 </div>
@@ -724,7 +810,7 @@
                 <h5 class="modal-title">
                     <i class="fas fa-edit me-2"></i> Edit Sekolah
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="editForm" method="POST" action="{{ url('/admin/school/edit') }}">
@@ -732,13 +818,13 @@
                     <input type="hidden" name="table" value="schools">
                     <input type="hidden" name="id" id="editId">
 
-                    <div class="mb-2">
+                    <div class="mb-3">
                         <label class="form-label">Nama Sekolah <span class="text-danger">*</span></label>
                         <input type="text" name="school_name" id="editSchoolName"
                             class="form-control" required>
                     </div>
 
-                    <div class="mb-2">
+                    <div class="mb-3">
                         <label class="form-label">Kota <span class="text-danger">*</span></label>
                         <select name="city_id" id="editCityId" class="form-select" required>
                             <option value="">-- Pilih Kota --</option>
@@ -748,9 +834,9 @@
                         </select>
                     </div>
 
-                    <div class="row g-1">
+                    <div class="row g-2">
                         <div class="col-md-6">
-                            <div class="mb-2">
+                            <div class="mb-3">
                                 <label class="form-label">Kategori <span class="text-danger">*</span></label>
                                 <select name="category_name" id="editCategory" class="form-select" required>
                                     <option value="">-- Pilih Kategori --</option>
@@ -761,7 +847,7 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="mb-2">
+                            <div class="mb-3">
                                 <label class="form-label">Jenis <span class="text-danger">*</span></label>
                                 <select name="type" id="editType" class="form-select" required>
                                     <option value="">-- Pilih Jenis --</option>
@@ -773,7 +859,7 @@
                         </div>
                     </div>
 
-                    <div class="d-flex justify-content-end gap-2 mt-3">
+                    <div class="d-flex justify-content-end gap-2 mt-4">
                         <button type="button" class="btn-secondary" data-bs-dismiss="modal">
                             Batal
                         </button>
@@ -824,7 +910,7 @@
 
     // Delete Confirmation
     document.addEventListener('DOMContentLoaded', function() {
-        const deleteButtons = document.querySelectorAll('.btn-delete-item');
+        const deleteButtons = document.querySelectorAll('.btn-delete');
 
         deleteButtons.forEach(button => {
             button.addEventListener('click', function(e) {
