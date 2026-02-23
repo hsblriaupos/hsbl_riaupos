@@ -10,13 +10,10 @@
 
 @push('styles')
 <style>
-    /* ===== TYPOGRAPHY - SAMA DENGAN MASTER DATA ===== */
     .page-header {
-        margin-bottom: 15px;
-        /* DIKURANGI */
-        margin-top: 5px;
-        /* DITAMBAH */
-    }
+    margin-bottom: 15px; 
+    margin-top: 0;        
+}
 
     .page-title {
         font-size: 1.3rem;
@@ -456,9 +453,9 @@
 @endpush
 
 <div class="container" style="max-width: 100%; padding-left: 15px; padding-right: 15px;">
-    <!-- Page Header - Lebih Naik -->
+    <!-- Page Header -->
     <div class="page-header">
-        <h1 class="page-title">
+        <h1 class="page-title mt-2">
             <i class="fas fa-city me-2"></i> City Management
         </h1>
         <p class="page-subtitle">Manage the list of cities for the HSBL competitions</p>
