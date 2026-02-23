@@ -11,14 +11,15 @@
 @push('styles')
 <style>
     .page-header {
-        margin-bottom: 25px;
+        margin-bottom: 15px;
+        margin-top: 5px;
     }
 
     .page-title {
         font-size: 1.3rem;
         font-weight: 600;
         color: #2c3e50;
-        margin-bottom: 5px;
+        margin-bottom: 3px;
     }
 
     .page-subtitle {
@@ -452,7 +453,7 @@
             <form method="POST" action="{{ route('admin.data.store') }}" id="addDataForm">
                 @csrf
 
-                <div class="row g-3 mb-3">
+                <div class="row g-3 mb-1">
                     <div class="col-md-3">
                         <label class="form-label">Season</label>
                         <input type="text" name="season_name" class="form-control"
@@ -507,7 +508,7 @@
     </div>
 
     <!-- Data Lists Section -->
-    <div class="row g-4 mb-4">
+    <div class="row g-3 mb-2">
         @foreach ([
         'season' => ['data' => $seasons, 'icon' => 'fas fa-calendar'],
         'series' => ['data' => $series, 'icon' => 'fas fa-layer-group'],
@@ -560,7 +561,7 @@
     </div>
 
     <!-- Row 2: 2 Cards -->
-    <div class="row g-4">
+    <div class="row g-3">
         @foreach ([
         'phase' => ['data' => $phases, 'icon' => 'fas fa-flag'],
         'competition_type' => ['data' => $competition_types ?? collect(), 'icon' => 'fas fa-tag'],

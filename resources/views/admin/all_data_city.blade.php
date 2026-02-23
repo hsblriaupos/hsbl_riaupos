@@ -10,15 +10,17 @@
 
 @push('styles')
 <style>
+    /* ===== TYPOGRAPHY - SAMA DENGAN MASTER DATA ===== */
     .page-header {
-        margin-bottom: 25px;
+        margin-bottom: 15px; /* DIKURANGI */
+        margin-top: 5px; /* DITAMBAH */
     }
     
     .page-title {
         font-size: 1.3rem;
         font-weight: 600;
         color: #2c3e50;
-        margin-bottom: 5px;
+        margin-bottom: 3px;
     }
     
     .page-subtitle {
@@ -26,6 +28,7 @@
         font-size: 0.9rem;
     }
     
+    /* ===== CARD STYLING ===== */
     .card {
         border: 1px solid #e0e0e0;
         border-radius: 8px;
@@ -46,6 +49,7 @@
         padding: 16px;
     }
     
+    /* ===== FORM ELEMENTS ===== */
     .form-label {
         font-size: 0.9rem;
         font-weight: 500;
@@ -69,6 +73,7 @@
         outline: none;
     }
     
+    /* ===== BUTTONS ===== */
     .btn-submit {
         background-color: #3498db;
         color: white;
@@ -101,6 +106,7 @@
         background-color: #7f8c8d;
     }
     
+    /* ===== TABLE STYLING ===== */
     .table-container {
         overflow-x: auto;
     }
@@ -143,9 +149,10 @@
         color: #bdc3c7;
     }
     
+    /* ===== ACTION BUTTONS - SAMA DENGAN MASTER DATA ===== */
     .action-icons {
         display: flex;
-        gap: 8px;
+        gap: 5px;
         justify-content: center;
     }
     
@@ -156,33 +163,33 @@
         align-items: center;
         justify-content: center;
         border-radius: 4px;
+        border: 1px solid transparent;
         cursor: pointer;
         transition: all 0.2s;
-        border: none;
         font-size: 0.85rem;
-    }
-    
-    .delete-icon {
-        background-color: #fef2f2;
-        color: #dc2626;
-        border: 1px solid #fecaca;
-    }
-    
-    .delete-icon:hover {
-        background-color: #fecaca;
     }
     
     .edit-icon {
         background-color: #e3f2fd;
         color: #1976d2;
-        border: 1px solid #bbdefb;
+        border-color: #bbdefb;
     }
     
     .edit-icon:hover {
         background-color: #bbdefb;
     }
     
-    /* Modal Styles */
+    .delete-icon {
+        background-color: #fef2f2;
+        color: #dc2626;
+        border-color: #fecaca;
+    }
+    
+    .delete-icon:hover {
+        background-color: #fecaca;
+    }
+    
+    /* ===== MODAL STYLES ===== */
     .modal-header {
         background-color: #3498db;
         color: white;
@@ -199,7 +206,7 @@
         filter: invert(1) grayscale(100%) brightness(200%);
     }
 
-    /* ===== RESPONSIVE FIX - FINAL VERSION ===== */
+    /* ===== RESPONSIVE FIX - SAMA DENGAN MASTER DATA ===== */
     @media (max-width: 768px) {
         /* Fix body overflow */
         body {
@@ -207,14 +214,14 @@
             width: 100% !important;
             position: relative !important;
         }
-        
+
         .admin-content-wrapper {
             padding-left: 5px !important;
             padding-right: 5px !important;
             max-width: 100vw !important;
             overflow-x: hidden !important;
         }
-        
+
         /* Container */
         .container {
             padding-left: 3px !important;
@@ -231,7 +238,7 @@
             margin-right: 0 !important;
             width: 100% !important;
         }
-        
+
         /* Force all columns to be full width */
         .row > [class*="col-"] {
             padding-left: 3px !important;
@@ -259,13 +266,13 @@
             margin-left: 0 !important;
             margin-right: 0 !important;
         }
-        
+
         .card-body {
             padding: 10px;
         }
 
         .card-header {
-            padding: 10px 12px;
+            padding: 8px 10px;
             font-size: 0.9rem;
         }
 
@@ -274,27 +281,26 @@
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
         }
-        
+
         .data-table {
             font-size: 0.8rem;
             min-width: 100%;
         }
-        
+
         .data-table th,
         .data-table td {
-            padding: 8px 6px;
+            padding: 6px 4px;
             white-space: nowrap;
         }
-        
+
         .action-icons {
-            flex-direction: row;
-            gap: 4px;
+            gap: 3px;
         }
 
         .action-icon {
-            width: 28px;
-            height: 28px;
-            font-size: 0.75rem;
+            width: 26px;
+            height: 26px;
+            font-size: 0.7rem;
         }
 
         .page-title {
@@ -306,12 +312,12 @@
             font-size: 0.8rem;
             padding-left: 3px;
         }
-        
+
         .badge {
             font-size: 0.7rem;
-            padding: 2px 6px;
+            padding: 2px 5px;
         }
-        
+
         /* Fix any potential overflow */
         * {
             max-width: 100%;
@@ -324,7 +330,7 @@
             padding-left: 3px !important;
             padding-right: 3px !important;
         }
-        
+
         .container {
             padding-left: 2px !important;
             padding-right: 2px !important;
@@ -338,16 +344,16 @@
         .data-table {
             font-size: 0.75rem;
         }
-        
+
         .data-table th,
         .data-table td {
-            padding: 6px 4px;
+            padding: 5px 3px;
         }
-        
+
         .action-icon {
-            width: 26px;
-            height: 26px;
-            font-size: 0.7rem;
+            width: 24px;
+            height: 24px;
+            font-size: 0.65rem;
         }
 
         .page-title {
@@ -355,7 +361,7 @@
         }
 
         .card-header {
-            padding: 8px 10px;
+            padding: 6px 8px;
         }
 
         .card-body {
@@ -364,26 +370,26 @@
 
         .form-label {
             font-size: 0.8rem;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
         }
 
         .form-control {
-            padding: 6px 8px;
+            padding: 5px 6px;
             font-size: 0.85rem;
         }
-        
+
         .badge {
             font-size: 0.6rem;
-            padding: 2px 5px;
+            padding: 1px 4px;
         }
     }
 </style>
 @endpush
 
 <div class="container" style="max-width: 100%; padding-left: 15px; padding-right: 15px;">
-    <!-- Page Header -->
+    <!-- Page Header - Lebih Naik -->
     <div class="page-header">
-        <h1 class="page-title mt-2">
+        <h1 class="page-title">
             <i class="fas fa-city me-2"></i> City Management
         </h1>
         <p class="page-subtitle">Manage the list of cities for the HSBL competitions</p>
@@ -432,7 +438,7 @@
                         <tr>
                             <th style="width: 50px;">No.</th>
                             <th>Nama Kota</th>
-                            <th style="width: 120px;" class="text-center">Aksi</th>
+                            <th style="width: 100px;" class="text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -651,5 +657,4 @@
     });
 </script>
 @endpush
-
 @endsection
