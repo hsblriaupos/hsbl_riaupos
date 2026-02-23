@@ -558,7 +558,7 @@
                 @csrf
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <div class="mb-3">
+                        <div class="mb-1">
                             <label for="school_name" class="form-label">Nama Sekolah <span class="text-danger">*</span></label>
                             <input type="text"
                                 name="school_name"
@@ -569,7 +569,7 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="mb-3">
+                        <div class="mb-1">
                             <label for="city_id" class="form-label">Kota <span class="text-danger">*</span></label>
                             <select name="city_id" id="city_id" class="form-select" required>
                                 <option value="">-- Pilih Kota --</option>
@@ -580,7 +580,7 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="mb-3">
+                        <div class="mb-1">
                             <label for="category_name" class="form-label">Kategori <span class="text-danger">*</span></label>
                             <select name="category_name" id="category_name" class="form-select" required>
                                 <option value="">-- Pilih Kategori --</option>
@@ -591,7 +591,7 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="mb-3">
+                        <div class="mb-1">
                             <label for="type" class="form-label">Jenis <span class="text-danger">*</span></label>
                             <select name="type" id="type" class="form-select" required>
                                 <option value="">-- Pilih Jenis --</option>
