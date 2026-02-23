@@ -5,235 +5,145 @@
 @php $activeTab = 'school'; @endphp
 @include('partials.tabs', compact('activeTab'))
 
-@include('partials.sweetalert')
+{{-- Notifikasi Center --}}
+@include('partials.center-notifications')
 
 @push('styles')
 <style>
+    /* ===== TYPOGRAPHY - SEMUA STANDAR ===== */
     .page-header {
-        margin-bottom: 25px;
+        margin-bottom: 1.5rem;
     }
 
     .page-title {
-        font-size: 1.3rem;
-        font-weight: 600;
-        color: #2c3e50;
-        margin-bottom: 5px;
+        font-size: 1.25rem;
+        font-weight: 500;
+        color: #1e293b;
+        margin-bottom: 0.25rem;
     }
 
     .page-subtitle {
-        color: #7f8c8d;
-        font-size: 0.9rem;
+        color: #64748b;
+        font-size: 0.8rem;
+        font-weight: 400;
     }
 
+    /* ===== CARD STYLING ===== */
     .card {
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        margin-bottom: 20px;
+        margin-bottom: 1.25rem;
+        background: white;
     }
 
     .card-header {
-        background-color: #f8f9fa;
-        border-bottom: 1px solid #e0e0e0;
-        padding: 12px 16px;
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: #2c3e50;
+        background-color: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #334155;
+        border-radius: 10px 10px 0 0;
     }
 
     .card-body {
-        padding: 16px;
+        padding: 1rem;
     }
 
+    /* ===== FORM ELEMENTS ===== */
     .form-label {
-        font-size: 0.9rem;
+        font-size: 0.8rem;
         font-weight: 500;
-        color: #2c3e50;
-        margin-bottom: 6px;
+        color: #475569;
+        margin-bottom: 0.25rem;
         display: block;
     }
 
     .form-control,
     .form-select {
-        border: 1px solid #ced4da;
-        border-radius: 5px;
-        padding: 8px 12px;
-        font-size: 0.9rem;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
         width: 100%;
         transition: all 0.2s;
+        color: #1e293b;
+        font-weight: 400;
     }
 
     .form-control:focus,
     .form-select:focus {
-        border-color: #3498db;
-        box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         outline: none;
     }
 
+    /* ===== BUTTONS ===== */
     .btn-submit {
-        background-color: #3498db;
+        background-color: #3b82f6;
         color: white;
         border: none;
-        border-radius: 5px;
-        padding: 8px 16px;
-        font-size: 0.9rem;
+        border-radius: 6px;
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
         font-weight: 500;
         cursor: pointer;
-        transition: background-color 0.2s;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .btn-submit:hover {
-        background-color: #2980b9;
+        background-color: #2563eb;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
     }
 
     .btn-secondary {
-        background-color: #95a5a6;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        padding: 8px 16px;
-        font-size: 0.9rem;
+        background-color: #f1f5f9;
+        color: #475569;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
         font-weight: 500;
         cursor: pointer;
-        transition: background-color 0.2s;
-        margin-right: 10px;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .btn-secondary:hover {
-        background-color: #7f8c8d;
+        background-color: #e2e8f0;
+        color: #1e293b;
     }
 
     .btn-sm {
-        padding: 4px 10px;
-        font-size: 0.8rem;
-        border-radius: 4px;
-    }
-
-    .table-container {
-        overflow-x: auto;
-    }
-
-    .data-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 0.9rem;
-    }
-
-    .data-table th {
-        background-color: #f8f9fa;
-        padding: 10px 12px;
-        text-align: left;
-        font-weight: 600;
-        color: #2c3e50;
-        border-bottom: 1px solid #e0e0e0;
-    }
-
-    .data-table td {
-        padding: 10px 12px;
-        border-bottom: 1px solid #f0f0f0;
-        vertical-align: middle;
-    }
-
-    .data-table tbody tr:hover {
-        background-color: #f8fafc;
-    }
-
-    .empty-state {
-        text-align: center;
-        padding: 30px;
-        color: #95a5a6;
-        font-size: 0.9rem;
-    }
-
-    .empty-state i {
-        font-size: 2rem;
-        margin-bottom: 10px;
-        color: #bdc3c7;
-    }
-
-    .badge {
-        padding: 4px 10px;
-        border-radius: 20px;
+        padding: 0.3rem 0.8rem;
         font-size: 0.75rem;
-        font-weight: 500;
-        display: inline-block;
+        border-radius: 6px;
     }
 
-    .badge-primary {
-        background-color: #e3f2fd;
-        color: #1565c0;
-        border: 1px solid #bbdefb;
-    }
-
-    .badge-success {
-        background-color: #e8f5e9;
-        color: #2e7d32;
-        border: 1px solid #c8e6c9;
-    }
-
-    .badge-warning {
-        background-color: #fff3e0;
-        color: #ef6c00;
-        border: 1px solid #ffcc80;
-    }
-
-    .action-icons {
-        display: flex;
-        gap: 6px;
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-
-    .action-icon {
-        width: 32px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: all 0.2s;
-        border: none;
-        font-size: 0.85rem;
-    }
-
-    .edit-icon {
-        background-color: #e3f2fd;
-        color: #1976d2;
-        border: 1px solid #bbdefb;
-    }
-
-    .edit-icon:hover {
-        background-color: #bbdefb;
-    }
-
-    .delete-icon {
-        background-color: #fef2f2;
-        color: #dc2626;
-        border: 1px solid #fecaca;
-    }
-
-    .delete-icon:hover {
-        background-color: #fecaca;
-    }
-
-    /* Filter Section */
+    /* ===== FILTER SECTION ===== */
     .filter-section {
         background-color: #f8fafc;
-        padding: 12px 16px;
-        border-bottom: 1px solid #e0e0e0;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #e2e8f0;
     }
 
     .filter-form {
         display: flex;
         flex-wrap: wrap;
-        gap: 10px;
+        gap: 0.5rem;
         align-items: center;
     }
 
     .filter-select {
-        min-width: 150px;
-        max-width: 200px;
+        min-width: 140px;
+        max-width: 180px;
     }
 
     .search-box {
@@ -242,168 +152,241 @@
         max-width: 300px;
     }
 
-    /* Pagination */
-    .pagination-info {
+    /* ===== TABLE STYLING - PADDING LEBIH RAPAT ===== */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
         font-size: 0.85rem;
-        color: #7f8c8d;
-        margin-right: 15px;
+        color: #334155;
     }
 
-    /* Modal Styles */
-    .modal-header {
-        background-color: #3498db;
+    .table th {
+        background-color: #f8fafc;
+        padding: 0.6rem 0.5rem;
+        text-align: left;
+        font-weight: 500;
+        color: #475569;
+        border-bottom: 1px solid #e2e8f0;
+        white-space: nowrap;
+    }
+
+    .table td {
+        padding: 0.6rem 0.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: middle;
+        font-weight: 400;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f8fafc;
+    }
+
+    /* Icon container */
+    .icon-circle {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f1f5f9;
+        border-radius: 8px;
+        color: #3b82f6;
+    }
+
+    /* ===== BADGE STYLING ===== */
+    .badge {
+        padding: 0.2rem 0.6rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 400;
+        display: inline-block;
+        border: 1px solid transparent;
+    }
+
+    .badge-primary {
+        background-color: #eff6ff;
+        color: #1d4ed8;
+        border-color: #bfdbfe;
+    }
+
+    .badge-success {
+        background-color: #f0fdf4;
+        color: #166534;
+        border-color: #bbf7d0;
+    }
+
+    .badge-warning {
+        background-color: #fefce8;
+        color: #854d0e;
+        border-color: #fef08a;
+    }
+
+    /* ===== ACTION BUTTONS - SAMA DENGAN STYLE ALL_DATA ===== */
+    .action-buttons {
+        display: flex;
+        gap: 4px;
+        justify-content: center;
+    }
+
+    .btn-action {
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 0.8rem;
+        background: transparent;
+    }
+
+    .btn-edit {
+        background-color: #e3f2fd;
+        color: #1976d2;
+        border-color: #bbdefb;
+    }
+
+    .btn-edit:hover {
+        background-color: #bbdefb;
+    }
+
+    .btn-delete {
+        background-color: #fef2f2;
+        color: #dc2626;
+        border-color: #fecaca;
+    }
+
+    .btn-delete:hover {
+        background-color: #fecaca;
+    }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: #94a3b8;
+        font-size: 0.85rem;
+    }
+
+    .empty-state i {
+        font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+        color: #cbd5e1;
+    }
+
+    /* ===== PAGINATION - HANYA ANGKA ===== */
+    .pagination-container {
+        padding: 0.75rem 1rem;
+        border-top: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .pagination {
+        gap: 0.15rem;
+        margin: 0;
+        padding: 0;
+    }
+
+    .page-link {
+        border-radius: 4px !important;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+        padding: 0.3rem 0.6rem;
+        font-size: 0.8rem;
+        transition: all 0.2s;
+        background: white;
+        min-width: 32px;
+        text-align: center;
+    }
+
+    .page-link:hover {
+        background-color: #f1f5f9;
+        border-color: #cbd5e1;
+        color: #1e293b;
+    }
+
+    .page-item.active .page-link {
+        background: #3b82f6;
+        border-color: #3b82f6;
         color: white;
-        border-radius: 8px 8px 0 0;
-        padding: 12px 16px;
     }
 
-    .modal-title {
-        font-size: 1rem;
-        font-weight: 600;
+    .page-item.disabled .page-link {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background: #f1f5f9;
     }
 
-    .btn-close-white {
-        filter: invert(1) grayscale(100%) brightness(200%);
-    }
-
-    /* ===== RESPONSIVE FIX - OPTIMIZED ===== */
+    /* ===== RESPONSIVE FIX ===== */
     @media (max-width: 768px) {
-        /* Fix body overflow */
         body {
-            overflow-x: hidden !important;
-            width: 100% !important;
+            overflow-x: hidden;
         }
 
         .admin-content-wrapper {
-            padding-left: 8px !important;
-            padding-right: 8px !important;
-            max-width: 100vw !important;
-            overflow-x: hidden !important;
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
         }
 
-        /* Container */
         .container {
-            padding-left: 5px !important;
-            padding-right: 5px !important;
+            padding-left: 0.25rem !important;
+            padding-right: 0.25rem !important;
             max-width: 100% !important;
-            margin: 0 auto !important;
-            width: 100% !important;
         }
 
-        /* Force all rows to be full width */
-        .row {
-            margin-left: 0 !important;
-            margin-right: 0 !important;
-            width: 100% !important;
-        }
-
-        /* Force all columns to be full width */
+        /* Force all columns to full width */
         .row>[class*="col-"] {
-            padding-left: 5px !important;
-            padding-right: 5px !important;
+            padding-left: 0.2rem !important;
+            padding-right: 0.2rem !important;
             width: 100% !important;
             flex: 0 0 100% !important;
             max-width: 100% !important;
         }
 
-        /* Button submit di HP */
-        .text-end {
-            width: 100% !important;
-            padding-left: 5px !important;
-            padding-right: 5px !important;
+        /* Buttons full width di HP */
+        .text-end,
+        .d-flex.justify-content-end {
+            width: 100%;
         }
 
         .btn-submit,
         .btn-secondary {
-            width: 100% !important;
-            margin-top: 8px;
+            width: 100%;
+            margin-top: 0.25rem;
             margin-right: 0 !important;
         }
 
-        /* Card styling */
-        .card {
-            width: 100% !important;
-            margin-left: 0 !important;
-            margin-right: 0 !important;
-            margin-bottom: 15px;
-        }
-
-        .card-body {
-            padding: 12px;
-        }
-
-        .card-header {
-            padding: 10px 12px;
-            font-size: 0.9rem;
-        }
-
-        /* Header flex untuk mobile */
+        /* Card header flex untuk mobile */
         .card-header.d-flex {
             flex-direction: column;
             align-items: flex-start !important;
-            gap: 10px;
+            gap: 0.5rem;
         }
 
-        .card-header.d-flex > div:last-child {
+        .card-header.d-flex>div:last-child {
             width: 100%;
             display: flex;
-            gap: 8px;
-            justify-content: flex-start;
+            gap: 0.5rem;
         }
 
         .card-header.d-flex .btn-sm {
-            padding: 6px 10px;
-            font-size: 0.75rem;
-            white-space: nowrap;
+            flex: 1;
+            text-align: center;
         }
 
-        /* Table styling */
-        .table-container {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            margin: 0;
-        }
-
-        .data-table {
-            font-size: 0.8rem;
-            min-width: 600px;
-        }
-
-        .data-table th,
-        .data-table td {
-            padding: 8px 6px;
-        }
-
-        .action-icons {
-            gap: 4px;
-        }
-
-        .action-icon {
-            width: 28px;
-            height: 28px;
-            font-size: 0.75rem;
-        }
-
-        .page-title {
-            font-size: 1.2rem;
-            padding-left: 5px;
-        }
-
-        .page-subtitle {
-            font-size: 0.8rem;
-            padding-left: 5px;
-        }
-
-        .badge {
-            font-size: 0.7rem;
-            padding: 3px 6px;
-        }
-
-        /* Filter Section */
+        /* Filter section */
         .filter-form {
             flex-direction: column;
             align-items: stretch;
-            gap: 8px;
+            gap: 0.5rem;
         }
 
         .filter-select,
@@ -420,71 +403,60 @@
             flex: 1;
         }
 
-        /* Pagination wrapper */
-        .d-flex.justify-content-between {
-            flex-direction: column;
-            gap: 12px;
+        /* Pagination */
+        .pagination-container {
+            justify-content: center;
         }
 
-        .d-flex.align-items-center.gap-2 {
-            flex-direction: column;
-            width: 100%;
-            gap: 8px;
+        /* Table tetap bisa di-scroll horizontal */
+        .table-responsive {
+            margin: 0;
         }
 
-        select[name="per_page"] {
-            width: 100% !important;
-        }
-
-        .pagination-info {
-            margin-right: 0;
-            margin-bottom: 5px;
+        .table {
+            min-width: 700px;
             font-size: 0.8rem;
         }
 
-        /* Fix any potential overflow */
-        * {
-            max-width: 100%;
-            box-sizing: border-box;
+        .table th,
+        .table td {
+            padding: 0.5rem 0.4rem;
+        }
+
+        .badge {
+            font-size: 0.7rem;
+            padding: 0.15rem 0.4rem;
+        }
+
+        .btn-action {
+            width: 28px;
+            height: 28px;
+            font-size: 0.75rem;
         }
     }
 
     @media (max-width: 576px) {
-        .admin-content-wrapper {
-            padding-left: 5px !important;
-            padding-right: 5px !important;
-        }
-
         .container {
-            padding-left: 3px !important;
-            padding-right: 3px !important;
+            padding-left: 0.15rem !important;
+            padding-right: 0.15rem !important;
         }
 
-        .row>[class*="col-"] {
-            padding-left: 3px !important;
-            padding-right: 3px !important;
-        }
-
-        .card-header.d-flex > div:last-child {
-            flex-wrap: wrap;
-        }
-
-        .btn-sm {
-            flex: 1;
-            text-align: center;
-        }
-
-        .data-table {
+        .table {
+            min-width: 650px;
             font-size: 0.75rem;
-            min-width: 550px;
         }
 
-        .data-table th,
-        .data-table td {
-            padding: 6px 4px;
+        .table th,
+        .table td {
+            padding: 0.4rem 0.3rem;
         }
 
-        .action-icon {
+        .badge {
+            font-size: 0.65rem;
+            padding: 0.1rem 0.35rem;
+        }
+
+        .btn-action {
             width: 26px;
             height: 26px;
             font-size: 0.7rem;
@@ -494,44 +466,28 @@
             font-size: 1.1rem;
         }
 
+        .page-subtitle {
+            font-size: 0.75rem;
+        }
+
         .card-header {
-            padding: 8px 10px;
+            padding: 0.6rem 0.75rem;
         }
 
         .card-body {
-            padding: 8px;
-        }
-
-        .form-label {
-            font-size: 0.8rem;
-            margin-bottom: 4px;
-        }
-
-        .form-control,
-        .form-select {
-            padding: 6px 8px;
-            font-size: 0.85rem;
-        }
-
-        .badge {
-            font-size: 0.65rem;
-            padding: 2px 5px;
-        }
-
-        .pagination-info {
-            font-size: 0.75rem;
+            padding: 0.75rem;
         }
     }
 </style>
 @endpush
 
-<div class="container" style="max-width: 100%; padding-left: 15px; padding-right: 15px;">
+<div class="container" style="max-width: 100%; padding-left: 10px; padding-right: 10px;">
     <!-- Page Header -->
     <div class="page-header">
         <h1 class="page-title mt-2">
             <i class="fas fa-school me-2"></i> School Management
         </h1>
-        <p class="page-subtitle">Manage the list of schools for the HSBL competitions</p>
+        <p class="page-subtitle">Manage the list of schools for HSBL competitions</p>
     </div>
 
     <!-- Form Tambah Sekolah -->
@@ -542,9 +498,9 @@
         <div class="card-body">
             <form action="{{ url('/admin/school/store') }}" method="POST" id="addSchoolForm">
                 @csrf
-                <div class="row g-3">
+                <div class="row g-1">
                     <div class="col-md-6">
-                        <div class="mb-3">
+                        <div class="mb-2">
                             <label for="school_name" class="form-label">Nama Sekolah <span class="text-danger">*</span></label>
                             <input type="text"
                                 name="school_name"
@@ -555,7 +511,7 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="mb-3">
+                        <div class="mb-2">
                             <label for="city_id" class="form-label">Kota <span class="text-danger">*</span></label>
                             <select name="city_id" id="city_id" class="form-select" required>
                                 <option value="">-- Pilih Kota --</option>
@@ -566,7 +522,7 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="mb-3">
+                        <div class="mb-2">
                             <label for="category_name" class="form-label">Kategori <span class="text-danger">*</span></label>
                             <select name="category_name" id="category_name" class="form-select" required>
                                 <option value="">-- Pilih Kategori --</option>
@@ -577,7 +533,7 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="mb-3">
+                        <div class="mb-2">
                             <label for="type" class="form-label">Jenis <span class="text-danger">*</span></label>
                             <select name="type" id="type" class="form-select" required>
                                 <option value="">-- Pilih Jenis --</option>
@@ -588,12 +544,12 @@
                         </div>
                     </div>
                 </div>
-                <div class="text-end mt-3">
+                <div class="d-flex justify-content-end gap-2 mt-2">
                     <button type="reset" class="btn-secondary">
-                        <i class="fas fa-redo me-2"></i> Reset
+                        <i class="fas fa-redo me-1"></i> Reset
                     </button>
                     <button type="submit" class="btn-submit">
-                        <i class="fas fa-plus me-2"></i> Tambah Sekolah
+                        <i class="fas fa-plus me-1"></i> Tambah Sekolah
                     </button>
                 </div>
             </form>
@@ -606,8 +562,8 @@
             <i class="fas fa-filter me-2"></i> Filter & Pencarian
         </div>
         <div class="filter-section">
-            <form method="GET" action="{{ url('/admin/school') }}" class="filter-form">
-                <select name="city_filter" class="form-control filter-select" onchange="this.form.submit()">
+            <form method="GET" action="{{ url('/admin/school') }}" class="filter-form" id="filterForm">
+                <select name="city_filter" class="form-control filter-select">
                     <option value="">Semua Kota</option>
                     @foreach($cities as $city)
                     <option value="{{ $city->id }}" {{ request('city_filter') == $city->id ? 'selected' : '' }}>
@@ -616,7 +572,7 @@
                     @endforeach
                 </select>
 
-                <select name="category_filter" class="form-control filter-select" onchange="this.form.submit()">
+                <select name="category_filter" class="form-control filter-select">
                     <option value="">Semua Kategori</option>
                     @foreach(['SMA', 'SMK', 'MA'] as $category)
                     <option value="{{ $category }}" {{ request('category_filter') == $category ? 'selected' : '' }}>
@@ -625,7 +581,7 @@
                     @endforeach
                 </select>
 
-                <select name="type_filter" class="form-control filter-select" onchange="this.form.submit()">
+                <select name="type_filter" class="form-control filter-select">
                     <option value="">Semua Jenis</option>
                     @foreach(['NEGERI', 'SWASTA'] as $type)
                     <option value="{{ $type }}" {{ request('type_filter') == $type ? 'selected' : '' }}>
@@ -646,16 +602,20 @@
                 </div>
 
                 <div class="d-flex align-items-center gap-2">
-                    <span class="pagination-info">
-                        Menampilkan {{ $schools->firstItem() ?? 0 }}-{{ $schools->lastItem() ?? 0 }} dari {{ $schools->total() }}
+                    <span class="text-secondary small">
+                        {{ $schools->total() }} data
                     </span>
-                    <select name="per_page" class="form-control" style="width: auto;" onchange="this.form.submit()">
+                    <select name="per_page" class="form-control" style="width: auto;">
                         <option value="10" {{ request('per_page', 10) == 10 ? 'selected' : '' }}>10</option>
                         <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
                         <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
                         <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
                     </select>
                 </div>
+
+                <a href="{{ url('/admin/school') }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-redo me-1"></i> Reset
+                </a>
             </form>
         </div>
     </div>
@@ -665,39 +625,33 @@
         <div class="card-header d-flex justify-content-between align-items-center">
             <div>
                 <i class="fas fa-list me-2"></i> Daftar Sekolah
-                <span class="badge bg-primary ms-2">{{ $schools->total() }}</span>
+                <span class="badge bg-secondary ms-1">{{ $schools->total() }}</span>
             </div>
-            <div>
-                <a href="{{ url('/admin/school') }}" class="btn-secondary btn-sm">
-                    <i class="fas fa-redo me-1"></i> Reset
-                </a>
+            <div class="d-flex gap-1">
                 <a href="{{ url('/admin/export/school') }}" class="btn-submit btn-sm">
                     <i class="fas fa-file-export me-1"></i> Export
                 </a>
             </div>
         </div>
         <div class="card-body p-0">
-            <div class="table-container">
-                <table class="data-table">
+            <div class="table-responsive">
+                <table class="table">
                     <thead>
                         <tr>
                             <th style="width: 50px;">No.</th>
                             <th>Nama Sekolah</th>
-                            <th style="width: 100px;">Kategori</th>
-                            <th style="width: 100px;">Jenis</th>
-                            <th>Kota</th>
-                            <th style="width: 100px;" class="text-center">Aksi</th>
+                            <th style="width: 90px;">Kategori</th>
+                            <th style="width: 90px;">Jenis</th>
+                            <th style="width: 120px;">Kota</th>
+                            <th style="width: 80px;" class="text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($schools as $index => $school)
                         <tr>
-                            <td class="text-center">{{ $schools->firstItem() + $index }}</td>
+                            <td class="text-secondary">{{ $schools->firstItem() + $index }}</td>
                             <td>
-                                <div class="d-flex align-items-center">
-                                    <i class="fas fa-school text-primary me-2"></i>
-                                    <span class="fw-medium">{{ $school->school_name }}</span>
-                                </div>
+                                {{ $school->school_name }}
                             </td>
                             <td>
                                 <span class="badge badge-primary">
@@ -707,22 +661,21 @@
                             <td>
                                 @if($school->type == 'NEGERI')
                                 <span class="badge badge-success">
-                                    <i class="fas fa-building me-1"></i> {{ $school->type }}
+                                    {{ $school->type }}
                                 </span>
                                 @else
                                 <span class="badge badge-warning">
-                                    <i class="fas fa-store me-1"></i> {{ $school->type }}
+                                    {{ $school->type }}
                                 </span>
                                 @endif
                             </td>
                             <td>
-                                <i class="fas fa-map-marker-alt text-danger me-1"></i>
                                 {{ $school->city->city_name ?? 'N/A' }}
                             </td>
                             <td class="text-center">
-                                <div class="action-icons">
+                                <div class="action-buttons">
                                     <button type="button"
-                                        class="action-icon edit-icon"
+                                        class="btn-action btn-edit"
                                         title="Edit"
                                         data-bs-toggle="modal"
                                         data-bs-target="#editModal"
@@ -735,14 +688,13 @@
                                         <i class="fas fa-edit"></i>
                                     </button>
 
-                                    <form method="POST" action="{{ url('/admin/school/delete') }}"
-                                        class="delete-form">
+                                    <form method="POST" action="{{ url('/admin/school/delete') }}" class="delete-form d-inline">
                                         @csrf
                                         @method('DELETE')
                                         <input type="hidden" name="table" value="schools">
                                         <input type="hidden" name="id" value="{{ $school->id }}">
                                         <button type="button"
-                                            class="action-icon delete-icon btn-delete"
+                                            class="btn-action btn-delete btn-delete-item"
                                             title="Hapus">
                                             <i class="fas fa-trash"></i>
                                         </button>
@@ -752,10 +704,15 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="6">
+                            <td colspan="6" class="text-center py-5">
                                 <div class="empty-state">
                                     <i class="fas fa-school"></i>
                                     <p>Belum ada data sekolah.</p>
+                                    @if(request()->hasAny(['search', 'city_filter', 'category_filter', 'type_filter']))
+                                    <a href="{{ url('/admin/school') }}" class="btn btn-outline-primary btn-sm mt-2">
+                                        <i class="fas fa-redo me-1"></i> Reset Filter
+                                    </a>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
@@ -764,19 +721,26 @@
                 </table>
             </div>
 
-            <!-- Pagination -->
-            @if($schools->hasPages())
-            <div class="p-3 border-top">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="pagination-info">
-                        Menampilkan {{ $schools->firstItem() }} sampai {{ $schools->lastItem() }} dari {{ $schools->total() }} data
-                    </div>
-                    <div>
-                        {{ $schools->onEachSide(1)->links('pagination::simple-bootstrap-4') }}
-                    </div>
-                </div>
+            <!-- Pagination - Hanya Angka -->
+            <div class="pagination-container">
+                @if($schools->hasPages())
+                    {{ $schools->onEachSide(1)->links('pagination::bootstrap-5') }}
+                @else
+                    <nav>
+                        <ul class="pagination">
+                            <li class="page-item disabled">
+                                <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+                            </li>
+                            <li class="page-item active">
+                                <span class="page-link">1</span>
+                            </li>
+                            <li class="page-item disabled">
+                                <span class="page-link"><i class="fas fa-chevron-right"></i></span>
+                            </li>
+                        </ul>
+                    </nav>
+                @endif
             </div>
-            @endif
         </div>
     </div>
 </div>
@@ -789,7 +753,7 @@
                 <h5 class="modal-title">
                     <i class="fas fa-edit me-2"></i> Edit Sekolah
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="editForm" method="POST" action="{{ url('/admin/school/edit') }}">
@@ -797,13 +761,13 @@
                     <input type="hidden" name="table" value="schools">
                     <input type="hidden" name="id" id="editId">
 
-                    <div class="mb-3">
+                    <div class="mb-2">
                         <label class="form-label">Nama Sekolah <span class="text-danger">*</span></label>
                         <input type="text" name="school_name" id="editSchoolName"
                             class="form-control" required>
                     </div>
 
-                    <div class="mb-3">
+                    <div class="mb-2">
                         <label class="form-label">Kota <span class="text-danger">*</span></label>
                         <select name="city_id" id="editCityId" class="form-select" required>
                             <option value="">-- Pilih Kota --</option>
@@ -813,9 +777,9 @@
                         </select>
                     </div>
 
-                    <div class="row g-2">
+                    <div class="row g-1">
                         <div class="col-md-6">
-                            <div class="mb-3">
+                            <div class="mb-2">
                                 <label class="form-label">Kategori <span class="text-danger">*</span></label>
                                 <select name="category_name" id="editCategory" class="form-select" required>
                                     <option value="">-- Pilih Kategori --</option>
@@ -826,7 +790,7 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="mb-3">
+                            <div class="mb-2">
                                 <label class="form-label">Jenis <span class="text-danger">*</span></label>
                                 <select name="type" id="editType" class="form-select" required>
                                     <option value="">-- Pilih Jenis --</option>
@@ -838,7 +802,7 @@
                         </div>
                     </div>
 
-                    <div class="d-flex justify-content-end gap-2 mt-4">
+                    <div class="d-flex justify-content-end gap-2 mt-3">
                         <button type="button" class="btn-secondary" data-bs-dismiss="modal">
                             Batal
                         </button>
@@ -857,6 +821,27 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+    // Auto submit filter ketika select berubah
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterForm = document.getElementById('filterForm');
+        if (filterForm) {
+            const filterSelects = filterForm.querySelectorAll('select:not([name="per_page"])');
+            
+            filterSelects.forEach(select => {
+                select.addEventListener('change', function() {
+                    filterForm.submit();
+                });
+            });
+
+            const perPageSelect = document.querySelector('select[name="per_page"]');
+            if (perPageSelect) {
+                perPageSelect.addEventListener('change', function() {
+                    filterForm.submit();
+                });
+            }
+        }
+    });
+
     // Set data for edit modal
     function setEditData(button) {
         document.getElementById('editId').value = button.dataset.id;
@@ -868,24 +853,25 @@
 
     // Delete Confirmation
     document.addEventListener('DOMContentLoaded', function() {
-        const deleteButtons = document.querySelectorAll('.btn-delete');
+        const deleteButtons = document.querySelectorAll('.btn-delete-item');
 
         deleteButtons.forEach(button => {
             button.addEventListener('click', function(e) {
                 e.preventDefault();
                 const form = this.closest('form');
-                const row = form.closest('tr');
-                const schoolName = row ? row.querySelector('.fw-medium').textContent : 'sekolah ini';
+                const row = this.closest('tr');
+                const schoolName = row ? row.querySelector('td:nth-child(2)').textContent.trim() : 'sekolah ini';
 
                 Swal.fire({
                     title: 'Hapus Data Sekolah?',
-                    html: `Apakah Anda yakin ingin menghapus sekolah <strong>${schoolName}</strong>?`,
+                    html: `Apakah Anda yakin ingin menghapus <strong>${schoolName}</strong>?`,
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#d33',
                     cancelButtonColor: '#3085d6',
                     confirmButtonText: 'Ya, Hapus',
-                    cancelButtonText: 'Batal'
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
                         Swal.fire({
@@ -904,10 +890,8 @@
             });
         });
 
-        // Form validation
+        // Form validation untuk add
         const addForm = document.getElementById('addSchoolForm');
-        const editForm = document.getElementById('editForm');
-
         if (addForm) {
             addForm.addEventListener('submit', function(e) {
                 const schoolName = this.querySelector('[name="school_name"]').value.trim();
@@ -918,15 +902,23 @@
                 if (!schoolName || !cityId || !category || !type) {
                     e.preventDefault();
                     Swal.fire({
+                        icon: 'warning',
                         title: 'Form Tidak Lengkap',
                         text: 'Harap lengkapi semua field yang wajib diisi',
-                        icon: 'warning',
                         confirmButtonColor: '#3085d6',
                     });
+                    return false;
                 }
+
+                // Loading state
+                const submitBtn = this.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Menyimpan...';
             });
         }
 
+        // Form validation untuk edit
+        const editForm = document.getElementById('editForm');
         if (editForm) {
             editForm.addEventListener('submit', function(e) {
                 const schoolName = this.querySelector('[name="school_name"]').value.trim();
@@ -937,12 +929,18 @@
                 if (!schoolName || !cityId || !category || !type) {
                     e.preventDefault();
                     Swal.fire({
+                        icon: 'warning',
                         title: 'Form Tidak Lengkap',
                         text: 'Harap lengkapi semua field yang wajib diisi',
-                        icon: 'warning',
                         confirmButtonColor: '#3085d6',
                     });
+                    return false;
                 }
+
+                // Loading state
+                const submitBtn = this.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Menyimpan...';
             });
         }
     });

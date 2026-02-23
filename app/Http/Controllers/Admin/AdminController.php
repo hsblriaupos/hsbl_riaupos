@@ -133,6 +133,8 @@ class AdminController extends Controller
             ->paginate($perPage)
             ->withQueryString();
 
+        $schools->appends(request()->query());
+
         $cities = City::orderBy('city_name')->get();
         $categories = ['SMA', 'SMK', 'MA'];
         $types = ['NEGERI', 'SWASTA'];
