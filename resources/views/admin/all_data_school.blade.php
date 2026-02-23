@@ -10,9 +10,9 @@
 
 @push('styles')
 <style>
-    /* ===== TYPOGRAPHY - SEMUA STANDAR ===== */
+    /* ===== TYPOGRAPHY ===== */
     .page-header {
-        margin-bottom: 1.5rem;
+        margin-bottom: 1.25rem;
     }
 
     .page-title {
@@ -72,13 +72,6 @@
         font-weight: 400;
     }
 
-    .form-control:focus,
-    .form-select:focus {
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        outline: none;
-    }
-
     /* ===== BUTTONS ===== */
     .btn-submit {
         background-color: #3b82f6;
@@ -97,8 +90,6 @@
 
     .btn-submit:hover {
         background-color: #2563eb;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
     }
 
     .btn-secondary {
@@ -152,22 +143,23 @@
         max-width: 300px;
     }
 
-    /* ===== TABLE STYLING - PADDING LEBIH RAPAT ===== */
+    /* ===== TABLE STYLING - VERSI HP OPTIMIZED ===== */
     .table-responsive {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
+        margin: 0;
     }
 
     .table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         color: #334155;
     }
 
     .table th {
         background-color: #f8fafc;
-        padding: 0.6rem 0.5rem;
+        padding: 0.5rem 0.4rem;
         text-align: left;
         font-weight: 500;
         color: #475569;
@@ -176,7 +168,7 @@
     }
 
     .table td {
-        padding: 0.6rem 0.5rem;
+        padding: 0.4rem 0.4rem;
         border-bottom: 1px solid #f1f5f9;
         vertical-align: middle;
         font-weight: 400;
@@ -186,23 +178,11 @@
         background-color: #f8fafc;
     }
 
-    /* Icon container */
-    .icon-circle {
-        width: 32px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: #f1f5f9;
-        border-radius: 8px;
-        color: #3b82f6;
-    }
-
     /* ===== BADGE STYLING ===== */
     .badge {
-        padding: 0.2rem 0.6rem;
+        padding: 0.15rem 0.5rem;
         border-radius: 20px;
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         font-weight: 400;
         display: inline-block;
         border: 1px solid transparent;
@@ -226,16 +206,16 @@
         border-color: #fef08a;
     }
 
-    /* ===== ACTION BUTTONS - SAMA DENGAN STYLE ALL_DATA ===== */
+    /* ===== ACTION BUTTONS ===== */
     .action-buttons {
         display: flex;
-        gap: 4px;
+        gap: 2px;
         justify-content: center;
     }
 
     .btn-action {
-        width: 30px;
-        height: 30px;
+        width: 28px;
+        height: 28px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -243,7 +223,7 @@
         border: 1px solid transparent;
         cursor: pointer;
         transition: all 0.2s;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         background: transparent;
     }
 
@@ -281,7 +261,7 @@
         color: #cbd5e1;
     }
 
-    /* ===== PAGINATION - HANYA ANGKA ===== */
+    /* ===== PAGINATION ===== */
     .pagination-container {
         padding: 0.75rem 1rem;
         border-top: 1px solid #e2e8f0;
@@ -299,18 +279,12 @@
         border-radius: 4px !important;
         color: #475569;
         border: 1px solid #e2e8f0;
-        padding: 0.3rem 0.6rem;
-        font-size: 0.8rem;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
         transition: all 0.2s;
         background: white;
-        min-width: 32px;
+        min-width: 30px;
         text-align: center;
-    }
-
-    .page-link:hover {
-        background-color: #f1f5f9;
-        border-color: #cbd5e1;
-        color: #1e293b;
     }
 
     .page-item.active .page-link {
@@ -319,13 +293,7 @@
         color: white;
     }
 
-    .page-item.disabled .page-link {
-        opacity: 0.5;
-        cursor: not-allowed;
-        background: #f1f5f9;
-    }
-
-    /* ===== RESPONSIVE FIX ===== */
+    /* ===== RESPONSIVE FIX - VERSI LAMA YANG UDAH OK ===== */
     @media (max-width: 768px) {
         body {
             overflow-x: hidden;
@@ -344,14 +312,14 @@
 
         /* Force all columns to full width */
         .row>[class*="col-"] {
-            padding-left: 0.2rem !important;
-            padding-right: 0.2rem !important;
+            padding-left: 0.25rem !important;
+            padding-right: 0.25rem !important;
             width: 100% !important;
             flex: 0 0 100% !important;
             max-width: 100% !important;
         }
 
-        /* Buttons full width di HP */
+        /* Buttons full width */
         .text-end,
         .d-flex.justify-content-end {
             width: 100%;
@@ -360,15 +328,15 @@
         .btn-submit,
         .btn-secondary {
             width: 100%;
-            margin-top: 0.25rem;
+            margin-top: 0.5rem;
             margin-right: 0 !important;
         }
 
-        /* Card header flex untuk mobile */
+        /* Card header */
         .card-header.d-flex {
             flex-direction: column;
             align-items: flex-start !important;
-            gap: 0.5rem;
+            gap: 0.75rem;
         }
 
         .card-header.d-flex>div:last-child {
@@ -403,42 +371,11 @@
             flex: 1;
         }
 
-        /* Pagination */
-        .pagination-container {
-            justify-content: center;
-        }
-
-        /* Table tetap bisa di-scroll horizontal */
+        /* Table styling - yang bikin ok di HP */
         .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
             margin: 0;
-        }
-
-        .table {
-            min-width: 700px;
-            font-size: 0.8rem;
-        }
-
-        .table th,
-        .table td {
-            padding: 0.5rem 0.4rem;
-        }
-
-        .badge {
-            font-size: 0.7rem;
-            padding: 0.15rem 0.4rem;
-        }
-
-        .btn-action {
-            width: 28px;
-            height: 28px;
-            font-size: 0.75rem;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .container {
-            padding-left: 0.15rem !important;
-            padding-right: 0.15rem !important;
         }
 
         .table {
@@ -448,12 +385,12 @@
 
         .table th,
         .table td {
-            padding: 0.4rem 0.3rem;
+            padding: 0.35rem 0.3rem;
         }
 
         .badge {
             font-size: 0.65rem;
-            padding: 0.1rem 0.35rem;
+            padding: 0.1rem 0.4rem;
         }
 
         .btn-action {
@@ -470,12 +407,46 @@
             font-size: 0.75rem;
         }
 
-        .card-header {
-            padding: 0.6rem 0.75rem;
+        .pagination-container {
+            justify-content: center;
         }
 
-        .card-body {
-            padding: 0.75rem;
+        .page-link {
+            padding: 0.2rem 0.4rem;
+            font-size: 0.7rem;
+            min-width: 28px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .container {
+            padding-left: 0.15rem !important;
+            padding-right: 0.15rem !important;
+        }
+
+        .table {
+            min-width: 600px;
+            font-size: 0.7rem;
+        }
+
+        .table th,
+        .table td {
+            padding: 0.3rem 0.25rem;
+        }
+
+        .badge {
+            font-size: 0.6rem;
+            padding: 0.1rem 0.3rem;
+        }
+
+        .btn-action {
+            width: 24px;
+            height: 24px;
+            font-size: 0.65rem;
+        }
+
+        .page-title {
+            font-size: 1rem;
         }
     }
 </style>
@@ -638,12 +609,12 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th style="width: 50px;">No.</th>
+                            <th style="width: 45px;">No.</th>
                             <th>Nama Sekolah</th>
-                            <th style="width: 90px;">Kategori</th>
-                            <th style="width: 90px;">Jenis</th>
-                            <th style="width: 120px;">Kota</th>
-                            <th style="width: 80px;" class="text-center">Aksi</th>
+                            <th style="width: 80px;">Kategori</th>
+                            <th style="width: 80px;">Jenis</th>
+                            <th style="width: 100px;">Kota</th>
+                            <th style="width: 70px;" class="text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
