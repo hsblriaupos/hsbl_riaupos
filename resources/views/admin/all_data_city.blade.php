@@ -12,30 +12,32 @@
 <style>
     /* ===== TYPOGRAPHY - SAMA DENGAN MASTER DATA ===== */
     .page-header {
-        margin-bottom: 15px; /* DIKURANGI */
-        margin-top: 5px; /* DITAMBAH */
+        margin-bottom: 15px;
+        /* DIKURANGI */
+        margin-top: 5px;
+        /* DITAMBAH */
     }
-    
+
     .page-title {
         font-size: 1.3rem;
         font-weight: 600;
         color: #2c3e50;
         margin-bottom: 3px;
     }
-    
+
     .page-subtitle {
         color: #7f8c8d;
         font-size: 0.9rem;
     }
-    
+
     /* ===== CARD STYLING ===== */
     .card {
         border: 1px solid #e0e0e0;
         border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         margin-bottom: 20px;
     }
-    
+
     .card-header {
         background-color: #f8f9fa;
         border-bottom: 1px solid #e0e0e0;
@@ -44,11 +46,11 @@
         font-weight: 600;
         color: #2c3e50;
     }
-    
+
     .card-body {
         padding: 16px;
     }
-    
+
     /* ===== FORM ELEMENTS ===== */
     .form-label {
         font-size: 0.9rem;
@@ -57,7 +59,7 @@
         margin-bottom: 6px;
         display: block;
     }
-    
+
     .form-control {
         border: 1px solid #ced4da;
         border-radius: 5px;
@@ -66,13 +68,13 @@
         width: 100%;
         transition: all 0.2s;
     }
-    
+
     .form-control:focus {
         border-color: #3498db;
         box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
         outline: none;
     }
-    
+
     /* ===== BUTTONS ===== */
     .btn-submit {
         background-color: #3498db;
@@ -85,11 +87,11 @@
         cursor: pointer;
         transition: background-color 0.2s;
     }
-    
+
     .btn-submit:hover {
         background-color: #2980b9;
     }
-    
+
     .btn-secondary {
         background-color: #95a5a6;
         color: white;
@@ -105,18 +107,18 @@
     .btn-secondary:hover {
         background-color: #7f8c8d;
     }
-    
+
     /* ===== TABLE STYLING ===== */
     .table-container {
         overflow-x: auto;
     }
-    
+
     .data-table {
         width: 100%;
         border-collapse: collapse;
         font-size: 0.9rem;
     }
-    
+
     .data-table th {
         background-color: #f8f9fa;
         padding: 10px 12px;
@@ -125,37 +127,37 @@
         color: #2c3e50;
         border-bottom: 1px solid #e0e0e0;
     }
-    
+
     .data-table td {
         padding: 10px 12px;
         border-bottom: 1px solid #f0f0f0;
         vertical-align: middle;
     }
-    
+
     .data-table tbody tr:hover {
         background-color: #f8fafc;
     }
-    
+
     .empty-state {
         text-align: center;
         padding: 30px;
         color: #95a5a6;
         font-size: 0.9rem;
     }
-    
+
     .empty-state i {
         font-size: 2rem;
         margin-bottom: 10px;
         color: #bdc3c7;
     }
-    
+
     /* ===== ACTION BUTTONS - SAMA DENGAN MASTER DATA ===== */
     .action-icons {
         display: flex;
         gap: 5px;
         justify-content: center;
     }
-    
+
     .action-icon {
         width: 32px;
         height: 32px;
@@ -168,27 +170,27 @@
         transition: all 0.2s;
         font-size: 0.85rem;
     }
-    
+
     .edit-icon {
         background-color: #e3f2fd;
         color: #1976d2;
         border-color: #bbdefb;
     }
-    
+
     .edit-icon:hover {
         background-color: #bbdefb;
     }
-    
+
     .delete-icon {
         background-color: #fef2f2;
         color: #dc2626;
         border-color: #fecaca;
     }
-    
+
     .delete-icon:hover {
         background-color: #fecaca;
     }
-    
+
     /* ===== MODAL STYLES ===== */
     .modal-header {
         background-color: #3498db;
@@ -208,6 +210,7 @@
 
     /* ===== RESPONSIVE FIX - SAMA DENGAN MASTER DATA ===== */
     @media (max-width: 768px) {
+
         /* Fix body overflow */
         body {
             overflow-x: hidden !important;
@@ -240,7 +243,7 @@
         }
 
         /* Force all columns to be full width */
-        .row > [class*="col-"] {
+        .row>[class*="col-"] {
             padding-left: 3px !important;
             padding-right: 3px !important;
             width: 100% !important;
@@ -284,6 +287,7 @@
 
         .data-table {
             font-size: 0.8rem;
+            /* INI YANG PENTING */
             min-width: 100%;
         }
 
@@ -291,6 +295,8 @@
         .data-table td {
             padding: 6px 4px;
             white-space: nowrap;
+            font-size: 0.8rem;
+            /* TAMBAHKAN INI */
         }
 
         .action-icons {
@@ -336,7 +342,70 @@
             padding-right: 2px !important;
         }
 
-        .row > [class*="col-"] {
+        .row>[class*="col-"] {
+            padding-left: 2px !important;
+            padding-right: 2px !important;
+        }
+
+        .data-table {
+            font-size: 0.75rem;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 5px 3px;
+            font-size: 0.75rem;
+            /* TAMBAHKAN INI */
+        }
+
+        .action-icon {
+            width: 24px;
+            height: 24px;
+            font-size: 0.65rem;
+        }
+
+        .page-title {
+            font-size: 1rem;
+        }
+
+        .card-header {
+            padding: 6px 8px;
+        }
+
+        .card-body {
+            padding: 8px;
+        }
+
+        .form-label {
+            font-size: 0.7rem;
+            /* DARI 0.8rem JADI 0.7rem (SAMA DENGAN MASTER DATA) */
+            margin-bottom: 3px;
+        }
+
+        .form-control {
+            padding: 5px 6px;
+            font-size: 0.75rem;
+            /* DARI 0.85rem JADI 0.75rem (SAMA DENGAN MASTER DATA) */
+        }
+
+        .badge {
+            font-size: 0.6rem;
+            padding: 1px 4px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .admin-content-wrapper {
+            padding-left: 3px !important;
+            padding-right: 3px !important;
+        }
+
+        .container {
+            padding-left: 2px !important;
+            padding-right: 2px !important;
+        }
+
+        .row>[class*="col-"] {
             padding-left: 2px !important;
             padding-right: 2px !important;
         }
@@ -405,15 +474,15 @@
                 @csrf
                 <div class="mb-3">
                     <label for="city_name" class="form-label">Nama Kota</label>
-                    <input type="text" 
-                           name="city_name" 
-                           id="city_name" 
-                           class="form-control" 
-                           placeholder="Contoh: Pekanbaru"
-                           required
-                           value="{{ old('city_name') }}">
+                    <input type="text"
+                        name="city_name"
+                        id="city_name"
+                        class="form-control"
+                        placeholder="Contoh: Pekanbaru"
+                        required
+                        value="{{ old('city_name') }}">
                     @error('city_name')
-                        <div class="text-danger mt-1">{{ $message }}</div>
+                    <div class="text-danger mt-1">{{ $message }}</div>
                     @enderror
                 </div>
                 <div class="text-end">
@@ -449,24 +518,24 @@
                             <td class="text-center">
                                 <div class="action-icons">
                                     {{-- Edit Button --}}
-                                    <button type="button" 
-                                            class="action-icon edit-icon"
-                                            title="Edit"
-                                            onclick="editCity('{{ $city->id }}', '{{ $city->city_name }}')">
+                                    <button type="button"
+                                        class="action-icon edit-icon"
+                                        title="Edit"
+                                        onclick="editCity('{{ $city->id }}', '{{ $city->city_name }}')">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    
+
                                     {{-- Delete Form --}}
-                                    <form method="POST" 
-                                          action="{{ route('admin.data.delete') }}" 
-                                          class="d-inline delete-form">
+                                    <form method="POST"
+                                        action="{{ route('admin.data.delete') }}"
+                                        class="d-inline delete-form">
                                         @csrf
                                         <input type="hidden" name="table" value="cities">
                                         <input type="hidden" name="id" value="{{ $city->id }}">
-                                        <button type="submit" 
-                                                class="action-icon delete-icon btn-delete"
-                                                title="Hapus"
-                                                data-item-name="{{ $city->city_name }}">
+                                        <button type="submit"
+                                            class="action-icon delete-icon btn-delete"
+                                            title="Hapus"
+                                            data-item-name="{{ $city->city_name }}">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
@@ -539,17 +608,17 @@
     function editCity(id, name) {
         document.getElementById('editCityId').value = id;
         document.getElementById('editCityName').value = name;
-        
+
         const modal = new bootstrap.Modal(document.getElementById('editCityModal'));
         modal.show();
-        
+
         // Focus on input after modal shows
         setTimeout(() => {
             document.getElementById('editCityName').focus();
             document.getElementById('editCityName').select();
         }, 300);
     }
-    
+
     // Handle form submissions dengan loading
     document.addEventListener('DOMContentLoaded', function() {
         // City Form
@@ -561,7 +630,7 @@
                 // Disable button dan show loading
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Menyimpan...';
-                
+
                 // Show loading toast
                 Swal.fire({
                     title: 'Menyimpan...',
@@ -585,7 +654,7 @@
                 e.preventDefault();
                 const form = this.closest('form');
                 const itemName = this.getAttribute('data-item-name') || 'item ini';
-                
+
                 Swal.fire({
                     title: 'Yakin ingin menghapus?',
                     html: `Anda akan menghapus kota <strong>"${itemName}"</strong>`,
@@ -618,11 +687,11 @@
         // Edit Form
         const editForm = document.getElementById('editCityForm');
         const saveEditBtn = document.getElementById('saveEditBtn');
-        
+
         if (editForm && saveEditBtn) {
             editForm.addEventListener('submit', function(e) {
                 const newName = document.getElementById('editCityName').value.trim();
-                
+
                 if (!newName) {
                     e.preventDefault();
                     Swal.fire({
@@ -634,11 +703,11 @@
                     });
                     return false;
                 }
-                
+
                 // Disable button dan show loading
                 saveEditBtn.disabled = true;
                 saveEditBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Menyimpan...';
-                
+
                 // Show loading popup
                 Swal.fire({
                     title: 'Menyimpan...',
@@ -650,7 +719,7 @@
                         Swal.showLoading();
                     }
                 });
-                
+
                 return true;
             });
         }
