@@ -536,9 +536,10 @@
             box-sizing: border-box;
         }
 
-        /* Header title dan button biar sejajar */
+        /* Header title dan button biar rapat */
         .d-flex.flex-column.flex-md-row {
-            gap: 10px;
+            gap: 5px;
+            /* DIKECILKAN DARI 10px JADI 5px */
         }
 
         .mb-3.mb-md-0 {
@@ -548,7 +549,12 @@
         .d-flex.gap-2 {
             width: 100%;
             margin-top: 0;
-            /* Pastikan ga ada margin top */
+        }
+
+        /* Kurangi margin dari page-title di HP */
+        .page-title.mt-3 {
+            margin-top: 0.5rem !important;
+            /* Override mt-3 jadi lebih kecil */
         }
     }
 
