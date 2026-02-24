@@ -2,17 +2,611 @@
 @section('title', 'Schedules Management - Administrator')
 
 @section('content')
-
 @php $activeTab = 'schedule'; @endphp
 @include('partials.tabs-pub', compact('activeTab'))
 
 {{-- Include SweetAlert2 --}}
 @include('partials.sweetalert')
 
-<div class="container mt-4">
+@push('styles')
+<style>
+    /* ===== TYPOGRAPHY - SAMA DENGAN MASTER DATA ===== */
+    .page-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 3px;
+    }
+
+    .page-subtitle {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+    }
+
+    /* ===== CARD STYLING ===== */
+    .card {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        margin-bottom: 20px;
+    }
+
+    .card-body {
+        padding: 16px;
+    }
+
+    .card-footer {
+        background-color: #f8f9fa;
+        border-top: 1px solid #e0e0e0;
+        padding: 12px 16px;
+    }
+
+    /* ===== FORM ELEMENTS ===== */
+    .form-label {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #2c3e50;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    .form-control, .form-select {
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        padding: 8px 12px;
+        font-size: 0.9rem;
+        width: 100%;
+        transition: all 0.2s;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        outline: none;
+    }
+
+    .form-control-sm, .form-select-sm {
+        padding: 4px 8px;
+        font-size: 0.8rem;
+    }
+
+    .input-group-text {
+        background-color: #f8f9fa;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        font-size: 0.9rem;
+    }
+
+    .input-group-text.bg-light {
+        background-color: #f8f9fa !important;
+    }
+
+    /* ===== BUTTONS ===== */
+    .btn-primary {
+        background-color: #3498db;
+        border-color: #3498db;
+        color: white;
+        border-radius: 5px;
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-primary:hover {
+        background-color: #2980b9;
+        border-color: #2980b9;
+    }
+
+    .btn-outline-secondary {
+        background-color: #f8f9fa;
+        color: #6c757d;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: #e9ecef;
+        color: #495057;
+    }
+
+    .btn-dark {
+        background-color: #2c3e50;
+        border-color: #2c3e50;
+        color: white;
+        border-radius: 5px;
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-dark:hover {
+        background-color: #1a252f;
+        border-color: #1a252f;
+    }
+
+    .btn-sm {
+        padding: 4px 10px;
+        font-size: 0.8rem;
+        border-radius: 4px;
+    }
+
+    .btn-group-sm > .btn {
+        padding: 0.2rem 0.4rem;
+        font-size: 0.7rem;
+        border-radius: 3px;
+    }
+
+    .btn-outline-primary, .btn-outline-danger, .btn-outline-success {
+        border-width: 1px;
+        background-color: transparent;
+    }
+
+    .btn-outline-primary {
+        color: #3498db;
+        border-color: #3498db;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: #3498db;
+        color: white;
+    }
+
+    .btn-outline-danger {
+        color: #dc2626;
+        border-color: #fecaca;
+    }
+
+    .btn-outline-danger:hover {
+        background-color: #dc2626;
+        color: white;
+    }
+
+    .btn-outline-success {
+        color: #28a745;
+        border-color: #c8e6c9;
+    }
+
+    .btn-outline-success:hover {
+        background-color: #28a745;
+        color: white;
+    }
+
+    /* ===== TABLE STYLING ===== */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+        color: #2c3e50;
+        margin-bottom: 0;
+    }
+
+    .table th {
+        background-color: #f8f9fa;
+        padding: 10px 12px;
+        text-align: left;
+        font-weight: 600;
+        color: #2c3e50;
+        border-bottom: 2px solid #e0e0e0;
+        white-space: nowrap;
+        font-size: 0.85rem;
+    }
+
+    .table td {
+        padding: 10px 12px;
+        border-bottom: 1px solid #f0f0f0;
+        vertical-align: middle;
+        font-size: 0.85rem;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f8fafc;
+    }
+
+    /* Status Badges */
+    .badge {
+        padding: 4px 8px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .bg-warning.bg-opacity-20 {
+        background-color: rgba(255, 193, 7, 0.15) !important;
+        color: #b45b0a;
+        border: 1px solid #ffeeba;
+    }
+
+    .bg-success.bg-opacity-20 {
+        background-color: rgba(40, 167, 69, 0.15) !important;
+        color: #1e7e34;
+        border: 1px solid #c3e6cb;
+    }
+
+    .bg-primary.bg-opacity-20 {
+        background-color: rgba(13, 110, 253, 0.15) !important;
+        color: #0b5ed7;
+        border: 1px solid #bbd6fe;
+    }
+
+    /* Image thumbnail */
+    .img-thumbnail-wrapper {
+        width: 40px;
+        height: 30px;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+        overflow: hidden;
+        cursor: pointer;
+        border: 1px solid #e0e0e0;
+    }
+
+    .img-thumbnail-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* Text utilities */
+    .text-truncate {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #95a5a6;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        color: #bdc3c7;
+    }
+
+    /* Pagination */
+    .pagination {
+        gap: 3px;
+        margin: 0;
+        padding: 0;
+    }
+
+    .page-link {
+        border-radius: 4px !important;
+        color: #4a5568;
+        border: 1px solid #e2e8f0;
+        padding: 0.3rem 0.6rem;
+        font-size: 0.75rem;
+        transition: all 0.2s;
+        background: white;
+    }
+
+    .page-link:hover {
+        background-color: #f1f5f9;
+        border-color: #cbd5e0;
+        color: #2d3748;
+    }
+
+    .page-item.active .page-link {
+        background: #3498db;
+        border-color: #3498db;
+        color: white;
+    }
+
+    .page-item.disabled .page-link {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background: #f1f5f9;
+    }
+
+    /* Checkbox styling */
+    .form-check-input {
+        cursor: pointer;
+    }
+
+    .form-check-input:checked {
+        background-color: #3498db;
+        border-color: #3498db;
+    }
+
+    /* ===== RESPONSIVE FIX - SAMA DENGAN MASTER DATA ===== */
+    @media (max-width: 768px) {
+        body {
+            overflow-x: hidden !important;
+            width: 100% !important;
+            position: relative !important;
+        }
+
+        .admin-content-wrapper {
+            padding-left: 5px !important;
+            padding-right: 5px !important;
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
+        }
+
+        .container {
+            padding-left: 3px !important;
+            padding-right: 3px !important;
+            max-width: 100% !important;
+            margin: 0 auto !important;
+            width: 100% !important;
+            overflow-x: hidden !important;
+        }
+
+        /* Force all rows to be full width */
+        .row {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            width: 100% !important;
+        }
+
+        .row > [class*="col-"] {
+            padding-left: 3px !important;
+            padding-right: 3px !important;
+            width: 100% !important;
+            flex: 0 0 100% !important;
+            max-width: 100% !important;
+        }
+
+        /* Button submit di HP */
+        .text-end {
+            width: 100% !important;
+            padding-left: 3px !important;
+            padding-right: 3px !important;
+        }
+
+        .btn-primary, .btn-outline-secondary, .btn-dark {
+            width: 100% !important;
+            margin-top: 5px;
+            margin-right: 0 !important;
+            font-size: 0.8rem;
+            padding: 6px 12px;
+        }
+
+        /* Header flex untuk mobile */
+        .d-flex.flex-column.flex-md-row {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 10px;
+        }
+
+        .d-flex.gap-2 {
+            width: 100%;
+            display: flex;
+            gap: 8px;
+        }
+
+        .d-flex.gap-2 .btn {
+            flex: 1;
+            text-align: center;
+        }
+
+        /* Card styling */
+        .card {
+            width: 100% !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+        }
+
+        .card-body {
+            padding: 10px;
+        }
+
+        .card-footer {
+            padding: 10px;
+        }
+
+        /* Table styling */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 0;
+        }
+
+        .table {
+            font-size: 0.75rem;
+            min-width: 100%;
+        }
+
+        .table th {
+            padding: 6px 4px;
+            font-size: 0.7rem;
+            white-space: nowrap;
+        }
+
+        .table td {
+            padding: 6px 4px;
+            font-size: 0.7rem;
+        }
+
+        .page-title {
+            font-size: 1.1rem;
+        }
+
+        .page-subtitle {
+            font-size: 0.75rem;
+        }
+
+        .badge {
+            font-size: 0.65rem;
+            padding: 2px 5px;
+        }
+
+        .btn-group-sm > .btn {
+            padding: 0.15rem 0.3rem;
+            font-size: 0.65rem;
+        }
+
+        .btn-group-sm > .btn i {
+            font-size: 0.6rem;
+        }
+
+        .img-thumbnail-wrapper {
+            width: 35px;
+            height: 25px;
+        }
+
+        /* Filter Section */
+        .row.g-3 {
+            margin: 0;
+        }
+
+        .col-md-2 {
+            padding: 0 3px !important;
+        }
+
+        .form-label.small {
+            font-size: 0.7rem !important;
+            margin-bottom: 2px;
+        }
+
+        .form-control-sm, .form-select-sm {
+            padding: 3px 6px;
+            font-size: 0.7rem;
+        }
+
+        .input-group-text {
+            padding: 3px 6px;
+            font-size: 0.7rem;
+        }
+
+        /* Pagination */
+        .card-footer .d-flex {
+            flex-direction: column !important;
+            gap: 10px !important;
+        }
+
+        .pagination {
+            justify-content: center;
+        }
+
+        .page-link {
+            padding: 0.2rem 0.4rem;
+            font-size: 0.65rem;
+        }
+
+        /* Bulk actions */
+        .mt-3.d-flex {
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-start !important;
+        }
+
+        .form-check-label {
+            font-size: 0.7rem;
+        }
+
+        /* Fix any potential overflow */
+        * {
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .admin-content-wrapper {
+            padding-left: 3px !important;
+            padding-right: 3px !important;
+        }
+
+        .container {
+            padding-left: 2px !important;
+            padding-right: 2px !important;
+        }
+
+        .row > [class*="col-"] {
+            padding-left: 2px !important;
+            padding-right: 2px !important;
+        }
+
+        .table {
+            font-size: 0.7rem;
+        }
+
+        .table th, .table td {
+            padding: 4px 3px;
+            font-size: 0.65rem;
+        }
+
+        .page-title {
+            font-size: 1rem;
+        }
+
+        .btn-primary, .btn-outline-secondary, .btn-dark {
+            font-size: 0.7rem;
+            padding: 4px 8px;
+        }
+
+        .badge {
+            font-size: 0.6rem;
+            padding: 1px 4px;
+        }
+
+        .btn-group-sm > .btn {
+            padding: 0.1rem 0.2rem;
+        }
+
+        .btn-group-sm > .btn i {
+            font-size: 0.55rem;
+        }
+
+        .img-thumbnail-wrapper {
+            width: 30px;
+            height: 22px;
+        }
+
+        .form-label.small {
+            font-size: 0.65rem !important;
+        }
+
+        .form-control-sm, .form-select-sm {
+            padding: 2px 4px;
+            font-size: 0.65rem;
+        }
+
+        .input-group-text {
+            padding: 2px 4px;
+            font-size: 0.65rem;
+        }
+
+        .pagination .page-link {
+            padding: 0.15rem 0.3rem;
+            font-size: 0.6rem;
+        }
+    }
+</style>
+@endpush
+
+<div class="container" style="max-width: 100%; padding-left: 15px; padding-right: 15px;">
     <!-- Page Header with Action Buttons -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
-        <div class="mb-3 mb-md-0">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3">
+        <div class="mb-3 mb-md-0 mt-2">
             <h1 class="page-title">
                 <i class="fas fa-calendar-alt text-primary me-2"></i> Schedules Management
             </h1>
@@ -42,7 +636,7 @@
                                type="text" 
                                value="{{ request('search') }}"
                                class="form-control border-start-0"
-                               placeholder="Search schedule title...">
+                               placeholder="Search...">
                     </div>
                 </div>
                 
@@ -72,11 +666,8 @@
                         <select name="year" class="form-select border-start-0">
                             <option value="">All Years</option>
                             @php
-                                // Mendapatkan tahun sekarang
                                 $currentYear = date('Y');
-                                // Jika ada data schedule, ambil tahun minimum dari created_at
                                 $minYear = $schedules->isNotEmpty() ? $schedules->min('created_at')->format('Y') : $currentYear;
-                                // Buat array tahun dari minYear sampai currentYear
                                 $years = range($minYear, $currentYear);
                             @endphp
                             @foreach(array_reverse($years) as $year)
@@ -138,8 +729,8 @@
     <div class="card">
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0" style="font-size: 0.8rem;">
-                    <thead class="table-light">
+                <table class="table">
+                    <thead>
                         <tr>
                             <th class="px-2 py-1" style="width: 30px;">
                                 <input type="checkbox" class="form-check-input" id="selectAll">
@@ -168,19 +759,17 @@
                                     {{ $schedules->firstItem() + $index }}
                                 </td>
                                 <td class="px-2 py-1">
-                                    <div class="small">
-                                        {{ \Carbon\Carbon::parse($schedule->upload_date)->format('d/m/Y') }}
-                                    </div>
+                                    {{ \Carbon\Carbon::parse($schedule->upload_date)->format('d/m/Y') }}
                                 </td>
                                 <td class="px-2 py-1">
-                                    <div class="fw-semibold text-dark text-truncate" style="max-width: 100px;" 
-                                         data-bs-toggle="tooltip" data-bs-title="{{ $schedule->main_title }}">
+                                    <span class="text-truncate d-inline-block" style="max-width: 100px;" 
+                                          title="{{ $schedule->main_title }}">
                                         {{ Str::limit($schedule->main_title, 15) }}
-                                    </div>
+                                    </span>
                                 </td>
                                 <td class="px-2 py-1">
-                                    <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 px-1 py-0" 
-                                          data-bs-toggle="tooltip" data-bs-title="{{ $schedule->series_name }}">
+                                    <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25"
+                                          title="{{ $schedule->series_name }}">
                                         {{ Str::limit($schedule->series_name, 20) }}
                                     </span>
                                 </td>
@@ -190,115 +779,95 @@
                                             $imagePath = $schedule->layout_image;
                                             $fullPath = asset($imagePath);
                                         @endphp
-                                        <div class="bg-light rounded overflow-hidden" style="width: 40px; height: 30px; cursor: pointer;"
-                                             onclick="showImage('{{ $fullPath }}')">
+                                        <div class="img-thumbnail-wrapper" onclick="showImage('{{ $fullPath }}')">
                                             <img src="{{ $fullPath }}" 
                                                  alt="{{ $schedule->main_title }}"
-                                                 class="w-100 h-100 object-fit-cover"
-                                                 style="object-fit: cover;"
-                                                 onerror="this.onerror=null; this.src='{{ asset('img/no-image.png') }}';"
-                                                 data-bs-toggle="tooltip" 
-                                                 data-bs-title="View Image">
+                                                 onerror="this.onerror=null; this.src='{{ asset('img/no-image.png') }}';">
                                         </div>
                                     @else
-                                        <span class="text-muted small" data-bs-toggle="tooltip" data-bs-title="No image">-</span>
+                                        <span class="text-muted small">-</span>
                                     @endif
                                 </td>
                                 <td class="px-2 py-1">
-                                    <div class="text-truncate" style="max-width: 100px;"
-                                         data-bs-toggle="tooltip" 
-                                         data-bs-title="{{ $schedule->caption ?: 'No caption' }}">
-                                        {{ $schedule->caption ? Str::limit($schedule->caption, 30) : '-' }}
-                                    </div>
+                                    <span class="text-truncate d-inline-block" style="max-width: 100px;"
+                                          title="{{ $schedule->caption ?: 'No caption' }}">
+                                        {{ $schedule->caption ? Str::limit($schedule->caption, 20) : '-' }}
+                                    </span>
                                 </td>
                                 <td class="px-2 py-1">
                                     @php
                                         if ($schedule->status === 'draft') {
-                                            $badgeClass = 'bg-warning bg-opacity-20 text-warning border border-warning border-opacity-50';
+                                            $badgeClass = 'bg-warning bg-opacity-20';
                                             $badgeIcon = 'fas fa-edit';
                                             $statusText = 'Draft';
                                         } elseif ($schedule->status === 'publish') {
-                                            $badgeClass = 'bg-success bg-opacity-20 text-success border border-success border-opacity-50';
+                                            $badgeClass = 'bg-success bg-opacity-20';
                                             $badgeIcon = 'fas fa-check-circle';
                                             $statusText = 'Published';
                                         } elseif ($schedule->status === 'done') {
-                                            $badgeClass = 'bg-primary bg-opacity-20 text-primary border border-primary border-opacity-50';
+                                            $badgeClass = 'bg-primary bg-opacity-20';
                                             $badgeIcon = 'fas fa-check-double';
                                             $statusText = 'Done';
                                         } else {
-                                            $badgeClass = 'bg-secondary bg-opacity-10 text-secondary';
+                                            $badgeClass = 'bg-secondary bg-opacity-10';
                                             $badgeIcon = 'fas fa-archive';
                                             $statusText = ucfirst($schedule->status);
                                         }
                                     @endphp
-                                    <span class="badge {{ $badgeClass }} px-2 py-1 d-flex align-items-center justify-content-center"
-                                          data-bs-toggle="tooltip" 
-                                          data-bs-title="{{ $statusText }}">
-                                        <i class="{{ $badgeIcon }} me-1" style="font-size: 0.7rem;"></i>
-                                        <span class="small">{{ $statusText }}</span>
+                                    <span class="badge {{ $badgeClass }}" title="{{ $statusText }}">
+                                        <i class="{{ $badgeIcon }} me-1"></i>
+                                        {{ $statusText }}
                                     </span>
                                 </td>
                                 <td class="px-2 py-1">
-                                    <div class="small">
-                                        {{-- Format tanggal menjadi HH/BB/TT --}}
-                                        {{-- Ambil dari created_at schedule --}}
-                                        @php
-                                            $createdDate = $schedule->created_at ?? now();
-                                        @endphp
-                                        <div class="text-dark" data-bs-toggle="tooltip" data-bs-title="{{ $createdDate->format('d F Y H:i') }}">
-                                            {{ $createdDate->format('d/m/Y') }}
-                                        </div>
-                                        <div class="text-muted" style="font-size: 0.7rem;">
-                                            {{ $createdDate->format('H:i') }}
-                                        </div>
+                                    @php
+                                        $createdDate = $schedule->created_at ?? now();
+                                    @endphp
+                                    <div title="{{ $createdDate->format('d F Y H:i') }}">
+                                        {{ $createdDate->format('d/m/Y') }}
                                     </div>
+                                    <small class="text-muted">{{ $createdDate->format('H:i') }}</small>
                                 </td>
                                 <td class="px-2 py-1 text-center">
                                     <div class="btn-group btn-group-sm" role="group">
                                         @if (strtolower($schedule->status) !== 'done')
                                             <a href="{{ route('admin.pub_schedule.edit', $schedule->id) }}" 
-                                               class="btn btn-outline-primary border-1"
-                                               data-bs-toggle="tooltip" 
-                                               data-bs-title="Edit">
-                                                <i class="fas fa-edit" style="font-size: 0.7rem;"></i>
+                                               class="btn btn-outline-primary"
+                                               title="Edit">
+                                                <i class="fas fa-edit"></i>
                                             </a>
                                         @else
                                             <button type="button" 
-                                                    class="btn btn-outline-secondary border-1"
+                                                    class="btn btn-outline-secondary"
                                                     disabled
-                                                    data-bs-toggle="tooltip" 
-                                                    data-bs-title="Cannot edit done schedule">
-                                                <i class="fas fa-edit" style="font-size: 0.7rem;"></i>
+                                                    title="Cannot edit done schedule">
+                                                <i class="fas fa-edit"></i>
                                             </button>
                                         @endif
                                         
-                                        <!-- Delete Form -->
                                         <form action="{{ route('admin.pub_schedule.destroy', $schedule->id) }}" 
                                               method="POST" 
                                               class="d-inline delete-form"
                                               data-title="{{ $schedule->main_title }}">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" 
-                                                    class="btn btn-outline-danger border-1"
-                                                    data-bs-toggle="tooltip" 
-                                                    data-bs-title="Delete">
-                                                <i class="fas fa-trash" style="font-size: 0.7rem;"></i>
+                                            <button type="button" 
+                                                    class="btn btn-outline-danger btn-delete"
+                                                    title="Delete">
+                                                <i class="fas fa-trash"></i>
                                             </button>
                                         </form>
                                         
                                         @if ($schedule->status === 'draft')
-                                            <!-- Publish Form -->
                                             <form action="{{ route('admin.pub_schedule.publish', $schedule->id) }}" 
                                                   method="POST" 
                                                   class="d-inline publish-form"
                                                   data-title="{{ $schedule->main_title }}">
                                                 @csrf
-                                                <button type="submit" 
-                                                        class="btn btn-outline-success border-1"
-                                                        data-bs-toggle="tooltip" 
-                                                        data-bs-title="Publish">
-                                                    <i class="fas fa-paper-plane" style="font-size: 0.7rem;"></i>
+                                                <button type="button" 
+                                                        class="btn btn-outline-success btn-publish"
+                                                        title="Publish">
+                                                    <i class="fas fa-paper-plane"></i>
                                                 </button>
                                             </form>
                                         @endif
@@ -307,11 +876,11 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="10" class="px-4 py-3 text-center">
-                                    <div class="py-3">
-                                        <i class="fas fa-calendar-alt fa-lg text-muted mb-2"></i>
+                                <td colspan="10" class="text-center py-5">
+                                    <div class="empty-state">
+                                        <i class="fas fa-calendar-alt"></i>
                                         <h6 class="text-muted">No Schedules Found</h6>
-                                        <p class="text-muted small mb-2">Start by adding your first schedule</p>
+                                        <p class="text-muted small mb-3">Start by adding your first schedule</p>
                                         <a href="{{ route('admin.pub_schedule.create') }}" class="btn btn-primary btn-sm">
                                             <i class="fas fa-plus me-1"></i> Add First Schedule
                                         </a>
@@ -325,8 +894,8 @@
         </div>
         
         {{-- Table Footer with Pagination --}}
-        @if($schedules->hasPages() || $schedules->total() > 10)
-            <div class="card-footer bg-white border-top px-3 py-2">
+        @if($schedules->hasPages() || $schedules->total() > 0)
+            <div class="card-footer">
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
                     <div class="mb-2 mb-md-0">
                         <p class="small text-muted mb-0">
@@ -336,36 +905,8 @@
                         </p>
                     </div>
                     <div class="d-flex align-items-center gap-2">
-                        <!-- Per Page Selector -->
-                        <div class="d-none d-md-block">
-                            <form method="GET" action="{{ route('admin.pub_schedule.index') }}" class="d-flex align-items-center">
-                                @if(request('search'))
-                                    <input type="hidden" name="search" value="{{ request('search') }}">
-                                @endif
-                                @if(request('series'))
-                                    <input type="hidden" name="series" value="{{ request('series') }}">
-                                @endif
-                                @if(request('year'))
-                                    <input type="hidden" name="year" value="{{ request('year') }}">
-                                @endif
-                                @if(request('status'))
-                                    <input type="hidden" name="status" value="{{ request('status') }}">
-                                @endif
-                                <span class="small text-muted me-2">Show:</span>
-                                <select name="per_page" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
-                                    <option value="10" @selected(request('per_page', 10)==10)>10</option>
-                                    <option value="25" @selected(request('per_page')==25)>25</option>
-                                    <option value="50" @selected(request('per_page')==50)>50</option>
-                                    <option value="100" @selected(request('per_page')==100)>100</option>
-                                </select>
-                            </form>
-                        </div>
-                        
-                        <!-- Pagination -->
                         @if($schedules->hasPages())
-                            <div>
-                                {{ $schedules->withQueryString()->onEachSide(1)->links('pagination::bootstrap-5') }}
-                            </div>
+                            {{ $schedules->withQueryString()->onEachSide(1)->links('pagination::bootstrap-5') }}
                         @endif
                     </div>
                 </div>
@@ -415,233 +956,36 @@
     @method('DELETE')
 </form>
 
-<style>
-    .page-title {
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: #2c3e50;
-        margin-bottom: 5px;
-    }
-
-    .page-subtitle {
-        color: #7f8c8d;
-        font-size: 0.875rem;
-    }
-
-    .card {
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        margin-bottom: 20px;
-    }
-
-    .card-body {
-        padding: 16px;
-    }
-
-    .table {
-        font-size: 0.8rem !important;
-        margin-bottom: 0;
-    }
-
-    .table th {
-        font-weight: 600;
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.3px;
-        color: #475569;
-        background-color: #f8fafc;
-        white-space: nowrap;
-        border-bottom: 2px solid #e9ecef;
-    }
-
-    .table td {
-        vertical-align: middle;
-        border-top: 1px solid #f1f5f9;
-        font-size: 0.8rem !important;
-    }
-
-    .table-hover tbody tr:hover {
-        background-color: #f8fafc;
-    }
-
-    .btn-group-sm > .btn {
-        padding: 0.15rem 0.25rem;
-        border-radius: 0.2rem;
-        font-size: 0.7rem;
-    }
-
-    .btn-outline-primary, .btn-outline-danger, .btn-outline-success, .btn-outline-warning, .btn-outline-info {
-        border-width: 1px;
-    }
-
-    .badge {
-        padding: 0.2em 0.6em;
-        font-weight: 500;
-        font-size: 0.75em;
-        border: 1px solid transparent;
-    }
-
-    .text-truncate {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    /* Warna status yang diperbaiki */
-    .bg-warning.bg-opacity-20 {
-        background-color: rgba(255, 193, 7, 0.2) !important;
-    }
-    
-    .bg-success.bg-opacity-20 {
-        background-color: rgba(40, 167, 69, 0.2) !important;
-    }
-    
-    .bg-primary.bg-opacity-20 {
-        background-color: rgba(13, 110, 253, 0.2) !important;
-    }
-
-    /* Action buttons styling */
-    .btn-primary {
-        background-color: #3498db;
-        border-color: #3498db;
-        padding: 6px 12px;
-        font-size: 0.85rem;
-        font-weight: 500;
-    }
-
-    .btn-primary:hover {
-        background-color: #2980b9;
-        border-color: #2980b9;
-    }
-
-    .btn-outline-secondary {
-        padding: 6px 12px;
-        font-size: 0.85rem;
-        font-weight: 500;
-    }
-
-    /* Pagination customization */
-    .pagination {
-        margin-bottom: 0;
-    }
-
-    .page-link {
-        font-size: 0.75rem;
-        padding: 0.25rem 0.5rem;
-    }
-
-    .page-item.active .page-link {
-        background-color: #3498db;
-        border-color: #3498db;
-    }
-
-    @media (max-width: 768px) {
-        .container {
-            padding-left: 10px;
-            padding-right: 10px;
-        }
-        
-        .d-flex.flex-md-row {
-            flex-direction: column !important;
-            align-items: flex-start !important;
-        }
-        
-        .d-flex.gap-2 {
-            margin-top: 10px;
-            width: 100%;
-        }
-        
-        .btn-primary, .btn-outline-secondary {
-            flex: 1;
-            justify-content: center;
-            font-size: 0.8rem;
-            padding: 5px 10px;
-        }
-        
-        .table {
-            font-size: 0.75rem !important;
-        }
-        
-        .btn-group-sm > .btn {
-            padding: 0.1rem 0.2rem;
-            font-size: 0.65rem;
-        }
-        
-        .page-title {
-            font-size: 1rem;
-        }
-        
-        .card-footer .d-flex {
-            flex-direction: column !important;
-            gap: 10px !important;
-        }
-        
-        .card-footer .d-flex.align-items-center {
-            align-items: flex-start !important;
-        }
-        
-        .table th, .table td {
-            padding: 4px 6px !important;
-        }
-        
-        .table-responsive {
-            font-size: 0.75rem;
-        }
-    }
-    
-    @media (max-width: 576px) {
-        .page-title {
-            font-size: 0.9rem;
-        }
-        
-        .btn-primary, .btn-outline-secondary {
-            font-size: 0.75rem;
-            padding: 4px 8px;
-        }
-        
-        .table th, .table td {
-            padding: 3px 4px !important;
-        }
-        
-        .form-select-sm {
-            padding: 0.125rem 0.25rem;
-            font-size: 0.75rem;
-        }
-        
-        .btn-group-sm > .btn {
-            padding: 0.08rem 0.15rem;
-            font-size: 0.6rem;
-        }
-        
-        .badge {
-            padding: 0.1em 0.4em;
-            font-size: 0.65em;
-        }
-    }
-</style>
-
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    // Initialize Bootstrap tooltips
     document.addEventListener('DOMContentLoaded', function() {
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
-        });
-        
-        // Select All functionality
+        // ===== SELECT ALL CHECKBOX =====
         const selectAllCheckbox = document.getElementById('selectAll');
         const bulkSelectAllCheckbox = document.getElementById('bulkSelectAll');
         const itemCheckboxes = document.querySelectorAll('.item-checkbox');
         
+        function updateSelectAllCheckboxes() {
+            const allChecked = Array.from(itemCheckboxes).every(cb => cb.checked);
+            const anyChecked = Array.from(itemCheckboxes).some(cb => cb.checked);
+            
+            if (selectAllCheckbox) {
+                selectAllCheckbox.checked = allChecked;
+                selectAllCheckbox.indeterminate = anyChecked && !allChecked;
+            }
+            
+            if (bulkSelectAllCheckbox) {
+                bulkSelectAllCheckbox.checked = allChecked;
+                bulkSelectAllCheckbox.indeterminate = anyChecked && !allChecked;
+            }
+        }
+
         if (selectAllCheckbox) {
             selectAllCheckbox.addEventListener('change', function() {
                 itemCheckboxes.forEach(checkbox => {
                     checkbox.checked = selectAllCheckbox.checked;
                 });
-                if (bulkSelectAllCheckbox) {
-                    bulkSelectAllCheckbox.checked = selectAllCheckbox.checked;
-                }
+                updateSelectAllCheckboxes();
             });
         }
         
@@ -650,45 +994,28 @@
                 itemCheckboxes.forEach(checkbox => {
                     checkbox.checked = bulkSelectAllCheckbox.checked;
                 });
-                if (selectAllCheckbox) {
-                    selectAllCheckbox.checked = bulkSelectAllCheckbox.checked;
-                }
+                updateSelectAllCheckboxes();
             });
         }
         
-        // Update checkboxes when individual items are checked
         itemCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                const allChecked = Array.from(itemCheckboxes).every(cb => cb.checked);
-                const anyChecked = Array.from(itemCheckboxes).some(cb => cb.checked);
-                
-                if (selectAllCheckbox) {
-                    selectAllCheckbox.checked = allChecked;
-                    selectAllCheckbox.indeterminate = anyChecked && !allChecked;
-                }
-                
-                if (bulkSelectAllCheckbox) {
-                    bulkSelectAllCheckbox.checked = allChecked;
-                    bulkSelectAllCheckbox.indeterminate = anyChecked && !allChecked;
-                }
-            });
+            checkbox.addEventListener('change', updateSelectAllCheckboxes);
         });
-        
-        // Function to show image in modal
+
+        // ===== SHOW IMAGE =====
         window.showImage = function(src) {
             document.getElementById('modalImage').src = src;
             const imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
             imageModal.show();
         };
-        
-        // Handle delete forms - PERBAIKAN: SIMPLIFIKASI SWEETALERT
-        document.querySelectorAll('.delete-form').forEach(form => {
-            form.addEventListener('submit', function(e) {
+
+        // ===== DELETE CONFIRMATION - SEDERHANA =====
+        document.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.addEventListener('click', function(e) {
                 e.preventDefault();
-                const form = this;
-                const title = form.getAttribute('data-title');
-                
-                // PERBAIKAN: SweetAlert sederhana tanpa loading yang lama
+                const form = this.closest('form');
+                const title = form.getAttribute('data-title') || 'this schedule';
+
                 Swal.fire({
                     title: 'Delete Schedule?',
                     html: `Are you sure you want to delete <strong>"${title}"</strong>?`,
@@ -701,21 +1028,19 @@
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // Langsung submit tanpa delay apapun
                         form.submit();
                     }
                 });
             });
         });
-        
-        // Handle publish forms - PERBAIKAN: SIMPLIFIKASI SWEETALERT
-        document.querySelectorAll('.publish-form').forEach(form => {
-            form.addEventListener('submit', function(e) {
+
+        // ===== PUBLISH CONFIRMATION =====
+        document.querySelectorAll('.btn-publish').forEach(btn => {
+            btn.addEventListener('click', function(e) {
                 e.preventDefault();
-                const form = this;
-                const title = form.getAttribute('data-title');
-                
-                // PERBAIKAN: SweetAlert sederhana tanpa loading yang lama
+                const form = this.closest('form');
+                const title = form.getAttribute('data-title') || 'this schedule';
+
                 Swal.fire({
                     title: 'Publish Schedule?',
                     html: `Are you sure you want to publish <strong>"${title}"</strong>?`,
@@ -728,16 +1053,14 @@
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // Langsung submit tanpa delay apapun
                         form.submit();
                     }
                 });
             });
         });
-        
-        // Bulk Delete dengan SweetAlert - PERBAIKAN: SIMPLIFIKASI
+
+        // ===== BULK DELETE =====
         const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
-        
         if (bulkDeleteBtn) {
             bulkDeleteBtn.addEventListener('click', function() {
                 const selectedItems = Array.from(document.querySelectorAll('.item-checkbox:checked'));
@@ -765,16 +1088,13 @@
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // Prepare bulk delete form data
                         const bulkDeleteForm = document.getElementById('bulkDeleteForm');
                         const selectedIds = selectedItems.map(item => item.value);
                         
-                        // Clear any existing hidden inputs
                         bulkDeleteForm.querySelectorAll('input[name="selected[]"]').forEach(input => {
                             input.remove();
                         });
                         
-                        // Add hidden inputs for selected IDs
                         selectedIds.forEach(id => {
                             const input = document.createElement('input');
                             input.type = 'hidden';
@@ -783,34 +1103,12 @@
                             bulkDeleteForm.appendChild(input);
                         });
                         
-                        // Langsung submit tanpa delay
                         bulkDeleteForm.submit();
                     }
                 });
             });
         }
-        
-        // Auto-hide tooltips on mobile
-        if (window.innerWidth < 768) {
-            document.body.addEventListener('touchstart', function() {
-                var tooltips = document.querySelectorAll('.tooltip');
-                tooltips.forEach(tooltip => {
-                    if (tooltip.parentNode) {
-                        tooltip.parentNode.removeChild(tooltip);
-                    }
-                });
-            });
-        }
-        
-        // Auto-submit per_page select in filter form
-        document.querySelectorAll('select[name="per_page"]').forEach(select => {
-            select.addEventListener('change', function() {
-                if (this.closest('form').id !== '') {
-                    this.closest('form').submit();
-                }
-            });
-        });
     });
 </script>
-
+@endpush
 @endsection

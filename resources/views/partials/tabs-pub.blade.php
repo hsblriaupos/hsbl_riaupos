@@ -11,8 +11,7 @@
             @php $isActive = ($activeTab === $key); @endphp
             
             <a href="{{ route($tab['route']) }}" 
-               class="admin-tabs-item {{ $isActive ? 'active' : '' }}"
-               style="flex: 1; min-width: 0; max-width: none;">
+               class="admin-tabs-item {{ $isActive ? 'active' : '' }}">
                 <i class="{{ $tab['icon'] }} tab-icon"></i>
                 <span class="tab-label">{{ $tab['label'] }}</span>
             </a>
@@ -36,10 +35,10 @@
         display: flex;
         width: 100%;
         max-width: 100%;
-        overflow-x: auto;
+        overflow-x: hidden; /* Ubah dari auto jadi hidden */
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
-        justify-content: stretch; /* Tambahkan ini */
+        justify-content: stretch;
     }
 
     .admin-tabs-nav::-webkit-scrollbar {
@@ -47,9 +46,9 @@
     }
 
     .admin-tabs-item {
-        flex: 1; /* Ini akan membuat setiap item mengambil ruang yang sama */
-        min-width: 0; /* Override min-width yang mungkin ada */
-        max-width: none; /* Override max-width yang mungkin ada */
+        flex: 1; /* Membagi rata ruang */
+        min-width: 0;
+        max-width: none;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -100,7 +99,7 @@
         letter-spacing: 0.025em;
     }
 
-    /* Responsive adjustments */
+    /* Responsive adjustments - tetap memenuhi lebar */
     @media (max-width: 768px) {
         .admin-tabs-item {
             padding: 10px 6px;
