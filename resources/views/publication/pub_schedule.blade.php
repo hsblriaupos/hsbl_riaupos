@@ -614,10 +614,10 @@
         </div>
         
         <!-- Action Buttons -->
-        <div class="d-flex">
+        <div class="d-flex gap-2">
             <a href="{{ route('admin.pub_schedule.create') }}" 
                class="btn btn-primary d-flex align-items-center">
-                <i class="fas fa-plus me-2"></i> Add Schedule
+                <i class="fas fa-plus "></i> Add Schedule
             </a>
         </div>
     </div>
