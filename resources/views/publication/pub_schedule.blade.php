@@ -536,25 +536,23 @@
             box-sizing: border-box;
         }
 
-        /* Header title dan button biar rapat */
+        /* Header flex untuk mobile - DIPERBAIKI */
         .d-flex.flex-column.flex-md-row {
-            gap: 5px;
-            /* DIKECILKAN DARI 10px JADI 5px */
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 0.25rem !important;
+            /* 4px - lebih rapat */
+            margin-bottom: 0.5rem !important;
         }
 
-        .mb-3.mb-md-0 {
+        .mt-2.mt-md-0 {
+            margin-top: 0 !important;
+            /* Hapus margin top di HP */
             width: 100%;
         }
 
-        .d-flex.gap-2 {
+        .mt-2.mt-md-0 .btn {
             width: 100%;
-            margin-top: 0;
-        }
-
-        /* Kurangi margin dari page-title di HP */
-        .page-title.mt-3 {
-            margin-top: 0.5rem !important;
-            /* Override mt-3 jadi lebih kecil */
         }
     }
 
@@ -638,8 +636,8 @@
 
 <div class="container" style="max-width: 100%; padding-left: 15px; padding-right: 15px;">
     <!-- Page Header with Action Buttons -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3">
-        <div class="mb-3 mb-md-0">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center" style="margin-bottom: 0.5rem;">
+        <div>
             <h1 class="page-title mt-3">
                 <i class="fas fa-calendar-alt text-primary me-2"></i> Schedules Management
             </h1>
@@ -647,7 +645,7 @@
         </div>
 
         <!-- Action Buttons -->
-        <div class="d-flex gap-2">
+        <div class="mt-2 mt-md-0">
             <a href="{{ route('admin.pub_schedule.create') }}"
                 class="btn btn-primary d-flex align-items-center">
                 <i class="fas fa-plus me-1"></i> Add Schedule
