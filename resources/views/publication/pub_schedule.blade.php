@@ -614,7 +614,7 @@
         </div>
         
         <!-- Action Buttons -->
-        <div class="d-flex gap-2">
+        <div class="d-flex">
             <a href="{{ route('admin.pub_schedule.create') }}" 
                class="btn btn-primary d-flex align-items-center">
                 <i class="fas fa-plus me-2"></i> Add Schedule
