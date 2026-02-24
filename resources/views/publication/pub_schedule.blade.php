@@ -340,6 +340,32 @@
         border-color: #3498db;
     }
 
+    /* Empty state button outline - UKURAN LEBIH KECIL */
+    .btn-outline-primary.rounded-pill {
+        border-radius: 50px !important;
+        padding: 0.3rem 1rem !important;
+        /* DARI 0.5rem 1.5rem JADI 0.3rem 1rem */
+        font-size: 0.85rem;
+        /* TAMBAHKAN */
+        font-weight: 500;
+        border-width: 1.5px;
+        /* BIKIN LEBIH RAMPING */
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-primary.rounded-pill:hover {
+        background-color: #3498db;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 10px rgba(52, 152, 219, 0.15);
+        /* SHADOW LEBIH RINGAN */
+    }
+
+    .btn-outline-primary.rounded-pill i {
+        font-size: 0.9rem;
+        /* IKON LEBIH KECIL */
+    }
+
     /* ===== RESPONSIVE FIX - SAMA DENGAN MASTER DATA ===== */
     @media (max-width: 768px) {
         body {
@@ -912,8 +938,9 @@
                                     <i class="fas fa-calendar-alt"></i>
                                     <h6 class="text-muted">No Schedules Found</h6>
                                     <p class="text-muted small mb-3">Start by adding your first schedule</p>
-                                    <a href="{{ route('admin.pub_schedule.create') }}" class="btn btn-primary btn-sm">
-                                        <i class="fas fa-plus me-1"></i> Add First Schedule
+                                    <a href="{{ route('admin.pub_schedule.create') }}"
+                                        class="btn btn-outline-primary px-3 py-1 rounded-pill">
+                                        <i class="fas fa-plus-circle me-2"></i> Add First Schedule
                                     </a>
                                 </div>
                             </td>
