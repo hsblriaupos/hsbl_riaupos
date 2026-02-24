@@ -50,7 +50,8 @@
         display: block;
     }
 
-    .form-control, .form-select {
+    .form-control,
+    .form-select {
         border: 1px solid #ced4da;
         border-radius: 5px;
         padding: 8px 12px;
@@ -59,13 +60,15 @@
         transition: all 0.2s;
     }
 
-    .form-control:focus, .form-select:focus {
+    .form-control:focus,
+    .form-select:focus {
         border-color: #3498db;
         box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
         outline: none;
     }
 
-    .form-control-sm, .form-select-sm {
+    .form-control-sm,
+    .form-select-sm {
         padding: 4px 8px;
         font-size: 0.8rem;
     }
@@ -148,13 +151,15 @@
         border-radius: 4px;
     }
 
-    .btn-group-sm > .btn {
+    .btn-group-sm>.btn {
         padding: 0.2rem 0.4rem;
         font-size: 0.7rem;
         border-radius: 3px;
     }
 
-    .btn-outline-primary, .btn-outline-danger, .btn-outline-success {
+    .btn-outline-primary,
+    .btn-outline-danger,
+    .btn-outline-success {
         border-width: 1px;
         background-color: transparent;
     }
@@ -366,7 +371,7 @@
             width: 100% !important;
         }
 
-        .row > [class*="col-"] {
+        .row>[class*="col-"] {
             padding-left: 3px !important;
             padding-right: 3px !important;
             width: 100% !important;
@@ -381,7 +386,9 @@
             padding-right: 3px !important;
         }
 
-        .btn-primary, .btn-outline-secondary, .btn-dark {
+        .btn-primary,
+        .btn-outline-secondary,
+        .btn-dark {
             width: 100% !important;
             margin-top: 5px;
             margin-right: 0 !important;
@@ -458,12 +465,12 @@
             padding: 2px 5px;
         }
 
-        .btn-group-sm > .btn {
+        .btn-group-sm>.btn {
             padding: 0.15rem 0.3rem;
             font-size: 0.65rem;
         }
 
-        .btn-group-sm > .btn i {
+        .btn-group-sm>.btn i {
             font-size: 0.6rem;
         }
 
@@ -486,7 +493,8 @@
             margin-bottom: 2px;
         }
 
-        .form-control-sm, .form-select-sm {
+        .form-control-sm,
+        .form-select-sm {
             padding: 3px 6px;
             font-size: 0.7rem;
         }
@@ -527,6 +535,21 @@
             max-width: 100%;
             box-sizing: border-box;
         }
+
+        /* Header title dan button biar sejajar */
+        .d-flex.flex-column.flex-md-row {
+            gap: 10px;
+        }
+
+        .mb-3.mb-md-0 {
+            width: 100%;
+        }
+
+        .d-flex.gap-2 {
+            width: 100%;
+            margin-top: 0;
+            /* Pastikan ga ada margin top */
+        }
     }
 
     @media (max-width: 576px) {
@@ -540,7 +563,7 @@
             padding-right: 2px !important;
         }
 
-        .row > [class*="col-"] {
+        .row>[class*="col-"] {
             padding-left: 2px !important;
             padding-right: 2px !important;
         }
@@ -549,7 +572,8 @@
             font-size: 0.7rem;
         }
 
-        .table th, .table td {
+        .table th,
+        .table td {
             padding: 4px 3px;
             font-size: 0.65rem;
         }
@@ -558,7 +582,9 @@
             font-size: 1rem;
         }
 
-        .btn-primary, .btn-outline-secondary, .btn-dark {
+        .btn-primary,
+        .btn-outline-secondary,
+        .btn-dark {
             font-size: 0.7rem;
             padding: 4px 8px;
         }
@@ -568,11 +594,11 @@
             padding: 1px 4px;
         }
 
-        .btn-group-sm > .btn {
+        .btn-group-sm>.btn {
             padding: 0.1rem 0.2rem;
         }
 
-        .btn-group-sm > .btn i {
+        .btn-group-sm>.btn i {
             font-size: 0.55rem;
         }
 
@@ -585,7 +611,8 @@
             font-size: 0.65rem !important;
         }
 
-        .form-control-sm, .form-select-sm {
+        .form-control-sm,
+        .form-select-sm {
             padding: 2px 4px;
             font-size: 0.65rem;
         }
@@ -606,18 +633,18 @@
 <div class="container" style="max-width: 100%; padding-left: 15px; padding-right: 15px;">
     <!-- Page Header with Action Buttons -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3">
-        <div class="mb-3 mb-md-0 mt-2">
-            <h1 class="page-title">
+        <div class="mb-3 mb-md-0">
+            <h1 class="page-title mt-3">
                 <i class="fas fa-calendar-alt text-primary me-2"></i> Schedules Management
             </h1>
             <p class="page-subtitle">Manage match schedules and timetables</p>
         </div>
-        
+
         <!-- Action Buttons -->
         <div class="d-flex gap-2">
-            <a href="{{ route('admin.pub_schedule.create') }}" 
-               class="btn btn-primary d-flex align-items-center">
-                <i class="fas fa-plus "></i> Add Schedule
+            <a href="{{ route('admin.pub_schedule.create') }}"
+                class="btn btn-primary d-flex align-items-center">
+                <i class="fas fa-plus me-1"></i> Add Schedule
             </a>
         </div>
     </div>
@@ -632,14 +659,14 @@
                         <span class="input-group-text bg-light border-end-0">
                             <i class="fas fa-search text-muted"></i>
                         </span>
-                        <input name="search" 
-                               type="text" 
-                               value="{{ request('search') }}"
-                               class="form-control border-start-0"
-                               placeholder="Search...">
+                        <input name="search"
+                            type="text"
+                            value="{{ request('search') }}"
+                            class="form-control border-start-0"
+                            placeholder="Search...">
                     </div>
                 </div>
-                
+
                 <div class="col-md-2">
                     <label class="form-label small text-muted mb-1">Series Filter</label>
                     <div class="input-group input-group-sm">
@@ -649,14 +676,14 @@
                         <select name="series" class="form-select border-start-0">
                             <option value="">All Series</option>
                             @foreach($seriesList as $series)
-                                <option value="{{ $series }}" @selected(request('series')==$series)>
-                                    {{ $series }}
-                                </option>
+                            <option value="{{ $series }}" @selected(request('series')==$series)>
+                                {{ $series }}
+                            </option>
                             @endforeach
                         </select>
                     </div>
                 </div>
-                
+
                 <div class="col-md-2">
                     <label class="form-label small text-muted mb-1">Year Filter</label>
                     <div class="input-group input-group-sm">
@@ -666,19 +693,19 @@
                         <select name="year" class="form-select border-start-0">
                             <option value="">All Years</option>
                             @php
-                                $currentYear = date('Y');
-                                $minYear = $schedules->isNotEmpty() ? $schedules->min('created_at')->format('Y') : $currentYear;
-                                $years = range($minYear, $currentYear);
+                            $currentYear = date('Y');
+                            $minYear = $schedules->isNotEmpty() ? $schedules->min('created_at')->format('Y') : $currentYear;
+                            $years = range($minYear, $currentYear);
                             @endphp
                             @foreach(array_reverse($years) as $year)
-                                <option value="{{ $year }}" @selected(request('year')==$year)>
-                                    {{ $year }}
-                                </option>
+                            <option value="{{ $year }}" @selected(request('year')==$year)>
+                                {{ $year }}
+                            </option>
                             @endforeach
                         </select>
                     </div>
                 </div>
-                
+
                 <div class="col-md-2">
                     <label class="form-label small text-muted mb-1">Status Filter</label>
                     <div class="input-group input-group-sm">
@@ -687,13 +714,13 @@
                         </span>
                         <select name="status" class="form-select border-start-0">
                             <option value="">All Status</option>
-                            <option value="draft" @selected(request('status')=='draft')>Draft</option>
-                            <option value="publish" @selected(request('status')=='publish')>Published</option>
-                            <option value="done" @selected(request('status')=='done')>Done</option>
+                            <option value="draft" @selected(request('status')=='draft' )>Draft</option>
+                            <option value="publish" @selected(request('status')=='publish' )>Published</option>
+                            <option value="done" @selected(request('status')=='done' )>Done</option>
                         </select>
                     </div>
                 </div>
-                
+
                 <div class="col-md-2">
                     <label class="form-label small text-muted mb-1">Show Per Page</label>
                     <div class="input-group input-group-sm">
@@ -708,16 +735,16 @@
                         </select>
                     </div>
                 </div>
-                
+
                 <div class="col-md-1">
                     <button type="submit" class="btn btn-dark btn-sm w-100 d-flex align-items-center justify-content-center">
                         <i class="fas fa-filter me-1"></i> Filter
                     </button>
                 </div>
-                
+
                 <div class="col-md-1">
-                    <a href="{{ route('admin.pub_schedule.index') }}" 
-                       class="btn btn-outline-secondary btn-sm w-100 d-flex align-items-center justify-content-center">
+                    <a href="{{ route('admin.pub_schedule.index') }}"
+                        class="btn btn-outline-secondary btn-sm w-100 d-flex align-items-center justify-content-center">
                         <i class="fas fa-redo me-1"></i> Reset
                     </a>
                 </div>
@@ -748,172 +775,172 @@
                     </thead>
                     <tbody>
                         @forelse($schedules as $index => $schedule)
-                            <tr>
-                                <td class="px-2 py-1">
-                                    <input type="checkbox" 
-                                           name="selected[]" 
-                                           value="{{ $schedule->id }}" 
-                                           class="form-check-input item-checkbox">
-                                </td>
-                                <td class="px-2 py-1 fw-medium text-muted">
-                                    {{ $schedules->firstItem() + $index }}
-                                </td>
-                                <td class="px-2 py-1">
-                                    {{ \Carbon\Carbon::parse($schedule->upload_date)->format('d/m/Y') }}
-                                </td>
-                                <td class="px-2 py-1">
-                                    <span class="text-truncate d-inline-block" style="max-width: 100px;" 
-                                          title="{{ $schedule->main_title }}">
-                                        {{ Str::limit($schedule->main_title, 15) }}
-                                    </span>
-                                </td>
-                                <td class="px-2 py-1">
-                                    <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25"
-                                          title="{{ $schedule->series_name }}">
-                                        {{ Str::limit($schedule->series_name, 20) }}
-                                    </span>
-                                </td>
-                                <td class="px-2 py-1">
-                                    @if($schedule->layout_image)
-                                        @php
-                                            $imagePath = $schedule->layout_image;
-                                            $fullPath = asset($imagePath);
-                                        @endphp
-                                        <div class="img-thumbnail-wrapper" onclick="showImage('{{ $fullPath }}')">
-                                            <img src="{{ $fullPath }}" 
-                                                 alt="{{ $schedule->main_title }}"
-                                                 onerror="this.onerror=null; this.src='{{ asset('img/no-image.png') }}';">
-                                        </div>
+                        <tr>
+                            <td class="px-2 py-1">
+                                <input type="checkbox"
+                                    name="selected[]"
+                                    value="{{ $schedule->id }}"
+                                    class="form-check-input item-checkbox">
+                            </td>
+                            <td class="px-2 py-1 fw-medium text-muted">
+                                {{ $schedules->firstItem() + $index }}
+                            </td>
+                            <td class="px-2 py-1">
+                                {{ \Carbon\Carbon::parse($schedule->upload_date)->format('d/m/Y') }}
+                            </td>
+                            <td class="px-2 py-1">
+                                <span class="text-truncate d-inline-block" style="max-width: 100px;"
+                                    title="{{ $schedule->main_title }}">
+                                    {{ Str::limit($schedule->main_title, 15) }}
+                                </span>
+                            </td>
+                            <td class="px-2 py-1">
+                                <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25"
+                                    title="{{ $schedule->series_name }}">
+                                    {{ Str::limit($schedule->series_name, 20) }}
+                                </span>
+                            </td>
+                            <td class="px-2 py-1">
+                                @if($schedule->layout_image)
+                                @php
+                                $imagePath = $schedule->layout_image;
+                                $fullPath = asset($imagePath);
+                                @endphp
+                                <div class="img-thumbnail-wrapper" onclick="showImage('{{ $fullPath }}')">
+                                    <img src="{{ $fullPath }}"
+                                        alt="{{ $schedule->main_title }}"
+                                        onerror="this.onerror=null; this.src='{{ asset('img/no-image.png') }}';">
+                                </div>
+                                @else
+                                <span class="text-muted small">-</span>
+                                @endif
+                            </td>
+                            <td class="px-2 py-1">
+                                <span class="text-truncate d-inline-block" style="max-width: 100px;"
+                                    title="{{ $schedule->caption ?: 'No caption' }}">
+                                    {{ $schedule->caption ? Str::limit($schedule->caption, 20) : '-' }}
+                                </span>
+                            </td>
+                            <td class="px-2 py-1">
+                                @php
+                                if ($schedule->status === 'draft') {
+                                $badgeClass = 'bg-warning bg-opacity-20';
+                                $badgeIcon = 'fas fa-edit';
+                                $statusText = 'Draft';
+                                } elseif ($schedule->status === 'publish') {
+                                $badgeClass = 'bg-success bg-opacity-20';
+                                $badgeIcon = 'fas fa-check-circle';
+                                $statusText = 'Published';
+                                } elseif ($schedule->status === 'done') {
+                                $badgeClass = 'bg-primary bg-opacity-20';
+                                $badgeIcon = 'fas fa-check-double';
+                                $statusText = 'Done';
+                                } else {
+                                $badgeClass = 'bg-secondary bg-opacity-10';
+                                $badgeIcon = 'fas fa-archive';
+                                $statusText = ucfirst($schedule->status);
+                                }
+                                @endphp
+                                <span class="badge {{ $badgeClass }}" title="{{ $statusText }}">
+                                    <i class="{{ $badgeIcon }} me-1"></i>
+                                    {{ $statusText }}
+                                </span>
+                            </td>
+                            <td class="px-2 py-1">
+                                @php
+                                $createdDate = $schedule->created_at ?? now();
+                                @endphp
+                                <div title="{{ $createdDate->format('d F Y H:i') }}">
+                                    {{ $createdDate->format('d/m/Y') }}
+                                </div>
+                                <small class="text-muted">{{ $createdDate->format('H:i') }}</small>
+                            </td>
+                            <td class="px-2 py-1 text-center">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    @if (strtolower($schedule->status) !== 'done')
+                                    <a href="{{ route('admin.pub_schedule.edit', $schedule->id) }}"
+                                        class="btn btn-outline-primary"
+                                        title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
                                     @else
-                                        <span class="text-muted small">-</span>
+                                    <button type="button"
+                                        class="btn btn-outline-secondary"
+                                        disabled
+                                        title="Cannot edit done schedule">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
                                     @endif
-                                </td>
-                                <td class="px-2 py-1">
-                                    <span class="text-truncate d-inline-block" style="max-width: 100px;"
-                                          title="{{ $schedule->caption ?: 'No caption' }}">
-                                        {{ $schedule->caption ? Str::limit($schedule->caption, 20) : '-' }}
-                                    </span>
-                                </td>
-                                <td class="px-2 py-1">
-                                    @php
-                                        if ($schedule->status === 'draft') {
-                                            $badgeClass = 'bg-warning bg-opacity-20';
-                                            $badgeIcon = 'fas fa-edit';
-                                            $statusText = 'Draft';
-                                        } elseif ($schedule->status === 'publish') {
-                                            $badgeClass = 'bg-success bg-opacity-20';
-                                            $badgeIcon = 'fas fa-check-circle';
-                                            $statusText = 'Published';
-                                        } elseif ($schedule->status === 'done') {
-                                            $badgeClass = 'bg-primary bg-opacity-20';
-                                            $badgeIcon = 'fas fa-check-double';
-                                            $statusText = 'Done';
-                                        } else {
-                                            $badgeClass = 'bg-secondary bg-opacity-10';
-                                            $badgeIcon = 'fas fa-archive';
-                                            $statusText = ucfirst($schedule->status);
-                                        }
-                                    @endphp
-                                    <span class="badge {{ $badgeClass }}" title="{{ $statusText }}">
-                                        <i class="{{ $badgeIcon }} me-1"></i>
-                                        {{ $statusText }}
-                                    </span>
-                                </td>
-                                <td class="px-2 py-1">
-                                    @php
-                                        $createdDate = $schedule->created_at ?? now();
-                                    @endphp
-                                    <div title="{{ $createdDate->format('d F Y H:i') }}">
-                                        {{ $createdDate->format('d/m/Y') }}
-                                    </div>
-                                    <small class="text-muted">{{ $createdDate->format('H:i') }}</small>
-                                </td>
-                                <td class="px-2 py-1 text-center">
-                                    <div class="btn-group btn-group-sm" role="group">
-                                        @if (strtolower($schedule->status) !== 'done')
-                                            <a href="{{ route('admin.pub_schedule.edit', $schedule->id) }}" 
-                                               class="btn btn-outline-primary"
-                                               title="Edit">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                        @else
-                                            <button type="button" 
-                                                    class="btn btn-outline-secondary"
-                                                    disabled
-                                                    title="Cannot edit done schedule">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                        @endif
-                                        
-                                        <form action="{{ route('admin.pub_schedule.destroy', $schedule->id) }}" 
-                                              method="POST" 
-                                              class="d-inline delete-form"
-                                              data-title="{{ $schedule->main_title }}">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="button" 
-                                                    class="btn btn-outline-danger btn-delete"
-                                                    title="Delete">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
-                                        
-                                        @if ($schedule->status === 'draft')
-                                            <form action="{{ route('admin.pub_schedule.publish', $schedule->id) }}" 
-                                                  method="POST" 
-                                                  class="d-inline publish-form"
-                                                  data-title="{{ $schedule->main_title }}">
-                                                @csrf
-                                                <button type="button" 
-                                                        class="btn btn-outline-success btn-publish"
-                                                        title="Publish">
-                                                    <i class="fas fa-paper-plane"></i>
-                                                </button>
-                                            </form>
-                                        @endif
-                                    </div>
-                                </td>
-                            </tr>
+
+                                    <form action="{{ route('admin.pub_schedule.destroy', $schedule->id) }}"
+                                        method="POST"
+                                        class="d-inline delete-form"
+                                        data-title="{{ $schedule->main_title }}">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="button"
+                                            class="btn btn-outline-danger btn-delete"
+                                            title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+
+                                    @if ($schedule->status === 'draft')
+                                    <form action="{{ route('admin.pub_schedule.publish', $schedule->id) }}"
+                                        method="POST"
+                                        class="d-inline publish-form"
+                                        data-title="{{ $schedule->main_title }}">
+                                        @csrf
+                                        <button type="button"
+                                            class="btn btn-outline-success btn-publish"
+                                            title="Publish">
+                                            <i class="fas fa-paper-plane"></i>
+                                        </button>
+                                    </form>
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
                         @empty
-                            <tr>
-                                <td colspan="10" class="text-center py-5">
-                                    <div class="empty-state">
-                                        <i class="fas fa-calendar-alt"></i>
-                                        <h6 class="text-muted">No Schedules Found</h6>
-                                        <p class="text-muted small mb-3">Start by adding your first schedule</p>
-                                        <a href="{{ route('admin.pub_schedule.create') }}" class="btn btn-primary btn-sm">
-                                            <i class="fas fa-plus me-1"></i> Add First Schedule
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
+                        <tr>
+                            <td colspan="10" class="text-center py-5">
+                                <div class="empty-state">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <h6 class="text-muted">No Schedules Found</h6>
+                                    <p class="text-muted small mb-3">Start by adding your first schedule</p>
+                                    <a href="{{ route('admin.pub_schedule.create') }}" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-plus me-1"></i> Add First Schedule
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
         </div>
-        
+
         {{-- Table Footer with Pagination --}}
         @if($schedules->hasPages() || $schedules->total() > 0)
-            <div class="card-footer">
-                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
-                    <div class="mb-2 mb-md-0">
-                        <p class="small text-muted mb-0">
-                            Showing <span class="fw-semibold">{{ $schedules->firstItem() ?: 0 }}</span> to 
-                            <span class="fw-semibold">{{ $schedules->lastItem() ?: 0 }}</span> of 
-                            <span class="fw-semibold">{{ $schedules->total() }}</span> results
-                        </p>
-                    </div>
-                    <div class="d-flex align-items-center gap-2">
-                        @if($schedules->hasPages())
-                            {{ $schedules->withQueryString()->onEachSide(1)->links('pagination::bootstrap-5') }}
-                        @endif
-                    </div>
+        <div class="card-footer">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
+                <div class="mb-2 mb-md-0">
+                    <p class="small text-muted mb-0">
+                        Showing <span class="fw-semibold">{{ $schedules->firstItem() ?: 0 }}</span> to
+                        <span class="fw-semibold">{{ $schedules->lastItem() ?: 0 }}</span> of
+                        <span class="fw-semibold">{{ $schedules->total() }}</span> results
+                    </p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    @if($schedules->hasPages())
+                    {{ $schedules->withQueryString()->onEachSide(1)->links('pagination::bootstrap-5') }}
+                    @endif
                 </div>
             </div>
+        </div>
         @endif
     </div>
-    
+
     {{-- Bulk Actions --}}
     <div class="mt-3 d-flex justify-content-between align-items-center">
         <div class="form-check">
@@ -964,16 +991,16 @@
         const selectAllCheckbox = document.getElementById('selectAll');
         const bulkSelectAllCheckbox = document.getElementById('bulkSelectAll');
         const itemCheckboxes = document.querySelectorAll('.item-checkbox');
-        
+
         function updateSelectAllCheckboxes() {
             const allChecked = Array.from(itemCheckboxes).every(cb => cb.checked);
             const anyChecked = Array.from(itemCheckboxes).some(cb => cb.checked);
-            
+
             if (selectAllCheckbox) {
                 selectAllCheckbox.checked = allChecked;
                 selectAllCheckbox.indeterminate = anyChecked && !allChecked;
             }
-            
+
             if (bulkSelectAllCheckbox) {
                 bulkSelectAllCheckbox.checked = allChecked;
                 bulkSelectAllCheckbox.indeterminate = anyChecked && !allChecked;
@@ -988,7 +1015,7 @@
                 updateSelectAllCheckboxes();
             });
         }
-        
+
         if (bulkSelectAllCheckbox) {
             bulkSelectAllCheckbox.addEventListener('change', function() {
                 itemCheckboxes.forEach(checkbox => {
@@ -997,7 +1024,7 @@
                 updateSelectAllCheckboxes();
             });
         }
-        
+
         itemCheckboxes.forEach(checkbox => {
             checkbox.addEventListener('change', updateSelectAllCheckboxes);
         });
@@ -1064,7 +1091,7 @@
         if (bulkDeleteBtn) {
             bulkDeleteBtn.addEventListener('click', function() {
                 const selectedItems = Array.from(document.querySelectorAll('.item-checkbox:checked'));
-                
+
                 if (selectedItems.length === 0) {
                     Swal.fire({
                         icon: 'warning',
@@ -1075,7 +1102,7 @@
                     });
                     return;
                 }
-                
+
                 Swal.fire({
                     title: 'Delete Selected Items?',
                     html: `Are you sure you want to delete <strong>${selectedItems.length}</strong> selected schedule(s)?`,
@@ -1090,11 +1117,11 @@
                     if (result.isConfirmed) {
                         const bulkDeleteForm = document.getElementById('bulkDeleteForm');
                         const selectedIds = selectedItems.map(item => item.value);
-                        
+
                         bulkDeleteForm.querySelectorAll('input[name="selected[]"]').forEach(input => {
                             input.remove();
                         });
-                        
+
                         selectedIds.forEach(id => {
                             const input = document.createElement('input');
                             input.type = 'hidden';
@@ -1102,7 +1129,7 @@
                             input.value = id;
                             bulkDeleteForm.appendChild(input);
                         });
-                        
+
                         bulkDeleteForm.submit();
                     }
                 });
