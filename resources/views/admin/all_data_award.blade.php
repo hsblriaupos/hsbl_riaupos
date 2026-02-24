@@ -10,15 +10,17 @@
 
 @push('styles')
 <style>
+    /* ===== TYPOGRAPHY - SAMA DENGAN MASTER DATA ===== */
     .page-header {
-        margin-bottom: 25px;
+        margin-bottom: 15px;
+        margin-top: 5px;
     }
 
     .page-title {
         font-size: 1.3rem;
         font-weight: 600;
         color: #2c3e50;
-        margin-bottom: 5px;
+        margin-bottom: 3px;
     }
 
     .page-subtitle {
@@ -26,6 +28,7 @@
         font-size: 0.9rem;
     }
 
+    /* ===== CARD STYLING ===== */
     .card {
         border: 1px solid #e0e0e0;
         border-radius: 8px;
@@ -46,6 +49,7 @@
         padding: 16px;
     }
 
+    /* ===== FORM ELEMENTS ===== */
     .form-label {
         font-size: 0.9rem;
         font-weight: 500;
@@ -69,6 +73,7 @@
         outline: none;
     }
 
+    /* ===== BUTTONS ===== */
     .btn-submit {
         background-color: #3498db;
         color: white;
@@ -272,28 +277,30 @@
         filter: invert(1) grayscale(100%) brightness(200%);
     }
 
-    /* ===== RESPONSIVE FIX - OPTIMIZED ===== */
+    /* ===== RESPONSIVE FIX - SAMA DENGAN MASTER DATA ===== */
     @media (max-width: 768px) {
         /* Fix body overflow */
         body {
             overflow-x: hidden !important;
             width: 100% !important;
+            position: relative !important;
         }
 
         .admin-content-wrapper {
-            padding-left: 8px !important;
-            padding-right: 8px !important;
+            padding-left: 5px !important;
+            padding-right: 5px !important;
             max-width: 100vw !important;
             overflow-x: hidden !important;
         }
 
         /* Container */
         .container {
-            padding-left: 5px !important;
-            padding-right: 5px !important;
+            padding-left: 3px !important;
+            padding-right: 3px !important;
             max-width: 100% !important;
             margin: 0 auto !important;
             width: 100% !important;
+            overflow-x: hidden !important;
         }
 
         /* Force all rows to be full width */
@@ -305,18 +312,27 @@
 
         /* Force all columns to be full width */
         .row>[class*="col-"] {
-            padding-left: 5px !important;
-            padding-right: 5px !important;
+            padding-left: 3px !important;
+            padding-right: 3px !important;
             width: 100% !important;
             flex: 0 0 100% !important;
             max-width: 100% !important;
         }
 
+        /* Form inputs jadi full width */
+        .row.g-3>[class*="col-"] {
+            width: 100% !important;
+            flex: 0 0 100% !important;
+            max-width: 100% !important;
+            padding-left: 3px !important;
+            padding-right: 3px !important;
+        }
+
         /* Button submit di HP */
         .text-end {
             width: 100% !important;
-            padding-left: 5px !important;
-            padding-right: 5px !important;
+            padding-left: 3px !important;
+            padding-right: 3px !important;
         }
 
         .btn-submit,
@@ -335,19 +351,12 @@
         }
 
         .card-body {
-            padding: 12px;
+            padding: 10px;
         }
 
         .card-header {
-            padding: 10px 12px;
+            padding: 8px 10px;
             font-size: 0.9rem;
-        }
-
-        /* Header flex untuk mobile */
-        .card-header.d-flex {
-            flex-direction: column;
-            align-items: flex-start !important;
-            gap: 10px;
         }
 
         /* Data Cards */
@@ -362,59 +371,60 @@
         }
 
         .data-card-header {
-            padding: 10px 12px;
+            padding: 8px 10px;
             font-size: 0.9rem;
         }
 
         .data-card-body {
-            padding: 8px;
+            padding: 6px;
             max-height: 250px;
         }
 
         /* Data items - horizontal */
         .data-item {
-            padding: 8px 6px;
+            padding: 6px 4px;
             flex-direction: row;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            width: 100%;
         }
 
         .data-text {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             max-width: 70%;
             word-break: break-word;
         }
 
         .action-buttons {
-            gap: 4px;
+            gap: 3px;
             align-self: auto;
         }
 
         .btn-action {
-            width: 28px;
-            height: 28px;
-            font-size: 0.75rem;
+            width: 26px;
+            height: 26px;
+            font-size: 0.7rem;
         }
 
         .page-title {
-            font-size: 1.2rem;
-            padding-left: 5px;
+            font-size: 1.1rem;
+            padding-left: 3px;
         }
 
         .page-subtitle {
-            font-size: 0.8rem;
-            padding-left: 5px;
+            font-size: 0.75rem;
+            padding-left: 3px;
         }
 
         .badge-count {
-            font-size: 0.7rem;
-            padding: 1px 6px;
+            font-size: 0.65rem;
+            padding: 1px 5px;
         }
 
         .award-badge {
-            padding: 3px 8px;
+            padding: 2px 6px;
             font-size: 0.7rem;
-            margin-right: 5px;
+            margin-right: 4px;
         }
 
         /* Fix any potential overflow */
@@ -426,41 +436,41 @@
 
     @media (max-width: 576px) {
         .admin-content-wrapper {
-            padding-left: 5px !important;
-            padding-right: 5px !important;
+            padding-left: 3px !important;
+            padding-right: 3px !important;
         }
 
         .container {
-            padding-left: 3px !important;
-            padding-right: 3px !important;
+            padding-left: 2px !important;
+            padding-right: 2px !important;
         }
 
         .row>[class*="col-"] {
-            padding-left: 3px !important;
-            padding-right: 3px !important;
+            padding-left: 2px !important;
+            padding-right: 2px !important;
         }
 
         .data-item {
-            padding: 6px 4px;
+            padding: 5px 2px;
         }
 
         .data-text {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             max-width: 65%;
         }
 
         .btn-action {
-            width: 26px;
-            height: 26px;
-            font-size: 0.7rem;
+            width: 24px;
+            height: 24px;
+            font-size: 0.65rem;
         }
 
         .page-title {
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
 
         .card-header {
-            padding: 8px 10px;
+            padding: 6px 8px;
         }
 
         .card-body {
@@ -468,24 +478,24 @@
         }
 
         .form-label {
-            font-size: 0.8rem;
-            margin-bottom: 4px;
+            font-size: 0.7rem;
+            margin-bottom: 3px;
         }
 
         .form-control {
-            padding: 6px 8px;
-            font-size: 0.85rem;
+            padding: 5px 6px;
+            font-size: 0.75rem;
         }
 
         .badge-count {
-            font-size: 0.65rem;
-            padding: 1px 5px;
+            font-size: 0.6rem;
+            padding: 1px 4px;
         }
 
         .award-badge {
-            padding: 2px 6px;
+            padding: 2px 5px;
             font-size: 0.65rem;
-            margin-right: 4px;
+            margin-right: 3px;
         }
     }
 </style>
@@ -510,7 +520,7 @@
                 @csrf
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <div class="mb-3">
+                        <div class="mb-2">
                             <label for="award_type" class="form-label">Jenis Award</label>
                             <input type="text"
                                 name="award_type"
@@ -525,7 +535,7 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="mb-3">
+                        <div class="mb-2">
                             <label for="category" class="form-label">Kategori Award</label>
                             <input type="text"
                                 name="category"
@@ -540,7 +550,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="text-end mt-3">
+                <div class="d-flex justify-content-end gap-2 mt-2">
                     <button type="reset" class="btn-secondary">
                         <i class="fas fa-redo me-2"></i> Reset
                     </button>
@@ -562,7 +572,7 @@
         </div>
 
         <div class="card-body">
-            <div class="row g-4">
+            <div class="row g-3">
                 <!-- Jenis Award -->
                 <div class="col-md-6">
                     <div class="data-card h-100">
@@ -687,7 +697,7 @@
                     <input type="hidden" name="field" id="editAwardField">
                     <input type="hidden" name="original_value" id="editOriginalValue">
 
-                    <div class="mb-3">
+                    <div class="mb-2">
                         <label class="form-label" id="editFieldLabel">Nilai Baru</label>
                         <input type="text"
                             name="new_value"
@@ -697,7 +707,7 @@
                             required>
                     </div>
 
-                    <div class="d-flex justify-content-end gap-2 mt-4">
+                    <div class="d-flex justify-content-end gap-2 mt-3">
                         <button type="button" class="btn-secondary" data-bs-dismiss="modal">
                             Batal
                         </button>
@@ -824,23 +834,23 @@
 
         if (addAwardForm && submitBtn) {
             addAwardForm.addEventListener('submit', function(e) {
+                const awardType = this.querySelector('[name="award_type"]').value.trim();
+                const category = this.querySelector('[name="category"]').value.trim();
+
+                if (!awardType && !category) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Form Tidak Lengkap',
+                        text: 'Harap isi minimal salah satu field',
+                        confirmButtonColor: '#3085d6',
+                    });
+                    return false;
+                }
+
                 // Disable button dan show loading
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Menyimpan...';
-                
-                // Show loading toast
-                Swal.fire({
-                    title: 'Menyimpan...',
-                    text: 'Sedang menyimpan data award',
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 1500,
-                    timerProgressBar: true,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
             });
         }
 
@@ -880,18 +890,6 @@
                 // Disable button dan show loading
                 saveEditBtn.disabled = true;
                 saveEditBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Menyimpan...';
-                
-                // Show loading popup
-                Swal.fire({
-                    title: 'Menyimpan...',
-                    text: 'Sedang mengupdate data award',
-                    allowOutsideClick: false,
-                    showConfirmButton: false,
-                    timer: 1500,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
                 
                 return true;
             });
