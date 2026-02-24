@@ -1211,7 +1211,7 @@
                             @if($endPage < $lastPage)
                                 @if($endPage < $lastPage - 1)
                                 <li class="page-item disabled">
-                                    <span class="page-link">...</span>
+                                <span class="page-link">...</span>
                                 </li>
                                 @endif
                                 <li class="page-item">
@@ -1252,26 +1252,26 @@
             if (result.isConfirmed) {
                 // Dapatkan form
                 const form = document.getElementById('filterForm');
-                
+
                 // Reset semua select ke value pertama (biasanya value="")
                 const selects = form.querySelectorAll('select');
                 selects.forEach(select => {
                     select.value = ''; // Set ke value kosong
                 });
-                
+
                 // Set default untuk sort dan order
                 const sortSelect = form.querySelector('select[name="sort"]');
                 if (sortSelect) sortSelect.value = 'updated_at';
-                
+
                 const orderSelect = form.querySelector('select[name="order"]');
                 if (orderSelect) orderSelect.value = 'desc';
-                
+
                 // Kosongkan semua input text
                 const inputs = form.querySelectorAll('input[type="text"]');
                 inputs.forEach(input => {
                     input.value = '';
                 });
-                
+
                 // Submit form
                 form.submit();
             }
@@ -1397,7 +1397,7 @@
 
         window.addEventListener('resize', checkTableWidth);
         checkTableWidth();
-        
+
         // Tambahkan tombol reset yang lebih jelas
         console.log('Filter reset function ready');
     });
@@ -1450,6 +1450,279 @@
         .btn-reset {
             padding: 8px 12px;
             font-size: 0.8rem;
+        }
+    }
+
+    /* ===== RESPONSIVE FIX - SAMA DENGAN MASTER DATA ===== */
+    @media (max-width: 768px) {
+
+        /* Fix body overflow */
+        body {
+            overflow-x: hidden !important;
+            width: 100% !important;
+            position: relative !important;
+        }
+
+        .admin-content-wrapper {
+            padding-left: 5px !important;
+            padding-right: 5px !important;
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
+        }
+
+        /* Container */
+        .container-fluid.py-4 {
+            padding-left: 3px !important;
+            padding-right: 3px !important;
+            max-width: 100% !important;
+            margin: 0 auto !important;
+            width: 100% !important;
+            overflow-x: hidden !important;
+        }
+
+        /* Force all rows to be full width */
+        .row {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            width: 100% !important;
+        }
+
+        /* Force all columns to be full width */
+        .row>[class*="col-"] {
+            padding-left: 3px !important;
+            padding-right: 3px !important;
+            width: 100% !important;
+            flex: 0 0 100% !important;
+            max-width: 100% !important;
+        }
+
+        /* Form inputs jadi full width */
+        .filter-body .row.g-3>[class*="col-"] {
+            width: 100% !important;
+            flex: 0 0 100% !important;
+            max-width: 100% !important;
+            padding-left: 3px !important;
+            padding-right: 3px !important;
+        }
+
+        /* Header flex untuk mobile */
+        .d-flex.justify-content-between {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 10px !important;
+            margin-bottom: 1rem !important;
+        }
+
+        .export-btn {
+            width: 100% !important;
+            justify-content: center;
+        }
+
+        /* Card styling */
+        .card-header {
+            padding: 10px 12px !important;
+            font-size: 0.9rem;
+        }
+
+        .filter-body {
+            padding: 10px !important;
+        }
+
+        .filter-header {
+            padding: 10px 12px !important;
+        }
+
+        /* Filter buttons */
+        .d-flex.gap-2 {
+            width: 100%;
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-filter-submit,
+        .btn-reset {
+            flex: 1;
+            font-size: 0.8rem;
+            padding: 8px 12px;
+        }
+
+        /* Table styling */
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 3px !important;
+        }
+
+        .table {
+            min-width: 900px;
+            /* Biar bisa scroll horizontal */
+            font-size: 0.8rem;
+        }
+
+        .table th {
+            padding: 8px 6px !important;
+            font-size: 0.7rem !important;
+        }
+
+        .table td {
+            padding: 8px 6px !important;
+            font-size: 0.75rem !important;
+        }
+
+        .page-title {
+            font-size: 1.1rem;
+        }
+
+        .page-subtitle {
+            font-size: 0.75rem;
+        }
+
+        /* Logo container */
+        .logo-container {
+            width: 40px;
+            height: 40px;
+        }
+
+        .logo-placeholder i {
+            font-size: 1rem;
+        }
+
+        .team-number-badge {
+            font-size: 0.7rem;
+            min-width: 40px;
+            padding: 3px 4px;
+        }
+
+        .school-name,
+        .team-name,
+        .competition-name,
+        .registrant-name {
+            font-size: 0.75rem;
+        }
+
+        .text-small {
+            font-size: 0.6rem !important;
+        }
+
+        .status-badge {
+            font-size: 0.6rem !important;
+            min-width: 60px;
+            height: 22px;
+            padding: 3px 6px !important;
+        }
+
+        .date-primary {
+            font-size: 0.7rem;
+        }
+
+        .date-secondary {
+            font-size: 0.6rem;
+        }
+
+        .btn-action {
+            width: 26px;
+            height: 26px;
+            font-size: 0.7rem;
+            padding: 4px 6px;
+        }
+
+        .action-buttons {
+            gap: 3px;
+        }
+
+        /* Pagination */
+        .pagination-container {
+            flex-direction: column;
+            gap: 10px;
+            text-align: center;
+            padding: 12px 15px !important;
+        }
+
+        .pagination-info {
+            font-size: 0.75rem;
+        }
+
+        .custom-pagination {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .page-link {
+            font-size: 0.7rem !important;
+            padding: 4px 8px !important;
+            min-width: 28px !important;
+            height: 28px;
+        }
+
+        /* Fix any potential overflow */
+        * {
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .admin-content-wrapper {
+            padding-left: 3px !important;
+            padding-right: 3px !important;
+        }
+
+        .container-fluid.py-4 {
+            padding-left: 2px !important;
+            padding-right: 2px !important;
+        }
+
+        .table {
+            min-width: 850px;
+            font-size: 0.75rem;
+        }
+
+        .table th {
+            padding: 6px 4px !important;
+            font-size: 0.65rem !important;
+        }
+
+        .table td {
+            padding: 6px 4px !important;
+            font-size: 0.7rem !important;
+        }
+
+        .page-title {
+            font-size: 1rem;
+        }
+
+        .logo-container {
+            width: 35px;
+            height: 35px;
+        }
+
+        .btn-action {
+            width: 24px;
+            height: 24px;
+            font-size: 0.65rem;
+        }
+
+        .status-badge {
+            font-size: 0.55rem !important;
+            min-width: 55px;
+            height: 20px;
+        }
+
+        .page-link {
+            font-size: 0.65rem !important;
+            padding: 3px 6px !important;
+            min-width: 26px !important;
+            height: 26px;
+        }
+
+        .pagination-info {
+            font-size: 0.7rem;
+        }
+
+        .btn-filter-submit,
+        .btn-reset {
+            font-size: 0.75rem;
+            padding: 6px 10px;
         }
     }
 </style>
