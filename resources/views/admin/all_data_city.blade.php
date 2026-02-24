@@ -205,9 +205,8 @@
         filter: invert(1) grayscale(100%) brightness(200%);
     }
 
-    /* RESPONSIVE FIX */
+    /* ===== RESPONSIVE FIX - SAMA DENGAN MASTER DATA ===== */
     @media (max-width: 768px) {
-
         /* Fix body overflow */
         body {
             overflow-x: hidden !important;
@@ -284,7 +283,6 @@
 
         .data-table {
             font-size: 0.8rem;
-            /* INI YANG PENTING */
             min-width: 100%;
         }
 
@@ -293,7 +291,6 @@
             padding: 6px 4px;
             white-space: nowrap;
             font-size: 0.8rem;
-            /* TAMBAHKAN INI */
         }
 
         .action-icons {
@@ -307,12 +304,12 @@
         }
 
         .page-title {
-            font-size: 1.1rem;
+            font-size: 1.1rem; /* SAMA DENGAN MASTER DATA */
             padding-left: 3px;
         }
 
         .page-subtitle {
-            font-size: 0.8rem;
+            font-size: 0.8rem; /* SAMA DENGAN MASTER DATA */
             padding-left: 3px;
         }
 
@@ -352,7 +349,6 @@
         .data-table td {
             padding: 5px 3px;
             font-size: 0.75rem;
-            /* TAMBAHKAN INI */
         }
 
         .action-icon {
@@ -362,7 +358,7 @@
         }
 
         .page-title {
-            font-size: 1rem;
+            font-size: 1rem; /* SAMA DENGAN MASTER DATA */
         }
 
         .card-header {
@@ -374,74 +370,13 @@
         }
 
         .form-label {
-            font-size: 0.7rem;
-            /* DARI 0.8rem JADI 0.7rem (SAMA DENGAN MASTER DATA) */
+            font-size: 0.7rem; /* SAMA DENGAN MASTER DATA */
             margin-bottom: 3px;
         }
 
         .form-control {
             padding: 5px 6px;
-            font-size: 0.75rem;
-            /* DARI 0.85rem JADI 0.75rem (SAMA DENGAN MASTER DATA) */
-        }
-
-        .badge {
-            font-size: 0.6rem;
-            padding: 1px 4px;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .admin-content-wrapper {
-            padding-left: 3px !important;
-            padding-right: 3px !important;
-        }
-
-        .container {
-            padding-left: 2px !important;
-            padding-right: 2px !important;
-        }
-
-        .row>[class*="col-"] {
-            padding-left: 2px !important;
-            padding-right: 2px !important;
-        }
-
-        .data-table {
-            font-size: 0.75rem;
-        }
-
-        .data-table th,
-        .data-table td {
-            padding: 5px 3px;
-        }
-
-        .action-icon {
-            width: 24px;
-            height: 24px;
-            font-size: 0.65rem;
-        }
-
-        .page-title {
-            font-size: 1.1rem;
-        }
-
-        .card-header {
-            padding: 6px 8px;
-        }
-
-        .card-body {
-            padding: 8px;
-        }
-
-        .form-label {
-            font-size: 0.8rem;
-            margin-bottom: 3px;
-        }
-
-        .form-control {
-            padding: 5px 6px;
-            font-size: 0.85rem;
+            font-size: 0.75rem; /* SAMA DENGAN MASTER DATA */
         }
 
         .badge {
