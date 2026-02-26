@@ -1,6 +1,6 @@
 @extends('user.form.layout')
 
-@section('title', 'Pembayaran - HSBL')
+@section('title', 'Pembayaran - SBL')
 
 @section('content')
 <div class="container py-4">
@@ -42,8 +42,8 @@
                                     <td>
                                         <div class="mb-2">
                                             <strong>Bank Transfer</strong><br>
-                                            BCA: 123-456-7890 (a.n. HSBL Competition)<br>
-                                            Mandiri: 098-765-4321 (a.n. HSBL Competition)
+                                            BCA: 123-456-7890 (a.n. SBL Competition)<br>
+                                            Mandiri: 098-765-4321 (a.n. SBL Competition)
                                         </div>
                                     </td>
                                 </tr>

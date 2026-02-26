@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - HSBL Riau Pos</title>
+    <title>Login - SBL Riau Pos</title>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -488,9 +488,9 @@
         <!-- Left Side - Branding -->
         <div class="login-left">
             <div class="brand-logo">
-                <img src="{{ asset('uploads/logo/hsbl.png') }}" alt="HSBL Logo">
-                <h1>HSBL Riau Pos</h1>
-                <p>Honda Shooting Basketball League</p>
+                <img src="{{ asset('uploads/logo/hsbl.png') }}" alt="SBL Logo">
+                <h1>SBL Riau Pos</h1>
+                <p>Student Basketball League</p>
             </div>
             
             <div class="features">
@@ -509,7 +509,7 @@
                     </div>
                     <div class="feature-text">
                         <h4>League Management</h4>
-                        <p>Comprehensive system for HSBL administration</p>
+                        <p>Comprehensive system for SBL administration</p>
                     </div>
                 </div>
                 <div class="feature-item">
@@ -524,7 +524,7 @@
             </div>
             
             <div class="copyright">
-                <p>© HSBL Riau Pos. All rights reserved.</p>
+                <p>© SBL Riau Pos. All rights reserved.</p>
             </div>
         </div>
 
@@ -547,7 +547,7 @@
             <div id="admin-tab" class="tab-content active">
                 <div class="login-header">
                     <h2><i class="fas fa-user-shield"></i> Admin Portal</h2>
-                    <p>Administrator access for managing the HSBL league system</p>
+                    <p>Administrator access for managing the SBL league system</p>
                 </div>
 
                 <form method="POST" action="{{ route('login') }}" class="login-form" id="adminLoginForm">
@@ -616,7 +616,7 @@
             <div id="student-tab" class="tab-content">
                 <div class="login-header">
                     <h2><i class="fas fa-user-graduate"></i> Student Portal</h2>
-                    <p>Student access for HSBL league participants and team members</p>
+                    <p>Student access for SBL league participants and team members</p>
                 </div>
 
                 <form method="POST" action="{{ route('student.login') }}" class="login-form" id="studentLoginForm">
@@ -688,7 +688,7 @@
 
                     <div class="access-note student-note">
                         <i class="fas fa-info-circle"></i>
-                        This portal is for registered HSBL students only. Contact administrator for account issues.
+                        This portal is for registered SBL students only. Contact administrator for account issues.
                     </div>
                 </form>
             </div>

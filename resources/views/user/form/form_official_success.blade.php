@@ -1,5 +1,5 @@
 @extends('user.form.layout')
-@section('title', 'Pendaftaran Berhasil - HSBL')
+@section('title', 'Pendaftaran Berhasil - SBL')
 
 @section('content')
 <div class="container py-5">

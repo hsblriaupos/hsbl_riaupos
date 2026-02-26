@@ -1,6 +1,6 @@
 @extends('user.form.layout')
 
-@section('title', 'Pendaftaran Berhasil - HSBL')
+@section('title', 'Pendaftaran Berhasil - SBL')
 
 @section('content')
 <div class="container py-5">
@@ -13,7 +13,7 @@
                     <div class="d-flex align-items-center">
                         <div class="flex-grow-1">
                             <h2 class="mb-0"><i class="fas fa-check-circle me-2"></i>Pendaftaran Berhasil!</h2>
-                            <p class="mb-0 opacity-75">Data Anda telah tersimpan di sistem HSBL</p>
+                            <p class="mb-0 opacity-75">Data Anda telah tersimpan di sistem SBL</p>
                         </div>
                         <div class="bg-white text-success rounded-circle p-3">
                             <i class="fas fa-music fa-2x"></i>
@@ -139,7 +139,7 @@
                 <p class="text-muted">
                     <i class="fas fa-question-circle me-1"></i> 
                     Pertanyaan? Hubungi Admin di 
-                    <a href="mailto:support@hsbl.com" class="text-decoration-none fw-bold">support@hsbl.com</a>
+                    <a href="mailto:support@sbl.com" class="text-decoration-none fw-bold">support@sbl.com</a>
                 </p>
             </div>
         </div>

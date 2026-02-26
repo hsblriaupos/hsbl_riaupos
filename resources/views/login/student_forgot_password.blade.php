@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forgot Password - HSBL Student Portal</title>
+    <title>Forgot Password - SBL Student Portal</title>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- SweetAlert2 -->
@@ -283,10 +283,10 @@
         <!-- Header -->
         <div class="forgot-header">
             <div class="logo">
-                <img src="{{ asset('uploads/logo/hsbl.png') }}" alt="HSBL Logo">
+                <img src="{{ asset('uploads/logo/hsbl.png') }}" alt="SBL Logo">
             </div>
             <h1><i class="fas fa-key"></i> Password Recovery</h1>
-            <p>Reset your HSBL Student Portal password with admin assistance</p>
+            <p>Reset your SBL Student Portal password with admin assistance</p>
         </div>
 
         <!-- Content -->
@@ -404,7 +404,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Default WhatsApp message
-                    const defaultMessage = `Hello HSBL Admin, I need help with password recovery for my HSBL Student Portal account.`;
+                    const defaultMessage = `Hello SBL Admin, I need help with password recovery for my SBL Student Portal account.`;
                     
                     // Ask for additional information
                     Swal.fire({
@@ -437,7 +437,7 @@
                             const { name, email, details } = result.value;
                             
                             // Construct WhatsApp message
-                            let message = `Hello HSBL Admin, I need help with password recovery for my HSBL Student Portal account.\n\n`;
+                            let message = `Hello SBL Admin, I need help with password recovery for my SBL Student Portal account.\n\n`;
                             message += `Name: ${name}\n`;
                             message += `Email: ${email}\n`;
                             

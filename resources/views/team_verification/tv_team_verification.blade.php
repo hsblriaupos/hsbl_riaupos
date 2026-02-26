@@ -39,7 +39,7 @@
                     
                     <!-- Description -->
                     <p class="text-muted mb-4" style="font-size: 1.1rem; max-width: 500px; margin: 0 auto;">
-                        Fitur verifikasi tim sedang kami siapkan untuk memberikan pengalaman terbaik dalam mengelola pendaftaran tim HSBL.
+                        Fitur verifikasi tim sedang kami siapkan untuk memberikan pengalaman terbaik dalam mengelola pendaftaran tim SBL.
                     </p>
                     
                     <!-- Back Button -->

@@ -1,6 +1,6 @@
 @extends('user.form.layout')
 
-@section('title', 'Event Histories - HSBL Student Portal')
+@section('title', 'Event Histories - SBL Student Portal')
 
 @section('content')
 <div class="container py-4">
@@ -26,7 +26,7 @@
                 </div>
                 <div>
                     <h1 class="h3 mb-1 fw-bold">Event Histories</h1>
-                    <p class="text-muted mb-0">My Team - Track all teams you've joined in HSBL competitions</p>
+                    <p class="text-muted mb-0">My Team - Track all teams you've joined in SBL competitions</p>
                 </div>
             </div>
         </div>

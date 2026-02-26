@@ -393,7 +393,7 @@
         <h1 class="page-title mt-2">
             <i class="fas fa-city me-2"></i> City Management
         </h1>
-        <p class="page-subtitle">Manage the list of cities for the HSBL competitions</p>
+        <p class="page-subtitle">Manage the list of cities for the SBL competitions</p>
     </div>
 
     <!-- Form Tambah Kota -->

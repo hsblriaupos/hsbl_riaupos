@@ -766,7 +766,7 @@
         <h1 class="page-title mt-2">
             <i class="fas fa-map-marker-alt me-2"></i> Venue Management
         </h1>
-        <p class="page-subtitle">Manage the list of venues for HSBL competitions</p>
+        <p class="page-subtitle">Manage the list of venues for SBL competitions</p>
     </div>
 
     <!-- Form Tambah Venue -->

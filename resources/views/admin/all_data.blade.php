@@ -473,7 +473,7 @@
                     <div class="col-md-3">
                         <label class="form-label">Competition</label>
                         <input type="text" name="competition" class="form-control"
-                            placeholder="Contoh: HSBL Regional" value="{{ old('competition') }}">
+                            placeholder="Contoh: SBL Regional" value="{{ old('competition') }}">
                         @error('competition')
                         <div class="text-danger mt-1">{{ $message }}</div>
                         @enderror

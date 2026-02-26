@@ -1,6 +1,6 @@
 @extends('user.form.layout')
 
-@section('title', 'Form Pendaftaran Official - HSBL')
+@section('title', 'Form Pendaftaran Official - SBL')
 
 @section('content')
 <div class="container py-5">
@@ -9,7 +9,7 @@
             <!-- Header -->
             <div class="text-center mb-5">
                 <span class="badge bg-soft-primary text-primary px-4 py-2 mb-3 rounded-pill">
-                    📋 HSBL Official Registration
+                    📋 SBL Official Registration
                 </span>
                 <h1 class="display-5 fw-bold text-dark mb-3">
                     Form Pendaftaran Official

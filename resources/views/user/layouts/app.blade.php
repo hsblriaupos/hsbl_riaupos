@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>@yield('title', 'HSBL Riau Pos')</title>
+    <title>@yield('title', 'SBL Riau Pos')</title>
 
     {{-- Favicon --}}
     <link rel="icon" href="{{ asset('uploads/logo/hsbl.png') }}" type="image/png" />
@@ -389,7 +389,7 @@
                 <a href="{{ url('user/dashboard') }}" class="flex items-center space-x-2 group">
                     <div class="bg-white p-1.5 rounded-lg shadow-sm group-hover:shadow transition-shadow duration-300">
                         <img src="{{ asset('uploads/logo/hsbl.png') }}" 
-                             alt="HSBL Riau Pos Logo" 
+                             alt="SBL Riau Pos Logo" 
                              class="h-10 w-10 rounded-md" />
                     </div>
                 </a>
@@ -815,17 +815,17 @@
                 <div class="flex flex-col md:flex-row items-center justify-between mb-4">
                     <div class="mb-3 md:mb-0">
                         <img src="{{ asset('uploads/logo/hsbl.png') }}" 
-                             alt="HSBL Logo" 
+                             alt="SBL Logo" 
                              class="h-10 w-10 rounded-lg mx-auto md:mx-0">
                     </div>
                     <div class="text-center md:text-left">
-                        <h3 class="text-lg font-semibold mb-1">Riau Pos - Honda HSBL</h3>
-                        <p class="text-blue-100 text-xs">Honda Student Basketball League</p>
+                        <h3 class="text-lg font-semibold mb-1">Riau Pos - SBL</h3>
+                        <p class="text-blue-100 text-xs">Student Basketball League</p>
                     </div>
                 </div>
                 
                 <div class="text-xs text-blue-200">
-                    <p class="mb-1">&copy; {{ date('Y') }} Riau Pos - Honda HSBL. All Rights Reserved.</p>
+                    <p class="mb-1">&copy; {{ date('Y') }} Riau Pos - Student Basketball League. All Rights Reserved.</p>
                     <p class="flex items-center justify-center space-x-1">
                         <span>Developed with</span>
                         <i class="fas fa-heart text-red-300"></i>

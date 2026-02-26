@@ -1,6 +1,6 @@
 @extends('user.form.layout')
 
-@section('title', 'Team Members - HSBL Student Portal')
+@section('title', 'Team Members - SBL Student Portal')
 
 @section('content')
 <div class="container py-4">

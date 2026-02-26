@@ -37,7 +37,7 @@
                                    name="title" 
                                    id="title" 
                                    class="form-control border-start-0"
-                                   placeholder="Contoh: Syarat & Ketentuan Honda HSBL 2024"
+                                   placeholder="Contoh: Syarat & Ketentuan Honda SBL 2024"
                                    required
                                    value="{{ old('title') }}">
                         </div>

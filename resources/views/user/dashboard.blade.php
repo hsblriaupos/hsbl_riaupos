@@ -1,6 +1,6 @@
 @extends('user.layouts.app')
 
-@section('title', 'Dashboard - HSBL Riau Pos')
+@section('title', 'Dashboard - SBL Riau Pos')
 
 @php
     use Illuminate\Support\Str;
@@ -231,7 +231,7 @@
                         </div>
                         <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 leading-tight">
                             <span class="animate-pulse-slow inline-block">Welcome to</span><br>
-                            <span class="text-yellow-300 animate-bounce-slow inline-block">HSBL Riau Pos </span>
+                            <span class="text-yellow-300 animate-bounce-slow inline-block">SBL Riau Pos </span>
                         </h1>
                         <p class="text-lg text-blue-100 mb-6 max-w-2xl animate-pulse-slow animation-delay-1000">
                             The biggest student basketball competition in Riau, where young talents showcase their skills and fighting spirit.
@@ -242,7 +242,7 @@
                             <div class="w-40 h-40 md:w-48 md:h-48 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm border-4 border-white/20">
                                 <div class="w-32 h-32 md:w-40 md:h-40 bg-white/20 rounded-full flex items-center justify-center">
                                     <img src="{{ asset('uploads/logo/hsbl.png') }}" 
-                                         alt="HSBL Logo" 
+                                         alt="SBL Logo" 
                                          class="w-24 h-24 md:w-32 md:h-32">
                                 </div>
                             </div>
@@ -259,12 +259,12 @@
         </div>
     </div>
 
-    {{-- About HSBL Section --}}
+    {{-- About SBL Section --}}
     <div class="bg-white rounded-xl shadow-lg mb-8 overflow-hidden transform transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 animate-fadeInUp">
         <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-blue-50">
             <h2 class="font-semibold text-lg text-gray-800 flex items-center space-x-2">
                 <i class="fas fa-landmark text-indigo-500 animate-pulse"></i>
-                <span>About Riau Pos - Honda HSBL</span>
+                <span>About Riau Pos - Honda SBL</span>
             </h2>
         </div>
         <div class="p-6">
@@ -279,10 +279,10 @@
                     </h3>
                     <div class="prose max-w-none pl-10">
                         <p class="text-gray-700 mb-3 leading-relaxed">
-                            <strong class="text-indigo-600">Riau Pos Honda Student Basketball League (HSBL)</strong> is a basketball and dance competition for high school students and equivalent levels in Riau Province, focusing on youth development and talent scouting.
+                            <strong class="text-indigo-600">Riau Pos Student Basketball League (SBL)</strong> is a basketball and dance competition for high school students and equivalent levels in Riau Province, focusing on youth development and talent scouting.
                         </p>
                         <p class="text-gray-700 leading-relaxed">
-                            First organized in 2008 under the name Student Basketball League (SBL) and renamed to Riau Pos Honda HSBL since 2010, this annual event was temporarily halted in 2019 due to the COVID-19 pandemic and resumed in 2024.
+                            First organized in 2008 under the name Student Basketball League (SBL) and renamed to Riau Pos Honda SBL since 2010, this annual event was temporarily halted in 2019 due to the COVID-19 pandemic and resumed in 2024.
                         </p>
                     </div>
                 </div>
@@ -783,7 +783,7 @@
                                 </span>
                             </div>
                             <p class="text-sm text-gray-700 mb-2 leading-relaxed">
-                                Experienced as a programmer at Digital Innovation Hub research, HSBL website development, internship at Riau Pos Event Organizer Division, and freelance layout designer and editor.
+                                Experienced as a programmer at Digital Innovation Hub research, SBL website development, internship at Riau Pos Event Organizer Division, and freelance layout designer and editor.
                             </p>
                             <p class="text-sm text-gray-700 leading-relaxed">
                                 Specializes in integrated system development with focus on structured architecture and clean UI design.
@@ -817,7 +817,7 @@
                                 </span>
                             </div>
                             <p class="text-sm text-gray-700 mb-2 leading-relaxed">
-                                Experienced in HSBL website development, programmer at Digital Innovation Hub research, and internship at Riau Pos Event Organizer Division.
+                                Experienced in SBL website development, programmer at Digital Innovation Hub research, and internship at Riau Pos Event Organizer Division.
                             </p>
                             <p class="text-sm text-gray-700 leading-relaxed">
                                 Specializes in integrated backend and frontend development with comprehensive system architecture.

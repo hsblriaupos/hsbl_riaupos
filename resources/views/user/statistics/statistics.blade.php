@@ -1,6 +1,6 @@
 @extends('user.layouts.app')
 
-@section('title', 'HSBL Statistics - Coming Soon')
+@section('title', 'SBL Statistics - Coming Soon')
 
 @section('content')
 <div class="w-full animate-fadeInUp">

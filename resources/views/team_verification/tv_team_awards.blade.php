@@ -39,7 +39,7 @@
                     
                     <!-- Description -->
                     <p class="text-muted mb-4" style="font-size: 1.1rem; max-width: 500px; margin: 0 auto;">
-                        Fitur team awards sedang kami siapkan untuk mengelola penghargaan, MVP, top skor, dan pencapaian tim HSBL dengan lebih baik.
+                        Fitur team awards sedang kami siapkan untuk mengelola penghargaan, MVP, top skor, dan pencapaian tim SBL dengan lebih baik.
                     </p>
                     
                     <!-- Back Button -->

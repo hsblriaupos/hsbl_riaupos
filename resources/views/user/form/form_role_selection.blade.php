@@ -1,6 +1,6 @@
 @extends('user.form.layout')
 
-@section('title', 'Pilih Posisi - HSBL')
+@section('title', 'Pilih Posisi - SBL')
 
 @section('content')
 <div class="container py-4">

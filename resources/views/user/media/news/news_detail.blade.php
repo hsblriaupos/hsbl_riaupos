@@ -44,7 +44,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                   </svg>
                 </div>
-                <p class="text-sm font-semibold text-blue-700">Riau Pos - Honda HSBL</p>
+                <p class="text-sm font-semibold text-blue-700">Riau Pos - Honda SBL</p>
                 <p class="text-xs text-gray-600 mt-1">{{ $item->series }}</p>
               </div>
               {{-- Overlay gradient --}}
@@ -131,7 +131,7 @@
                 8 Latest
               </span>
             </div>
-            <p class="text-sm text-gray-500 mb-4">Latest updates from HSBL</p>
+            <p class="text-sm text-gray-500 mb-4">Latest updates from SBL</p>
             
             <div class="space-y-4">
               @php
@@ -236,7 +236,7 @@
                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                                 </svg>
                               </div>
-                              <p class="text-xs font-semibold text-blue-900">Riau Pos HSBL</p>
+                              <p class="text-xs font-semibold text-blue-900">Riau Pos SBL</p>
                             </div>
                           </div>
                         @endif

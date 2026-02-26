@@ -65,7 +65,7 @@
                                    id="main_title" 
                                    name="main_title" 
                                    value="{{ old('main_title', $schedule->main_title) }}"
-                                   placeholder="e.g., HSBL Week 1 Schedule"
+                                   placeholder="e.g., SBL Week 1 Schedule"
                                    required>
                             @error('main_title')
                                 <div class="invalid-feedback">{{ $message }}</div>

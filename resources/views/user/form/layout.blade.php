@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>@yield('title', 'HSBL Registration - Student Portal')</title>
+    <title>@yield('title', 'SBL Registration - Student Portal')</title>
     
     <!-- Favicon -->
     <link rel="icon" href="{{ asset('uploads/logo/hsbl.png') }}" type="image/png" />
@@ -674,11 +674,11 @@
                 <a href="{{ route('form.team.choice') }}" class="d-flex align-items-center text-decoration-none">
                     <div class="logo-container">
                         <img src="{{ asset('uploads/logo/hsbl.png') }}" 
-                             alt="HSBL Riau Pos Logo" 
+                             alt="SBL Riau Pos Logo" 
                              class="logo-img" />
                     </div>
-                    <span class="navbar-brand fw-bold d-none d-sm-inline">HSBL Student Portal</span>
-                    <span class="navbar-brand fw-bold d-sm-none">HSBL</span>
+                    <span class="navbar-brand fw-bold d-none d-sm-inline">SBL Student Portal</span>
+                    <span class="navbar-brand fw-bold d-sm-none">SBL</span>
                 </a>
             </div>
             
@@ -916,7 +916,7 @@
         <div class="container">
             <div class="text-center">
                 <div class="text-xs" style="color: rgba(255, 255, 255, 0.8);">
-                    <p class="mb-1">&copy; {{ date('Y') }} Riau Pos - Honda HSBL. All Rights Reserved.</p>
+                    <p class="mb-1">&copy; {{ date('Y') }} Riau Pos - Student Basketball League. All Rights Reserved.</p>
                     <p class="d-flex align-items-center justify-content-center gap-1 mt-2 flex-wrap">
                         <span>Developed with</span>
                         <i class="fas fa-heart" style="color: #ff6b6b;"></i>

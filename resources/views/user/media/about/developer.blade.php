@@ -1,6 +1,6 @@
 @extends('user.layouts.app')
 
-@section('title', 'Developer Team - HSBL Riau Pos')
+@section('title', 'Developer Team - SBL Riau Pos')
 
 @section('content')
 <div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-8 md:py-12">
@@ -14,7 +14,7 @@
                 Developer Team
             </h1>
             <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-                The brilliant minds behind HSBL Riau Pos platform. Combining technical expertise with creative vision to deliver exceptional digital experiences.
+                The brilliant minds behind SBL Riau Pos platform. Combining technical expertise with creative vision to deliver exceptional digital experiences.
             </p>
             <div class="mt-6 flex items-center justify-center space-x-4">
                 <div class="flex items-center text-sm text-gray-500">
@@ -39,7 +39,7 @@
                     <i class="fas fa-cogs text-2xl text-blue-500 mr-3"></i>
                     <div>
                         <h3 class="font-bold text-gray-800">Tech Stack</h3>
-                        <p class="text-sm text-gray-600">Modern technologies powering HSBL</p>
+                        <p class="text-sm text-gray-600">Modern technologies powering SBL</p>
                     </div>
                 </div>
                 <div class="flex flex-wrap gap-3">
@@ -395,7 +395,7 @@
             <div class="text-center mb-8">
                 <h2 class="text-3xl font-bold text-gray-800 mb-3">Full-Stack Synergy</h2>
                 <p class="text-gray-600 max-w-3xl mx-auto">
-                    Dua pendekatan berbeda, satu tujuan: membangun platform HSBL yang solid dan user-friendly
+                    Dua pendekatan berbeda, satu tujuan: membangun platform SBL yang solid dan user-friendly
                 </p>
             </div>
             

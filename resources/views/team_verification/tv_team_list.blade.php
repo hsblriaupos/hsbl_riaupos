@@ -460,7 +460,7 @@
     }
 
     .btn-view {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: var(--primary-gradient);
         color: white;
     }
 
@@ -579,7 +579,7 @@
 
     /* ===== FILTER BUTTON ===== */
     .btn-filter-submit {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: var(--primary-gradient);
         color: white;
         border: none;
         padding: 9px 18px;
@@ -1028,7 +1028,7 @@
             <h1 class="page-title mb-1">
                 <i class="fas fa-users me-2"></i>Daftar Tim
             </h1>
-            <p class="page-subtitle">Kelola dan monitor tim peserta HSBL</p>
+            <p class="page-subtitle">Kelola dan monitor tim peserta SBL</p>
         </div>
         <div>
             <a href="{{ route('admin.team-list.export') . '?' . http_build_query(request()->query()) }}"

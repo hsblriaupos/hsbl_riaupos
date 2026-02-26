@@ -1,6 +1,6 @@
 @extends('user.form.layout')
 
-@section('title', 'Gabung ke Tim - HSBL')
+@section('title', 'Gabung ke Tim - SBL')
 
 @section('content')
 <div class="container py-4">
@@ -49,7 +49,7 @@
                                    name="referral_code" 
                                    value="{{ old('referral_code') }}" 
                                    required
-                                   placeholder="Contoh: HSBL-SMAN1-2024"
+                                   placeholder="Contoh: SBL-SMAN1-2024"
                                    style="text-transform: uppercase;">
                             @error('referral_code')
                                 <div class="invalid-feedback">{{ $message }}</div>

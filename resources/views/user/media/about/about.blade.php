@@ -1,6 +1,6 @@
 @extends('user.layouts.app')
 
-@section('title', 'About - Riau Pos Honda HSBL')
+@section('title', 'About - Riau Pos Honda SBL')
 
 @section('styles')
 <style>

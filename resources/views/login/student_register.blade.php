@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - HSBL Student Portal</title>
+    <title>Register - SBL Student Portal</title>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- SweetAlert2 -->
@@ -524,9 +524,9 @@
         <!-- Left Side - Branding -->
         <div class="register-left">
             <div class="brand-logo">
-                <img src="{{ asset('uploads/logo/hsbl.png') }}" alt="HSBL Logo">
-                <h1>HSBL Riau Pos</h1>
-                <p>Honda Shooting Basketball League</p>
+                <img src="{{ asset('uploads/logo/hsbl.png') }}" alt="SBL Logo">
+                <h1>SBL Riau Pos</h1>
+                <p>Student Basketball League</p>
             </div>
             
             <div class="benefits">
@@ -536,7 +536,7 @@
                     </div>
                     <div class="benefit-text">
                         <h4>Basketball League</h4>
-                        <p>Join HSBL basketball competitions</p>
+                        <p>Join SBL basketball competitions</p>
                     </div>
                 </div>
                 <div class="benefit-item">
@@ -560,7 +560,7 @@
             </div>
             
             <div class="copyright">
-                <p>© HSBL Riau Pos. Student Portal</p>
+                <p>© SBL Riau Pos. Student Portal</p>
             </div>
         </div>
 
@@ -568,7 +568,7 @@
         <div class="register-right">
             <div class="register-header">
                 <h2><i class="fas fa-user-graduate"></i> Student Registration</h2>
-                <p>Create your student account to access the HSBL Basketball League</p>
+                <p>Create your student account to access the SBL Basketball League</p>
             </div>
 
             <form method="POST" action="{{ route('student.register') }}" class="register-form" id="registerForm">
@@ -733,7 +733,7 @@
 
                 <div class="terms-note">
                     <i class="fas fa-info-circle"></i>
-                    By registering as a student, you agree to participate in HSBL basketball competitions and follow all rules.
+                    By registering as a student, you agree to participate in SBL basketball competitions and follow all rules.
                 </div>
             </form>
         </div>

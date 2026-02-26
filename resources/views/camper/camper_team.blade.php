@@ -39,7 +39,7 @@
                     
                     <!-- Description -->
                     <p class="text-muted mb-4" style="font-size: 1.1rem; max-width: 500px; margin: 0 auto;">
-                        Fitur campers management sedang kami siapkan untuk mengelola pendaftaran, jadwal pelatihan, dan perkembangan peserta camp HSBL.
+                        Fitur campers management sedang kami siapkan untuk mengelola pendaftaran, jadwal pelatihan, dan perkembangan peserta camp SBL.
                     </p>
                     
                     <!-- Back Button -->

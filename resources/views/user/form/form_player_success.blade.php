@@ -1,6 +1,6 @@
 @extends('user.form.layout')
 
-@section('title', 'Pendaftaran Berhasil - HSBL')
+@section('title', 'Pendaftaran Berhasil - SBL')
 
 @section('content')
 <div class="container py-5">
@@ -63,7 +63,7 @@
                                 ANGGOTA TIM TERDAFTAR
                                 @endif
                             </h4>
-                            <small class="opacity-75">HSBL Registration System</small>
+                            <small class="opacity-75">SBL Registration System</small>
                         </div>
                         <div class="text-end">
                             <small class="opacity-75">ID: {{ $team->team_id }}/{{ $player->id }}</small>
@@ -260,7 +260,7 @@
                                             <h6 class="alert-heading mb-2">❌ TERJADI KESALAHAN SISTEM</h6>
                                             <p class="mb-0">
                                                 Sebagai Kapten, Anda seharusnya sudah mendapatkan referral code.<br>
-                                                <strong>Hubungi panitia HSBL segera!</strong>
+                                                <strong>Hubungi panitia SBL segera!</strong>
                                             </p>
                                         </div>
                                     </div>
@@ -281,7 +281,7 @@
                                 <div class="alert alert-warning">
                                     <i class="fas fa-phone-alt me-2"></i>
                                     <strong>Kontak Panitia:</strong> 
-                                    <a href="mailto:support@hsbl.com" class="text-decoration-none">support@hsbl.com</a> | 
+                                    <a href="mailto:support@sbl.com" class="text-decoration-none">support@sbl.com</a> | 
                                     <a href="https://wa.me/6281234567890" class="text-decoration-none">WhatsApp</a>
                                 </div>
                             </div>
@@ -322,7 +322,7 @@
                                         <div class="step-card">
                                             <div class="step-number">4</div>
                                             <h6>Tunggu Konfirmasi</h6>
-                                            <p class="small mb-0">Tunggu verifikasi dari panitia HSBL</p>
+                                            <p class="small mb-0">Tunggu verifikasi dari panitia SBL</p>
                                         </div>
                                     </div>
                                 </div>
@@ -405,8 +405,8 @@
                         <div class="row justify-content-center">
                             <div class="col-md-6 mb-2">
                                 <i class="fas fa-envelope me-2"></i>
-                                <a href="mailto:support@hsbl.com" class="text-decoration-none">
-                                    support@hsbl.com
+                                <a href="mailto:support@sbl.com" class="text-decoration-none">
+                                    support@sbl.com
                                 </a>
                             </div>
                             <div class="col-md-6 mb-2">

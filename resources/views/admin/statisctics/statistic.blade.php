@@ -1,6 +1,6 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Statistics - HSBL Admin')
+@section('title', 'Statistics - SBL Admin')
 
 @section('content')
 <div class="admin-main-content">
@@ -10,7 +10,7 @@
                 <i class="fas fa-chart-line me-2"></i>Statistics Dashboard
             </h1>
             <p class="admin-page-subtitle">
-                Comprehensive analytics and insights for HSBL tournament
+                Comprehensive analytics and insights for SBL tournament
             </p>
         </div>
     </div>

@@ -1,6 +1,6 @@
 @extends('user.layouts.app')
 
-@section('title', 'Photo Gallery - HSBL Riau Pos')
+@section('title', 'Photo Gallery - SBL Riau Pos')
 
 @section('content')
 <div class="min-h-screen">
@@ -9,7 +9,7 @@
         <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
                 <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-1">Photo Gallery</h1>
-                <p class="text-sm text-gray-600">Explore basketball moments from HSBL competitions</p>
+                <p class="text-sm text-gray-600">Explore basketball moments from SBL competitions</p>
             </div>
             <div class="flex items-center space-x-2">
                 <span class="text-xs text-gray-500">Total:</span>

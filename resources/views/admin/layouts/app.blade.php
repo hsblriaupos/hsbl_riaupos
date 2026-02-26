@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Admin - HSBL Riau Pos')</title>
+    <title>@yield('title', 'Admin - SBL Riau Pos')</title>
 
     {{-- Favicon --}}
     <link rel="icon" href="{{ asset('uploads/logo/hsbl.png') }}" type="image/png" />
@@ -454,8 +454,8 @@
             </button>
 
             <a href="{{ route('admin.dashboard') }}" class="d-flex align-items-center text-decoration-none">
-                <img src="{{ asset('uploads/logo/hsbl.png') }}" alt="HSBL Logo">
-                <h4 class="ms-3 mb-0 d-none d-sm-block">Riau Pos - Honda HSBL Administrator</h4>
+                <img src="{{ asset('uploads/logo/hsbl.png') }}" alt="SBL Logo">
+                <h4 class="ms-3 mb-0 d-none d-sm-block">Riau Pos - Honda SBL Administrator</h4>
             </a>
         </div>
         <div class="d-flex align-items-center">
@@ -577,7 +577,7 @@
 
             <!-- FOOTER -->
             <footer class="admin-footer">
-                <p class="mb-0">Copyright © {{ date('Y') }} HSBL Riau Pos. All Rights Reserved.</p>
+                <p class="mb-0">Copyright © {{ date('Y') }} SBL Riau Pos. All Rights Reserved.</p>
                 <p class="mb-0">Developed by: Mutia Rizkianti | Wafiq Wardatul Khairani</p>
             </footer>
         </main>

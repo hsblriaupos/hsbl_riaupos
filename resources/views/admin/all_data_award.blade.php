@@ -507,7 +507,7 @@
         <h1 class="page-title mt-2">
             <i class="fas fa-trophy me-2"></i> Award Management
         </h1>
-        <p class="page-subtitle">Manage award types and categories for HSBL competitions</p>
+        <p class="page-subtitle">Manage award types and categories for SBL competitions</p>
     </div>
 
     <!-- Form Tambah Award -->

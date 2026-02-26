@@ -1,6 +1,6 @@
 @extends('user.form.layout')
 
-@section('title', 'Daftar Tim HSBL')
+@section('title', 'Daftar Tim SBL')
 
 @section('content')
 <div class="container py-4">
@@ -9,7 +9,7 @@
             <!-- Header -->
             <div class="text-center mb-4">
                 <span class="badge bg-soft-primary text-primary px-3 py-1 mb-2 rounded-pill" style="font-size: 0.8rem;">
-                    🏀 HSBL Registration
+                    🏀 SBL Registration
                 </span>
                 <h2 class="fw-bold text-dark mb-2" style="font-size: 2rem;">Daftar Tim HSBL</h2>
                 <p class="text-muted" style="font-size: 1rem;">Pilih cara pendaftaran yang sesuai dengan kebutuhanmu!</p>

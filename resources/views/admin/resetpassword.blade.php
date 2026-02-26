@@ -1,5 +1,5 @@
 @extends('admin.layouts.app')
-@section('title', 'Reset User Password - HSBL Riau Pos')
+@section('title', 'Reset User Password - SBL Riau Pos')
 
 @section('content')
 
@@ -103,7 +103,7 @@
                         <div class="border rounded p-3 bg-light">
                             <pre id="whatsappMessage" class="mb-0">Halo {{ session('user_name') }},
 
-Password akun HSBL Riau Pos Anda telah direset.
+Password akun SBL Riau Pos Anda telah direset.
 
 Password sementara:
 {{ session('temp_password_show') }}
@@ -117,7 +117,7 @@ Password sementara:
 ⚠️ Password ini hanya sementara, segera ubah untuk keamanan akun Anda.
 
 Terima kasih,
-Admin HSBL Riau Pos</pre>
+Admin SBL Riau Pos</pre>
                         </div>
                     </div>
                 </div>

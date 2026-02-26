@@ -1,6 +1,6 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Dashboard - HSBL Administrator')
+@section('title', 'Dashboard - SBL Administrator')
 
 @section('content')
 <div class="container-fluid px-4">
@@ -373,7 +373,7 @@
     <div class="row mt-3">
         <div class="col-12">
             <div class="text-center text-secondary" style="font-size: 0.65rem;">
-                HSBL v2.0 • {{ now()->format('Y') }}
+                SBL v2.0 • {{ now()->format('Y') }}
             </div>
         </div>
     </div>
