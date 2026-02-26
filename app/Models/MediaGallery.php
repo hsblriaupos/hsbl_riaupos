@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class MediaGallery extends Model
 {
-    use HasFactory; // HAPUS SoftDeletes
+    use HasFactory;
 
     /**
      * Nama tabel yang digunakan.
@@ -24,6 +25,7 @@ class MediaGallery extends Model
     protected $fillable = [
         'school_name',
         'file',
+        'photo',
         'original_filename',
         'file_size',
         'file_type',
@@ -45,7 +47,20 @@ class MediaGallery extends Model
         'download_count' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        // HAPUS 'deleted_at' => 'datetime',
+    ];
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'formatted_file_size',
+        'photo_url',
+        'has_photo',
+        'season_series',
+        'photo_extension',
+        'status_badge',
     ];
 
     /**
@@ -70,6 +85,181 @@ class MediaGallery extends Model
         } else {
             return '0 bytes';
         }
+    }
+
+    /**
+     * Get photo URL - REVISED & FIXED
+     * Foto disimpan di storage/app/public/photos/cover/filename.jpg
+     * Database menyimpan: 'photos/cover/filename.jpg'
+     * URL yang benar: http://localhost:8000/storage/photos/cover/filename.jpg
+     *
+     * @return string|null
+     */
+    public function getPhotoUrlAttribute()
+    {
+        if (!$this->photo) {
+            return null;
+        }
+        
+        // Jika photo sudah berisi URL lengkap
+        if (filter_var($this->photo, FILTER_VALIDATE_URL)) {
+            return $this->photo;
+        }
+        
+        // Bersihkan path dari berbagai kemungkinan prefix yang tidak diinginkan
+        $cleanPath = $this->cleanPhotoPath($this->photo);
+        
+        // Return URL dengan prefix 'storage/'
+        return asset('storage/' . $cleanPath);
+    }
+
+    /**
+     * Clean photo path - Helper method
+     * Menghapus berbagai prefix yang tidak diinginkan dari path
+     *
+     * @param string $path
+     * @return string
+     */
+    protected function cleanPhotoPath($path)
+    {
+        if (empty($path)) {
+            return '';
+        }
+        
+        // Hapus 'public/' dari path jika ada
+        $cleanPath = str_replace('public/', '', $path);
+        
+        // Hapus 'storage/' dari path jika ada
+        $cleanPath = str_replace('storage/', '', $cleanPath);
+        
+        // Hapus 'photos/cover/' ganda jika ada (contoh: photos/cover/photos/cover/file.jpg)
+        $cleanPath = preg_replace('#^(photos/cover/)+#', 'photos/cover/', $cleanPath);
+        
+        // Hapus 'photos/cover' ganda di tengah path
+        $cleanPath = preg_replace('#(photos/cover){2,}#', 'photos/cover', $cleanPath);
+        
+        // Pastikan path dimulai dengan 'photos/cover/'
+        if (strpos($cleanPath, 'photos/cover/') !== 0) {
+            // Jika path hanya berisi nama file (tidak ada slash)
+            if (strpos($cleanPath, '/') === false) {
+                $cleanPath = 'photos/cover/' . $cleanPath;
+            }
+            // Jika path sudah memiliki folder lain, biarkan apa adanya
+            // (misalnya 'cover/filename.jpg' atau 'uploads/photo.jpg')
+        }
+        
+        // Bersihkan multiple slash
+        $cleanPath = preg_replace('#/+#', '/', $cleanPath);
+        
+        return $cleanPath;
+    }
+
+    /**
+     * Get photo storage path untuk pengecekan file
+     *
+     * @return string
+     */
+    protected function getPhotoStoragePath()
+    {
+        if (!$this->photo) {
+            return '';
+        }
+        
+        // Gunakan method yang sama untuk membersihkan path
+        return $this->cleanPhotoPath($this->photo);
+    }
+
+    /**
+     * Cek apakah memiliki foto - Menggunakan pengecekan file yang sebenarnya
+     *
+     * @return bool
+     */
+    public function getHasPhotoAttribute()
+    {
+        return $this->hasPhoto();
+    }
+
+    /**
+     * Cek apakah memiliki foto (method version) - IMPROVED
+     * Mengecek apakah file benar-benar ada di storage
+     *
+     * @return bool
+     */
+    public function hasPhoto()
+    {
+        if (is_null($this->photo) || $this->photo === '') {
+            return false;
+        }
+        
+        // Dapatkan path yang sudah dibersihkan
+        $path = $this->getPhotoStoragePath();
+        
+        if (empty($path)) {
+            return false;
+        }
+        
+        // Cek file di storage public disk
+        return Storage::disk('public')->exists($path);
+    }
+
+    /**
+     * Get photo extension.
+     *
+     * @return string|null
+     */
+    public function getPhotoExtensionAttribute()
+    {
+        if (!$this->photo) {
+            return null;
+        }
+        
+        $path = $this->cleanPhotoPath($this->photo);
+        return strtolower(pathinfo($path, PATHINFO_EXTENSION));
+    }
+
+    /**
+     * Cek apakah photo adalah gambar.
+     *
+     * @return bool
+     */
+    public function isPhotoImage()
+    {
+        if (!$this->photo) {
+            return false;
+        }
+        
+        $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'];
+        return in_array($this->photo_extension, $imageExtensions);
+    }
+
+    /**
+     * Get photo filename only (without path)
+     *
+     * @return string|null
+     */
+    public function getPhotoFilenameAttribute()
+    {
+        if (!$this->photo) {
+            return null;
+        }
+        
+        $path = $this->cleanPhotoPath($this->photo);
+        return basename($path);
+    }
+
+    /**
+     * Get photo directory path
+     *
+     * @return string|null
+     */
+    public function getPhotoDirectoryAttribute()
+    {
+        if (!$this->photo) {
+            return null;
+        }
+        
+        $path = $this->cleanPhotoPath($this->photo);
+        return dirname($path);
     }
 
     /**
@@ -121,6 +311,28 @@ class MediaGallery extends Model
     public function scopePublished($query)
     {
         return $query->where('status', 'published');
+    }
+
+    /**
+     * Scope untuk file yang memiliki photo.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeHasPhoto($query)
+    {
+        return $query->whereNotNull('photo')->where('photo', '!=', '');
+    }
+
+    /**
+     * Scope untuk file yang tidak memiliki photo.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeNoPhoto($query)
+    {
+        return $query->whereNull('photo')->orWhere('photo', '');
     }
 
     /**
@@ -236,6 +448,16 @@ class MediaGallery extends Model
      */
     public function getStatusBadgeAttribute()
     {
+        return $this->getStatusBadge();
+    }
+
+    /**
+     * Dapatkan status badge (method version).
+     *
+     * @return array
+     */
+    public function getStatusBadge()
+    {
         $badges = [
             'draft' => [
                 'class' => 'bg-warning bg-opacity-20 text-warning border border-warning border-opacity-50',
@@ -259,5 +481,113 @@ class MediaGallery extends Model
             'icon' => 'fas fa-question-circle',
             'text' => ucfirst($this->status)
         ];
+    }
+
+    /**
+     * Get file URL - Untuk ZIP file
+     *
+     * @return string|null
+     */
+    public function getFileUrlAttribute()
+    {
+        if (!$this->file) {
+            return null;
+        }
+        
+        // Jika file sudah berisi URL lengkap
+        if (filter_var($this->file, FILTER_VALIDATE_URL)) {
+            return $this->file;
+        }
+        
+        // Hapus 'public/' dari path jika ada
+        $cleanPath = str_replace('public/', '', $this->file);
+        
+        // Hapus 'storage/' dari path jika ada
+        $cleanPath = str_replace('storage/', '', $cleanPath);
+        
+        return asset('storage/' . $cleanPath);
+    }
+
+    /**
+     * Cek apakah file ZIP ada di storage
+     *
+     * @return bool
+     */
+    public function hasFile()
+    {
+        if (is_null($this->file) || $this->file === '') {
+            return false;
+        }
+        
+        // Hapus 'public/' dari path jika ada
+        $cleanPath = str_replace('public/', '', $this->file);
+        
+        // Hapus 'storage/' dari path jika ada
+        $cleanPath = str_replace('storage/', '', $cleanPath);
+        
+        return Storage::disk('public')->exists($cleanPath);
+    }
+
+    /**
+     * Debug method - Untuk melihat path yang sebenarnya
+     * Hanya digunakan untuk debugging
+     *
+     * @return array
+     */
+    public function getPhotoDebugInfo()
+    {
+        return [
+            'original_photo' => $this->photo,
+            'cleaned_path' => $this->cleanPhotoPath($this->photo),
+            'storage_path' => $this->getPhotoStoragePath(),
+            'full_storage_path' => $this->photo ? Storage::disk('public')->path($this->getPhotoStoragePath()) : null,
+            'exists_in_storage' => $this->hasPhoto(),
+            'photo_url' => $this->photo_url,
+            'photo_filename' => $this->photo_filename,
+            'photo_extension' => $this->photo_extension,
+        ];
+    }
+
+    /**
+     * Boot the model.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Event ketika model akan dihapus
+        static::deleting(function ($gallery) {
+            // Hapus file photo jika ada
+            if ($gallery->photo) {
+                $photoPath = $gallery->getPhotoStoragePath();
+                
+                if (Storage::disk('public')->exists($photoPath)) {
+                    Storage::disk('public')->delete($photoPath);
+                }
+            }
+            
+            // Hapus file ZIP jika ada
+            if ($gallery->file) {
+                $filePath = str_replace('public/', '', $gallery->file);
+                $filePath = str_replace('storage/', '', $filePath);
+                
+                if (Storage::disk('public')->exists($filePath)) {
+                    Storage::disk('public')->delete($filePath);
+                }
+            }
+        });
+
+        // Event ketika model disimpan
+        static::saved(function ($gallery) {
+            // Log untuk debugging jika diperlukan
+            if (config('app.debug') && $gallery->photo) {
+                \Log::info('Gallery saved with photo:', [
+                    'id' => $gallery->id,
+                    'photo' => $gallery->photo,
+                    'photo_url' => $gallery->photo_url,
+                    'has_photo' => $gallery->hasPhoto()
+                ]);
+            }
+        });
     }
 }

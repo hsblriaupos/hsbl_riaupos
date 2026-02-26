@@ -30,7 +30,7 @@
             <h1 class="page-title">
                 <i class="fas fa-images text-primary me-2"></i> Add New Photo Gallery
             </h1>
-            <p class="page-subtitle">Upload photo gallery ZIP file (max 5GB)</p>
+            <p class="page-subtitle">Upload photo gallery ZIP file (max 5GB) with cover photo</p>
         </div>
         
         <!-- Action Buttons -->
@@ -129,6 +129,65 @@
                             </div>
                         </div>
 
+                        {{-- Cover Photo Upload --}}
+                        <div class="mb-4">
+                            <label for="photo" class="form-label fw-semibold">
+                                <i class="fas fa-camera text-success me-2"></i> Cover Photo
+                                <span class="text-danger">*</span>
+                            </label>
+                            
+                            {{-- Cover Photo Warning --}}
+                            <div id="photoWarning" class="alert alert-warning border-warning bg-warning bg-opacity-10 d-none mb-3">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    <span>Cover photo is required. Maximum size: 5MB. Supported formats: JPG, PNG, GIF, WEBP</span>
+                                </div>
+                            </div>
+                            
+                            <div class="card border-dashed" id="photoContainer">
+                                <div class="card-body text-center p-4">
+                                    {{-- Photo Preview --}}
+                                    <div id="photoPreview" class="mb-3 d-none">
+                                        <div class="position-relative d-inline-block">
+                                            <img id="photoImage" 
+                                                 src="#" 
+                                                 alt="Cover Preview" 
+                                                 class="img-fluid rounded mb-3" 
+                                                 style="max-height: 200px; object-fit: cover;">
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2"
+                                                    onclick="removePhoto()">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                        <div class="photo-info bg-light p-3 rounded mb-3">
+                                            <p class="mb-1" id="photoNameDisplay">-</p>
+                                            <p class="mb-0 small text-muted" id="photoSizeDisplay">-</p>
+                                        </div>
+                                    </div>
+
+                                    {{-- Upload Area --}}
+                                    <div id="photoUploadArea" class="{{ old('photo') ? 'd-none' : '' }}">
+                                        <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-3"></i>
+                                        <p class="small text-muted mb-3">Click to upload cover photo (max 5MB)</p>
+                                        <p class="text-muted mb-3">
+                                            <small>Supported formats: JPG, PNG, GIF, WEBP</small>
+                                        </p>
+                                        <input id="photo" 
+                                               name="photo" 
+                                               type="file" 
+                                               accept="image/jpeg,image/png,image/gif,image/webp,image/jpg"
+                                               class="form-control d-none"
+                                               onchange="previewPhoto(event)">
+                                        <label for="photo" 
+                                               class="btn btn-outline-success btn-sm cursor-pointer">
+                                            <i class="fas fa-camera me-2"></i> Choose Cover Photo
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         {{-- ZIP File Upload --}}
                         <div class="mb-4">
                             <label for="file" class="form-label fw-semibold">
@@ -173,21 +232,12 @@
                                                class="form-control d-none"
                                                onchange="previewFile(event)">
                                         <label for="file" 
-                                               class="btn btn-outline-primary btn-sm cursor-pointer">
+                                               class="btn btn-outline-warning btn-sm cursor-pointer">
                                             <i class="fas fa-upload me-2"></i> Choose ZIP File
                                         </label>
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-text">
-                                <small class="text-muted">
-                                    <i class="fas fa-info-circle me-1"></i>
-                                    Maximum file size: 5GB. Supported formats: ZIP, RAR, 7Z. Original filename will be preserved.
-                                </small>
-                            </div>
-                            @error('file')
-                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                            @enderror
                         </div>
 
                         {{-- Description --}}
@@ -219,6 +269,31 @@
 
                     {{-- Right Column --}}
                     <div class="col-lg-4">
+                        {{-- Cover Photo Preview Card --}}
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-image text-success me-2"></i> Cover Photo Preview
+                            </label>
+                            <div class="card bg-light" id="coverPreviewCard">
+                                <div class="card-body p-3 text-center">
+                                    <div id="coverPreview">
+                                        <i class="fas fa-camera fa-3x text-muted mb-3"></i>
+                                        <p class="small text-muted mb-0">
+                                            Cover photo preview will appear here
+                                        </p>
+                                    </div>
+                                    <div id="coverImagePreview" class="d-none">
+                                        <img id="coverImage" 
+                                             src="#" 
+                                             alt="Cover" 
+                                             class="img-fluid rounded" 
+                                             style="max-height: 150px; width: 100%; object-fit: cover;">
+                                        <p class="mt-2 small text-muted" id="coverImageInfo"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         {{-- Competition Dropdown --}}
                         <div class="mb-4">
                             <label for="competition" class="form-label fw-semibold">
@@ -399,7 +474,7 @@
             <ul class="list-unstyled mb-0">
                 <li class="mb-2">
                     <i class="fas fa-check-circle text-success me-2"></i>
-                    <small>Select school from registered teams or use "Other" for custom input</small>
+                    <small><span class="text-danger fw-bold">Cover photo is required</span> - maximum size 5MB (JPG, PNG, GIF, WEBP)</small>
                 </li>
                 <li class="mb-2">
                     <i class="fas fa-check-circle text-success me-2"></i>
@@ -411,11 +486,11 @@
                 </li>
                 <li class="mb-2">
                     <i class="fas fa-check-circle text-success me-2"></i>
-                    <small>Competition, Season, and Series are automatically populated from team data</small>
+                    <small>Select school from registered teams or use "Other" for custom input</small>
                 </li>
                 <li class="mb-2">
                     <i class="fas fa-check-circle text-success me-2"></i>
-                    <small>Description is optional but recommended for better organization</small>
+                    <small>Competition, Season, and Series are automatically populated from team data</small>
                 </li>
                 <li>
                     <i class="fas fa-check-circle text-success me-2"></i>
@@ -461,9 +536,18 @@
         background-color: #e9ecef;
     }
 
+    .card.border-success {
+        border-color: #28a745 !important;
+    }
+
     .card.border-danger {
         border-color: #dc3545 !important;
         animation: pulse-border 1.5s infinite;
+    }
+
+    .card.border-warning {
+        border-color: #ffc107 !important;
+        animation: pulse-border-warning 1.5s infinite;
     }
 
     @keyframes pulse-border {
@@ -478,6 +562,21 @@
         100% {
             border-color: #dc3545;
             box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+        }
+    }
+
+    @keyframes pulse-border-warning {
+        0% {
+            border-color: #ffc107;
+            box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4);
+        }
+        70% {
+            border-color: #ffc107;
+            box-shadow: 0 0 0 10px rgba(255, 193, 7, 0);
+        }
+        100% {
+            border-color: #ffc107;
+            box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
         }
     }
 
@@ -499,6 +598,11 @@
     .btn-outline-warning:hover {
         background-color: #ffc107;
         color: #000;
+    }
+
+    .btn-outline-success:hover {
+        background-color: #28a745;
+        color: #fff;
     }
 
     .border-top {
@@ -538,8 +642,17 @@
         border-color: #2980b9;
     }
 
-    .file-info {
+    .file-info, .photo-info {
         border-left: 3px solid #3498db;
+    }
+
+    .photo-info {
+        border-left-color: #28a745;
+    }
+
+    #photoImage {
+        border: 3px solid #28a745;
+        border-radius: 8px;
     }
 
     @media (max-width: 768px) {
@@ -590,8 +703,9 @@
 </style>
 
 <script>
-    // Track if file is uploaded
+    // Track if files are uploaded
     let fileUploaded = false;
+    let photoUploaded = false;
     let originalFilename = '';
     
     // School dropdown change handler
@@ -603,6 +717,100 @@
             manualInput.classList.add('d-none');
         }
     });
+    
+    // Photo Preview Functionality
+    function previewPhoto(event) {
+        const input = event.target;
+        const preview = document.getElementById('photoPreview');
+        const uploadArea = document.getElementById('photoUploadArea');
+        const photoWarning = document.getElementById('photoWarning');
+        const photoContainer = document.getElementById('photoContainer');
+        const coverPreview = document.getElementById('coverPreview');
+        const coverImagePreview = document.getElementById('coverImagePreview');
+        const coverImage = document.getElementById('coverImage');
+        
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            
+            // Check file size
+            if (file.size > maxSize) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'File Too Large',
+                    text: 'Cover photo size should not exceed 5MB',
+                    confirmButtonColor: '#3498db'
+                });
+                input.value = '';
+                return;
+            }
+            
+            // Check file type
+            const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/jpg'];
+            if (!validTypes.includes(file.type)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid File Type',
+                    text: 'Please upload a JPG, PNG, GIF, or WEBP image',
+                    confirmButtonColor: '#3498db'
+                });
+                input.value = '';
+                return;
+            }
+            
+            // Read and display image preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('photoImage').src = e.target.result;
+                coverImage.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+            
+            // Update photo info
+            document.getElementById('photoNameDisplay').textContent = file.name;
+            document.getElementById('photoSizeDisplay').textContent = formatBytes(file.size);
+            
+            // Update cover preview
+            coverPreview.classList.add('d-none');
+            coverImagePreview.classList.remove('d-none');
+            document.getElementById('coverImageInfo').textContent = `${file.name} (${formatBytes(file.size)})`;
+            
+            // Show preview and hide upload area
+            preview.classList.remove('d-none');
+            uploadArea.classList.add('d-none');
+            
+            // Hide warning and add success border
+            photoWarning.classList.add('d-none');
+            photoContainer.classList.remove('border-warning', 'border-danger');
+            photoContainer.classList.add('border-success');
+            photoUploaded = true;
+        }
+    }
+    
+    function removePhoto() {
+        const preview = document.getElementById('photoPreview');
+        const uploadArea = document.getElementById('photoUploadArea');
+        const photoInput = document.getElementById('photo');
+        const photoWarning = document.getElementById('photoWarning');
+        const photoContainer = document.getElementById('photoContainer');
+        const coverPreview = document.getElementById('coverPreview');
+        const coverImagePreview = document.getElementById('coverImagePreview');
+        
+        preview.classList.add('d-none');
+        uploadArea.classList.remove('d-none');
+        photoInput.value = '';
+        
+        // Reset cover preview
+        coverPreview.classList.remove('d-none');
+        coverImagePreview.classList.add('d-none');
+        document.getElementById('coverImage').src = '#';
+        
+        // Show warning and add warning border
+        photoWarning.classList.remove('d-none');
+        photoContainer.classList.remove('border-success');
+        photoContainer.classList.add('border-warning');
+        photoUploaded = false;
+    }
     
     // File Preview Functionality
     function previewFile(event) {
@@ -694,10 +902,10 @@
             if (!descriptionInput.value.trim()) {
                 const school = schoolSelect.value === 'other' 
                     ? document.getElementById('manual_school_name').value 
-                    : schoolSelect.options[schoolSelect.selectedIndex].text;
-                const competition = competitionSelect.options[competitionSelect.selectedIndex].text;
-                const season = seasonSelect.options[seasonSelect.selectedIndex].text;
-                const series = seriesSelect.options[seriesSelect.selectedIndex].text;
+                    : schoolSelect.options[schoolSelect.selectedIndex]?.text || '';
+                const competition = competitionSelect.options[competitionSelect.selectedIndex]?.text || '';
+                const season = seasonSelect.options[seasonSelect.selectedIndex]?.text || '';
+                const series = seriesSelect.options[seriesSelect.selectedIndex]?.text || '';
                 
                 if (school && competition && season && series) {
                     const autoDescription = `Photo gallery for ${school} - ${competition} ${season} ${series}`;
@@ -794,6 +1002,7 @@
     function resetForm() {
         document.getElementById('galleryForm').reset();
         removeFile();
+        removePhoto();
         
         // Reset manual school input
         document.getElementById('manualSchoolInput').classList.add('d-none');
@@ -801,11 +1010,44 @@
         // Reset character count
         updateCharCount();
         
-        // Show file warning
+        // Show warnings
         const fileWarning = document.getElementById('fileWarning');
         const fileContainer = document.getElementById('fileContainer');
         fileWarning.classList.remove('d-none');
         fileContainer.classList.add('border-danger');
+        
+        const photoWarning = document.getElementById('photoWarning');
+        const photoContainer = document.getElementById('photoContainer');
+        photoWarning.classList.remove('d-none');
+        photoContainer.classList.add('border-warning');
+        photoContainer.classList.remove('border-success');
+    }
+    
+    // Validate photo
+    function validatePhoto() {
+        const photoInput = document.getElementById('photo');
+        const photoWarning = document.getElementById('photoWarning');
+        const photoContainer = document.getElementById('photoContainer');
+        
+        if (!photoUploaded && photoInput.files.length === 0) {
+            photoWarning.classList.remove('d-none');
+            photoContainer.classList.add('border-warning');
+            photoContainer.classList.remove('border-success');
+            
+            photoContainer.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center'
+            });
+            
+            photoContainer.style.animation = 'shake 0.5s';
+            setTimeout(() => {
+                photoContainer.style.animation = '';
+            }, 500);
+            
+            return false;
+        }
+        
+        return true;
     }
     
     // Validate file
@@ -814,19 +1056,15 @@
         const fileWarning = document.getElementById('fileWarning');
         const fileContainer = document.getElementById('fileContainer');
         
-        // Check if file is uploaded
         if (!fileUploaded && fileInput.files.length === 0) {
-            // Show warning and highlight
             fileWarning.classList.remove('d-none');
             fileContainer.classList.add('border-danger');
             
-            // Scroll to file section
             fileContainer.scrollIntoView({ 
                 behavior: 'smooth', 
                 block: 'center'
             });
             
-            // Shake animation for attention
             fileContainer.style.animation = 'shake 0.5s';
             setTimeout(() => {
                 fileContainer.style.animation = '';
@@ -835,7 +1073,6 @@
             return false;
         }
         
-        // Hide warning if file exists
         fileWarning.classList.add('d-none');
         fileContainer.classList.remove('border-danger');
         return true;
@@ -847,7 +1084,6 @@
         const manualInput = document.getElementById('manual_school_name');
         
         if (schoolSelect.value === 'other') {
-            // Check manual input
             if (!manualInput.value.trim()) {
                 Swal.fire({
                     icon: 'error',
@@ -921,9 +1157,38 @@
         // Validate all required fields
         if (!validateSchool()) return false;
         if (!validateDropdowns()) return false;
+        if (!validatePhoto()) return false;
         if (!validateFile()) return false;
         
-        // Validate file size and type again
+        // Validate photo file again
+        const photoInput = document.getElementById('photo');
+        if (photoInput.files.length > 0) {
+            const file = photoInput.files[0];
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            
+            if (file.size > maxSize) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Photo Too Large',
+                    text: 'Cover photo size should not exceed 5MB',
+                    confirmButtonColor: '#3498db'
+                });
+                return false;
+            }
+            
+            const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/jpg'];
+            if (!validTypes.includes(file.type)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid Photo Type',
+                    text: 'Please upload a JPG, PNG, GIF, or WEBP image',
+                    confirmButtonColor: '#3498db'
+                });
+                return false;
+            }
+        }
+        
+        // Validate ZIP file again
         const fileInput = document.getElementById('file');
         if (fileInput.files.length > 0) {
             const file = fileInput.files[0];
@@ -961,7 +1226,7 @@
                   '<p class="mb-2">Are you sure you want to save this photo gallery?</p>' +
                   '<p class="mb-0 small text-muted">' +
                   '<i class="fas fa-info-circle me-1"></i>' +
-                  'The ZIP file will be uploaded to the server.' +
+                  'The cover photo and ZIP file will be uploaded to the server.' +
                   '</p>' +
                   '</div>',
             icon: 'question',
@@ -999,6 +1264,12 @@
         const fileContainer = document.getElementById('fileContainer');
         fileWarning.classList.remove('d-none');
         fileContainer.classList.add('border-danger');
+        
+        // Show photo warning initially
+        const photoWarning = document.getElementById('photoWarning');
+        const photoContainer = document.getElementById('photoContainer');
+        photoWarning.classList.remove('d-none');
+        photoContainer.classList.add('border-warning');
         
         // Initialize character count
         updateCharCount();

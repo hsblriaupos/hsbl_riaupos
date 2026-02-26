@@ -372,6 +372,57 @@
         .page-header + .content-wrapper {
             margin-top: 0.5rem; /* 8px jika ada page header */
         }
+
+        /* JARAK ANTARA KONTEN DAN SPONSOR */
+        .content-bottom-spacing {
+            margin-bottom: 2rem; /* 32px jarak default */
+        }
+
+        @media (min-width: 640px) {
+            .content-bottom-spacing {
+                margin-bottom: 3rem; /* 48px pada tablet */
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .content-bottom-spacing {
+                margin-bottom: 4rem; /* 64px pada desktop */
+            }
+        }
+
+        /* Sponsor section dengan background yang sama dengan konten */
+        .sponsor-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 3rem 0;
+        }
+
+        @media (min-width: 640px) {
+            .sponsor-section {
+                padding: 4rem 0;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .sponsor-section {
+                padding: 5rem 0;
+            }
+        }
+
+        /* Sponsor card dengan background putih agar logo terlihat jelas */
+        .sponsor-card-bg {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(59, 130, 246, 0.1);
+        }
+
+        .sponsor-card-bg:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(59, 130, 246, 0.15);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
     </style>
 
     @stack('styles')
@@ -676,16 +727,16 @@
         </div>
     </div>
 
-    {{-- ==================== MAIN CONTENT with adjusted mobile margin ==================== --}}
-    <main class="flex-grow w-full animate-fadeInUp content-wrapper">
+    {{-- ==================== MAIN CONTENT with margin bottom untuk jarak ke sponsor ==================== --}}
+    <main class="flex-grow w-full animate-fadeInUp content-wrapper content-bottom-spacing">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {{-- Page Content --}}
             @yield('content')
         </div>
     </main>
 
-    {{-- ==================== SPONSORS SECTION (Background Putih) ==================== --}}
-    <div class="w-full bg-white py-8">
+    {{-- ==================== SPONSORS SECTION (Background sama dengan konten) ==================== --}}
+    <div class="sponsor-section">
         <div class="max-w-7xl mx-auto px-6">
             <div class="mb-8">
                 @php
@@ -729,9 +780,9 @@
                                     @foreach($groupedSponsors[$matchingKey]->sortBy('created_at') as $sponsor)
                                         <a href="{{ $sponsor->sponsors_web ?? '#' }}" 
                                            target="_blank" 
-                                           class="sponsor-card transform transition-transform duration-300 hover:scale-105">
+                                           class="transform transition-transform duration-300 hover:scale-105">
                                             @if($sponsor->logo)
-                                                <div class="bg-white p-2 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100">
+                                                <div class="sponsor-card-bg">
                                                     <img
                                                         src="{{ asset('uploads/sponsors/' . $sponsor->logo) }}"
                                                         alt="{{ $sponsor->sponsor_name }}"
@@ -739,7 +790,7 @@
                                                     />
                                                 </div>
                                             @else
-                                                <div class="h-10 bg-gray-50 rounded-lg flex items-center justify-center px-3 border border-gray-200">
+                                                <div class="sponsor-card-bg px-3">
                                                     <span class="text-xs font-medium text-gray-700">{{ $sponsor->sponsor_name }}</span>
                                                 </div>
                                             @endif
@@ -777,9 +828,9 @@
                                     @foreach($groupedSponsors[$otherCategory]->sortBy('created_at') as $sponsor)
                                         <a href="{{ $sponsor->sponsors_web ?? '#' }}" 
                                            target="_blank" 
-                                           class="sponsor-card transform transition-transform duration-300 hover:scale-105">
+                                           class="transform transition-transform duration-300 hover:scale-105">
                                             @if($sponsor->logo)
-                                                <div class="bg-white p-2 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100">
+                                                <div class="sponsor-card-bg">
                                                     <img
                                                         src="{{ asset('uploads/sponsors/' . $sponsor->logo) }}"
                                                         alt="{{ $sponsor->sponsor_name }}"
@@ -787,7 +838,7 @@
                                                     />
                                                 </div>
                                             @else
-                                                <div class="h-10 bg-gray-50 rounded-lg flex items-center justify-center px-3 border border-gray-200">
+                                                <div class="sponsor-card-bg px-3">
                                                     <span class="text-xs font-medium text-gray-700">{{ $sponsor->sponsor_name }}</span>
                                                 </div>
                                             @endif

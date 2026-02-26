@@ -18,11 +18,11 @@
         </div>
     </div>
 
-    <!-- Compact Search and Filter Section - ALL IN ONE BAR -->
+    <!-- Compact Search and Filter Section -->
     <div class="mb-8">
         <div class="bg-white rounded-lg shadow-sm p-3">
             <div class="flex flex-wrap items-center gap-2">
-                <!-- Search Input - Compact -->
+                <!-- Search Input -->
                 <div class="relative flex-1 min-w-[200px]">
                     <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
                         <i class="fas fa-search text-gray-400 text-xs"></i>
@@ -40,7 +40,7 @@
                     @endif
                 </div>
                 
-                <!-- Competition Filter - Compact -->
+                <!-- Competition Filter -->
                 <div class="relative w-36">
                     <select id="competitionFilter" 
                             class="appearance-none w-full px-3 py-2 pr-8 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 cursor-pointer">
@@ -54,7 +54,7 @@
                     </div>
                 </div>
                 
-                <!-- Season Filter - Compact -->
+                <!-- Season Filter -->
                 <div class="relative w-28">
                     <select id="seasonFilter" 
                             class="appearance-none w-full px-3 py-2 pr-8 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 cursor-pointer">
@@ -68,7 +68,7 @@
                     </div>
                 </div>
                 
-                <!-- Series Filter - Compact -->
+                <!-- Series Filter -->
                 <div class="relative w-28">
                     <select id="seriesFilter" 
                             class="appearance-none w-full px-3 py-2 pr-8 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 cursor-pointer">
@@ -82,7 +82,7 @@
                     </div>
                 </div>
                 
-                <!-- Sort Dropdown - Compact -->
+                <!-- Sort Dropdown -->
                 <div class="relative w-32">
                     <select id="sortSelect" 
                             class="appearance-none w-full px-3 py-2 pr-8 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 cursor-pointer">
@@ -96,14 +96,14 @@
                     </div>
                 </div>
                 
-                <!-- Apply Button - Compact -->
+                <!-- Apply Button -->
                 <button onclick="applyFilters()"
                         class="px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors duration-200 flex items-center">
                     <i class="fas fa-check mr-1 text-xs"></i>
                     Apply
                 </button>
                 
-                <!-- Reset Button (Visible when filters are active) -->
+                <!-- Reset Button -->
                 <button id="resetButton" 
                         onclick="resetAllFilters()"
                         class="px-3 py-2 border border-red-200 text-red-600 text-sm rounded-lg bg-red-50 hover:bg-red-100 transition-colors duration-200 flex items-center {{ $hasActiveFilters ? '' : 'hidden' }}">
@@ -121,32 +121,12 @@
         </div>
     </div>
 
-    <!-- Gallery Grid (REST OF THE CONTENT REMAINS THE SAME) -->
+    <!-- Gallery Grid -->
     <div class="mb-10">
         @if($galleries->count() > 0)
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
                 @foreach($galleries as $gallery)
                     @php
-                        // Generate random basketball-themed image URL based on school name
-                        $schoolHash = crc32($gallery->school_name);
-                        $imageIndex = ($schoolHash % 12) + 1;
-                        
-                        $basketballImages = [
-                            'https://images.unsplash.com/photo-1544919982-b61976a0d7ed?w=800&h=600&fit=crop&auto=format',
-                            'https://images.unsplash.com/photo-1519861531473-920034658307?w=800&h=600&fit=crop&auto=format',
-                            'https://images.unsplash.com/photo-1516906571665-49af58989c4e?w=800&h=600&fit=crop&auto=format',
-                            'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=800&h=600&fit=crop&auto=format',
-                            'https://images.unsplash.com/photo-1518406432532-9cbef5697723?w=800&h=600&fit=crop&auto=format',
-                            'https://images.unsplash.com/photo-1575361204480-aadea25e6e68?w=800&h=600&fit=crop&auto=format',
-                            'https://images.unsplash.com/photo-1549242484-9a322b5d3a9b?w=800&h=600&fit=crop&auto=format',
-                            'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop&auto=format',
-                            'https://images.unsplash.com/photo-1551958219-acbc608c6377?w=800&h=600&fit=crop&auto=format',
-                            'https://images.unsplash.com/photo-1534158914592-062992fbe900?w=800&h=600&fit=crop&auto=format',
-                            'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800&h=600&fit=crop&auto=format',
-                            'https://images.unsplash.com/photo-1542744095-fcf48d80b0fd?w=800&h=600&fit=crop&auto=format',
-                        ];
-                        $coverImage = $basketballImages[$imageIndex - 1];
-                        
                         // Format file size
                         $fileSize = '';
                         if ($gallery->file_size) {
@@ -157,22 +137,46 @@
                             }
                         }
                         
+                        // Get file extension
+                        $fileExt = $gallery->file_type ? strtoupper(pathinfo($gallery->original_filename, PATHINFO_EXTENSION)) : 'ZIP';
+                        
                         // Generate download URL
                         $downloadUrl = route('user.gallery.photos.download', ['id' => $gallery->id]);
                     @endphp
                     
                     <div class="gallery-card group relative bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden cursor-pointer"
                          onclick="showGalleryDetails({{ $gallery->id }})"
+                         data-gallery-id="{{ $gallery->id }}"
                          data-school="{{ strtolower($gallery->school_name) }}"
                          data-competition="{{ strtolower($gallery->competition) }}"
                          data-season="{{ strtolower($gallery->season) }}"
                          data-series="{{ strtolower($gallery->series) }}"
-                         data-download-url="{{ $downloadUrl }}">
+                         data-download-url="{{ $downloadUrl }}"
+                         data-has-photo="{{ $gallery->hasPhoto() ? 'true' : 'false' }}">
+                        
                         <!-- Cover Image -->
-                        <div class="relative h-40 overflow-hidden">
-                            <img src="{{ $coverImage }}" 
-                                 alt="{{ $gallery->school_name }} Basketball Gallery" 
-                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <div class="relative h-40 overflow-hidden bg-gray-100">
+                            @if($gallery->hasPhoto() && $gallery->photo_url)
+                                <img src="{{ $gallery->photo_url }}" 
+                                     alt="{{ $gallery->school_name }} Gallery Cover" 
+                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                     onerror="this.onerror=null; this.classList.add('hidden'); this.parentElement.querySelector('.fallback-placeholder').classList.remove('hidden');">
+                                <div class="fallback-placeholder hidden w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+                                    <div class="text-center">
+                                        <i class="fas fa-image text-blue-300 text-4xl mb-1"></i>
+                                        <p class="text-xs text-gray-400">Cover unavailable</p>
+                                    </div>
+                                </div>
+                            @else
+                                <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+                                    <div class="text-center">
+                                        <i class="fas fa-images text-blue-300 text-4xl mb-1"></i>
+                                        <p class="text-xs text-gray-400">No cover</p>
+                                    </div>
+                                </div>
+                            @endif
+                            
+                            <!-- Overlay -->
                             <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             
                             <!-- Download Count Badge -->
@@ -184,15 +188,26 @@
                             <!-- ZIP File Badge -->
                             <div class="absolute bottom-2 left-2">
                                 <span class="px-1.5 py-0.5 bg-blue-500 text-white text-xs font-semibold rounded-full">
-                                    <i class="fas fa-file-archive mr-0.5 text-xs"></i>ZIP
+                                    <i class="fas fa-file-archive mr-0.5 text-xs"></i>{{ $fileExt }}
                                 </span>
                             </div>
+
+                            <!-- Has Cover Indicator -->
+                            @if($gallery->hasPhoto())
+                                <div class="absolute top-2 left-2">
+                                    <span class="px-1.5 py-0.5 bg-green-500 text-white text-xs font-semibold rounded-full">
+                                        <i class="fas fa-camera mr-0.5 text-xs"></i>Cover
+                                    </span>
+                                </div>
+                            @endif
                         </div>
                         
                         <!-- Card Content -->
                         <div class="p-3">
                             <!-- School Name -->
-                            <h3 class="text-sm font-bold text-gray-800 mb-1 line-clamp-1">{{ $gallery->school_name }}</h3>
+                            <h3 class="text-sm font-bold text-gray-800 mb-1 line-clamp-1" title="{{ $gallery->school_name }}">
+                                {{ $gallery->school_name }}
+                            </h3>
                             
                             <!-- Competition -->
                             <div class="flex items-center mb-2">
@@ -204,7 +219,7 @@
                             <div class="flex items-center justify-between text-xs text-gray-500">
                                 <div class="flex items-center">
                                     <i class="far fa-file mr-1"></i>
-                                    <span>{{ $gallery->file_type ? strtoupper(pathinfo($gallery->original_filename, PATHINFO_EXTENSION)) : 'ZIP' }}</span>
+                                    <span>{{ $fileExt }}</span>
                                 </div>
                                 @if($fileSize)
                                     <div class="flex items-center">
@@ -256,7 +271,7 @@
         @endif
     </div>
 
-    <!-- Statistics Section - Compact -->
+    <!-- Statistics Section -->
     <div class="bg-white rounded-lg shadow-sm p-4 mb-8">
         <h2 class="text-sm font-bold text-gray-800 mb-3">Gallery Statistics</h2>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -279,7 +294,7 @@
                     </div>
                     <div>
                         <p class="text-xs text-gray-600">Downloads</p>
-                        <p class="text-lg font-bold text-gray-800">{{ $galleries->sum('download_count') }}</p>
+                        <p class="text-lg font-bold text-gray-800">{{ $totalDownloads ?? $galleries->sum('download_count') }}</p>
                     </div>
                 </div>
             </div>
@@ -311,8 +326,118 @@
     </div>
 </div>
 
-<!-- Gallery Details Modal (SAME AS ORIGINAL, OMITTED FOR BREVITY) -->
-<!-- ... modal content remains exactly the same ... -->
+<!-- Gallery Details Modal -->
+<div id="galleryModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+        <!-- Background overlay -->
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeModal()"></div>
+
+        <!-- Modal panel -->
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="sm:flex sm:items-start">
+                    <!-- Cover Image Column -->
+                    <div class="sm:w-2/5 mb-4 sm:mb-0 sm:mr-4">
+                        <div class="rounded-lg overflow-hidden bg-gray-100 h-48 sm:h-auto flex items-center justify-center relative" id="modalCoverContainer">
+                            <img id="modalCoverImage" 
+                                 src="" 
+                                 alt="Gallery Cover" 
+                                 class="w-full h-full object-cover hidden"
+                                 onerror="this.onerror=null; this.classList.add('hidden'); document.getElementById('modalCoverPlaceholder').classList.remove('hidden');">
+                            <div id="modalCoverPlaceholder" class="w-full h-full flex items-center justify-center">
+                                <i class="fas fa-images text-gray-300 text-5xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Details Column -->
+                    <div class="sm:w-3/5">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-lg leading-6 font-bold text-gray-900" id="modalSchoolName"></h3>
+                            <button onclick="closeModal()" class="text-gray-400 hover:text-gray-500">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <!-- Competition -->
+                            <div class="flex items-start">
+                                <div class="w-24 text-xs text-gray-500">Competition:</div>
+                                <div class="flex-1 text-sm font-medium" id="modalCompetition"></div>
+                            </div>
+                            
+                            <!-- Season/Series -->
+                            <div class="flex items-start">
+                                <div class="w-24 text-xs text-gray-500">Season/Series:</div>
+                                <div class="flex-1 text-sm" id="modalSeasonSeries"></div>
+                            </div>
+                            
+                            <!-- File Name -->
+                            <div class="flex items-start">
+                                <div class="w-24 text-xs text-gray-500">File Name:</div>
+                                <div class="flex-1 text-sm break-all" id="modalFilename"></div>
+                            </div>
+                            
+                            <!-- File Info Row -->
+                            <div class="flex items-start">
+                                <div class="w-24 text-xs text-gray-500">File Info:</div>
+                                <div class="flex-1">
+                                    <span class="text-sm" id="modalFileSize"></span>
+                                    <span class="text-xs text-gray-400 mx-1">•</span>
+                                    <span class="text-sm" id="modalFileType"></span>
+                                </div>
+                            </div>
+                            
+                            <!-- Downloads -->
+                            <div class="flex items-start">
+                                <div class="w-24 text-xs text-gray-500">Downloads:</div>
+                                <div class="flex-1">
+                                    <span class="text-sm font-semibold text-blue-600" id="modalDownloads">0</span>
+                                    <span class="text-xs text-gray-500"> times</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Status -->
+                            <div class="flex items-start">
+                                <div class="w-24 text-xs text-gray-500">Status:</div>
+                                <div class="flex-1">
+                                    <span id="modalStatus" class="px-2 py-1 rounded-full text-xs font-medium"></span>
+                                </div>
+                            </div>
+                            
+                            <!-- Upload Date -->
+                            <div class="flex items-start">
+                                <div class="w-24 text-xs text-gray-500">Uploaded:</div>
+                                <div class="flex-1 text-sm" id="modalUploadDate"></div>
+                            </div>
+                            
+                            <!-- Description -->
+                            <div class="flex items-start mt-2">
+                                <div class="w-24 text-xs text-gray-500">Description:</div>
+                                <div class="flex-1 text-xs text-gray-600 max-h-20 overflow-y-auto pr-2" id="modalDescription"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
+                <button type="button" 
+                        onclick="downloadFromModal()"
+                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+                    <i class="fas fa-download mr-2"></i>
+                    Download
+                </button>
+                <button type="button" 
+                        onclick="closeModal()"
+                        class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @push('styles')
 <style>
@@ -334,6 +459,11 @@
     /* Make all filter elements consistent height */
     select, button, input {
         height: 36px;
+    }
+    
+    /* Modal animation */
+    #galleryModal {
+        transition: opacity 0.2s ease;
     }
 </style>
 @endpush
@@ -358,8 +488,11 @@
         // Set modal content
         document.getElementById('modalSchoolName').textContent = gallery.school_name;
         document.getElementById('modalCompetition').textContent = gallery.competition;
-        document.getElementById('modalSeason').textContent = gallery.season;
-        document.getElementById('modalSeries').textContent = gallery.series;
+        
+        // Combine season and series
+        const seasonSeries = gallery.season + (gallery.series ? ' - ' + gallery.series : '');
+        document.getElementById('modalSeasonSeries').textContent = seasonSeries;
+        
         document.getElementById('modalFileType').textContent = gallery.file_type || 'ZIP Archive';
         document.getElementById('modalFilename').textContent = gallery.original_filename;
         document.getElementById('modalDescription').textContent = gallery.description || 'No description provided.';
@@ -389,33 +522,26 @@
              gallery.status === 'draft' ? 'bg-yellow-100 text-yellow-800' :
              'bg-gray-100 text-gray-800');
         
-        // Set cover image
-        const schoolHash = crc32(gallery.school_name);
-        const imageIndex = (schoolHash % 12) + 1;
+        // Set cover image di modal
+        const modalCoverImage = document.getElementById('modalCoverImage');
+        const modalCoverPlaceholder = document.getElementById('modalCoverPlaceholder');
         
-        const basketballImages = [
-            'https://images.unsplash.com/photo-1544919982-b61976a0d7ed?w=800&h=600&fit=crop&auto=format',
-            'https://images.unsplash.com/photo-1519861531473-920034658307?w=800&h=600&fit=crop&auto=format',
-            'https://images.unsplash.com/photo-1516906571665-49af58989c4e?w=800&h=600&fit=crop&auto=format',
-            'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=800&h=600&fit=crop&auto=format',
-            'https://images.unsplash.com/photo-1518406432532-9cbef5697723?w=800&h=600&fit=crop&auto=format',
-            'https://images.unsplash.com/photo-1575361204480-aadea25e6e68?w=800&h=600&fit=crop&auto=format',
-            'https://images.unsplash.com/photo-1549242484-9a322b5d3a9b?w=800&h=600&fit=crop&auto=format',
-            'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop&auto=format',
-            'https://images.unsplash.com/photo-1551958219-acbc608c6377?w=800&h=600&fit=crop&auto=format',
-            'https://images.unsplash.com/photo-1534158914592-062992fbe900?w=800&h=600&fit=crop&auto=format',
-            'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800&h=600&fit=crop&auto=format',
-            'https://images.unsplash.com/photo-1542744095-fcf48d80b0fd?w=800&h=600&fit=crop&auto=format',
-        ];
+        // Reset
+        modalCoverImage.classList.add('hidden');
+        modalCoverPlaceholder.classList.remove('hidden');
         
-        document.getElementById('modalCoverImage').src = basketballImages[imageIndex - 1];
+        // Cek apakah gallery memiliki photo_url
+        if (gallery.photo_url) {
+            modalCoverImage.src = gallery.photo_url;
+            modalCoverImage.classList.remove('hidden');
+            modalCoverPlaceholder.classList.add('hidden');
+        }
         
         // Set download URL for modal
-        const galleryCard = document.querySelector(`[data-download-url*="${galleryId}"]`);
+        const galleryCard = document.querySelector(`.gallery-card[data-gallery-id="${galleryId}"]`);
         if (galleryCard) {
             currentGalleryDownloadUrl = galleryCard.getAttribute('data-download-url');
         } else {
-            // Fallback: create download URL
             currentGalleryDownloadUrl = `/user/gallery/photos/${galleryId}/download`;
         }
         
@@ -431,15 +557,13 @@
         currentGalleryDownloadUrl = null;
     }
     
-    // SIMPLE DOWNLOAD FUNCTION - NO SWEETALERT PROGRESS
+    // Download function
     function downloadGallery(galleryId) {
         if (downloadInProgress) return;
         
-        // Prevent event bubbling
         if (event) event.stopPropagation();
         
-        // Get download URL from the card element
-        const cardElement = document.querySelector(`.gallery-card[data-download-url*="${galleryId}"]`);
+        const cardElement = document.querySelector(`.gallery-card[data-gallery-id="${galleryId}"]`);
         let downloadUrl;
         
         if (cardElement) {
@@ -458,20 +582,16 @@
             return;
         }
         
-        // Set download flag
         downloadInProgress = true;
         
-        // Create hidden iframe for download
         const iframe = document.createElement('iframe');
         iframe.style.display = 'none';
         iframe.src = downloadUrl;
         document.body.appendChild(iframe);
         
-        // Show success notification after short delay
         setTimeout(() => {
             downloadInProgress = false;
             
-            // Get gallery name for the notification
             const gallery = galleryData.find(g => g.id === galleryId);
             const schoolName = gallery ? gallery.school_name : 'Gallery';
             
@@ -488,7 +608,6 @@
             });
         }, 1000);
         
-        // Remove iframe after download
         setTimeout(() => {
             if (iframe.parentNode) {
                 iframe.parentNode.removeChild(iframe);
@@ -501,13 +620,11 @@
         
         downloadInProgress = true;
         
-        // Create hidden iframe for download
         const iframe = document.createElement('iframe');
         iframe.style.display = 'none';
         iframe.src = currentGalleryDownloadUrl;
         document.body.appendChild(iframe);
         
-        // Show success notification
         setTimeout(() => {
             downloadInProgress = false;
             
@@ -525,11 +642,9 @@
                 iconColor: '#16a34a'
             });
             
-            // Close modal after download starts
             closeModal();
         }, 1000);
         
-        // Remove iframe after download
         setTimeout(() => {
             if (iframe.parentNode) {
                 iframe.parentNode.removeChild(iframe);
@@ -537,21 +652,19 @@
         }, 5000);
     }
     
-    // Filter functionality - SIMPLIFIED
+    // Filter functions
     function resetSearch() {
         document.getElementById('searchInput').value = '';
         applyFilters();
     }
     
     function resetAllFilters() {
-        // Clear all filter inputs
         document.getElementById('searchInput').value = '';
         document.getElementById('competitionFilter').value = '';
         document.getElementById('seasonFilter').value = '';
         document.getElementById('seriesFilter').value = '';
         document.getElementById('sortSelect').value = 'newest';
         
-        // Redirect to clean URL
         window.location.href = "{{ route('user.gallery.photos.index') }}";
     }
     
@@ -562,7 +675,6 @@
         const series = document.getElementById('seriesFilter').value;
         const sort = document.getElementById('sortSelect').value;
         
-        // Build URL with query parameters
         const url = new URL("{{ route('user.gallery.photos.index') }}");
         
         if (searchTerm) url.searchParams.set('search', searchTerm);
@@ -571,49 +683,22 @@
         if (series) url.searchParams.set('series', series);
         if (sort !== 'newest') url.searchParams.set('sort', sort);
         
-        // Redirect with filters
         window.location.href = url.toString();
     }
     
-    // Sort functionality - Auto apply on change
-    document.getElementById('sortSelect').addEventListener('change', function() {
-        applyFilters();
-    });
-    
-    // Apply filters on Enter key in search
+    // Event listeners
+    document.getElementById('sortSelect').addEventListener('change', applyFilters);
     document.getElementById('searchInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            applyFilters();
-        }
+        if (e.key === 'Enter') applyFilters();
     });
-    
-    // Auto-apply for dropdown changes (optional - can be enabled/disabled)
     document.getElementById('competitionFilter').addEventListener('change', applyFilters);
     document.getElementById('seasonFilter').addEventListener('change', applyFilters);
     document.getElementById('seriesFilter').addEventListener('change', applyFilters);
     
-    // CRC32 function for consistent image selection
-    function crc32(str) {
-        for(var a, o = [], c = 0; c < 256; c++) {
-            a = c;
-            for(var f = 0; f < 8; f++) a = 1 & a ? 3988292384 ^ a >>> 1 : a >>> 1;
-            o[c] = a;
-        }
-        for(var n = -1, t = 0; t < str.length; t++) n = n >>> 8 ^ o[255 & (n ^ str.charCodeAt(t))];
-        return (-1 ^ n) >>> 0;
-    }
-    
-    // Close modal on ESC key
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            closeModal();
-        }
+        if (e.key === 'Escape') closeModal();
     });
 </script>
 @endpush
 
-<!-- Gallery Details Modal - Keep exactly the same as original -->
-<div id="galleryModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
-    <!-- ... (same modal content as original, omitted for brevity) ... -->
-</div>
 @endsection

@@ -95,7 +95,7 @@
                             </div>
                             <div class="text-center p-3 bg-purple-50 rounded-lg">
                                 <div class="text-purple-600 font-bold text-xl">5+</div>
-                                <div class="text-xs text-gray-600">Certifications</div>
+                                <div class="text-xs text-gray-600">Training & Certification</div>
                             </div>
                             <div class="text-center p-3 bg-green-50 rounded-lg">
                                 <div class="text-green-600 font-bold text-xl">UI/UX</div>
@@ -166,7 +166,7 @@
                     <div class="mb-6">
                         <h4 class="font-bold text-gray-800 mb-3 flex items-center">
                             <i class="fas fa-certificate text-green-500 mr-2"></i>
-                            Certifications
+                            Training & Certification
                         </h4>
                         <div class="flex flex-wrap gap-2">
                             <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">Java Fundamental</span>
@@ -263,7 +263,7 @@
                             </div>
                             <div class="text-center p-3 bg-pink-50 rounded-lg">
                                 <div class="text-pink-600 font-bold text-xl">4+</div>
-                                <div class="text-xs text-gray-600">Certifications</div>
+                                <div class="text-xs text-gray-600">Training & Certification</div>
                             </div>
                             <div class="text-center p-3 bg-indigo-50 rounded-lg">
                                 <div class="text-indigo-600 font-bold text-xl">UI/UX</div>
@@ -333,7 +333,7 @@
                     <div class="mb-6">
                         <h4 class="font-bold text-gray-800 mb-3 flex items-center">
                             <i class="fas fa-certificate text-indigo-500 mr-2"></i>
-                            Certifications
+                            Training & Certification
                         </h4>
                         <div class="flex flex-wrap gap-2">
                             <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">Java Fundamental</span>

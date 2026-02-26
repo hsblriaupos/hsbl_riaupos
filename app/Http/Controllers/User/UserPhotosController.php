@@ -7,6 +7,7 @@ use App\Models\MediaGallery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\DB;
 
 class UserPhotosController extends Controller
 {
@@ -65,6 +66,7 @@ class UserPhotosController extends Controller
         $competitions = MediaGallery::where('status', 'published')
             ->distinct('competition')
             ->whereNotNull('competition')
+            ->where('competition', '!=', '')
             ->pluck('competition')
             ->filter()
             ->sort()
@@ -73,6 +75,7 @@ class UserPhotosController extends Controller
         $seasons = MediaGallery::where('status', 'published')
             ->distinct('season')
             ->whereNotNull('season')
+            ->where('season', '!=', '')
             ->pluck('season')
             ->filter()
             ->sortDesc()
@@ -81,6 +84,7 @@ class UserPhotosController extends Controller
         $series = MediaGallery::where('status', 'published')
             ->distinct('series')
             ->whereNotNull('series')
+            ->where('series', '!=', '')
             ->pluck('series')
             ->filter()
             ->sort()
@@ -89,6 +93,9 @@ class UserPhotosController extends Controller
         // Paginate results - show 12 per page for grid layout
         $perPage = $request->per_page ?? 12;
         $galleries = $query->paginate($perPage);
+        
+        // Calculate total downloads for statistics
+        $totalDownloads = MediaGallery::where('status', 'published')->sum('download_count');
         
         // Check if there are active filters
         $hasActiveFilters = $this->hasActiveFilters($request);
@@ -99,6 +106,7 @@ class UserPhotosController extends Controller
             'competitions', 
             'seasons', 
             'series',
+            'totalDownloads',
             'hasActiveFilters',
             'activeFilterCount'
         ));
@@ -143,7 +151,7 @@ class UserPhotosController extends Controller
                               ->findOrFail($id);
         
         // Check if file exists
-        if (!$gallery->file || !Storage::exists('public/' . $gallery->file)) {
+        if (!$gallery->file || !Storage::disk('public')->exists($gallery->file)) {
             // Return JSON response untuk AJAX atau redirect untuk browser biasa
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json([
@@ -161,7 +169,7 @@ class UserPhotosController extends Controller
         $this->incrementDownloadAsync($gallery);
         
         // Get file path
-        $filePath = Storage::path('public/' . $gallery->file);
+        $filePath = Storage::disk('public')->path($gallery->file);
         $originalFilename = $gallery->original_filename ?: 
                            'hsbl_gallery_' . str_replace(' ', '_', $gallery->school_name ?? '') . '_' . $gallery->id . '.zip';
         
@@ -185,7 +193,7 @@ class UserPhotosController extends Controller
     {
         try {
             // Gunakan query langsung untuk lebih cepat
-            \DB::table('media_gallery')
+            DB::table('media_gallery')
                 ->where('id', $gallery->id)
                 ->increment('download_count');
                 
@@ -228,13 +236,25 @@ class UserPhotosController extends Controller
             ], 404);
         }
         
+        // Get file extension
+        $fileExt = $gallery->file_type ? strtoupper(pathinfo($gallery->original_filename, PATHINFO_EXTENSION)) : 'ZIP';
+        
+        // Get photo URL - menggunakan accessor dari model
+        $photoUrl = $gallery->photo_url;
+        
+        // Cek apakah file foto benar-benar ada di storage
+        $hasPhoto = false;
+        if ($gallery->photo) {
+            $hasPhoto = Storage::disk('public')->exists($gallery->photo);
+        }
+        
         $data = [
             'id' => $gallery->id,
             'school_name' => $gallery->school_name,
             'competition' => $gallery->competition,
             'season' => $gallery->season,
             'series' => $gallery->series,
-            'file_type' => $gallery->file_type,
+            'file_type' => $fileExt,
             'original_filename' => $gallery->original_filename,
             'description' => $gallery->description,
             'status' => $gallery->status,
@@ -244,6 +264,9 @@ class UserPhotosController extends Controller
             'updated_at' => $gallery->updated_at->format('F d, Y'),
             'file_size_formatted' => $this->formatBytes($gallery->file_size),
             'download_url' => route('user.gallery.photos.download', $gallery->id),
+            'photo' => $gallery->photo,
+            'photo_url' => $photoUrl,
+            'has_photo' => $hasPhoto,
         ];
         
         return response()->json([
@@ -264,6 +287,7 @@ class UserPhotosController extends Controller
                 $data = MediaGallery::where('status', 'published')
                     ->distinct('competition')
                     ->whereNotNull('competition')
+                    ->where('competition', '!=', '')
                     ->orderBy('competition')
                     ->pluck('competition');
                 break;
@@ -272,6 +296,7 @@ class UserPhotosController extends Controller
                 $data = MediaGallery::where('status', 'published')
                     ->distinct('season')
                     ->whereNotNull('season')
+                    ->where('season', '!=', '')
                     ->orderBy('season', 'desc')
                     ->pluck('season');
                 break;
@@ -280,6 +305,7 @@ class UserPhotosController extends Controller
                 $data = MediaGallery::where('status', 'published')
                     ->distinct('series')
                     ->whereNotNull('series')
+                    ->where('series', '!=', '')
                     ->orderBy('series')
                     ->pluck('series');
                 break;
@@ -288,6 +314,7 @@ class UserPhotosController extends Controller
                 $data = MediaGallery::where('status', 'published')
                     ->distinct('school_name')
                     ->whereNotNull('school_name')
+                    ->where('school_name', '!=', '')
                     ->orderBy('school_name')
                     ->pluck('school_name');
                 break;
@@ -311,22 +338,24 @@ class UserPhotosController extends Controller
         $totalDownloads = MediaGallery::where('status', 'published')->sum('download_count');
         $uniqueSchools = MediaGallery::where('status', 'published')
             ->distinct('school_name')
+            ->whereNotNull('school_name')
             ->count('school_name');
         $uniqueCompetitions = MediaGallery::where('status', 'published')
             ->distinct('competition')
+            ->whereNotNull('competition')
             ->count('competition');
         
         // Get recent galleries (last 5)
         $recentGalleries = MediaGallery::where('status', 'published')
             ->latest()
             ->limit(5)
-            ->get(['id', 'school_name', 'competition', 'created_at']);
+            ->get(['id', 'school_name', 'competition', 'created_at', 'photo']);
         
         // Get most downloaded galleries
         $topDownloads = MediaGallery::where('status', 'published')
             ->orderBy('download_count', 'desc')
             ->limit(5)
-            ->get(['id', 'school_name', 'download_count']);
+            ->get(['id', 'school_name', 'download_count', 'photo']);
         
         return response()->json([
             'success' => true,
@@ -378,7 +407,7 @@ class UserPhotosController extends Controller
             })
             ->orderBy('school_name')
             ->limit(10)
-            ->get(['id', 'school_name', 'competition', 'season', 'series']);
+            ->get(['id', 'school_name', 'competition', 'season', 'series', 'photo']);
         
         return response()->json([
             'success' => true,
@@ -393,6 +422,18 @@ class UserPhotosController extends Controller
     {
         $gallery = MediaGallery::where('status', 'published')->findOrFail($id);
         
+        // Get file extension
+        $fileExt = $gallery->file_type ? strtoupper(pathinfo($gallery->original_filename, PATHINFO_EXTENSION)) : 'ZIP';
+        
+        // Get photo URL - menggunakan accessor dari model
+        $photoUrl = $gallery->photo_url;
+        
+        // Cek apakah file foto benar-benar ada di storage
+        $hasPhoto = false;
+        if ($gallery->photo) {
+            $hasPhoto = Storage::disk('public')->exists($gallery->photo);
+        }
+        
         // Format data for JSON response
         $formattedGallery = [
             'id' => $gallery->id,
@@ -400,16 +441,75 @@ class UserPhotosController extends Controller
             'competition' => $gallery->competition,
             'season' => $gallery->season,
             'series' => $gallery->series,
-            'file_type' => $gallery->file_type,
+            'file_type' => $fileExt,
             'original_filename' => $gallery->original_filename,
             'description' => $gallery->description,
             'status' => $gallery->status,
             'download_count' => $gallery->download_count,
             'file_size' => $gallery->file_size,
+            'file_size_formatted' => $this->formatBytes($gallery->file_size),
             'created_at' => $gallery->created_at->toISOString(),
             'updated_at' => $gallery->updated_at->toISOString(),
+            'created_at_formatted' => $gallery->created_at->format('M d, Y'),
+            'photo' => $gallery->photo,
+            'photo_url' => $photoUrl,
+            'has_photo' => $hasPhoto,
+            'download_url' => route('user.gallery.photos.download', $gallery->id),
         ];
         
         return response()->json($formattedGallery);
+    }
+    
+    /**
+     * Get cover photo for gallery.
+     */
+    public function getCover($id)
+    {
+        $gallery = MediaGallery::where('status', 'published')->findOrFail($id);
+        
+        // Cek apakah file foto benar-benar ada di storage
+        $hasPhoto = false;
+        if ($gallery->photo) {
+            $hasPhoto = Storage::disk('public')->exists($gallery->photo);
+        }
+        
+        if (!$hasPhoto) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No cover photo available.',
+            ], 404);
+        }
+        
+        return response()->json([
+            'success' => true,
+            'photo_url' => $gallery->photo_url,
+            'photo' => $gallery->photo,
+        ]);
+    }
+    
+    /**
+     * Check if photo exists in storage
+     */
+    public function checkPhoto($id)
+    {
+        $gallery = MediaGallery::where('status', 'published')->findOrFail($id);
+        
+        $photoExists = false;
+        $photoUrl = null;
+        
+        if ($gallery->photo) {
+            $photoExists = Storage::disk('public')->exists($gallery->photo);
+            if ($photoExists) {
+                $photoUrl = $gallery->photo_url;
+            }
+        }
+        
+        return response()->json([
+            'success' => true,
+            'photo_exists' => $photoExists,
+            'photo_url' => $photoUrl,
+            'photo_path' => $gallery->photo,
+            'storage_path' => $gallery->photo ? storage_path('app/public/' . $gallery->photo) : null,
+        ]);
     }
 }

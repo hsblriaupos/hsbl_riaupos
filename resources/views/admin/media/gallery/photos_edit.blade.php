@@ -30,7 +30,7 @@
             <h1 class="page-title">
                 <i class="fas fa-images text-primary me-2"></i> Edit Photo Gallery
             </h1>
-            <p class="page-subtitle">Update photo gallery information</p>
+            <p class="page-subtitle">Update photo gallery information and cover image</p>
         </div>
         
         <!-- Action Buttons -->
@@ -69,12 +69,12 @@
                 <i class="fas fa-info-circle text-primary me-2"></i> Current Gallery Information
             </h6>
             <div class="row g-3">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="d-flex flex-column">
                         <span class="text-muted small mb-1">Current File:</span>
                         <div class="d-flex align-items-center">
                             <i class="fas fa-file-archive text-warning me-2"></i>
-                            <span class="fw-semibold">{{ $gallery->original_filename }}</span>
+                            <span class="fw-semibold text-truncate">{{ $gallery->original_filename }}</span>
                         </div>
                     </div>
                 </div>
@@ -87,12 +87,21 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <div class="d-flex flex-column">
                         <span class="text-muted small mb-1">Downloads:</span>
                         <div class="d-flex align-items-center">
                             <i class="fas fa-download text-muted me-2"></i>
                             <span class="fw-semibold">{{ $gallery->download_count }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="d-flex flex-column">
+                        <span class="text-muted small mb-1">Cover Photo:</span>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-image text-success me-2"></i>
+                            <span class="fw-semibold">{{ $gallery->hasPhoto() ? 'Yes' : 'No' }}</span>
                         </div>
                     </div>
                 </div>
@@ -169,6 +178,95 @@
                             </div>
                         </div>
 
+                        {{-- Cover Photo Upload (Optional Update) --}}
+                        <div class="mb-4">
+                            <label for="photo" class="form-label fw-semibold">
+                                <i class="fas fa-camera text-success me-2"></i> Update Cover Photo (Optional)
+                            </label>
+                            
+                            <div class="alert alert-info border-info bg-info bg-opacity-10 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <span>
+                                        @if($gallery->hasPhoto())
+                                            Current cover: <strong>{{ $gallery->photo }}</strong>
+                                        @else
+                                            No cover photo currently set
+                                        @endif
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            {{-- Cover Photo Warning --}}
+                            <div id="photoWarning" class="alert alert-warning border-warning bg-warning bg-opacity-10 d-none mb-3">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    <span>Maximum size: 5MB. Supported formats: JPG, PNG, GIF, WEBP</span>
+                                </div>
+                            </div>
+                            
+                            <div class="card border-dashed" id="photoContainer">
+                                <div class="card-body text-center p-4">
+                                    {{-- Current Photo Preview --}}
+                                    @if($gallery->hasPhoto())
+                                    <div id="currentPhotoPreview" class="mb-3">
+                                        <div class="position-relative d-inline-block">
+                                            <img src="{{ $gallery->photo_url }}" 
+                                                 alt="Current Cover" 
+                                                 class="img-fluid rounded mb-3" 
+                                                 style="max-height: 200px; object-fit: cover; border: 3px solid #28a745;">
+                                            <span class="badge bg-success position-absolute top-0 start-0 m-2">Current</span>
+                                        </div>
+                                        <div class="photo-info bg-light p-3 rounded">
+                                            <p class="mb-1">Current cover: {{ $gallery->photo }}</p>
+                                        </div>
+                                    </div>
+                                    @endif
+
+                                    {{-- New Photo Preview --}}
+                                    <div id="photoPreview" class="mb-3 d-none">
+                                        <div class="position-relative d-inline-block">
+                                            <img id="photoImage" 
+                                                 src="#" 
+                                                 alt="New Cover Preview" 
+                                                 class="img-fluid rounded mb-3" 
+                                                 style="max-height: 200px; object-fit: cover;">
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2"
+                                                    onclick="removePhoto()">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                            <span class="badge bg-warning position-absolute top-0 start-0 m-2">New</span>
+                                        </div>
+                                        <div class="photo-info bg-light p-3 rounded mb-3">
+                                            <p class="mb-1" id="photoNameDisplay">-</p>
+                                            <p class="mb-0 small text-muted" id="photoSizeDisplay">-</p>
+                                        </div>
+                                    </div>
+
+                                    {{-- Upload Area --}}
+                                    <div id="photoUploadArea">
+                                        <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-3"></i>
+                                        <p class="small text-muted mb-3">Click to upload new cover photo (max 5MB)</p>
+                                        <p class="text-muted mb-3">
+                                            <small>Supported formats: JPG, PNG, GIF, WEBP</small>
+                                        </p>
+                                        <input id="photo" 
+                                               name="photo" 
+                                               type="file" 
+                                               accept="image/jpeg,image/png,image/gif,image/webp,image/jpg"
+                                               class="form-control d-none"
+                                               onchange="previewPhoto(event)">
+                                        <label for="photo" 
+                                               class="btn btn-outline-success btn-sm cursor-pointer">
+                                            <i class="fas fa-camera me-2"></i> 
+                                            {{ $gallery->hasPhoto() ? 'Choose New Cover Photo' : 'Choose Cover Photo' }}
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         {{-- ZIP File Upload (Optional Update) --}}
                         <div class="mb-4">
                             <label for="file" class="form-label fw-semibold">
@@ -217,15 +315,6 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-text">
-                                <small class="text-muted">
-                                    <i class="fas fa-info-circle me-1"></i>
-                                    Maximum file size: 5GB. Supported formats: ZIP, RAR, 7Z.
-                                </small>
-                            </div>
-                            @error('file')
-                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                            @enderror
                         </div>
 
                         {{-- Description --}}
@@ -257,6 +346,43 @@
 
                     {{-- Right Column --}}
                     <div class="col-lg-4">
+                        {{-- Current Cover Preview --}}
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-image text-success me-2"></i> Cover Photo Preview
+                            </label>
+                            <div class="card bg-light" id="coverPreviewCard">
+                                <div class="card-body p-3 text-center">
+                                    <div id="coverPreview" class="{{ $gallery->hasPhoto() ? 'd-none' : '' }}">
+                                        <i class="fas fa-camera fa-3x text-muted mb-3"></i>
+                                        <p class="small text-muted mb-0">
+                                            No cover photo
+                                        </p>
+                                    </div>
+                                    <div id="coverImagePreview" class="{{ $gallery->hasPhoto() ? '' : 'd-none' }}">
+                                        <img id="coverImage" 
+                                             src="{{ $gallery->photo_url }}" 
+                                             alt="Cover" 
+                                             class="img-fluid rounded" 
+                                             style="max-height: 150px; width: 100%; object-fit: cover;">
+                                        <p class="mt-2 small text-muted" id="coverImageInfo">
+                                            @if($gallery->hasPhoto())
+                                                {{ $gallery->photo }}
+                                            @endif
+                                        </p>
+                                    </div>
+                                    <div id="newCoverPreview" class="d-none">
+                                        <img id="newCoverImage" 
+                                             src="#" 
+                                             alt="New Cover" 
+                                             class="img-fluid rounded mt-2" 
+                                             style="max-height: 150px; width: 100%; object-fit: cover; border: 2px solid #ffc107;">
+                                        <p class="mt-2 small text-warning" id="newCoverInfo">New cover will replace existing</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         {{-- Competition Dropdown --}}
                         <div class="mb-4">
                             <label for="competition" class="form-label fw-semibold">
@@ -448,15 +574,15 @@
                 </li>
                 <li class="mb-2">
                     <i class="fas fa-check-circle text-success me-2"></i>
+                    <small>Cover photo update is optional - leave empty to keep current cover</small>
+                </li>
+                <li class="mb-2">
+                    <i class="fas fa-check-circle text-success me-2"></i>
                     <small>ZIP file update is optional - leave empty to keep current file</small>
                 </li>
                 <li class="mb-2">
                     <i class="fas fa-check-circle text-success me-2"></i>
                     <small>Changing status to "Draft" will hide the gallery from public view</small>
-                </li>
-                <li class="mb-2">
-                    <i class="fas fa-check-circle text-success me-2"></i>
-                    <small>Description helps users understand what's in the gallery</small>
                 </li>
                 <li>
                     <i class="fas fa-check-circle text-success me-2"></i>
@@ -482,6 +608,16 @@
                 <h5 class="text-center mb-3">Are you sure?</h5>
                 <p class="text-center text-muted">
                     You are about to delete the gallery for <strong>{{ $gallery->school_name }}</strong>.
+                    This will permanently delete:
+                </p>
+                <ul class="text-muted small">
+                    <li>ZIP file: {{ $gallery->original_filename }}</li>
+                    @if($gallery->hasPhoto())
+                    <li>Cover photo: {{ $gallery->photo }}</li>
+                    @endif
+                </ul>
+                <p class="text-center text-danger small mt-2">
+                    <i class="fas fa-exclamation-circle me-1"></i>
                     This action cannot be undone.
                 </p>
             </div>
@@ -532,6 +668,10 @@
         background-color: #e9ecef;
     }
 
+    .card.border-success {
+        border-color: #28a745 !important;
+    }
+
     .cursor-pointer {
         cursor: pointer;
     }
@@ -577,12 +717,21 @@
         border-color: #2980b9;
     }
 
-    .file-info {
+    .file-info, .photo-info {
         border-left: 3px solid #3498db;
+    }
+
+    .photo-info {
+        border-left-color: #28a745;
     }
 
     .alert-info {
         border-left: 4px solid #17a2b8;
+    }
+
+    .badge {
+        font-size: 0.7rem;
+        padding: 0.25rem 0.5rem;
     }
 
     @media (max-width: 768px) {
@@ -633,8 +782,9 @@
 </style>
 
 <script>
-    // Track if file is uploaded
+    // Track if files are uploaded
     let fileUploaded = false;
+    let photoUploaded = false;
     let originalFilename = '';
     
     // School dropdown change handler
@@ -646,6 +796,105 @@
         } else {
             manualInput.classList.add('d-none');
         }
+    }
+    
+    // Photo Preview Functionality
+    function previewPhoto(event) {
+        const input = event.target;
+        const currentPreview = document.getElementById('currentPhotoPreview');
+        const preview = document.getElementById('photoPreview');
+        const uploadArea = document.getElementById('photoUploadArea');
+        const photoWarning = document.getElementById('photoWarning');
+        const photoContainer = document.getElementById('photoContainer');
+        const coverImagePreview = document.getElementById('coverImagePreview');
+        const newCoverPreview = document.getElementById('newCoverPreview');
+        const newCoverImage = document.getElementById('newCoverImage');
+        
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            
+            // Check file size
+            if (file.size > maxSize) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'File Too Large',
+                    text: 'Cover photo size should not exceed 5MB',
+                    confirmButtonColor: '#3498db'
+                });
+                input.value = '';
+                return;
+            }
+            
+            // Check file type
+            const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/jpg'];
+            if (!validTypes.includes(file.type)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid File Type',
+                    text: 'Please upload a JPG, PNG, GIF, or WEBP image',
+                    confirmButtonColor: '#3498db'
+                });
+                input.value = '';
+                return;
+            }
+            
+            // Read and display image preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('photoImage').src = e.target.result;
+                newCoverImage.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+            
+            // Update photo info
+            document.getElementById('photoNameDisplay').textContent = file.name;
+            document.getElementById('photoSizeDisplay').textContent = formatBytes(file.size);
+            
+            // Hide current preview if exists, show new preview
+            if (currentPreview) {
+                currentPreview.classList.add('d-none');
+            }
+            preview.classList.remove('d-none');
+            
+            // Update cover preview
+            coverImagePreview.classList.add('d-none');
+            newCoverPreview.classList.remove('d-none');
+            document.getElementById('newCoverInfo').textContent = `New: ${file.name} (${formatBytes(file.size)})`;
+            
+            // Hide warning and add success border
+            photoWarning.classList.add('d-none');
+            photoContainer.classList.remove('border-warning');
+            photoContainer.classList.add('border-success');
+            photoUploaded = true;
+        }
+    }
+    
+    function removePhoto() {
+        const currentPreview = document.getElementById('currentPhotoPreview');
+        const preview = document.getElementById('photoPreview');
+        const uploadArea = document.getElementById('photoUploadArea');
+        const photoInput = document.getElementById('photo');
+        const photoWarning = document.getElementById('photoWarning');
+        const photoContainer = document.getElementById('photoContainer');
+        const coverImagePreview = document.getElementById('coverImagePreview');
+        const newCoverPreview = document.getElementById('newCoverPreview');
+        
+        preview.classList.add('d-none');
+        if (currentPreview) {
+            currentPreview.classList.remove('d-none');
+        }
+        photoInput.value = '';
+        
+        // Reset cover preview
+        @if($gallery->hasPhoto())
+            coverImagePreview.classList.remove('d-none');
+        @endif
+        newCoverPreview.classList.add('d-none');
+        
+        // Remove success border
+        photoContainer.classList.remove('border-success');
+        photoUploaded = false;
     }
     
     // File Preview Functionality
@@ -757,7 +1006,6 @@
             reverseButtons: true
         }).then((result) => {
             if (result.isConfirmed) {
-                // Reload the page to reset all fields
                 window.location.reload();
             }
         });
@@ -769,7 +1017,6 @@
         const manualInput = document.getElementById('manual_school_name');
         
         if (schoolSelect.value === 'other') {
-            // Check manual input
             if (!manualInput.value.trim()) {
                 Swal.fire({
                     icon: 'error',
@@ -836,6 +1083,39 @@
         return true;
     }
     
+    // Validate photo if uploaded
+    function validatePhoto() {
+        const photoInput = document.getElementById('photo');
+        
+        if (photoInput.files.length > 0) {
+            const file = photoInput.files[0];
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            
+            if (file.size > maxSize) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Photo Too Large',
+                    text: 'Cover photo size should not exceed 5MB',
+                    confirmButtonColor: '#3498db'
+                });
+                return false;
+            }
+            
+            const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/jpg'];
+            if (!validTypes.includes(file.type)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid Photo Type',
+                    text: 'Please upload a JPG, PNG, GIF, or WEBP image',
+                    confirmButtonColor: '#3498db'
+                });
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
     // Validate file if uploaded
     function validateFile() {
         const fileInput = document.getElementById('file');
@@ -879,6 +1159,7 @@
         // Validate all required fields
         if (!validateSchool()) return false;
         if (!validateDropdowns()) return false;
+        if (!validatePhoto()) return false;
         if (!validateFile()) return false;
         
         // Show confirmation
@@ -888,7 +1169,7 @@
                   '<p class="mb-2">Are you sure you want to update this photo gallery?</p>' +
                   '<p class="mb-0 small text-muted">' +
                   '<i class="fas fa-info-circle me-1"></i>' +
-                  'Current file will be replaced if you uploaded a new one.' +
+                  'Existing files will be replaced if you upload new ones.' +
                   '</p>' +
                   '</div>',
             icon: 'question',
@@ -904,7 +1185,6 @@
                 const schoolSelect = document.getElementById('school_name');
                 if (schoolSelect.value === 'other') {
                     const manualInput = document.getElementById('manual_school_name');
-                    // Create a hidden input to submit manual school name
                     const hiddenInput = document.createElement('input');
                     hiddenInput.type = 'hidden';
                     hiddenInput.name = 'school_name';
@@ -932,6 +1212,9 @@
         if (schoolSelect.value === 'other') {
             document.getElementById('manualSchoolInput').classList.remove('d-none');
         }
+        
+        // Add input listener for description
+        document.getElementById('description').addEventListener('input', updateCharCount);
     });
 </script>
 

@@ -18,7 +18,7 @@ class PhotosController extends Controller
      */
     public function index(Request $request)
     {
-        // Start query - TIDAK PERLU withTrashed() karena tidak ada soft delete
+        // Start query
         $query = MediaGallery::query();
         
         // Apply filters
@@ -47,6 +47,14 @@ class PhotosController extends Controller
             $query->where('status', $request->status);
         }
         
+        if ($request->filled('has_photo')) {
+            if ($request->has_photo === 'yes') {
+                $query->whereNotNull('photo')->where('photo', '!=', '');
+            } elseif ($request->has_photo === 'no') {
+                $query->whereNull('photo')->orWhere('photo', '');
+            }
+        }
+        
         // Get unique values for filter dropdowns
         $competitions = MediaGallery::distinct('competition')
             ->whereNotNull('competition')
@@ -67,8 +75,8 @@ class PhotosController extends Controller
             ->sort();
         
         // Paginate results
-        $perPage = $request->per_page ?? 10;
-        $galleries = $query->latest()->paginate($perPage);
+        $perPage = $request->per_page ?? 15;
+        $galleries = $query->latest()->paginate($perPage)->withQueryString();
         
         return view('admin.media.gallery.photos_list', compact('galleries', 'competitions', 'seasons', 'series'));
     }
@@ -92,12 +100,16 @@ class PhotosController extends Controller
     
     /**
      * Store a newly created photo gallery in storage.
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
     {
         // Validate request
         $validator = Validator::make($request->all(), [
             'school_name' => 'required|string|max:255',
+            'photo' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120', // 5MB
             'file' => 'required|file|mimes:zip,rar,7z|max:5120000', // 5GB
             'competition' => 'required|string|max:100',
             'season' => 'required|string|max:50',
@@ -105,6 +117,10 @@ class PhotosController extends Controller
             'description' => 'nullable|string|max:1000',
             'status' => 'required|in:published,draft,archived',
         ], [
+            'photo.required' => 'Cover photo is required.',
+            'photo.image' => 'Cover photo must be an image.',
+            'photo.mimes' => 'Cover photo must be a JPG, PNG, GIF, or WEBP file.',
+            'photo.max' => 'Cover photo size must not exceed 5MB.',
             'file.required' => 'ZIP file is required.',
             'file.mimes' => 'File must be a ZIP, RAR, or 7Z archive.',
             'file.max' => 'File size must not exceed 5GB.',
@@ -127,45 +143,95 @@ class PhotosController extends Controller
             $schoolName = $request->manual_school_name;
         }
         
-        // Handle file upload
-        if ($request->hasFile('file')) {
-            $file = $request->file('file');
-            $originalFilename = $file->getClientOriginalName();
-            $fileSize = $file->getSize();
-            $fileType = $file->getMimeType();
+        DB::beginTransaction();
+        
+        try {
+            // Handle photo upload - FIXED PATH
+            $photoPath = null;
+            if ($request->hasFile('photo')) {
+                $photo = $request->file('photo');
+                
+                // Generate clean school name for filename
+                $cleanSchoolName = preg_replace('/[^a-z0-9]/i', '-', strtolower($schoolName));
+                $cleanSchoolName = trim(preg_replace('/-+/', '-', $cleanSchoolName), '-');
+                
+                // Generate unique filename for photo
+                $photoFilename = $cleanSchoolName . '_cover_' . time() . '.' . $photo->getClientOriginalExtension();
+                
+                // FIX: Store photo in photos/cover directory using public disk
+                // This will save to: storage/app/public/photos/cover/filename.jpg
+                $photoPath = $photo->storeAs('photos/cover', $photoFilename, 'public');
+                
+                // No need to remove 'public/' because we're using the public disk correctly
+                // Path yang disimpan di database: 'photos/cover/filename.jpg'
+            }
             
-            // Generate unique filename
-            $filename = 'gallery_' . time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
+            // Handle file upload - FIXED PATH
+            if ($request->hasFile('file')) {
+                $file = $request->file('file');
+                $originalFilename = $file->getClientOriginalName();
+                $fileSize = $file->getSize();
+                $fileType = $file->getMimeType();
+                
+                // Generate clean school name for filename
+                $cleanSchoolName = preg_replace('/[^a-z0-9]/i', '-', strtolower($schoolName));
+                $cleanSchoolName = trim(preg_replace('/-+/', '-', $cleanSchoolName), '-');
+                
+                // Generate unique filename for ZIP
+                $filename = $cleanSchoolName . '_gallery_' . time() . '_' . Str::random(8) . '.' . $file->getClientOriginalExtension();
+                
+                // FIX: Store file in gallery directory using public disk
+                // This will save to: storage/app/public/gallery/filename.zip
+                $filePath = $file->storeAs('gallery', $filename, 'public');
+                
+                // Create gallery record with correct paths
+                MediaGallery::create([
+                    'school_name' => $schoolName,
+                    'photo' => $photoPath, // This will be 'photos/cover/filename.jpg'
+                    'file' => $filePath,    // This will be 'gallery/filename.zip'
+                    'original_filename' => $originalFilename,
+                    'file_size' => $fileSize,
+                    'file_type' => $fileType,
+                    'competition' => $request->competition,
+                    'season' => $request->season,
+                    'series' => $request->series,
+                    'description' => $request->description,
+                    'status' => $request->status,
+                    'download_count' => 0,
+                ]);
+            }
             
-            // Store file
-            $path = $file->storeAs('public/gallery', $filename);
-            
-            // Create gallery record
-            MediaGallery::create([
-                'school_name' => $schoolName,
-                'file' => 'gallery/' . $filename,
-                'original_filename' => $originalFilename,
-                'file_size' => $fileSize,
-                'file_type' => $fileType,
-                'competition' => $request->competition,
-                'season' => $request->season,
-                'series' => $request->series,
-                'description' => $request->description,
-                'status' => $request->status,
-                'download_count' => 0,
-            ]);
+            DB::commit();
             
             return redirect()->route('admin.gallery.photos.index')
-                ->with('success', 'Photo gallery uploaded successfully!');
+                ->with('success', 'Photo gallery uploaded successfully with cover photo!');
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            // Delete uploaded files if any - FIXED PATH CHECKING
+            if (isset($photoPath) && Storage::disk('public')->exists($photoPath)) {
+                Storage::disk('public')->delete($photoPath);
+            }
+            if (isset($filePath) && Storage::disk('public')->exists($filePath)) {
+                Storage::disk('public')->delete($filePath);
+            }
+            
+            \Log::error('Gallery upload failed: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            
+            return redirect()->back()
+                ->with('error', 'Failed to upload gallery. Please try again. Error: ' . $e->getMessage())
+                ->withInput();
         }
-        
-        return redirect()->back()
-            ->with('error', 'File upload failed. Please try again.')
-            ->withInput();
     }
     
     /**
      * Update the specified photo gallery in storage.
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, $id)
     {
@@ -174,12 +240,23 @@ class PhotosController extends Controller
         // Validate request
         $validator = Validator::make($request->all(), [
             'school_name' => 'required|string|max:255',
-            'file' => 'nullable|file|mimes:zip,rar,7z|max:5120000',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120', // 5MB optional
+            'file' => 'nullable|file|mimes:zip,rar,7z|max:5120000', // 5GB optional
             'competition' => 'required|string|max:100',
             'season' => 'required|string|max:50',
             'series' => 'required|string|max:50',
             'description' => 'nullable|string|max:1000',
             'status' => 'required|in:published,draft,archived',
+        ], [
+            'photo.image' => 'Cover photo must be an image.',
+            'photo.mimes' => 'Cover photo must be a JPG, PNG, GIF, or WEBP file.',
+            'photo.max' => 'Cover photo size must not exceed 5MB.',
+            'file.mimes' => 'File must be a ZIP, RAR, or 7Z archive.',
+            'file.max' => 'File size must not exceed 5GB.',
+            'school_name.required' => 'School name is required.',
+            'competition.required' => 'Competition is required.',
+            'season.required' => 'Season is required.',
+            'series.required' => 'Series is required.',
         ]);
         
         if ($validator->fails()) {
@@ -195,70 +272,136 @@ class PhotosController extends Controller
             $schoolName = $request->manual_school_name;
         }
         
-        // Update basic fields
-        $gallery->update([
-            'school_name' => $schoolName,
-            'competition' => $request->competition,
-            'season' => $request->season,
-            'series' => $request->series,
-            'description' => $request->description,
-            'status' => $request->status,
-        ]);
+        DB::beginTransaction();
         
-        // Handle file update if new file is provided
-        if ($request->hasFile('file')) {
-            $file = $request->file('file');
-            $originalFilename = $file->getClientOriginalName();
-            $fileSize = $file->getSize();
-            $fileType = $file->getMimeType();
+        try {
+            // Prepare update data
+            $updateData = [
+                'school_name' => $schoolName,
+                'competition' => $request->competition,
+                'season' => $request->season,
+                'series' => $request->series,
+                'description' => $request->description,
+                'status' => $request->status,
+            ];
             
-            // Generate unique filename
-            $filename = 'gallery_' . time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
-            
-            // Delete old file if exists
-            if ($gallery->file && Storage::exists('public/' . $gallery->file)) {
-                Storage::delete('public/' . $gallery->file);
+            // Handle photo update if new photo is provided - FIXED PATH
+            if ($request->hasFile('photo')) {
+                $photo = $request->file('photo');
+                
+                // Generate clean school name for filename
+                $cleanSchoolName = preg_replace('/[^a-z0-9]/i', '-', strtolower($schoolName));
+                $cleanSchoolName = trim(preg_replace('/-+/', '-', $cleanSchoolName), '-');
+                
+                // Generate unique filename for photo
+                $photoFilename = $cleanSchoolName . '_cover_' . time() . '.' . $photo->getClientOriginalExtension();
+                
+                // Delete old photo if exists - FIXED PATH CHECKING
+                if ($gallery->photo && Storage::disk('public')->exists($gallery->photo)) {
+                    Storage::disk('public')->delete($gallery->photo);
+                }
+                
+                // Store new photo using public disk
+                $photoPath = $photo->storeAs('photos/cover', $photoFilename, 'public');
+                $updateData['photo'] = $photoPath;
             }
             
-            // Store new file
-            $path = $file->storeAs('public/gallery', $filename);
+            // Handle file update if new file is provided - FIXED PATH
+            if ($request->hasFile('file')) {
+                $file = $request->file('file');
+                $originalFilename = $file->getClientOriginalName();
+                $fileSize = $file->getSize();
+                $fileType = $file->getMimeType();
+                
+                // Generate clean school name for filename
+                $cleanSchoolName = preg_replace('/[^a-z0-9]/i', '-', strtolower($schoolName));
+                $cleanSchoolName = trim(preg_replace('/-+/', '-', $cleanSchoolName), '-');
+                
+                // Generate unique filename for ZIP
+                $filename = $cleanSchoolName . '_gallery_' . time() . '_' . Str::random(8) . '.' . $file->getClientOriginalExtension();
+                
+                // Delete old file if exists - FIXED PATH CHECKING
+                if ($gallery->file && Storage::disk('public')->exists($gallery->file)) {
+                    Storage::disk('public')->delete($gallery->file);
+                }
+                
+                // Store new file using public disk
+                $filePath = $file->storeAs('gallery', $filename, 'public');
+                
+                $updateData['file'] = $filePath;
+                $updateData['original_filename'] = $originalFilename;
+                $updateData['file_size'] = $fileSize;
+                $updateData['file_type'] = $fileType;
+            }
             
-            // Update file information
-            $gallery->update([
-                'file' => 'gallery/' . $filename,
-                'original_filename' => $originalFilename,
-                'file_size' => $fileSize,
-                'file_type' => $fileType,
-            ]);
+            // Update gallery record
+            $gallery->update($updateData);
+            
+            DB::commit();
+            
+            return redirect()->route('admin.gallery.photos.index')
+                ->with('success', 'Photo gallery updated successfully!');
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            \Log::error('Gallery update failed: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            
+            return redirect()->back()
+                ->with('error', 'Failed to update gallery. Please try again. Error: ' . $e->getMessage())
+                ->withInput();
         }
-        
-        return redirect()->route('admin.gallery.photos.index')
-            ->with('success', 'Photo gallery updated successfully!');
     }
     
     /**
      * Remove the specified photo gallery from storage.
      * PERMANENT DELETE (tidak ada soft delete)
+     * 
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy($id)
     {
         $gallery = MediaGallery::findOrFail($id);
         
-        // Delete file from storage
-        if ($gallery->file && Storage::exists('public/' . $gallery->file)) {
-            Storage::delete('public/' . $gallery->file);
+        DB::beginTransaction();
+        
+        try {
+            // Delete photo file from storage - FIXED PATH CHECKING
+            if ($gallery->photo && Storage::disk('public')->exists($gallery->photo)) {
+                Storage::disk('public')->delete($gallery->photo);
+            }
+            
+            // Delete ZIP file from storage - FIXED PATH CHECKING
+            if ($gallery->file && Storage::disk('public')->exists($gallery->file)) {
+                Storage::disk('public')->delete($gallery->file);
+            }
+            
+            // PERMANENT DELETE - Tidak ada soft delete
+            $gallery->delete();
+            
+            DB::commit();
+            
+            return redirect()->route('admin.gallery.photos.index')
+                ->with('success', 'Photo gallery deleted permanently!');
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            \Log::error('Gallery deletion failed: ' . $e->getMessage());
+            
+            return redirect()->back()
+                ->with('error', 'Failed to delete gallery. Please try again.');
         }
-        
-        // PERMANENT DELETE - Tidak ada soft delete
-        $gallery->delete();
-        
-        return redirect()->route('admin.gallery.photos.index')
-            ->with('success', 'Photo gallery deleted permanently!');
     }
     
     /**
      * Bulk delete photo galleries.
      * PERMANENT DELETE (tidak ada soft delete)
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function bulkDestroy(Request $request)
     {
@@ -289,38 +432,55 @@ class PhotosController extends Controller
                 ->with('error', $validator->errors()->first());
         }
         
-        $deletedCount = 0;
+        DB::beginTransaction();
         
-        foreach ($selectedIds as $id) {
-            try {
+        try {
+            $deletedCount = 0;
+            
+            foreach ($selectedIds as $id) {
                 $gallery = MediaGallery::find($id);
                 
                 if ($gallery) {
-                    // Delete file from storage
-                    if ($gallery->file && Storage::exists('public/' . $gallery->file)) {
-                        Storage::delete('public/' . $gallery->file);
+                    // Delete photo file from storage - FIXED PATH CHECKING
+                    if ($gallery->photo && Storage::disk('public')->exists($gallery->photo)) {
+                        Storage::disk('public')->delete($gallery->photo);
                     }
                     
-                    // PERMANENT DELETE - Tidak ada soft delete
+                    // Delete ZIP file from storage - FIXED PATH CHECKING
+                    if ($gallery->file && Storage::disk('public')->exists($gallery->file)) {
+                        Storage::disk('public')->delete($gallery->file);
+                    }
+                    
+                    // PERMANENT DELETE
                     $gallery->delete();
                     $deletedCount++;
                 }
-            } catch (\Exception $e) {
-                // Log error but continue with other deletions
-                \Log::error('Error deleting gallery ' . $id . ': ' . $e->getMessage());
             }
+            
+            DB::commit();
+            
+            $message = $deletedCount == 1 
+                ? '1 photo gallery deleted permanently!' 
+                : "{$deletedCount} photo galleries deleted permanently!";
+            
+            return redirect()->route('admin.gallery.photos.index')
+                ->with('success', $message);
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            \Log::error('Bulk deletion failed: ' . $e->getMessage());
+            
+            return redirect()->back()
+                ->with('error', 'Failed to delete galleries. Please try again.');
         }
-        
-        $message = $deletedCount == 1 
-            ? '1 photo gallery deleted permanently!' 
-            : "{$deletedCount} photo galleries deleted permanently!";
-        
-        return redirect()->route('admin.gallery.photos.index')
-            ->with('success', $message);
     }
     
     /**
      * Bulk download photo galleries.
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
     public function bulkDownload(Request $request)
     {
@@ -383,11 +543,27 @@ class PhotosController extends Controller
         // Add each gallery file to ZIP
         $addedFiles = 0;
         foreach ($galleries as $gallery) {
-            if ($gallery->file && Storage::exists('public/' . $gallery->file)) {
-                $filePath = Storage::path('public/' . $gallery->file);
+            // Add cover photo if exists - FIXED PATH CHECKING
+            if ($gallery->photo && Storage::disk('public')->exists($gallery->photo)) {
+                $photoPath = Storage::disk('public')->path($gallery->photo);
+                $photoFilename = 'cover_' . $gallery->school_name . '_' . basename($gallery->photo);
+                $photoFilename = $this->makeSafeFilename($photoFilename);
+                
+                if ($zip->addFile($photoPath, 'covers/' . $photoFilename)) {
+                    $addedFiles++;
+                }
+            }
+            
+            // Add ZIP file if exists - FIXED PATH CHECKING
+            if ($gallery->file && Storage::disk('public')->exists($gallery->file)) {
+                $filePath = Storage::disk('public')->path($gallery->file);
                 $safeFilename = $this->makeSafeFilename($gallery->original_filename ?: basename($gallery->file));
                 
-                if ($zip->addFile($filePath, $safeFilename)) {
+                // Organize by school name
+                $schoolFolder = preg_replace('/[^a-z0-9]/i', '_', $gallery->school_name);
+                $zipPath = $schoolFolder . '/' . $safeFilename;
+                
+                if ($zip->addFile($filePath, $zipPath)) {
                     $addedFiles++;
                     
                     // Increment download count
@@ -425,13 +601,16 @@ class PhotosController extends Controller
     
     /**
      * Download the specified photo gallery.
+     * 
+     * @param int $id
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse|\Illuminate\Http\RedirectResponse
      */
     public function download($id)
     {
         $gallery = MediaGallery::findOrFail($id);
         
-        // Check if file exists
-        if (!$gallery->file || !Storage::exists('public/' . $gallery->file)) {
+        // Check if file exists - FIXED PATH CHECKING
+        if (!$gallery->file || !Storage::disk('public')->exists($gallery->file)) {
             return redirect()->back()
                 ->with('error', 'File not found. It may have been deleted.');
         }
@@ -440,7 +619,7 @@ class PhotosController extends Controller
         $gallery->increment('download_count');
         
         // Get file path and original filename
-        $filePath = Storage::path('public/' . $gallery->file);
+        $filePath = Storage::disk('public')->path($gallery->file);
         $originalFilename = $gallery->original_filename ?: 'gallery_' . $gallery->id . '.zip';
         
         // Return file download response
@@ -450,7 +629,34 @@ class PhotosController extends Controller
     }
     
     /**
+     * Download cover photo only.
+     * 
+     * @param int $id
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse|\Illuminate\Http\RedirectResponse
+     */
+    public function downloadCover($id)
+    {
+        $gallery = MediaGallery::findOrFail($id);
+        
+        // Check if photo exists - FIXED PATH CHECKING
+        if (!$gallery->hasPhoto() || !Storage::disk('public')->exists($gallery->photo)) {
+            return redirect()->back()
+                ->with('error', 'Cover photo not found.');
+        }
+        
+        // Get file path and filename
+        $filePath = Storage::disk('public')->path($gallery->photo);
+        $filename = 'cover_' . $gallery->school_name . '_' . basename($gallery->photo);
+        
+        // Return file download response
+        return response()->download($filePath, $filename);
+    }
+    
+    /**
      * Increment download count via AJAX.
+     * 
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
      */
     public function incrementDownload($id)
     {
@@ -473,6 +679,9 @@ class PhotosController extends Controller
     
     /**
      * Change gallery status (publish/unpublish).
+     * 
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function publish($id)
     {
@@ -485,6 +694,9 @@ class PhotosController extends Controller
     
     /**
      * Change gallery status (publish/unpublish).
+     * 
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function unpublish($id)
     {
@@ -497,6 +709,9 @@ class PhotosController extends Controller
     
     /**
      * Toggle gallery status.
+     * 
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function toggleStatus($id)
     {
@@ -512,6 +727,9 @@ class PhotosController extends Controller
     
     /**
      * Get school data for autocomplete or dropdown population.
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getSchools(Request $request)
     {
@@ -533,6 +751,9 @@ class PhotosController extends Controller
     
     /**
      * Get competition data for dropdown.
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getCompetitions(Request $request)
     {
@@ -548,6 +769,9 @@ class PhotosController extends Controller
     
     /**
      * Get seasons for dropdown.
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getSeasons(Request $request)
     {
@@ -563,6 +787,9 @@ class PhotosController extends Controller
     
     /**
      * Get series for dropdown.
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getSeries(Request $request)
     {
@@ -578,6 +805,10 @@ class PhotosController extends Controller
     
     /**
      * Format bytes to human readable format.
+     * 
+     * @param int $bytes
+     * @param int $precision
+     * @return string
      */
     public function formatBytes($bytes, $precision = 2)
     {
@@ -600,12 +831,15 @@ class PhotosController extends Controller
     
     /**
      * Get gallery statistics.
+     * 
+     * @return \Illuminate\View\View
      */
     public function statistics()
     {
         $totalGalleries = MediaGallery::count();
         $totalDownloads = MediaGallery::sum('download_count');
         $totalFileSize = MediaGallery::sum('file_size');
+        $totalWithPhotos = MediaGallery::whereNotNull('photo')->where('photo', '!=', '')->count();
         
         $byCompetition = MediaGallery::select('competition', DB::raw('count(*) as count'))
             ->whereNotNull('competition')
@@ -617,6 +851,11 @@ class PhotosController extends Controller
             ->groupBy('status')
             ->get();
         
+        $byPhotoStatus = [
+            'with_photo' => $totalWithPhotos,
+            'without_photo' => $totalGalleries - $totalWithPhotos,
+        ];
+        
         $recentGalleries = MediaGallery::latest()
             ->limit(10)
             ->get();
@@ -625,14 +864,19 @@ class PhotosController extends Controller
             'totalGalleries',
             'totalDownloads',
             'totalFileSize',
+            'totalWithPhotos',
             'byCompetition',
             'byStatus',
+            'byPhotoStatus',
             'recentGalleries'
         ));
     }
     
     /**
      * Helper method to make safe filenames for ZIP archive
+     * 
+     * @param string $filename
+     * @return string
      */
     private function makeSafeFilename($filename)
     {
@@ -642,9 +886,12 @@ class PhotosController extends Controller
         // Remove special characters
         $filename = preg_replace('/[^\w\.\-]/', '_', $filename);
         
-        // Ensure extension is present
-        if (!preg_match('/\.\w+$/', $filename)) {
-            $filename .= '.zip';
+        // Limit length
+        if (strlen($filename) > 100) {
+            $ext = pathinfo($filename, PATHINFO_EXTENSION);
+            $name = pathinfo($filename, PATHINFO_FILENAME);
+            $name = substr($name, 0, 90);
+            $filename = $name . '.' . $ext;
         }
         
         return $filename;
@@ -652,6 +899,9 @@ class PhotosController extends Controller
     
     /**
      * Clean up temporary directory
+     * 
+     * @param string $tempDir
+     * @return void
      */
     private function cleanupTempDirectory($tempDir)
     {
@@ -663,6 +913,71 @@ class PhotosController extends Controller
                 }
             }
             rmdir($tempDir);
+        }
+    }
+    
+    /**
+     * Update cover photo only.
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateCover(Request $request, $id)
+    {
+        $gallery = MediaGallery::findOrFail($id);
+        
+        $validator = Validator::make($request->all(), [
+            'photo' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+        ]);
+        
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+        
+        try {
+            if ($request->hasFile('photo')) {
+                $photo = $request->file('photo');
+                
+                // Generate clean school name for filename
+                $cleanSchoolName = preg_replace('/[^a-z0-9]/i', '-', strtolower($gallery->school_name));
+                $cleanSchoolName = trim(preg_replace('/-+/', '-', $cleanSchoolName), '-');
+                
+                // Generate unique filename for photo
+                $photoFilename = $cleanSchoolName . '_cover_' . time() . '.' . $photo->getClientOriginalExtension();
+                
+                // Delete old photo if exists - FIXED PATH CHECKING
+                if ($gallery->photo && Storage::disk('public')->exists($gallery->photo)) {
+                    Storage::disk('public')->delete($gallery->photo);
+                }
+                
+                // Store new photo using public disk
+                $photoPath = $photo->storeAs('photos/cover', $photoFilename, 'public');
+                $gallery->photo = $photoPath;
+                $gallery->save();
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Cover photo updated successfully!',
+                    'photo_url' => $gallery->photo_url
+                ]);
+            }
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'No photo file provided.'
+            ], 400);
+            
+        } catch (\Exception $e) {
+            \Log::error('Cover update failed: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update cover photo.'
+            ], 500);
         }
     }
 }

@@ -46,21 +46,26 @@
                     </h5>
                 </div>
                 <div class="card-body text-center p-4">
-                    <!-- Avatar -->
+                    <!-- Avatar Inisial -->
                     @php
                         $user = Auth::user();
                         
-                        // Generate avatar dari kolom avatar atau email jika tidak ada
-                        if (!empty($user->avatar) && filter_var($user->avatar, FILTER_VALIDATE_URL)) {
-                            $avatarUrl = $user->avatar;
-                        } elseif (!empty($user->avatar)) {
-                            // Jika avatar adalah path lokal
-                            $avatarUrl = asset('storage/' . $user->avatar);
+                        // Ambil inisial dari nama
+                        $nameParts = explode(' ', trim($user->name));
+                        $initial = '';
+                        
+                        if (count($nameParts) > 1) {
+                            // Ambil huruf pertama dari kata pertama dan kata terakhir
+                            $initial = strtoupper(substr($nameParts[0], 0, 1) . substr(end($nameParts), 0, 1));
                         } else {
-                            // Generate avatar dari email menggunakan avataaars
-                            $seed = $user->email ?? $user->id ?? rand(1, 999999);
-                            $avatarUrl = "https://api.dicebear.com/7.x/avataaars/svg?seed=" . urlencode($seed) . "&backgroundColor=65c9ff,b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf";
+                            // Jika hanya satu kata, ambil 2 huruf pertama
+                            $initial = strtoupper(substr($user->name, 0, 2));
                         }
+                        
+                        // Warna background berdasarkan nama (konsisten)
+                        $colors = ['primary', 'success', 'danger', 'warning', 'info', 'secondary', 'dark'];
+                        $colorIndex = strlen($user->name) % count($colors);
+                        $bgColor = $colors[$colorIndex];
                         
                         // Hitung account age dalam hari (tanpa koma)
                         $createdAt = $user->created_at;
@@ -73,10 +78,9 @@
                     @endphp
                     
                     <div class="avatar-container mx-auto mb-3" style="width: 120px; height: 120px;">
-                        <img src="{{ $avatarUrl }}" 
-                             class="img-fluid rounded-circle border border-3 border-primary w-100 h-100 object-fit-cover"
-                             alt="Profile Picture"
-                             onerror="this.onerror=null; this.src='{{ asset('uploads/default-avatar.png') }}'">
+                        <div class="rounded-circle bg-{{ $bgColor }} bg-gradient d-flex align-items-center justify-content-center w-100 h-100 text-white fw-bold border border-3 border-{{ $bgColor }} shadow-sm" style="font-size: 48px;">
+                            {{ $initial }}
+                        </div>
                     </div>
 
                     <!-- User Info -->
@@ -493,6 +497,38 @@
         position: relative;
     }
 
+    .bg-primary {
+        background-color: #0d6efd !important;
+    }
+    
+    .bg-success {
+        background-color: #198754 !important;
+    }
+    
+    .bg-danger {
+        background-color: #dc3545 !important;
+    }
+    
+    .bg-warning {
+        background-color: #ffc107 !important;
+    }
+    
+    .bg-info {
+        background-color: #0dcaf0 !important;
+    }
+    
+    .bg-secondary {
+        background-color: #6c757d !important;
+    }
+    
+    .bg-dark {
+        background-color: #212529 !important;
+    }
+    
+    .rounded-circle {
+        border-radius: 50% !important;
+    }
+    
     .object-fit-cover {
         object-fit: cover;
     }
@@ -609,6 +645,19 @@
     
     .is-invalid {
         border-color: #dc3545 !important;
+    }
+    
+    /* Avatar Inisial styling */
+    .bg-gradient {
+        background: linear-gradient(145deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%);
+    }
+    
+    .border-3 {
+        border-width: 3px !important;
+    }
+    
+    .shadow-sm {
+        box-shadow: 0 .125rem .25rem rgba(0,0,0,.075) !important;
     }
 </style>
 @endpush

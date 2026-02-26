@@ -162,34 +162,21 @@
         return $video;
     });
     
-    // ========== NEW: AMBIL FOTO TERBARU UNTUK GALLERY ==========
+    // ========== FIXED: AMBIL 8 FOTO TERBARU UNTUK GALLERY DENGAN COVER ASLI ==========
     $latestPhotos = \App\Models\MediaGallery::where('status', 'published')
                     ->latest()
                     ->take(8)
                     ->get();
     
-    // Format photos data dengan gambar random basketball
+    // Format photos data dengan cover asli dari database
     $latestPhotos->transform(function ($photo) {
-        // Generate random basketball-themed image URL based on school name
-        $schoolHash = crc32($photo->school_name ?? 'HSBL');
-        $imageIndex = ($schoolHash % 12) + 1;
+        // Gunakan photo_url dari model (sudah di-accessor)
+        $photo->cover_image = $photo->photo_url;
         
-        $basketballImages = [
-            'https://images.unsplash.com/photo-1544919982-b61976a0d7ed?w=800&h=600&fit=crop&auto=format',
-            'https://images.unsplash.com/photo-1519861531473-920034658307?w=800&h=600&fit=crop&auto=format',
-            'https://images.unsplash.com/photo-1516906571665-49af58989c4e?w=800&h=600&fit=crop&auto=format',
-            'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=800&h=600&fit=crop&auto=format',
-            'https://images.unsplash.com/photo-1518406432532-9cbef5697723?w=800&h=600&fit=crop&auto=format',
-            'https://images.unsplash.com/photo-1575361204480-aadea25e6e68?w=800&h=600&fit=crop&auto=format',
-            'https://images.unsplash.com/photo-1549242484-9a322b5d3a9b?w=800&h=600&fit=crop&auto=format',
-            'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop&auto=format',
-            'https://images.unsplash.com/photo-1551958219-acbc608c6377?w=800&h=600&fit=crop&auto=format',
-            'https://images.unsplash.com/photo-1534158914592-062992fbe900?w=800&h=600&fit=crop&auto=format',
-            'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800&h=600&fit=crop&auto=format',
-            'https://images.unsplash.com/photo-1542744095-fcf48d80b0fd?w=800&h=600&fit=crop&auto=format',
-        ];
-        
-        $photo->cover_image = $basketballImages[$imageIndex - 1];
+        // Fallback jika tidak ada photo
+        if (!$photo->cover_image) {
+            $photo->cover_image = asset('images/default-gallery.jpg');
+        }
         
         // Format file size
         $photo->file_size_formatted = '';
@@ -204,119 +191,132 @@
         // Format date
         $photo->formatted_date = $photo->created_at->format('d M Y');
         
+        // Get file extension
+        $photo->file_extension = $photo->original_filename ? strtoupper(pathinfo($photo->original_filename, PATHINFO_EXTENSION)) : 'ZIP';
+        
         return $photo;
     });
-    // ========== END NEW: AMBIL FOTO TERBARU UNTUK GALLERY ==========
+    
+    // Hitung total downloads untuk statistik
+    $totalPhotoDownloads = $latestPhotos->sum('download_count');
+    // ========== END FIXED: AMBIL FOTO TERBARU UNTUK GALLERY ==========
     
 @endphp
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    {{-- Hero Welcome Section --}}
-    <div class="mb-8 md:mb-12 animate-fadeIn">
-        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 shadow-xl">
-            <div class="absolute inset-0 bg-black/5"></div>
-            {{-- Animated Background Elements --}}
-            <div class="absolute top-0 left-0 w-64 h-64 bg-white/5 rounded-full -translate-x-1/2 -translate-y-1/2 animate-pulse-slow"></div>
-            <div class="absolute bottom-0 right-0 w-96 h-96 bg-white/5 rounded-full translate-x-1/2 translate-y-1/2 animate-pulse-slow animation-delay-2000"></div>
+{{-- Hero Section Full Width tanpa background gradient --}}
+<div class="-mt-6 mb-12 bg-white relative overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-12">
+            {{-- Left Content --}}
+            <div class="md:w-1/2 text-center md:text-left animate-fadeInLeft">
+                <div class="inline-flex items-center bg-gray-100 px-4 py-2 rounded-full mb-6">
+                    <div class="w-2 h-2 bg-blue-600 rounded-full mr-2 animate-pulse"></div>
+                    <span class="text-sm font-medium text-gray-700 tracking-wider">STUDENT BASKETBALL LEAGUE</span>
+                </div>
+                
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 leading-tight">
+                    Creating Forever
+                    <span class="block text-blue-600">New Beginning</span>
+                </h1>
+                
+                <p class="text-lg text-gray-600 mb-8 max-w-lg mx-auto md:mx-0">
+                    The biggest student basketball competition in Riau, where young talents showcase their skills and fighting spirit.
+                </p>
+                
+                <div class="flex flex-wrap gap-4 justify-center md:justify-start">
+                    <a href="{{ route('user.schedule_result') }}" 
+                       class="px-8 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-all transform hover:scale-105 shadow-lg">
+                        Latest Event
+                    </a>
+                    <a href="#about" 
+                       class="px-8 py-3 border-2 border-gray-300 text-gray-700 font-medium rounded-lg hover:border-blue-600 hover:text-blue-600 transition-all">
+                        About Us
+                    </a>
+                </div>
+                
+            </div>
             
-            <div class="relative px-6 py-8 md:px-10 md:py-12">
-                <div class="flex flex-col md:flex-row items-center justify-between">
-                    <div class="md:w-2/3 mb-6 md:mb-0 animate-slideInLeft">
-                        <div class="flex items-center space-x-3 mb-4">
-                            <div class="bg-white/20 p-2 rounded-lg backdrop-blur-sm">
-                                <i class="fas fa-basketball-ball text-white text-xl"></i>
-                            </div>
-                            <span class="text-white/90 text-sm font-medium tracking-wider">HONDA STUDENT BASKETBALL LEAGUE</span>
-                        </div>
-                        <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 leading-tight">
-                            <span class="animate-pulse-slow inline-block">Welcome to Project Alumni</span><br>
-                            <span class="text-yellow-300 animate-bounce-slow inline-block">SBL Riau Pos </span>
-                        </h1>
-                        <p class="text-lg text-blue-100 mb-6 max-w-2xl animate-pulse-slow animation-delay-1000">
-                            The biggest student basketball competition in Riau, where young talents showcase their skills and fighting spirit.
+            {{-- Right Image --}}
+            <div class="md:w-1/2 animate-fadeInRight">
+                <div class="relative">
+                    {{-- Main Image --}}
+                    <img src="https://images.unsplash.com/photo-1546519638-68e109498ffc?w=800&h=600&fit=crop&auto=format" 
+                         alt="Basketball Player" 
+                         class="rounded-2xl shadow-2xl w-full h-auto object-cover">
+                    
+                    {{-- Decorative Elements --}}
+                    <div class="absolute -top-4 -left-4 w-24 h-24 bg-yellow-400 rounded-full opacity-20 blur-2xl"></div>
+                    <div class="absolute -bottom-4 -right-4 w-32 h-32 bg-blue-600 rounded-full opacity-20 blur-2xl"></div>
+                    
+                    {{-- Quote Overlay --}}
+                    <div class="absolute bottom-6 left-6 right-6 bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-xl">
+                        <p class="text-gray-800 text-sm italic">
+                            "We Believe That Crafting The Perfect Wedding Goes Beyond Mere Coordination – It's About Curating An Experience That Echoes Your Unique Love Story."
                         </p>
-                    </div>
-                    <div class="md:w-1/3 flex justify-center animate-slideInRight">
-                        <div class="relative">
-                            <div class="w-40 h-40 md:w-48 md:h-48 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm border-4 border-white/20">
-                                <div class="w-32 h-32 md:w-40 md:h-40 bg-white/20 rounded-full flex items-center justify-center">
-                                    <img src="{{ asset('uploads/logo/hsbl.png') }}" 
-                                         alt="SBL Logo" 
-                                         class="w-24 h-24 md:w-32 md:h-32">
-                                </div>
-                            </div>
-                            <div class="absolute -top-2 -right-2 w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg">
-                                <i class="fas fa-trophy text-white text-xl"></i>
-                            </div>
-                            <div class="absolute -bottom-4 -left-4 w-12 h-12 bg-red-500 rounded-full flex items-center justify-center shadow-lg">
-                                <i class="fas fa-basketball-ball text-white text-lg"></i>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    {{-- About SBL Section --}}
-    <div class="bg-white rounded-xl shadow-lg mb-8 overflow-hidden transform transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 animate-fadeInUp">
-        <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-blue-50">
-            <h2 class="font-semibold text-lg text-gray-800 flex items-center space-x-2">
-                <i class="fas fa-landmark text-indigo-500 animate-pulse"></i>
-                <span>About Riau Pos - Honda SBL</span>
-            </h2>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    {{-- About SBL Section - Minimalis tanpa card --}}
+    <div id="about" class="mb-16 scroll-mt-20 animate-fadeInUp">
+        <div class="text-center mb-10">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-3">About Riau Pos - SBL</h2>
+            <div class="w-24 h-1 bg-blue-600 mx-auto rounded-full"></div>
         </div>
-        <div class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="relative group animate-fadeInLeft">
-                    <div class="absolute inset-0 bg-gradient-to-r from-indigo-500 to-blue-500 opacity-0 group-hover:opacity-10 rounded-lg transition-opacity duration-300"></div>
-                    <h3 class="font-semibold text-gray-800 text-lg mb-3 flex items-center">
-                        <span class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center mr-2 group-hover:scale-110 transition-transform">
-                            <i class="fas fa-history text-indigo-500 text-sm"></i>
-                        </span>
-                        History
-                    </h3>
-                    <div class="prose max-w-none pl-10">
-                        <p class="text-gray-700 mb-3 leading-relaxed">
-                            <strong class="text-indigo-600">Riau Pos Student Basketball League (SBL)</strong> is a basketball and dance competition for high school students and equivalent levels in Riau Province, focusing on youth development and talent scouting.
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <div class="space-y-4">
+                <div class="flex items-start space-x-4">
+                    <div class="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-history text-blue-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-900 text-lg mb-2">History</h3>
+                        <p class="text-gray-600 leading-relaxed">
+                            <strong class="text-blue-600">Riau Pos Student Basketball League (SBL)</strong> is a basketball and dance competition for high school students and equivalent levels in Riau Province, focusing on youth development and talent scouting.
                         </p>
-                        <p class="text-gray-700 leading-relaxed">
-                            First organized in 2008 under the name Student Basketball League (SBL) and renamed to Riau Pos Honda SBL since 2010, this annual event was temporarily halted in 2019 due to the COVID-19 pandemic and resumed in 2024.
+                        <p class="text-gray-600 leading-relaxed mt-3">
+                            First organized in 2008 under the name Student Basketball League (SBL) and renamed to Riau Pos SBL since 2010, this annual event was temporarily halted in 2019 due to the COVID-19 pandemic and resumed in 2024.
                         </p>
                     </div>
                 </div>
-                
-                <div class="relative group animate-fadeInRight">
-                    <div class="absolute inset-0 bg-gradient-to-r from-green-500 to-teal-500 opacity-0 group-hover:opacity-10 rounded-lg transition-opacity duration-300"></div>
-                    <h3 class="font-semibold text-gray-800 text-lg mb-3 flex items-center">
-                        <span class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-2 group-hover:scale-110 transition-transform">
-                            <i class="fas fa-bullseye text-green-500 text-sm"></i>
-                        </span>
-                        Objectives
-                    </h3>
-                    <ul class="space-y-2 pl-10">
-                        <li class="flex items-start group/item">
-                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2 group-hover/item:scale-110 transition-transform"></i>
-                            <span class="text-gray-700">Develop basketball talents among high school students</span>
-                        </li>
-                        <li class="flex items-start group/item">
-                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2 group-hover/item:scale-110 transition-transform"></i>
-                            <span class="text-gray-700">Promote healthy competition and sportsmanship</span>
-                        </li>
-                        <li class="flex items-start group/item">
-                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2 group-hover/item:scale-110 transition-transform"></i>
-                            <span class="text-gray-700">Provide platform for youth development</span>
-                        </li>
-                        <li class="flex items-start group/item">
-                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2 group-hover/item:scale-110 transition-transform"></i>
-                            <span class="text-gray-700">Strengthen sports culture in Riau Province</span>
-                        </li>
-                        <li class="flex items-start group/item">
-                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2 group-hover/item:scale-110 transition-transform"></i>
-                            <span class="text-gray-700">Discover and nurture future basketball stars</span>
-                        </li>
-                    </ul>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="flex items-start space-x-4">
+                    <div class="flex-shrink-0 w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-bullseye text-green-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-900 text-lg mb-2">Objectives</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-center text-gray-600">
+                                <i class="fas fa-check-circle text-green-500 w-5 h-5 mr-3 flex-shrink-0"></i>
+                                <span>Develop basketball talents among high school students</span>
+                            </li>
+                            <li class="flex items-center text-gray-600">
+                                <i class="fas fa-check-circle text-green-500 w-5 h-5 mr-3 flex-shrink-0"></i>
+                                <span>Promote healthy competition and sportsmanship</span>
+                            </li>
+                            <li class="flex items-center text-gray-600">
+                                <i class="fas fa-check-circle text-green-500 w-5 h-5 mr-3 flex-shrink-0"></i>
+                                <span>Provide platform for youth development</span>
+                            </li>
+                            <li class="flex items-center text-gray-600">
+                                <i class="fas fa-check-circle text-green-500 w-5 h-5 mr-3 flex-shrink-0"></i>
+                                <span>Strengthen sports culture in Riau Province</span>
+                            </li>
+                            <li class="flex items-center text-gray-600">
+                                <i class="fas fa-check-circle text-green-500 w-5 h-5 mr-3 flex-shrink-0"></i>
+                                <span>Discover and nurture future basketball stars</span>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -324,10 +324,10 @@
 
     {{-- Latest News Section -- LAYOUT BARU: 1 Berita Besar di Atas, 3 di Bawah --}}
     @if($latestNews->count() > 0)
-    <div class="mb-8 animate-fadeInUp">
-        <div class="flex justify-between items-center mb-4">
+    <div class="mb-12 animate-fadeInUp">
+        <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold text-gray-800 flex items-center">
-                <span class="bg-blue-600 w-1.5 h-6 rounded-full mr-3 animate-pulse"></span>
+                <span class="bg-blue-600 w-1.5 h-6 rounded-full mr-3"></span>
                 Latest News
             </h2>
             <a href="{{ route('user.news.index') }}" class="group flex items-center text-blue-600 hover:text-blue-700 font-medium">
@@ -355,7 +355,7 @@
                         {{-- Content Overlay --}}
                         <div class="absolute bottom-0 left-0 right-0 p-8 text-white">
                             @if($latestNews[0]->series)
-                                <span class="inline-block px-3 py-1 bg-blue-600 rounded-full text-xs font-semibold mb-3 animate-pulse">
+                                <span class="inline-block px-3 py-1 bg-blue-600 rounded-full text-xs font-semibold mb-3">
                                     {{ $latestNews[0]->series }}
                                 </span>
                             @endif
@@ -365,7 +365,7 @@
                                 {{ $latestNews[0]->created_at->format('d F Y') }}
                             </div>
                             <p class="text-gray-200 line-clamp-3 mb-6 max-w-3xl">{{ Str::limit(strip_tags($latestNews[0]->content), 200) }}</p>
-                            <span class="inline-flex items-center text-white bg-blue-600 px-6 py-3 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors transform hover:scale-105">
+                            <span class="inline-flex items-center text-white bg-blue-600 px-6 py-3 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
                                 Read Full Article <i class="fas fa-arrow-right ml-2"></i>
                             </span>
                         </div>
@@ -414,10 +414,10 @@
 
     {{-- Schedules Section -- TANPA TEKS, HANYA GAMBAR + IKON KECIL SAAT HOVER --}}
     @if($latestSchedules->count() > 0)
-    <div class="mb-8 animate-fadeInUp">
-        <div class="flex justify-between items-center mb-4">
+    <div class="mb-12 animate-fadeInUp">
+        <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold text-gray-800 flex items-center">
-                <span class="bg-green-600 w-1.5 h-6 rounded-full mr-3 animate-pulse"></span>
+                <span class="bg-green-600 w-1.5 h-6 rounded-full mr-3"></span>
                 Schedules
             </h2>
             <a href="{{ route('user.schedule_result') }}?tab=schedules" class="group flex items-center text-green-600 hover:text-green-700 font-medium">
@@ -455,10 +455,10 @@
 
     {{-- Match Results Section -- LOGO SEMUA JADI IKON SEKOLAH --}}
     @if($latestResults->count() > 0)
-    <div class="mb-8 animate-fadeInUp">
-        <div class="flex justify-between items-center mb-4">
+    <div class="mb-12 animate-fadeInUp">
+        <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold text-gray-800 flex items-center">
-                <span class="bg-orange-600 w-1.5 h-6 rounded-full mr-3 animate-pulse"></span>
+                <span class="bg-orange-600 w-1.5 h-6 rounded-full mr-3"></span>
                 Match Results
             </h2>
             <a href="{{ route('user.schedule_result') }}?tab=results" class="group flex items-center text-orange-600 hover:text-orange-700 font-medium">
@@ -503,8 +503,6 @@
                                         <i class="fas fa-school text-blue-600 text-xl"></i>
                                     </div>
                                 </div>
-                                {{-- Hover effect --}}
-                                <div class="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white opacity-0 group-hover/team:opacity-100 transition-opacity"></div>
                             </div>
                             <div class="font-bold text-sm text-gray-800 truncate max-w-[120px] mx-auto" title="{{ $result->team1_name ?? 'Team A' }}">
                                 {{ Str::limit($result->team1_name ?? 'Team A', 15) }}
@@ -513,7 +511,7 @@
                         
                         {{-- Score --}}
                         <div class="flex-shrink-0">
-                            <div class="bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold text-xl px-4 py-2 rounded-xl shadow-md transform hover:scale-105 transition-transform">
+                            <div class="bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold text-xl px-4 py-2 rounded-xl shadow-md">
                                 {{ $result->score_1 }} - {{ $result->score_2 }}
                             </div>
                             <div class="text-center mt-2">
@@ -532,8 +530,6 @@
                                         <i class="fas fa-school text-purple-600 text-xl"></i>
                                     </div>
                                 </div>
-                                {{-- Hover effect --}}
-                                <div class="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white opacity-0 group-hover/team:opacity-100 transition-opacity"></div>
                             </div>
                             <div class="font-bold text-sm text-gray-800 truncate max-w-[120px] mx-auto" title="{{ $result->team2_name ?? 'Team B' }}">
                                 {{ Str::limit($result->team2_name ?? 'Team B', 15) }}
@@ -560,9 +556,9 @@
                         
                         @if($result->has_scoresheet)
                         <a href="{{ route('user.results.download.scoresheet', $result->id) }}" 
-                           class="inline-flex items-center text-xs text-green-600 hover:text-white px-3 py-1.5 bg-green-100 hover:bg-green-600 rounded-full transition-all duration-300 group transform hover:scale-105">
-                            <i class="fas fa-download mr-1 group-hover:text-white"></i>
-                            <span class="group-hover:text-white">Scoresheet</span>
+                           class="inline-flex items-center text-xs text-green-600 hover:text-white px-3 py-1.5 bg-green-100 hover:bg-green-600 rounded-full transition-all duration-300">
+                            <i class="fas fa-download mr-1"></i>
+                            <span>Scoresheet</span>
                         </a>
                         @endif
                     </div>
@@ -575,10 +571,10 @@
 
     {{-- Latest Videos Section --}}
     @if($latestVideos->count() > 0)
-    <div class="mb-8 animate-fadeInUp">
-        <div class="flex justify-between items-center mb-4">
+    <div class="mb-12 animate-fadeInUp">
+        <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold text-gray-800 flex items-center">
-                <span class="bg-red-600 w-1.5 h-6 rounded-full mr-3 animate-pulse"></span>
+                <span class="bg-red-600 w-1.5 h-6 rounded-full mr-3"></span>
                 Latest Videos
             </h2>
             <a href="{{ route('user.videos') }}" class="group flex items-center text-red-600 hover:text-red-700 font-medium">
@@ -598,7 +594,7 @@
                         {{-- Badges --}}
                         <div class="absolute top-2 left-2 flex gap-1">
                             @if($video->is_youtube)
-                                <span class="bg-red-600 text-white text-xs px-2 py-1 rounded-lg transform transition-transform group-hover:scale-110">
+                                <span class="bg-red-600 text-white text-xs px-2 py-1 rounded-lg">
                                     <i class="fab fa-youtube"></i>
                                 </span>
                             @endif
@@ -651,12 +647,12 @@
     </div>
     @endif
 
-    {{-- ========== NEW: LATEST PHOTOS GALLERY SECTION ========== --}}
+    {{-- FIXED: LATEST PHOTOS GALLERY SECTION DENGAN COVER ASLI --}}
     @if($latestPhotos->count() > 0)
-    <div class="mb-8 animate-fadeInUp">
-        <div class="flex justify-between items-center mb-4">
+    <div class="mb-12 animate-fadeInUp">
+        <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold text-gray-800 flex items-center">
-                <span class="bg-purple-600 w-1.5 h-6 rounded-full mr-3 animate-pulse"></span>
+                <span class="bg-purple-600 w-1.5 h-6 rounded-full mr-3"></span>
                 Latest Photos
             </h2>
             <a href="{{ route('user.gallery.photos.index') }}" class="group flex items-center text-purple-600 hover:text-purple-700 font-medium">
@@ -669,20 +665,27 @@
             @foreach($latestPhotos as $index => $photo)
                 <div class="group relative overflow-hidden rounded-xl shadow-md hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 animate-scaleIn" style="animation-delay: {{ $index * 0.1 }}s">
                     {{-- Photo Container dengan aspect ratio 4:3 --}}
-                    <div class="aspect-w-4 aspect-h-3 relative">
-                        {{-- Cover Image --}}
-                        <img src="{{ $photo->cover_image }}" 
-                             alt="{{ $photo->school_name }} Gallery" 
-                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                    <div class="aspect-w-4 aspect-h-3 relative bg-gray-100">
+                        {{-- Cover Image dari database --}}
+                        @if($photo->cover_image)
+                            <img src="{{ $photo->cover_image }}" 
+                                 alt="{{ $photo->school_name }} Gallery" 
+                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                 onerror="this.onerror=null; this.src='{{ asset('images/default-gallery.jpg') }}'; this.classList.add('opacity-50');">
+                        @else
+                            <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-100 to-indigo-100">
+                                <i class="fas fa-image text-purple-300 text-4xl"></i>
+                            </div>
+                        @endif
                         
                         {{-- Overlay Gradient --}}
                         <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         
                         {{-- Badge Atas --}}
                         <div class="absolute top-2 left-2">
-                            <span class="px-2 py-1 bg-purple-600 text-white text-xs font-semibold rounded-lg shadow-lg transform -translate-y-1 group-hover:translate-y-0 transition-transform duration-300">
+                            <span class="px-2 py-1 bg-purple-600 text-white text-xs font-semibold rounded-lg shadow-lg">
                                 <i class="fas fa-camera mr-1"></i>
-                                {{ $photo->file_type ? strtoupper(pathinfo($photo->original_filename, PATHINFO_EXTENSION)) : 'PHOTO' }}
+                                {{ $photo->file_extension }}
                             </span>
                         </div>
                         
@@ -712,9 +715,13 @@
                             
                             {{-- Action Buttons --}}
                             <div class="flex gap-2">
-                                <button onclick="openPhotoModal('{{ $photo->cover_image }}', '{{ $photo->school_name }} - {{ $photo->competition }}')"
+                                <button onclick="openPhotoModal('{{ $photo->cover_image }}', '{{ $photo->school_name }} - {{ $photo->competition }}', {{ $photo->id }})"
                                         class="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white text-xs font-medium py-2 px-3 rounded-lg transition-colors duration-300">
-                                    <i class="fas fa-expand"></i>
+                                    <i class="fas fa-expand mr-1"></i> Preview
+                                </button>
+                                <button onclick="downloadGallery({{ $photo->id }})"
+                                        class="bg-purple-600/80 hover:bg-purple-700 text-white text-xs font-medium py-2 px-3 rounded-lg transition-colors duration-300">
+                                    <i class="fas fa-download mr-1"></i> Download
                                 </button>
                             </div>
                         </div>
@@ -727,7 +734,7 @@
                         </div>
                     </div>
                     
-                    {{-- Link ke halaman gallery --}}
+                    {{-- Link ke halaman gallery detail (jika ada) --}}
                     <a href="{{ route('user.gallery.photos.index') }}" class="absolute inset-0"></a>
                 </div>
             @endforeach
@@ -741,90 +748,64 @@
             </span>
             <span class="flex items-center">
                 <i class="fas fa-download text-green-500 mr-1"></i>
-                {{ $latestPhotos->sum('download_count') }} total downloads
+                {{ $totalPhotoDownloads }} total downloads
             </span>
         </div>
     </div>
     @endif
-    {{-- ========== END NEW: LATEST PHOTOS GALLERY SECTION ========== --}}
 
-    {{-- Development Team Section --}}
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 animate-fadeInUp">
-        <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-pink-50">
-            <h2 class="font-semibold text-lg text-gray-800 flex items-center space-x-2">
-                <i class="fas fa-users text-purple-500 animate-pulse"></i>
-                <span>Development Team</span>
-            </h2>
+    {{-- Development Team Section - Minimalis tanpa card --}}
+    <div class="mb-12 animate-fadeInUp">
+        <div class="text-center mb-10">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Development Team</h2>
+            <div class="w-24 h-1 bg-purple-600 mx-auto rounded-full"></div>
         </div>
-        <div class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {{-- Developer 1 --}}
-                <div class="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100 transform transition-all duration-500 hover:scale-[1.02] hover:shadow-xl animate-fadeInLeft">
-                    <div class="flex flex-col md:flex-row items-start md:items-center gap-4">
-                        <div class="flex-shrink-0">
-                            <div class="relative">
-                                <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-lg transform transition-all duration-500 hover:rotate-6 hover:scale-110">
-                                    <img src="{{ asset('images/Developer/Mutia Rizki.jpeg') }}" 
-                                         alt="Mutia Rizkianti" 
-                                         class="w-full h-full object-cover"
-                                         onerror="this.src='https://ui-avatars.com/api/?name=Mutia+Rizkianti&background=3b82f6&color=fff&size=128'">
-                                </div>
-                                <div class="absolute -bottom-1 -right-1 w-8 h-8 bg-blue-500 rounded-full border-2 border-white flex items-center justify-center animate-pulse">
-                                    <i class="fas fa-code text-white text-xs"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="font-bold text-gray-800 text-lg mb-1 group-hover:text-blue-600 transition-colors">Mutia Rizkianti</h3>
-                            <p class="text-sm text-gray-600 mb-3">Computer Science Graduate 2025</p>
-                            <div class="mb-3">
-                                <span class="inline-block bg-blue-600 text-white text-xs px-3 py-1 rounded-full font-medium shadow-md transform hover:scale-105 transition-transform">
-                                    <i class="fas fa-laptop-code mr-1"></i> Full-Stack Developer
-                                </span>
-                            </div>
-                            <p class="text-sm text-gray-700 mb-2 leading-relaxed">
-                                Experienced as a programmer at Digital Innovation Hub research, SBL website development, internship at Riau Pos Event Organizer Division, and freelance layout designer and editor.
-                            </p>
-                            <p class="text-sm text-gray-700 leading-relaxed">
-                                Specializes in integrated system development with focus on structured architecture and clean UI design.
-                            </p>
-                        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {{-- Developer 1 --}}
+            <div class="flex flex-col items-center text-center">
+                <div class="relative mb-4">
+                    <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-purple-200 shadow-lg">
+                        <img src="{{ asset('images/Developer/Mutia Rizki.jpeg') }}" 
+                             alt="Mutia Rizkianti" 
+                             class="w-full h-full object-cover"
+                             onerror="this.src='https://ui-avatars.com/api/?name=Mutia+Rizkianti&background=8b5cf6&color=fff&size=128'">
+                    </div>
+                    <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-purple-600 rounded-full border-2 border-white flex items-center justify-center">
+                        <i class="fas fa-code text-white text-xs"></i>
                     </div>
                 </div>
+                <h3 class="font-bold text-gray-800 text-xl mb-1">Mutia Rizkianti, S.Kom</h3>
+                <p class="text-sm text-gray-500 mb-3">Computer Science Graduate 2025</p>
+                <span class="inline-block bg-purple-100 text-purple-700 text-xs px-3 py-1 rounded-full font-medium mb-3">
+                    Full-Stack Developer
+                </span>
+                <p class="text-sm text-gray-600 leading-relaxed max-w-sm">
+                    Experienced as a programmer at Digital Innovation Hub research, SBL website development, internship at Riau Pos Event Organizer Division, and freelance layout designer and editor. Specializes in integrated system development with focus on structured architecture and clean UI design.
+                </p>
+            </div>
 
-                {{-- Developer 2 --}}
-                <div class="p-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-100 transform transition-all duration-500 hover:scale-[1.02] hover:shadow-xl animate-fadeInRight">
-                    <div class="flex flex-col md:flex-row items-start md:items-center gap-4">
-                        <div class="flex-shrink-0">
-                            <div class="relative">
-                                <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-lg transform transition-all duration-500 hover:-rotate-6 hover:scale-110">
-                                    <img src="{{ asset('images/Developer/Wafiq WW.jpeg') }}" 
-                                         alt="Wafiq Wardatul Khairani" 
-                                         class="w-full h-full object-cover"
-                                         onerror="this.src='https://ui-avatars.com/api/?name=Wafiq+Wardatul+Khairani&background=8b5cf6&color=fff&size=128'">
-                                </div>
-                                <div class="absolute -bottom-1 -right-1 w-8 h-8 bg-purple-500 rounded-full border-2 border-white flex items-center justify-center animate-pulse">
-                                    <i class="fas fa-code text-white text-xs"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="font-bold text-gray-800 text-lg mb-1 group-hover:text-purple-600 transition-colors">Wafiq Wardatul Khairani</h3>
-                            <p class="text-sm text-gray-600 mb-3">Information Systems Graduate 2025</p>
-                            <div class="mb-3">
-                                <span class="inline-block bg-purple-600 text-white text-xs px-3 py-1 rounded-full font-medium shadow-md transform hover:scale-105 transition-transform">
-                                    <i class="fas fa-database mr-1"></i> Full-Stack Developer
-                                </span>
-                            </div>
-                            <p class="text-sm text-gray-700 mb-2 leading-relaxed">
-                                Experienced in SBL website development, programmer at Digital Innovation Hub research, and internship at Riau Pos Event Organizer Division.
-                            </p>
-                            <p class="text-sm text-gray-700 leading-relaxed">
-                                Specializes in integrated backend and frontend development with comprehensive system architecture.
-                            </p>
-                        </div>
+            {{-- Developer 2 --}}
+            <div class="flex flex-col items-center text-center">
+                <div class="relative mb-4">
+                    <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-purple-200 shadow-lg">
+                        <img src="{{ asset('images/Developer/Wafiq WW.jpeg') }}" 
+                             alt="Wafiq Wardatul Khairani" 
+                             class="w-full h-full object-cover"
+                             onerror="this.src='https://ui-avatars.com/api/?name=Wafiq+Wardatul+Khairani&background=8b5cf6&color=fff&size=128'">
+                    </div>
+                    <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-purple-600 rounded-full border-2 border-white flex items-center justify-center">
+                        <i class="fas fa-database text-white text-xs"></i>
                     </div>
                 </div>
+                <h3 class="font-bold text-gray-800 text-xl mb-1">Wafiq Wardatul Khairani, S.Kom</h3>
+                <p class="text-sm text-gray-500 mb-3">Computer Science Graduate 2025</p>
+                <span class="inline-block bg-purple-100 text-purple-700 text-xs px-3 py-1 rounded-full font-medium mb-3">
+                    Full-Stack Developer
+                </span>
+                <p class="text-sm text-gray-600 leading-relaxed max-w-sm">
+                    Experienced in SBL website development, programmer at Digital Innovation Hub research, and internship at Riau Pos Event Organizer Division. Specializes in integrated backend and frontend development with comprehensive system architecture.
+                </p>
             </div>
         </div>
     </div>
@@ -872,10 +853,11 @@
             <div class="p-4 bg-white border-t border-gray-200">
                 <h3 id="photoModalTitle" class="font-semibold text-gray-900 text-center text-lg"></h3>
                 <div class="flex justify-center mt-2 space-x-4">
-                    <a id="photoModalDownload" href="#" class="inline-flex items-center px-4 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 transition-colors">
+                    <button id="photoModalDownloadBtn" onclick="downloadCurrentPhoto()" 
+                            class="inline-flex items-center px-4 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 transition-colors">
                         <i class="fas fa-download mr-2"></i>
                         Download Gallery
-                    </a>
+                    </button>
                     <a href="{{ route('user.gallery.photos.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 transition-colors">
                         <i class="fas fa-images mr-2"></i>
                         View All Photos
@@ -960,16 +942,6 @@
         }
     }
     
-    @keyframes pulse-slow {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.8; }
-    }
-    
-    @keyframes bounce-slow {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-5px); }
-    }
-    
     /* Animation Classes */
     .animate-fadeIn {
         animation: fadeIn 1s ease-out;
@@ -997,27 +969,6 @@
     
     .animate-scaleIn {
         animation: scaleIn 0.6s ease-out;
-    }
-    
-    .animate-pulse-slow {
-        animation: pulse-slow 3s infinite;
-    }
-    
-    .animate-bounce-slow {
-        animation: bounce-slow 2s infinite;
-    }
-    
-    /* Animation Delays */
-    .animation-delay-1000 {
-        animation-delay: 1s;
-    }
-    
-    .animation-delay-2000 {
-        animation-delay: 2s;
-    }
-    
-    .animation-delay-3000 {
-        animation-delay: 3s;
     }
     
     /* Line Clamp */
@@ -1120,18 +1071,6 @@
         background: linear-gradient(to bottom, #2563eb, #1d4ed8);
     }
     
-    /* Gradient Animation */
-    .bg-gradient-to-r {
-        background-size: 200% 200%;
-        animation: gradient 15s ease infinite;
-    }
-    
-    @keyframes gradient {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
-    
     /* Drop shadow for icons */
     .drop-shadow-md {
         filter: drop-shadow(0 4px 3px rgb(0 0 0 / 0.3)) drop-shadow(0 2px 2px rgb(0 0 0 / 0.2));
@@ -1180,6 +1119,11 @@
         backdrop-filter: blur(4px);
         -webkit-backdrop-filter: blur(4px);
     }
+    
+    /* Scroll Margin for anchor links */
+    .scroll-mt-20 {
+        scroll-margin-top: 5rem;
+    }
 </style>
 @endpush
 
@@ -1219,20 +1163,20 @@ function closeImageModal() {
 }
 
 // Photo Modal Functions untuk Gallery
-function openPhotoModal(imageUrl, title) {
+let currentPhotoId = null;
+
+function openPhotoModal(imageUrl, title, photoId) {
     const modal = document.getElementById('photoModal');
     const modalImage = document.getElementById('photoModalImage');
     const modalTitle = document.getElementById('photoModalTitle');
-    const downloadLink = document.getElementById('photoModalDownload');
+    
+    currentPhotoId = photoId;
     
     // Set image source
     modalImage.src = imageUrl;
     
     // Set title
     modalTitle.textContent = title || 'Photo Gallery';
-    
-    // Set download link (tetap ke halaman gallery)
-    downloadLink.href = '{{ route("user.gallery.photos.index") }}';
     
     // Show modal
     modal.classList.remove('hidden');
@@ -1253,6 +1197,19 @@ function closePhotoModal() {
     // Clear image source
     const modalImage = document.getElementById('photoModalImage');
     modalImage.src = '';
+    currentPhotoId = null;
+}
+
+function downloadCurrentPhoto() {
+    if (currentPhotoId) {
+        downloadGallery(currentPhotoId);
+        closePhotoModal();
+    }
+}
+
+function downloadGallery(galleryId) {
+    // Redirect ke download URL
+    window.location.href = `/user/gallery/photos/${galleryId}/download`;
 }
 
 // Close modals with Escape key
@@ -1295,7 +1252,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }, { threshold: 0.1 });
     
-    document.querySelectorAll('.section-content').forEach(section => {
+    document.querySelectorAll('.animate-fadeInUp').forEach(section => {
         observer.observe(section);
     });
 });
