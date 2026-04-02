@@ -320,7 +320,7 @@
                             <div class="border rounded-3 p-3">
                                 <div class="d-flex align-items-center mb-2">
                                     <i class="fas fa-file-pdf text-danger me-2"></i>
-                                    <span class="small fw-medium">Surat Rekomendasi <span class="text-danger">*</span></span>
+                                    <span class="small fw-medium">Surat Persetujuan Kepala Sekolah <span class="text-danger">*</span></span>
                                 </div>
                                 <input type="file" class="form-control form-control-sm"
                                     id="recommendation_letter" name="recommendation_letter" accept=".pdf" required>
