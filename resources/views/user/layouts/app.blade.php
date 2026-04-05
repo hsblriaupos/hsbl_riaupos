@@ -441,7 +441,7 @@
                     <div class="bg-white p-1.5 rounded-lg shadow-sm group-hover:shadow transition-shadow duration-300">
                         <img src="{{ asset('uploads/logo/hsbl.png') }}" 
                              alt="SBL Riau Pos Logo" 
-                             class="h-10 w-10 rounded-md" />
+                             class="h-10 w-20 rounded-md" />
                     </div>
                 </a>
 
@@ -860,32 +860,33 @@
 
     {{-- ==================== FOOTER (Background Biru dengan Rounded Top) ==================== --}}
     <footer class="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-t-3xl">
-        <div class="max-w-7xl mx-auto px-6 py-8">
-            {{-- Footer Info --}}
-            <div class="text-center pt-6">
-                <div class="flex flex-col md:flex-row items-center justify-between mb-4">
-                    <div class="mb-3 md:mb-0">
-                        <img src="{{ asset('uploads/logo/hsbl.png') }}" 
-                             alt="SBL Logo" 
-                             class="h-10 w-10 rounded-lg mx-auto md:mx-0">
-                    </div>
-                    <div class="text-center md:text-left">
-                        <h3 class="text-lg font-semibold mb-1">Riau Pos - SBL</h3>
-                        <p class="text-blue-100 text-xs">Student Basketball League</p>
-                    </div>
-                </div>
-                
-                <div class="text-xs text-blue-200">
-                    <p class="mb-1">&copy; {{ date('Y') }} Riau Pos - Student Basketball League. All Rights Reserved.</p>
-                    <p class="flex items-center justify-center space-x-1">
-                        <span>Developed with</span>
-                        <i class="fas fa-heart text-red-300"></i>
-                        <span>by : Mutia Rizkianti | Wafiq Wardatul Khairani</span>
-                    </p>
-                </div>
+    <div class="max-w-7xl mx-auto px-6 py-4">  {{-- ganti py-8 jadi py-4 biar lebih ramping --}}
+        {{-- Footer Info --}}
+<div class="text-center pt-0">  {{-- ganti pt-2 jadi pt-0 --}}
+    <div class="flex flex-col md:flex-row items-center justify-between mb-0">  {{-- ganti mb-2 jadi mb-0 --}}
+        <div class="md:mb-0">
+            <img src="{{ asset('uploads/logo/hsbl.png') }}" 
+                 alt="SBL Logo" 
+                 class="rounded-lg mx-auto md:mx-0"
+                 style="height: 100px; width: auto; object-fit: contain; margin-top: -10px; margin-bottom: -10px;">
+        </div>
+        <div class="text-center md:text-left">
+            <h3 class="text-lg font-semibold mb-0">Riau Pos - SBL</h3>  {{-- ganti mb-1 jadi mb-0 --}}
+            <p class="text-blue-100 text-xs">Student Basketball League</p>
+        </div>
+    </div>
+            
+            <div class="text-xs text-blue-200">
+                <p class="mb-1">&copy; {{ date('Y') }} Riau Pos - Student Basketball League. All Rights Reserved.</p>
+                <p class="flex items-center justify-center space-x-1">
+                    <span>Developed with</span>
+                    <i class="fas fa-heart text-red-300"></i>
+                    <span>by : Mutia Rizkianti | Wafiq Wardatul Khairani</span>
+                </p>
             </div>
         </div>
-    </footer>
+    </div>
+</footer>
 
     {{-- JavaScript untuk Floating Navigation dan Scrollbar --}}
     <script>
