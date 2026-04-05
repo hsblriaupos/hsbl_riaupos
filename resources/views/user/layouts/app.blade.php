@@ -438,11 +438,7 @@
             <div class="flex items-center justify-between h-16">
                 {{-- Logo --}}
                 <a href="{{ url('user/dashboard') }}" class="flex items-center space-x-2 group">
-                    <div class="bg-white p-1.5 rounded-lg shadow-sm group-hover:shadow transition-shadow duration-300">
-                        <img src="{{ asset('uploads/logo/hsbl.png') }}" 
-                             alt="SBL Riau Pos Logo" 
-                             class="h-10 w-20 rounded-md" />
-                    </div>
+                    
                 </a>
 
                 {{-- Desktop Navigation --}}
