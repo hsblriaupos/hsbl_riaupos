@@ -454,8 +454,7 @@
             </button>
 
             <a href="{{ route('admin.dashboard') }}" class="d-flex align-items-center text-decoration-none">
-                <img src="{{ asset('uploads/logo/hsbl.png') }}" alt="SBL Logo">
-                <h4 class="ms-3 mb-0 d-none d-sm-block">Riau Pos - Honda SBL Administrator</h4>
+                <h4 class="ms-3 mb-0 d-none d-sm-block">Riau Pos - SBL Administrator</h4>
             </a>
         </div>
         <div class="d-flex align-items-center">
