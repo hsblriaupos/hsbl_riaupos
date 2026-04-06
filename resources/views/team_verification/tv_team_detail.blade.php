@@ -610,7 +610,7 @@
                                 <td>{{ $player->school_name ?? $mainTeam->school_name ?? '-' }}</td>
                                 <td>@if($player->grade){{ $player->grade }}@else-@endif</td>
                                 <td>@if($player->sttb_year){{ $player->sttb_year }}@else-@endif</td>
-                                <td>@if(strtolower($player->role ?? '') == 'leader')<span class="badge-role-leader">Leader</span>@else<span class="badge-role-player">Player</span>@endif</td>
+                                <td>@if(strtolower($player->role ?? '') == 'leader')Leader @else<span class="badge-role-player">Player</span>@endif</td>
                                 <td><a href="{{ route('admin.player.detail', $player->id) }}" class="btn-detail"><i class="fas fa-eye"></i> Detail</a></td>
                             </tr>
                             @endforeach
@@ -735,7 +735,7 @@
                                 <td>{{ $player->school_name ?? $mainTeam->school_name ?? '-' }}</td>
                                 <td>@if($player->grade){{ $player->grade }}@else-@endif</td>
                                 <td>@if($player->sttb_year){{ $player->sttb_year }}@else-@endif</td>
-                                <td>@if(strtolower($player->role ?? '') == 'leader')<span class="badge-role-leader">Leader</span>@else<span class="badge-role-player">Player</span>@endif</td>
+                                <td>@if(strtolower($player->role ?? '') == 'leader')Leader @else<span class="badge-role-player">Player</span>@endif</td>
                                 <td><a href="{{ route('admin.player.detail', $player->id) }}" class="btn-detail"><i class="fas fa-eye"></i> Detail</a></td>
                             </tr>
                             @endforeach
@@ -860,7 +860,7 @@
                                 <td>{{ $dancer->school_name ?? $mainTeam->school_name ?? '-' }}</td>
                                 <td>@if($dancer->grade){{ $dancer->grade }}@else-@endif</td>
                                 <td>@if($dancer->sttb_year){{ $dancer->sttb_year }}@else-@endif</td>
-                                <td>@if(strtolower($dancer->role ?? '') == 'leader')<span class="badge-role-leader">Leader</span>@else<span class="badge-role-player">Member</span>@endif</td>
+                                <td>@if(strtolower($dancer->role ?? '') == 'leader')Leader @else<span class="badge-role-player">Member</span>@endif</td>
                                 <td><a href="{{ route('admin.dancer.detail', $dancer->dancer_id) }}" class="btn-detail"><i class="fas fa-eye"></i> Detail</a></td>
                             </tr>
                             @endforeach

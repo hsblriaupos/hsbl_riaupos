@@ -183,12 +183,12 @@ class TeamController extends Controller
     public function teamShow($id)
     {
         $mainTeam = $this->getMainTeam($id);
-        
+
         // AMBIL SEMUA DATA SEPERTI DI TEAMLISTPROFILECONTROLLER
         $teamData = $this->getAllTeamData($mainTeam->school_name);
-        
+
         $activeTab = request()->get('tab', $this->getDefaultActiveTab($teamData));
-        
+
         Log::info('=== TEAM SHOW ===', [
             'school' => $mainTeam->school_name,
             'activeTab' => $activeTab,
@@ -250,94 +250,94 @@ class TeamController extends Controller
     private function getAllTeamData($schoolName)
     {
         $this->ensureConsistentSchoolId($schoolName);
-        
+
         // AMBIL SEMUA TIM UNTUK SEKOLAH INI
         $teams = TeamList::where('school_name', $schoolName)->get();
-        
+
         // ========== AMBIL DATA TEAM LENGKAP DENGAN LOGO ==========
         $teamPutra = $teams->where('team_category', 'Basket Putra')->first();
         $teamPutri = $teams->where('team_category', 'Basket Putri')->first();
         $teamDancer = $teams->where('team_category', 'Dancer')->first();
-        
+
         // ========== FORMAT LOGO URL ==========
         $teamPutra = $this->formatTeamLogo($teamPutra);
         $teamPutri = $this->formatTeamLogo($teamPutri);
         $teamDancer = $this->formatTeamLogo($teamDancer);
-        
+
         // ========== FORMAT DOKUMEN URL ==========
         $teamPutra = $this->formatTeamDocuments($teamPutra);
         $teamPutri = $this->formatTeamDocuments($teamPutri);
         $teamDancer = $this->formatTeamDocuments($teamDancer);
-        
+
         // ========== FORMAT JERSEY URL ==========
         $teamPutra = $this->formatTeamJersey($teamPutra);
         $teamPutri = $this->formatTeamJersey($teamPutri);
         $teamDancer = $this->formatTeamJersey($teamDancer);
-        
+
         // ========== AMBIL PLAYER BASED ON GENDER ==========
         $playersMale = [];
         $playersFemale = [];
-        
+
         if ($teamPutra) {
             $playersMale = $this->getPlayersByTeamAndGender($teamPutra->team_id, 'male');
         }
-        
+
         if ($teamPutri) {
             $playersFemale = $this->getPlayersByTeamAndGender($teamPutri->team_id, 'female');
         }
-        
+
         // ========== AMBIL DANCERS ==========
         $dancers = collect();
         if ($teamDancer) {
             $dancers = $this->getDancersByTeamId($teamDancer->team_id);
         }
-        
+
         // ========== AMBIL OFFICIALS PER KATEGORI ==========
         $officialsBasketMale = collect();
         $officialsBasketFemale = collect();
         $officialsDancer = collect();
         $allOfficials = collect();
-        
+
         if ($teamPutra) {
             $officialsBasketMale = $this->getOfficialsByTeamAndCategory($teamPutra->team_id, 'basket_putra');
             $allOfficials = $allOfficials->merge($officialsBasketMale);
         }
-        
+
         if ($teamPutri) {
             $officialsBasketFemale = $this->getOfficialsByTeamAndCategory($teamPutri->team_id, 'basket_putri');
             $allOfficials = $allOfficials->merge($officialsBasketFemale);
         }
-        
+
         if ($teamDancer) {
             $officialsDancer = $this->getOfficialsByTeamAndCategory($teamDancer->team_id, 'dancer');
             $allOfficials = $allOfficials->merge($officialsDancer);
         }
-        
+
         // ========== FORMAT DATA UNTUK VIEW ==========
         $teamData = [
             // TEAM OBJECTS
             'team_putra' => $teamPutra,
             'team_putri' => $teamPutri,
             'team_dancer' => $teamDancer,
-            
+
             // PLAYERS
             'players_male' => $playersMale,
             'players_female' => $playersFemale,
             'total_players_male' => count($playersMale),
             'total_players_female' => count($playersFemale),
             'total_players' => count($playersMale) + count($playersFemale),
-            
+
             // DANCERS
             'dancers' => $dancers,
             'total_dancers' => $dancers->count(),
-            
+
             // OFFICIALS
             'officials_basket_male' => $officialsBasketMale,
             'officials_basket_female' => $officialsBasketFemale,
             'officials_dancer' => $officialsDancer,
             'all_officials' => $allOfficials,
             'total_officials' => $allOfficials->count(),
-            
+
             // TEAM INFO
             'team_name' => $teamPutra->school_name ?? $teamPutri->school_name ?? $teamDancer->school_name ?? $schoolName,
             'competition' => $teamPutra->competition ?? $teamPutri->competition ?? $teamDancer->competition ?? 'HSBL',
@@ -345,7 +345,7 @@ class TeamController extends Controller
             'season' => $teamPutra->season ?? $teamPutri->season ?? $teamDancer->season ?? date('Y'),
             'series' => $teamPutra->series ?? $teamPutri->series ?? $teamDancer->series ?? '1',
         ];
-        
+
         return $teamData;
     }
 
@@ -355,10 +355,10 @@ class TeamController extends Controller
     private function formatTeamLogo($team)
     {
         if (!$team) return null;
-        
+
         if (!empty($team->school_logo)) {
             $logoFile = basename($team->school_logo);
-            
+
             if (file_exists(public_path('storage/school_logos/' . $logoFile))) {
                 $team->logo_url = asset('storage/school_logos/' . $logoFile) . '?v=' . time();
             } elseif (Storage::disk('public')->exists('school_logos/' . $logoFile)) {
@@ -371,7 +371,7 @@ class TeamController extends Controller
                 $team->logo_url = asset($team->school_logo) . '?v=' . time();
             }
         }
-        
+
         return $team;
     }
 
@@ -381,17 +381,17 @@ class TeamController extends Controller
     private function formatTeamDocuments($team)
     {
         if (!$team) return null;
-        
+
         // Recommendation letter
         if (!empty($team->recommendation_letter)) {
             $team->recommendation_url = $this->getDocumentUrl($team->recommendation_letter);
         }
-        
+
         // Koran
         if (!empty($team->koran)) {
             $team->koran_url = $this->getDocumentUrl($team->koran);
         }
-        
+
         return $team;
     }
 
@@ -401,22 +401,22 @@ class TeamController extends Controller
     private function formatTeamJersey($team)
     {
         if (!$team) return null;
-        
+
         // Jersey Home
         if (!empty($team->jersey_home)) {
             $team->jersey_home_url = $this->getJerseyUrl($team->jersey_home);
         }
-        
+
         // Jersey Away
         if (!empty($team->jersey_away)) {
             $team->jersey_away_url = $this->getJerseyUrl($team->jersey_away);
         }
-        
+
         // Jersey Alternate
         if (!empty($team->jersey_alternate)) {
             $team->jersey_alternate_url = $this->getJerseyUrl($team->jersey_alternate);
         }
-        
+
         return $team;
     }
 
@@ -432,15 +432,15 @@ class TeamController extends Controller
         if (file_exists(public_path('storage/' . $path))) {
             return asset('storage/' . $path) . '?v=' . time();
         }
-        
+
         if (Storage::disk('public')->exists($path)) {
             return Storage::url($path) . '?v=' . time();
         }
-        
+
         if (file_exists(public_path($path))) {
             return asset($path) . '?v=' . time();
         }
-        
+
         return null;
     }
 
@@ -456,15 +456,15 @@ class TeamController extends Controller
         if (file_exists(public_path('storage/' . $path))) {
             return asset('storage/' . $path) . '?v=' . time();
         }
-        
+
         if (Storage::disk('public')->exists($path)) {
             return Storage::url($path) . '?v=' . time();
         }
-        
+
         if (file_exists(public_path($path))) {
             return asset($path) . '?v=' . time();
         }
-        
+
         return null;
     }
 
@@ -474,12 +474,12 @@ class TeamController extends Controller
     private function getPlayersByTeamAndGender($teamId, $gender)
     {
         $players = PlayerList::where('team_id', $teamId)->get();
-        
+
         $filteredPlayers = [];
-        
+
         foreach ($players as $player) {
             $playerGender = strtolower($player->gender ?? $player->category ?? '');
-            
+
             if ($gender == 'male') {
                 if (in_array($playerGender, ['male', 'putra', 'laki-laki'])) {
                     $filteredPlayers[] = $player;
@@ -490,19 +490,19 @@ class TeamController extends Controller
                 }
             }
         }
-        
+
         // Format data untuk tampilan
         foreach ($filteredPlayers as $player) {
             $player->formatted_role = $this->formatRole($player->role);
             $player->jersey_display = $player->jersey_number ?? '00';
             $player->formal_photo_url = $this->getFormalPhotoUrl($player->formal_photo, 'player');
         }
-        
+
         Log::info('FILTER PLAYERS ' . strtoupper($gender), [
             'team_id' => $teamId,
             'total' => count($filteredPlayers)
         ]);
-        
+
         return $filteredPlayers;
     }
 
@@ -515,7 +515,7 @@ class TeamController extends Controller
             ->orderByRaw("CASE WHEN role = 'Leader' THEN 0 ELSE 1 END")
             ->orderBy('name', 'asc')
             ->get();
-        
+
         // Format data untuk tampilan
         foreach ($dancers as $dancer) {
             $dancer->formatted_role = $this->formatRole($dancer->role);
@@ -524,12 +524,12 @@ class TeamController extends Controller
             $dancer->avatar_bg_class = $this->getDancerAvatarBgClass($dancer->gender);
             $dancer->formal_photo_url = $this->getFormalPhotoUrl($dancer->formal_photo, 'dancer');
         }
-        
+
         Log::info('DANCERS:', [
             'team_id' => $teamId,
             'total' => $dancers->count()
         ]);
-        
+
         return $dancers; // ✅ RETURN COLLECTION, BUKAN ARRAY
     }
 
@@ -542,7 +542,7 @@ class TeamController extends Controller
             ->where('category', $category)
             ->orderBy('name', 'asc')
             ->get();
-        
+
         // Format data untuk tampilan
         foreach ($officials as $official) {
             $official->formatted_team_role = $this->formatRole($official->team_role);
@@ -551,13 +551,13 @@ class TeamController extends Controller
             $official->avatar_color = 'ed6c02';
             $official->avatar_bg_class = 'bg-warning';
             $official->formal_photo_url = $this->getFormalPhotoUrl($official->formal_photo, 'official');
-            
+
             // Format category badge
             $official->category_badge_class = $this->getCategoryBadgeClass($official->category);
             $official->category_badge_icon = $this->getCategoryBadgeIcon($official->category);
             $official->category_display = $this->formatCategory($official->category);
         }
-        
+
         return $officials; // ✅ RETURN COLLECTION, BUKAN ARRAY
     }
 
@@ -583,7 +583,7 @@ class TeamController extends Controller
             $official->avatar_color = 'ed6c02';
             $official->avatar_bg_class = 'bg-warning';
             $official->formal_photo_url = $this->getFormalPhotoUrl($official->formal_photo, 'official');
-            
+
             // Format category badge
             $official->category_badge_class = $this->getCategoryBadgeClass($official->category);
             $official->category_badge_icon = $this->getCategoryBadgeIcon($official->category);
@@ -656,13 +656,13 @@ class TeamController extends Controller
     private function formatCategory($category)
     {
         if (empty($category)) return '-';
-        
+
         $mapping = [
             'basket_putra' => 'Basket Putra',
             'basket_putri' => 'Basket Putri',
             'dancer' => 'Dancer'
         ];
-        
+
         return $mapping[$category] ?? ucfirst(str_replace('_', ' ', $category));
     }
 
@@ -685,16 +685,16 @@ class TeamController extends Controller
         }
 
         $fileName = basename($photo);
-        
+
         // Cek di berbagai lokasi
         $locations = $this->getPhotoPathsByType($type, $fileName);
-        
+
         foreach ($locations as $location) {
             if (file_exists($location) && !is_dir($location)) {
                 return $this->convertPathToUrl($location) . '?v=' . time();
             }
         }
-        
+
         return null;
     }
 
@@ -704,7 +704,7 @@ class TeamController extends Controller
     private function getPhotoPathsByType($type, $fileName)
     {
         $paths = [];
-        
+
         switch ($type) {
             case 'player':
                 $paths[] = storage_path('app/public/player_docs/' . $fileName);
@@ -725,7 +725,7 @@ class TeamController extends Controller
                 $paths[] = storage_path('app/uploads/officials/formal_photos/' . $fileName);
                 break;
         }
-        
+
         return array_unique($paths);
     }
 
@@ -738,12 +738,12 @@ class TeamController extends Controller
             $relativePath = str_replace(public_path(), '', $path);
             return asset(ltrim($relativePath, '\\/'));
         }
-        
+
         if (strpos($path, storage_path('app/public')) === 0) {
             $relativePath = str_replace(storage_path('app/public'), '', $path);
             return asset('storage' . str_replace('\\', '/', $relativePath));
         }
-        
+
         return asset($path);
     }
 
@@ -930,16 +930,12 @@ class TeamController extends Controller
     {
         $dancer = DancerList::with('team')
             ->where('dancer_id', $id)
-            ->first();
+            ->firstOrFail();
 
-        if (!$dancer) {
-            abort(404, 'Dancer tidak ditemukan');
-        }
+        $teamId = $dancer->team_id;
+        $schoolName = $dancer->team->school_name ?? $dancer->school_name ?? null;
 
-        $schoolName = $dancer->team->school_name ?? null;
-        $dancer->formal_photo_url = $this->getFormalPhotoUrl($dancer->formal_photo, 'dancer');
-
-        return view('team_verification.tv_dancer_detail', compact('dancer', 'schoolName'));
+        return view('team_verification.tv_dancer_detail', compact('dancer', 'teamId', 'schoolName'));
     }
 
     public function verifyDancer($id)
