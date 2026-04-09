@@ -158,8 +158,7 @@ class FormTeamController extends Controller
     }
 
     /**
-     * 🔥🔥🔥 FIX UTAMA: Process role selection 
-     * ✅ PERBAIKAN: Jika belum ada tim untuk kategori Basket, user bisa membuatnya sebagai Leader
+     * Process role selection
      */
     public function processRoleSelection(Request $request)
     {
@@ -168,7 +167,6 @@ class FormTeamController extends Controller
             'team_category' => 'required|in:Basket Putra,Basket Putri,Dancer,Official'
         ]);
 
-        // 🔥🔥🔥 AMBIL TIM DARI REFERRAL CODE (Ini adalah tim PERTAMA sekolah di season ini)
         $primaryTeam = TeamList::where('referral_code', $validated['referral_code'])->first();
 
         if (!$primaryTeam) {
@@ -184,42 +182,32 @@ class FormTeamController extends Controller
             'season' => $primaryTeam->season
         ]);
 
-        // ✅ NORMALIZE CATEGORY
         $playerCategory = $this->normalizeCategory($validated['team_category']);
 
-        // ✅ CEK APAKAH ADA TIM DENGAN KATEGORI YANG DIPILIH?
         $targetTeamId = $primaryTeam->team_id;
         $targetTeamCategory = $primaryTeam->team_category;
         $isNewTeamForCategory = false;
 
-        // Untuk Basket Putra/Putri: cek apakah sudah ada tim khusus kategori tsb
         if (in_array($validated['team_category'], ['Basket Putra', 'Basket Putri'])) {
-            // 🔥 CEK APAKAH SUDAH ADA TIM BASKET DENGAN KATEGORI INI?
             $existingBasketTeam = TeamList::where('school_name', $primaryTeam->school_name)
                 ->where('season', $primaryTeam->season)
                 ->where('team_category', $validated['team_category'])
                 ->first();
 
             if ($existingBasketTeam) {
-                // ✅ SUDAH ADA: gunakan tim yang sudah ada
                 $targetTeamId = $existingBasketTeam->team_id;
                 $targetTeamCategory = $existingBasketTeam->team_category;
                 $isNewTeamForCategory = false;
                 Log::info('✅ Using existing basket team: ' . $targetTeamId);
             } else {
-                // ✅ BELUM ADA: User akan jadi Leader untuk kategori baru ini
-                // Kita akan gunakan primary team sebagai referensi, tapi nanti di form player
-                // akan dibuatkan tim baru untuk kategori ini
                 $isNewTeamForCategory = true;
                 Log::info('🆕 User will create new team for category: ' . $validated['team_category']);
             }
         }
 
-        // ✅ CEK LEADER LOGIC
         $canBeLeader = false;
 
         if ($isNewTeamForCategory) {
-            // Jika ini kategori baru, user OTOMATIS jadi Leader
             $canBeLeader = true;
             Log::info('✅ User will be Leader for new category');
         } elseif ($validated['team_category'] === 'Official') {
@@ -239,7 +227,6 @@ class FormTeamController extends Controller
                 $canBeLeader = true;
             }
         } else {
-            // Basket Putra/Putri (untuk tim yang sudah ada)
             if ($primaryTeam->is_leader_paid) {
                 $existingLeaderCount = PlayerList::where('team_id', $targetTeamId)
                     ->where('category', $playerCategory)
@@ -252,7 +239,6 @@ class FormTeamController extends Controller
             }
         }
 
-        // ✅ SET SESSION
         session([
             'current_team_id' => $targetTeamId,
             'current_team_category' => $validated['team_category'],
@@ -261,7 +247,7 @@ class FormTeamController extends Controller
             'join_school_name' => $primaryTeam->school_name,
             'join_season' => $primaryTeam->season,
             'current_can_be_leader' => $canBeLeader,
-            'is_new_team_for_category' => $isNewTeamForCategory, // 🔥 TAMBAHKAN INI
+            'is_new_team_for_category' => $isNewTeamForCategory,
         ]);
 
         Log::info('✅ Session set for role selection:', [
@@ -272,7 +258,6 @@ class FormTeamController extends Controller
             'is_new_team' => $isNewTeamForCategory ? 'YES' : 'NO'
         ]);
 
-        // ✅ REDIRECT KE FORM YANG SESUAI
         switch ($validated['team_category']) {
             case 'Basket Putra':
             case 'Basket Putri':
@@ -297,13 +282,19 @@ class FormTeamController extends Controller
         }
     }
 
+    /**
+     * 🔥 CREATE TEAM WITH LOGO LOGIC
+     * - Jika pilih sekolah existing, cek logo di tabel schools
+     * - Jika sekolah sudah punya logo, tidak perlu upload
+     * - Jika sekolah belum punya logo, wajib upload
+     */
     public function createTeam(Request $request)
     {
         try {
             Log::info('=== CREATE TEAM START ===');
             Log::info('Create Team Request Data:', $request->all());
 
-            // Validation
+            // Validation rules
             $validationRules = [
                 'school_option' => 'required|in:existing,new',
                 'competition' => 'required',
@@ -317,6 +308,7 @@ class FormTeamController extends Controller
 
             if ($request->school_option == 'existing') {
                 $validationRules['existing_school_id'] = 'required|exists:schools,id';
+                // Logo tidak required dulu, akan dicek nanti
                 $validationRules['school_logo'] = 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048';
             } else {
                 $validationRules['new_school_name'] = 'required|string|max:255';
@@ -332,40 +324,88 @@ class FormTeamController extends Controller
             // Process school
             $schoolName = '';
             $schoolId = null;
+            $schoolLogoPath = null;
 
             if ($validated['school_option'] == 'existing') {
+                // 🔥 PILIH SEKOLAH EXISTING
                 $school = School::findOrFail($validated['existing_school_id']);
                 $schoolName = $school->school_name;
                 $schoolId = $school->id;
-            } else {
-                $existingSchool = School::where('school_name', $validated['new_school_name'])->first();
-                if ($existingSchool) {
-                    $school = $existingSchool;
-                    $schoolName = $school->school_name;
-                    $schoolId = $school->id;
-                    session()->flash('info', 'Sekolah "' . $schoolName . '" sudah terdaftar di sistem.');
+                
+                // 🔥 CEK APAKAH SEKOLAH SUDAH PUNYA LOGO?
+                if ($school->hasLogo()) {
+                    // ✅ Sekolah sudah punya logo, gunakan logo yang ada
+                    $schoolLogoPath = $school->school_logo;
+                    Log::info('✅ School already has logo, using existing: ' . $schoolLogoPath);
+                    
+                    // Tampilkan pesan info
+                    session()->flash('info', 'Sekolah "' . $schoolName . '" sudah memiliki logo. Menggunakan logo yang ada.');
                 } else {
-                    $school = School::create([
-                        'school_name' => $validated['new_school_name'],
-                        'city_id' => $validated['new_city_id'],
-                        'category_name' => $validated['new_category_name'],
-                        'type' => $validated['new_type'],
-                    ]);
-                    $schoolName = $school->school_name;
-                    $schoolId = $school->id;
+                    // ⚠️ Sekolah belum punya logo, wajib upload
+                    if (!$request->hasFile('school_logo')) {
+                        return back()->withErrors(['school_logo' => 'Sekolah "' . $schoolName . '" belum memiliki logo. Silakan upload logo sekolah.'])->withInput();
+                    }
+                    
+                    // Upload logo baru untuk sekolah
+                    $schoolLogoPath = $this->uploadSchoolLogo(
+                        $request->file('school_logo'),
+                        $schoolName,
+                        $validated['team_category']
+                    );
+                    
+                    // Update logo di tabel schools
+                    $school->school_logo = $schoolLogoPath;
+                    $school->save();
+                    Log::info('✅ Logo uploaded and saved to school: ' . $schoolLogoPath);
+                }
+            } else {
+                // 🔥 SEKOLAH BARU
+                // Cek apakah sekolah sudah terdaftar di database
+                $existingSchool = School::where('school_name', $validated['new_school_name'])->first();
+                
+                if ($existingSchool) {
+                    // ❌ Sekolah sudah terdaftar!
+                    Log::warning('⚠️ School already exists: ' . $validated['new_school_name']);
+                    return back()->withErrors([
+                        'new_school_name' => 'Sekolah "' . $validated['new_school_name'] . '" sudah terdaftar! Silakan gunakan opsi "Pilih Sekolah" untuk memilih sekolah ini.'
+                    ])->withInput();
+                }
+                
+                // ✅ Sekolah benar-benar baru, buat record baru
+                $school = School::create([
+                    'school_name' => $validated['new_school_name'],
+                    'city_id' => $validated['new_city_id'],
+                    'category_name' => $validated['new_category_name'],
+                    'type' => $validated['new_type'],
+                ]);
+                $schoolName = $school->school_name;
+                $schoolId = $school->id;
+                
+                // Upload logo untuk sekolah baru
+                if ($request->hasFile('school_logo')) {
+                    $schoolLogoPath = $this->uploadSchoolLogo(
+                        $request->file('school_logo'),
+                        $schoolName,
+                        $validated['team_category']
+                    );
+                    
+                    // Simpan logo ke tabel schools
+                    $school->school_logo = $schoolLogoPath;
+                    $school->save();
+                    Log::info('✅ New school created with logo: ' . $schoolLogoPath);
                 }
             }
 
             Log::info('✅ School processed: ' . $schoolName . ' (ID: ' . $schoolId . ')');
+            Log::info('📁 School logo path: ' . ($schoolLogoPath ?? 'null'));
 
-            // 🔥🔥🔥 CEK: Apakah sudah ada tim untuk KATEGORI INI di season ini?
+            // 🔥 CEK: Apakah sudah ada tim untuk KATEGORI INI di season ini?
             $existingTeamForCategory = TeamList::where('school_name', $schoolName)
                 ->where('season', $validated['season'])
                 ->where('team_category', $validated['team_category'])
                 ->first();
 
             if ($existingTeamForCategory) {
-                // 🔥 SUDAH ADA TIM UNTUK KATEGORI INI
                 Log::info('⚠️ Team already exists for category: ' . $validated['team_category']);
 
                 $team = $existingTeamForCategory;
@@ -381,18 +421,7 @@ class FormTeamController extends Controller
                 }
             }
 
-            // 🔥🔥🔥 INI ADALAH TIM PERTAMA UNTUK KATEGORI INI
-            Log::info('🎯 This is the FIRST team for category ' . $validated['team_category'] . ' - ' . $schoolName . ' in season ' . $validated['season']);
-
-            // Upload school logo if exists
-            $schoolLogoPath = null;
-            if ($request->hasFile('school_logo')) {
-                $schoolLogoPath = $this->uploadSchoolLogo(
-                    $request->file('school_logo'),
-                    $schoolName,
-                    $validated['team_category']
-                );
-            }
+            Log::info('🎯 Creating NEW team for category ' . $validated['team_category'] . ' - ' . $schoolName);
 
             // Save documents
             Storage::disk('public')->makeDirectory('team_docs');
@@ -406,22 +435,20 @@ class FormTeamController extends Controller
             $koranPath = $request->file('koran')
                 ->storeAs('team_docs', "{$baseSlug}_{$categorySlug}_koran_{$timestamp}." . $request->file('koran')->extension(), 'public');
 
-            Log::info('✅ Documents saved: ' . $recommendationPath . ', ' . $koranPath);
+            Log::info('✅ Documents saved');
 
-            // 🔥🔥🔥 GENERATE UNIK REFERRAL CODE UNTUK SETIAP KATEGORI
+            // Generate unique referral code
             $referralCode = strtoupper(Str::random(8));
-
-            // Pastikan referral code unik
             while (TeamList::where('referral_code', $referralCode)->exists()) {
                 $referralCode = strtoupper(Str::random(8));
             }
 
-            // 🔥🔥🔥 CREATE TEAM UNTUK KATEGORI INI
+            // Create team
             $team = TeamList::create([
                 'school_name' => $schoolName,
                 'school_id' => $schoolId,
                 'school_logo' => $schoolLogoPath,
-                'referral_code' => $referralCode, // ✅ SET REFERRAL CODE UNTUK KATEGORI INI
+                'referral_code' => $referralCode,
                 'competition' => $validated['competition'],
                 'season' => $validated['season'],
                 'series' => $validated['series'],
@@ -441,14 +468,9 @@ class FormTeamController extends Controller
             ]);
 
             Log::info('✅ Team created with ID: ' . $team->team_id);
-            Log::info('✅ Category: ' . $team->team_category);
-            Log::info('✅ Referral Code: ' . $team->referral_code);
-            Log::info('✅ Registered_by: ' . $team->registered_by);
 
-            // 🔥🔥🔥 Normalize category untuk success page
             $normalizedCategory = $this->normalizeCategory($validated['team_category']);
 
-            // 🔥🔥🔥 SIMPAN KE SESSION untuk success page
             session([
                 'created_team_id' => $team->team_id,
                 'created_team_category' => $validated['team_category'],
@@ -462,19 +484,10 @@ class FormTeamController extends Controller
                 'referral_code' => $referralCode,
             ]);
 
-            Log::info('Session after create team:', [
-                'created_team_id' => session('created_team_id'),
-                'team_category' => session('created_team_category'),
-                'referral_code' => session('referral_code'),
-                'registered_by' => session('registered_by_name')
-            ]);
-
-            // 🔥🔥🔥 REDIRECT KE HALAMAN SUCCESS
-            Log::info('🎉 Redirecting to team success page for team: ' . $team->team_id);
-
             return redirect()->route('form.team.success', [
                 'team_id' => $team->team_id
             ])->with('success', 'Tim ' . $validated['team_category'] . ' berhasil dibuat! Silakan lengkapi data diri Anda sebagai Kapten.');
+            
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('❌ Validation error: ', $e->errors());
             return back()->withErrors($e->errors())->withInput();
@@ -486,7 +499,7 @@ class FormTeamController extends Controller
     }
 
     /**
-     * 🔥🔥🔥 Show Team Success Page
+     * Show Team Success Page
      */
     public function showTeamSuccessPage($team_id)
     {
@@ -496,16 +509,10 @@ class FormTeamController extends Controller
 
             $team = TeamList::findOrFail($team_id);
 
-            // Ambil dari session atau generate ulang
             $normalizedCategory = session('normalized_category', $this->normalizeCategory($team->team_category));
             $referralCode = session('referral_code', $team->referral_code);
 
-            // ✅ AMBIL TERMS & CONDITIONS UNTUK DITAMPILKAN DI SUCCESS PAGE
             $latestTerm = \App\Models\TermCondition::orderBy('year', 'desc')->first();
-
-            Log::info('Team success page for: ' . $team->school_name . ' - ' . $team->team_category);
-            Log::info('Referral Code: ' . $referralCode);
-            Log::info('Registered_by: ' . $team->registered_by);
 
             return view('user.form.form_team_success', compact('team', 'normalizedCategory', 'referralCode', 'latestTerm'));
         } catch (\Exception $e) {
@@ -563,13 +570,13 @@ class FormTeamController extends Controller
         $schools = School::where('school_name', 'LIKE', "%{$query}%")
             ->with('city')
             ->limit(10)
-            ->get(['id', 'school_name', 'city_id', 'category_name', 'type']);
+            ->get(['id', 'school_name', 'city_id', 'category_name', 'type', 'school_logo']);
 
         return response()->json($schools);
     }
 
     /**
-     * Check if school exists
+     * Check if school exists (untuk validasi real-time)
      */
     public function checkSchoolExists(Request $request)
     {
@@ -583,7 +590,26 @@ class FormTeamController extends Controller
         return response()->json([
             'exists' => $exists,
             'school' => $school,
-            'message' => $exists ? 'Sekolah sudah ada di database' : 'Sekolah belum terdaftar'
+            'has_logo' => $school ? $school->hasLogo() : false,
+            'message' => $exists ? 'Sekolah sudah terdaftar! Silakan gunakan opsi "Pilih Sekolah".' : 'Sekolah belum terdaftar. Silakan lengkapi data.'
+        ]);
+    }
+
+    /**
+     * Check if school has logo (untuk validasi)
+     */
+    public function checkSchoolLogo(Request $request)
+    {
+        $request->validate([
+            'school_id' => 'required|exists:schools,id'
+        ]);
+
+        $school = School::find($request->school_id);
+
+        return response()->json([
+            'has_logo' => $school->hasLogo(),
+            'logo_url' => $school->hasLogo() ? $school->logo_url : null,
+            'message' => $school->hasLogo() ? 'Sekolah sudah memiliki logo.' : 'Sekolah belum memiliki logo. Silakan upload logo.'
         ]);
     }
 
@@ -646,7 +672,7 @@ class FormTeamController extends Controller
     }
 
     /**
-     * ✅ Download Syarat & Ketentuan Terbaru
+     * Download Syarat & Ketentuan Terbaru
      */
     public function downloadTerms()
     {
@@ -664,7 +690,7 @@ class FormTeamController extends Controller
     }
 
     /**
-     * ✅ Preview Syarat & Ketentuan Terbaru
+     * Preview Syarat & Ketentuan Terbaru
      */
     public function previewTerms()
     {
@@ -681,4 +707,3 @@ class FormTeamController extends Controller
         }
     }
 }
-

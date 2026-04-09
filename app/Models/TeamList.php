@@ -31,9 +31,9 @@ class TeamList extends Model
         'verification_status',
         'recommendation_letter',
         'koran',
-        'jersey_home',        // 🔥 TAMBAHKAN
-        'jersey_away',        // 🔥 TAMBAHKAN
-        'jersey_alternate',   // 🔥 TAMBAHKAN
+        'jersey_home',      
+        'jersey_away',       
+        'jersey_alternate', 
         'payment_proof',
         'payment_status',
         'is_leader_paid',
