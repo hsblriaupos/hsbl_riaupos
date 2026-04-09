@@ -1,7 +1,6 @@
 @props(['team', 'category', 'stats' => []])
 
 @php
-    // Fungsi untuk mendapatkan URL logo dengan fallback
     function getTeamLogoUrl($team) {
         if (!$team) return null;
         
@@ -48,295 +47,358 @@
 @endphp
 
 <div class="team-info">
-    <!-- Logo Column -->
+    <!-- Logo Column - DIPERBESAR -->
     <div class="logo-column">
         @if($logoUrl)
             <img src="{{ $logoUrl }}" 
                  alt="Logo Sekolah {{ $schoolName }}"
-                 id="team-logo-{{ $team->team_id ?? '0' }}"
-                 class="team-logo-img"
+                 class="team-logo-img "
                  onclick="showLogoPopup('{{ $logoUrl }}', '{{ $schoolName }}', '{{ $category }}')"
                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-            <div class="logo-placeholder" style="display: none;" onclick="showLogoPopup(null, '{{ $schoolName }}', '{{ $category }}')">
+            <div class="logo-placeholder" style="display: none;">
                 <i class="fas fa-school"></i>
-                <span>Logo Tidak Ditemukan</span>
+                <span>Logo</span>
             </div>
         @else
-            <div class="logo-placeholder" onclick="showLogoPopup(null, '{{ $schoolName }}', '{{ $category }}')">
+            <div class="logo-placeholder">
                 <i class="fas fa-school"></i>
-                <span>No Logo</span>
+                <span>Logo</span>
             </div>
         @endif
     </div>
 
     <!-- Content Column -->
     <div class="content-column">
-        <div class="content-grid">
-            <!-- Basic Info -->
-            <div class="info-section">
-                <table class="info-table">
-                    <tr>
-                        <td><strong>ID Tim</strong></td>
-                        <td>: <strong style="font-family: monospace; font-size: 14px; color: #2563eb;">{{ $team->referral_code ?? 'N/A' }}</strong></td>
-                    </tr>
-                    <tr>
-                        <td><strong>Leader</strong></strong></td>
-                        <td>: {{ $leaderName }}</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Nama Sekolah</strong></strong></td>
-                        <td>: <strong>{{ $schoolName }}</strong></td>
-                    </tr>
-                    <tr>
-                        <td><strong>Kompetisi</strong></strong></td>
-                        <td>: {{ $team->competition ?? 'HSBL' }}</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Musim</strong></strong></td>
-                        <td>: {{ $team->season ?? date('Y') }}</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Seri</strong></strong></td>
-                        <td>: {{ $team->series ?? '1' }}</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Status Terkunci</strong></strong></td>
-                        <td>: {{ $team->locked_status == 'locked' ? '🔒 Terkunci' : '🔓 Terbuka' }}</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Status Verifikasi</strong></strong></td>
-                        <td>: {{ $team->verification_status == 'verified' ? '✅ Terverifikasi' : '⏳ Belum Diverifikasi' }}</td>
-                    </tr>
-                </table>
-            </div>
-
-            <!-- Documents -->
-            <div class="status-doc-section">
-                <div class="documents-section">
-                    <h4><i class="fas fa-file-alt"></i> Dokumen</h4>
-                    <div class="document-links compact">
-                        @if($team->recommendation_letter)
-                            @php
-                                $recPath = null;
-                                if (file_exists(public_path('storage/' . $team->recommendation_letter))) {
-                                    $recPath = asset('storage/' . $team->recommendation_letter) . '?v=' . time();
-                                } elseif (file_exists(storage_path('app/public/' . $team->recommendation_letter))) {
-                                    $recPath = asset('storage/' . $team->recommendation_letter) . '?v=' . time();
-                                }
-                            @endphp
-                            @if($recPath)
-                                <a href="{{ $recPath }}" target="_blank" class="document-link available">
-                                    <i class="fas fa-file-pdf"></i>
-                                    <span>Surat Rekomendasi</span>
-                                    <i class="fas fa-external-link-alt ms-auto" style="font-size: 11px;"></i>
-                                </a>
-                            @else
-                                <a href="#" class="document-link warning" onclick="showAlert('Surat Rekomendasi')">
-                                    <i class="fas fa-exclamation-circle"></i>
-                                    <span>Surat Rekomendasi (Error)</span>
-                                </a>
-                            @endif
-                        @else
-                            <a href="#" class="document-link warning" onclick="showAlert('Surat Rekomendasi')">
-                                <i class="fas fa-exclamation-circle"></i>
-                                <span>Surat Rekomendasi</span>
-                            </a>
-                        @endif
-
-                        @if($team->koran)
-                            @php
-                                $koranPath = null;
-                                if (file_exists(public_path('storage/' . $team->koran))) {
-                                    $koranPath = asset('storage/' . $team->koran) . '?v=' . time();
-                                } elseif (file_exists(storage_path('app/public/' . $team->koran))) {
-                                    $koranPath = asset('storage/' . $team->koran) . '?v=' . time();
-                                }
-                            @endphp
-                            @if($koranPath)
-                                <a href="{{ $koranPath }}" target="_blank" class="document-link available">
-                                    <i class="fas fa-newspaper"></i>
-                                    <span>Bukti Koran</span>
-                                    <i class="fas fa-external-link-alt ms-auto" style="font-size: 11px;"></i>
-                                </a>
-                            @else
-                                <a href="#" class="document-link danger" onclick="showAlert('Bukti Langganan Koran')">
-                                    <i class="fas fa-times-circle"></i>
-                                    <span>Bukti Koran (Error)</span>
-                                </a>
-                            @endif
-                        @else
-                            <a href="#" class="document-link danger" onclick="showAlert('Bukti Langganan Koran')">
-                                <i class="fas fa-times-circle"></i>
-                                <span>Bukti Koran</span>
-                            </a>
-                        @endif
-                    </div>
+        <!-- Info Grid 2 Kolom - PROPORSIONAL -->
+        <div class="info-grid">
+            <div class="info-col">
+                <div class="info-item">
+                    <span class="info-label">Tim ID</span>
+                    <span class="info-value code">{{ $team->referral_code ?? 'N/A' }}</span>
                 </div>
+                <div class="info-item">
+                    <span class="info-label">Leader</span>
+                    <span class="info-value">{{ $leaderName }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">School</span>
+                    <span class="info-value">{{ $schoolName }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Competition</span>
+                    <span class="info-value">{{ $team->competition ?? 'HSBL' }}</span>
+                </div>
+            </div>
+            <div class="info-col">
+                <div class="info-item">
+                    <span class="info-label">Season</span>
+                    <span class="info-value">{{ $team->season ?? date('Y') }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Series</span>
+                    <span class="info-value">{{ $team->series ?? '1' }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Lock Status</span>
+                    <span class="info-value">
+                        @if($team->locked_status == 'locked')
+                            <span class="status-locked">🔒 Locked</span>
+                        @else
+                            <span class="status-open">🔓 Unlocked</span>
+                        @endif
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Verify Status</span>
+                    <span class="info-value">
+                        @if($team->verification_status == 'verified')
+                            <span class="status-verified">✓ Verified</span>
+                        @else
+                            <span class="status-unverified">○ Unverified</span>
+                        @endif
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dokumen Section - DIPERSEMPIT -->
+        <div class="docs-section">
+            <div class="docs-title">
+                <i class="fas fa-file-alt"></i> Document
+            </div>
+            <div class="docs-list">
+                @php
+                    $recUrl = null;
+                    if (!empty($team->recommendation_letter)) {
+                        if (file_exists(public_path('storage/' . $team->recommendation_letter))) {
+                            $recUrl = asset('storage/' . $team->recommendation_letter) . '?v=' . time();
+                        } elseif (Storage::disk('public')->exists($team->recommendation_letter)) {
+                            $recUrl = Storage::url($team->recommendation_letter) . '?v=' . time();
+                        }
+                    }
+                    
+                    $koranUrl = null;
+                    if (!empty($team->koran)) {
+                        if (file_exists(public_path('storage/' . $team->koran))) {
+                            $koranUrl = asset('storage/' . $team->koran) . '?v=' . time();
+                        } elseif (Storage::disk('public')->exists($team->koran)) {
+                            $koranUrl = Storage::url($team->koran) . '?v=' . time();
+                        }
+                    }
+                @endphp
+                
+                <a href="{{ $recUrl ?: '#' }}" 
+                   target="{{ $recUrl ? '_blank' : '_self' }}"
+                   class="doc-link {{ $recUrl ? 'doc-available' : 'doc-missing' }}"
+                   onclick="{{ !$recUrl ? 'showAlert(\'Surat Rekomendasi\'); return false;' : '' }}">
+                    <i class="fas fa-file-pdf"></i>
+                    <span>Surat Rekomendasi</span>
+                </a>
+                
+                <a href="{{ $koranUrl ?: '#' }}" 
+                   target="{{ $koranUrl ? '_blank' : '_self' }}"
+                   class="doc-link {{ $koranUrl ? 'doc-available' : 'doc-missing' }}"
+                   onclick="{{ !$koranUrl ? 'showAlert(\'Bukti Koran\'); return false;' : '' }}">
+                    <i class="fas fa-newspaper"></i>
+                    <span>Bukti Koran</span>
+                </a>
             </div>
         </div>
     </div>
 </div>
 
 <style>
-    .content-grid {
-        display: flex;
-        flex-wrap: wrap;
+/* ===== MAIN LAYOUT ===== */
+.team-info {
+    display: flex;
+    gap: 28px;
+    align-items: flex-start;
+}
+
+/* ===== LOGO COLUMN - DIPERBESAR ===== */
+.logo-column {
+    flex: 0 0 140px;
+}
+
+.team-logo-img {
+    width: 140px;
+    height: 140px;
+    object-fit: contain;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+    background: transparent;
+    display: block;
+}
+
+.team-logo-img:hover {
+    opacity: 0.85;
+}
+
+.logo-placeholder {
+    width: 140px;
+    height: 140px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #f8fafc;
+    border-radius: 12px;
+    color: #94a3b8;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.logo-placeholder:hover {
+    background: #f1f5f9;
+}
+
+.logo-placeholder i {
+    font-size: 48px;
+    margin-bottom: 8px;
+    color: #cbd5e1;
+}
+
+/* ===== CONTENT COLUMN ===== */
+.content-column {
+    flex: 1;
+    min-width: 0;
+    max-width: 580px;
+}
+
+/* ===== INFO GRID 2 KOLOM - PROPORSIONAL ===== */
+.info-grid {
+    display: flex;
+    gap: 32px;
+    margin-bottom: 20px;
+}
+
+.info-col {
+    flex: 1;
+    min-width: 0;
+}
+
+.info-item {
+    display: flex;
+    align-items: baseline;
+    padding: 8px 0;
+    font-size: 13px;
+    border-bottom: 1px solid #f0f2f5;
+}
+
+.info-label {
+    width: 80px;
+    flex-shrink: 0;
+    color: #64748b;
+    font-weight: 500;
+    font-size: 12px;
+}
+
+.info-value {
+    flex: 1;
+    color: #1e293b;
+    font-weight: 400;
+    word-break: break-word;
+}
+
+.info-value.code {
+    font-family: 'SF Mono', 'Monaco', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    color: #2563eb;
+    letter-spacing: 0.3px;
+}
+
+/* Status - Tanpa Background */
+.status-locked {
+    color: #dc2626;
+}
+
+.status-open {
+    color: #10b981;
+}
+
+.status-verified {
+    color: #10b981;
+}
+
+.status-unverified {
+    color: #f59e0b;
+}
+
+/* ===== DOKUMEN SECTION - DIPERSEMPIT ===== */
+.docs-section {
+    margin-top: 8px;
+    padding-top: 12px;
+    border-top: 1px solid #f0f2f5;
+}
+
+.docs-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.docs-title i {
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+.docs-list {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.doc-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    font-size: 12px;
+    font-weight: 450;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.doc-link i {
+    font-size: 13px;
+}
+
+.doc-available {
+    color: #3b82f6;
+    border-bottom-color: #e2e8f0;
+}
+
+.doc-available:hover {
+    border-bottom-color: #3b82f6;
+    opacity: 0.8;
+}
+
+.doc-missing {
+    color: #94a3b8;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 700px) {
+    .team-info {
+        flex-direction: column;
+        align-items: center;
         gap: 20px;
     }
     
-    .info-section {
-        flex: 2;
-        min-width: 280px;
-    }
-    
-    .status-doc-section {
-        flex: 1;
-        min-width: 220px;
-    }
-    
     .logo-column {
-        flex: 0 0 120px;
+        flex: 0 0 auto;
     }
     
-    .team-logo-img {
-        width: 120px;
-        height: 120px;
-        object-fit: contain;
-        cursor: pointer;
-        border-radius: 12px;
-        transition: transform 0.3s ease;
-        background: white;
-        padding: 10px;
-        border: 1px solid #e2e8f0;
+    .content-column {
+        max-width: 100%;
     }
     
-    .team-logo-img:hover {
-        transform: scale(1.05);
-        border-color: #3b82f6;
-    }
-    
-    .logo-placeholder {
-        width: 120px;
-        height: 120px;
-        display: flex;
+    .info-grid {
         flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        background: #f8fafc;
-        border-radius: 12px;
-        color: #94a3b8;
-        font-size: 12px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        border: 1px dashed #cbd5e1;
+        gap: 0;
     }
     
-    .logo-placeholder:hover {
-        background: #f1f5f9;
-        transform: scale(1.02);
+    .info-item {
+        justify-content: space-between;
+    }
+    
+    .docs-list {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo-column {
+        flex: 0 0 100px;
+    }
+    
+    .team-logo-img, .logo-placeholder {
+        width: 100px;
+        height: 100px;
     }
     
     .logo-placeholder i {
-        font-size: 40px;
-        margin-bottom: 8px;
+        font-size: 36px;
     }
     
-    .info-table {
-        width: 100%;
-        border-collapse: collapse;
-        background: white;
-        border-radius: 8px;
-        overflow: hidden;
-    }
-    
-    .info-table td {
-        padding: 10px 12px;
-        vertical-align: middle;
-        font-size: 13px;
-        border-bottom: 1px solid #f1f5f9;
-    }
-    
-    .info-table td:first-child {
-        width: 130px;
-        color: #475569;
-        font-weight: 600;
-        background: #f8fafc;
-        border-right: 1px solid #e2e8f0;
-    }
-    
-    .documents-section h4 {
-        font-size: 12px;
-        font-weight: 600;
-        color: #475569;
-        margin-bottom: 10px;
-        padding-bottom: 6px;
-        border-bottom: 2px solid #e2e8f0;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-    
-    .document-links.compact {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-    }
-    
-    .document-link {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        text-decoration: none;
+    .info-label {
+        width: 70px;
         font-size: 11px;
-        font-weight: 500;
-        padding: 6px 10px;
-        border-radius: 6px;
-        transition: all 0.2s ease;
-        border: 1px solid transparent;
     }
     
-    .document-link.available {
-        color: #1e40af;
-        background: #eff6ff;
-        border-color: #dbeafe;
+    .info-value {
+        font-size: 11px;
     }
-    
-    .document-link.warning {
-        color: #92400e;
-        background: #fffbeb;
-        border-color: #fde68a;
-    }
-    
-    .document-link.danger {
-        color: #7f1d1d;
-        background: #fef2f2;
-        border-color: #fecaca;
-    }
-    
-    .document-link i:first-child {
-        width: 16px;
-        font-size: 12px;
-    }
-    
-    @media (max-width: 768px) {
-        .logo-column {
-            flex: 0 0 100px;
-        }
-        .team-logo-img, .logo-placeholder {
-            width: 100px;
-            height: 100px;
-        }
-        .info-table td:first-child {
-            width: 100px;
-            font-size: 11px;
-        }
-        .info-table td {
-            font-size: 11px;
-            padding: 8px 10px;
-        }
-        .document-link {
-            font-size: 10px;
-            padding: 5px 8px;
-        }
-    }
+}
 </style>

@@ -6,7 +6,7 @@
     <title>@yield('title', 'SBL Riau Pos')</title>
 
     {{-- Favicon --}}
-    <link rel="icon" href="{{ asset('uploads/logo/hsbl.png') }}" type="image/png" />
+    <link rel="icon" href="{{ asset('uploads/logo/logo.png') }}" type="image/png" />
 
     {{-- Tailwind via CDN --}}
     <script src="https://cdn.tailwindcss.com"></script>
@@ -861,7 +861,7 @@
 <div class="text-center pt-0">  {{-- ganti pt-2 jadi pt-0 --}}
     <div class="flex flex-col md:flex-row items-center justify-between mb-0">  {{-- ganti mb-2 jadi mb-0 --}}
         <div class="md:mb-0">
-            <img src="{{ asset('uploads/logo/hsbl.png') }}" 
+            <img src="{{ asset('uploads/logo/logo.png') }}" 
                  alt="SBL Logo" 
                  class="rounded-lg mx-auto md:mx-0"
                  style="height: 100px; width: auto; object-fit: contain; margin-top: -10px; margin-bottom: -10px;">

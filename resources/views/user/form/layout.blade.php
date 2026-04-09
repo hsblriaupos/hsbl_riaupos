@@ -7,7 +7,7 @@
     <title>@yield('title', 'SBL Registration - Student Portal')</title>
     
     <!-- Favicon -->
-    <link rel="icon" href="{{ asset('uploads/logo/hsbl.png') }}" type="image/png" />
+    <link rel="icon" href="{{ asset('uploads/logo/logo.png') }}" type="image/png" />
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -546,7 +546,7 @@
             <div class="navbar-brand-section">
                 <a href="{{ route('form.team.choice') }}" class="d-flex align-items-center text-decoration-none">
                     <div class="logo-container">
-                        <img src="{{ asset('uploads/logo/hsbl.png') }}" alt="SBL Riau Pos Logo" class="logo-img" />
+                        <img src="{{ asset('uploads/logo/logo.png') }}" alt="SBL Riau Pos Logo" class="logo-img" />
                     </div>
                     <span class="navbar-brand fw-bold d-none d-sm-inline">SBL Student Portal</span>
                     <span class="navbar-brand fw-bold d-sm-none">SBL</span>

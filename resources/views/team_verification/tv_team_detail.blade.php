@@ -10,21 +10,22 @@
     * {
         box-sizing: border-box;
     }
-    
-    html, body {
+
+    html,
+    body {
         overflow-x: hidden;
         width: 100%;
         background: #f4f6f9;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
-    
+
     .container-fluid {
         width: 100%;
         max-width: 100%;
         padding: 15px;
         margin: 0 auto;
     }
-    
+
     /* ===== PAGE HEADER ===== */
     .page-header {
         margin-bottom: 20px;
@@ -78,15 +79,18 @@
         background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
         border: 1px solid #bbf7d0;
     }
+
     .payment-proof-card .card-header {
         background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
     }
+
     .payment-proof-content {
         display: flex;
         align-items: center;
         gap: 20px;
         flex-wrap: wrap;
     }
+
     .payment-proof-label {
         font-weight: 700;
         color: #166534;
@@ -98,6 +102,7 @@
         align-items: center;
         gap: 8px;
     }
+
     .payment-proof-link {
         display: inline-flex;
         align-items: center;
@@ -111,20 +116,24 @@
         transition: all 0.3s ease;
         border: 1px solid #bbf7d0;
     }
+
     .payment-proof-link.available {
         color: #16a34a;
         background: #f0fdf4;
     }
+
     .payment-proof-link.available:hover {
         background: #dcfce7;
         transform: translateY(-2px);
     }
+
     .payment-proof-link.unavailable {
         color: #dc2626;
         background: #fef2f2;
         border-color: #fecaca;
         cursor: not-allowed;
     }
+
     .payment-status-badge {
         display: inline-flex;
         align-items: center;
@@ -134,24 +143,80 @@
         font-size: 12px;
         font-weight: 600;
     }
+
     .payment-status-paid {
         background: #dcfce7;
         color: #166534;
     }
+
     .payment-status-pending {
         background: #fef3c7;
         color: #92400e;
     }
+
     .payment-status-failed {
         background: #fee2e2;
         color: #991b1b;
     }
-
+/* PAYMENT & ACTION CARD - 2 KOLOM */
+.payment-action-card {
+    margin-bottom: 20px;
+    border: 1px solid #bbf7d0;
+}
+.payment-action-card .card-header {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+}
+.payment-info-box, .action-buttons-box {
+    padding: 10px;
+    background: #f8fafc;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    height: 100%;
+}
+.action-buttons-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #dbeafe;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.action-buttons-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.btn-action-simple {
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    transition: all 0.2s ease;
+}
+.btn-action-simple:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+}
+.btn-lock { background: linear-gradient(135deg, #059669 0%, #047857 100%); }
+.btn-unlock { background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); }
+.btn-verify { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+.btn-unverify { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
     /* ===== TEAM INFORMATION ===== */
     .team-info-card {
         margin-bottom: 20px;
     }
-    
+
     .team-info {
         display: flex;
         flex-wrap: wrap;
@@ -259,7 +324,11 @@
     }
 
     /* ===== STATUS BADGES ===== */
-    .status-open, .status-locked, .status-verified, .status-unverified, .status-rejected {
+    .status-open,
+    .status-locked,
+    .status-verified,
+    .status-unverified,
+    .status-rejected {
         padding: 5px 10px;
         border-radius: 6px;
         font-size: 11px;
@@ -269,14 +338,40 @@
         gap: 5px;
         white-space: nowrap;
     }
-    .status-open { color: #dc2626; background: #fef2f2; border: 1px solid #fecaca; }
-    .status-locked { color: #059669; background: #d1fae5; border: 1px solid #a7f3d0; }
-    .status-verified { color: #059669; background: #d1fae5; border: 1px solid #a7f3d0; }
-    .status-unverified { color: #d97706; background: #fef3c7; border: 1px solid #fde68a; }
-    .status-rejected { color: #dc2626; background: #fee2e2; border: 1px solid #fecaca; }
+
+    .status-open {
+        color: #dc2626;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+    }
+
+    .status-locked {
+        color: #059669;
+        background: #d1fae5;
+        border: 1px solid #a7f3d0;
+    }
+
+    .status-verified {
+        color: #059669;
+        background: #d1fae5;
+        border: 1px solid #a7f3d0;
+    }
+
+    .status-unverified {
+        color: #d97706;
+        background: #fef3c7;
+        border: 1px solid #fde68a;
+    }
+
+    .status-rejected {
+        color: #dc2626;
+        background: #fee2e2;
+        border: 1px solid #fecaca;
+    }
 
     /* ===== DOCUMENTS ===== */
-    .documents-section h4, .action-buttons h4 {
+    .documents-section h4,
+    .action-buttons h4 {
         font-size: 13px;
         font-weight: 600;
         color: #2c3e50;
@@ -288,7 +383,8 @@
         gap: 8px;
     }
 
-    .document-links.compact, .action-buttons-row.compact {
+    .document-links.compact,
+    .action-buttons-row.compact {
         display: flex;
         flex-direction: column;
         gap: 10px;
@@ -307,9 +403,23 @@
         border: 1px solid transparent;
     }
 
-    .document-link.available { color: #1e40af; background: #eff6ff; border-color: #dbeafe; }
-    .document-link.warning { color: #92400e; background: #fffbeb; border-color: #fde68a; }
-    .document-link.danger { color: #7f1d1d; background: #fef2f2; border-color: #fecaca; }
+    .document-link.available {
+        color: #1e40af;
+        background: #eff6ff;
+        border-color: #dbeafe;
+    }
+
+    .document-link.warning {
+        color: #92400e;
+        background: #fffbeb;
+        border-color: #fde68a;
+    }
+
+    .document-link.danger {
+        color: #7f1d1d;
+        background: #fef2f2;
+        border-color: #fecaca;
+    }
 
     .btn-action-simple {
         color: #fff;
@@ -325,10 +435,22 @@
         gap: 8px;
         width: 100%;
     }
-    .btn-lock { background: linear-gradient(135deg, #059669 0%, #047857 100%); }
-    .btn-unlock { background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); }
-    .btn-verify { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
-    .btn-unverify { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+
+    .btn-lock {
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    }
+
+    .btn-unlock {
+        background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+    }
+
+    .btn-verify {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .btn-unverify {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
 
     /* ===== TABEL RESPONSIF - TIDAK TERPOTONG ===== */
     .table-container {
@@ -343,12 +465,12 @@
     .table-container::-webkit-scrollbar {
         height: 6px;
     }
-    
+
     .table-container::-webkit-scrollbar-track {
         background: #f1f5f9;
         border-radius: 3px;
     }
-    
+
     .table-container::-webkit-scrollbar-thumb {
         background: #cbd5e1;
         border-radius: 3px;
@@ -407,16 +529,77 @@
         font-size: 12px;
         text-align: center;
     }
-    .badge-gender-male { background: #dbeafe; color: #1e40af; padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 600; display: inline-block; white-space: nowrap; }
-    .badge-gender-female { background: #fce7f3; color: #be185d; padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 600; display: inline-block; white-space: nowrap; }
-    .badge-position, .badge-grade, .badge-sttb, .badge-role-player, .badge-official-role {
-        background: #f1f5f9; color: #475569; padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 600; display: inline-block; white-space: nowrap;
+
+    .badge-gender-male {
+        background: #dbeafe;
+        color: #1e40af;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 10px;
+        font-weight: 600;
+        display: inline-block;
+        white-space: nowrap;
     }
-    .badge-role-leader { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 600; display: inline-block; white-space: nowrap; }
-    .badge-category { display: inline-flex; align-items: center; padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 600; color: white; white-space: nowrap; }
-    .badge-category-putra { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
-    .badge-category-putri { background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); }
-    .badge-category-dancer { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+
+    .badge-gender-female {
+        background: #fce7f3;
+        color: #be185d;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 10px;
+        font-weight: 600;
+        display: inline-block;
+        white-space: nowrap;
+    }
+
+    .badge-position,
+    .badge-grade,
+    .badge-sttb,
+    .badge-role-player,
+    .badge-official-role {
+        background: #f1f5f9;
+        color: #475569;
+        padding: 3px 8px;
+        border-radius: 6px;
+        font-size: 10px;
+        font-weight: 600;
+        display: inline-block;
+        white-space: nowrap;
+    }
+
+    .badge-role-leader {
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        color: white;
+        padding: 3px 8px;
+        border-radius: 6px;
+        font-size: 10px;
+        font-weight: 600;
+        display: inline-block;
+        white-space: nowrap;
+    }
+
+    .badge-category {
+        display: inline-flex;
+        align-items: center;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 10px;
+        font-weight: 600;
+        color: white;
+        white-space: nowrap;
+    }
+
+    .badge-category-putra {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    }
+
+    .badge-category-putri {
+        background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+    }
+
+    .badge-category-dancer {
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    }
 
     /* ===== BUTTON DETAIL ===== */
     .btn-detail {
@@ -432,7 +615,12 @@
         gap: 4px;
         white-space: nowrap;
     }
-    .btn-detail:hover { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: white; text-decoration: none; }
+
+    .btn-detail:hover {
+        background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+        color: white;
+        text-decoration: none;
+    }
 
     /* ===== BACK LINK ===== */
     .back-link {
@@ -449,6 +637,7 @@
         border-radius: 8px;
         border: 1px solid #e2e8f0;
     }
+
     .back-link:hover {
         background: #f8fafc;
         color: #1e40af;
@@ -462,39 +651,161 @@
         border-radius: 10px;
         border: 1px dashed #cbd5e0;
     }
-    .empty-state i { font-size: 3rem; margin-bottom: 15px; color: #cbd5e0; }
-    .empty-state h5 { font-size: 1.1rem; color: #4a5568; margin-bottom: 8px; }
-    .empty-state p { font-size: 12px; color: #718096; }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        color: #cbd5e0;
+    }
+
+    .empty-state h5 {
+        font-size: 1.1rem;
+        color: #4a5568;
+        margin-bottom: 8px;
+    }
+
+    .empty-state p {
+        font-size: 12px;
+        color: #718096;
+    }
 
     /* ===== JERSEY GALLERY ===== */
-    .jersey-single-container { padding: 20px; background: #f8fafc; border-radius: 10px; border: 1px solid #e2e8f0; }
-    .jersey-main-title { font-size: 16px; font-weight: 700; color: #2c3e50; margin-bottom: 15px; text-align: center; }
-    .jersey-image-container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
-    .jersey-single-item { text-align: center; cursor: pointer; background: white; border-radius: 8px; padding: 12px; border: 1px solid #e2e8f0; flex: 1; min-width: 140px; max-width: 180px; }
-    .jersey-single-item:hover { transform: translateY(-3px); border-color: #3b82f6; }
-    .jersey-single-item p { font-size: 12px; font-weight: 600; margin-bottom: 10px; }
-    .jersey-image { width: 100%; height: 100px; object-fit: contain; padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; }
-    .no-image { width: 100%; height: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f7fafc; border: 1px dashed #cbd5e0; border-radius: 6px; font-size: 11px; }
+    .jersey-single-container {
+        padding: 20px;
+        background: #f8fafc;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .jersey-main-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 15px;
+        text-align: center;
+    }
+
+    .jersey-image-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+    }
+
+    .jersey-single-item {
+        text-align: center;
+        cursor: pointer;
+        background: white;
+        border-radius: 8px;
+        padding: 12px;
+        border: 1px solid #e2e8f0;
+        flex: 1;
+        min-width: 140px;
+        max-width: 180px;
+    }
+
+    .jersey-single-item:hover {
+        transform: translateY(-3px);
+        border-color: #3b82f6;
+    }
+
+    .jersey-single-item p {
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+
+    .jersey-image {
+        width: 100%;
+        height: 100px;
+        object-fit: contain;
+        padding: 8px;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+    }
+
+    .no-image {
+        width: 100%;
+        height: 100px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: #f7fafc;
+        border: 1px dashed #cbd5e0;
+        border-radius: 6px;
+        font-size: 11px;
+    }
 
     /* ===== RESPONSIVE ===== */
     @media (max-width: 768px) {
-        .container-fluid { padding: 12px; }
-        .card-body { padding: 15px; }
-        .team-info { flex-direction: column; align-items: center; }
-        .logo-column { flex: 0 0 auto; }
-        .content-grid { flex-direction: column; }
-        .info-table td:first-child { width: 100px; }
-        table.data th, table.data td { padding: 8px 6px; font-size: 11px; }
-        table.data th { font-size: 10px; }
-        .btn-detail { padding: 3px 6px; font-size: 9px; }
-        .badge-jersey { width: 28px; height: 28px; line-height: 28px; font-size: 11px; }
-        .jersey-single-item { min-width: 110px; }
+        .container-fluid {
+            padding: 12px;
+        }
+
+        .card-body {
+            padding: 15px;
+        }
+
+        .team-info {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .logo-column {
+            flex: 0 0 auto;
+        }
+
+        .content-grid {
+            flex-direction: column;
+        }
+
+        .info-table td:first-child {
+            width: 100px;
+        }
+
+        table.data th,
+        table.data td {
+            padding: 8px 6px;
+            font-size: 11px;
+        }
+
+        table.data th {
+            font-size: 10px;
+        }
+
+        .btn-detail {
+            padding: 3px 6px;
+            font-size: 9px;
+        }
+
+        .badge-jersey {
+            width: 28px;
+            height: 28px;
+            line-height: 28px;
+            font-size: 11px;
+        }
+
+        .jersey-single-item {
+            min-width: 110px;
+        }
     }
 
     @media (max-width: 480px) {
-        .container-fluid { padding: 10px; }
-        .page-title { font-size: 1.2rem; }
-        .badge-jersey { width: 24px; height: 24px; line-height: 24px; font-size: 10px; }
+        .container-fluid {
+            padding: 10px;
+        }
+
+        .page-title {
+            font-size: 1.2rem;
+        }
+
+        .badge-jersey {
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+            font-size: 10px;
+        }
     }
 </style>
 @endpush
@@ -504,39 +815,33 @@
     <a href="{{ route('admin.tv_team_list') }}" class="back-link">
         <i class="fas fa-arrow-left"></i> Kembali ke Daftar Tim
     </a>
-
-    <!-- Page Header -->
-    <div class="page-header">
-        <h1 class="page-title">Detail Tim</h1>
-        <p class="page-subtitle">Informasi lengkap tim <strong>{{ $teamData['team_name'] ?? $mainTeam->school_name ?? 'Tim' }}</strong></p>
-    </div>
-
     <!-- TEAM INFO CARD - TAMPIL UNTUK SEMUA TAB (PAKAI DATA MAIN TEAM) -->
     <div class="card team-info-card">
         <div class="card-header">
-            <i class="fas fa-info-circle"></i> 
+            <i class="fas fa-info-circle"></i>
             Informasi Tim
         </div>
         <div class="card-body">
             @include('team_verification.partials.team_info_card', [
-                'team' => $mainTeam,
-                'category' => $activeTab,
-                'stats' => $teamData['stats'] ?? []
+            'team' => $mainTeam,
+            'category' => $activeTab,
+            'stats' => $teamData['stats'] ?? []
             ])
         </div>
     </div>
 
     <!-- TABS - Include dari partial -->
     @include('team_verification.partials.category-tabs', [
-        'teamData' => $teamData, 
-        'activeTab' => $activeTab, 
-        'mainTeam' => $mainTeam
+    'teamData' => $teamData,
+    'activeTab' => $activeTab,
+    'mainTeam' => $mainTeam
     ])
 
     <!-- TAB CONTENT -->
+    <!-- TAB CONTENT -->
     <div class="tab-content">
 
-        {{-- BASKET PUTRA --}}
+        {{-- ==================== BASKET PUTRA ==================== --}}
         @if($activeTab == 'Basket Putra')
         @php
         $team = $teamData['team_putra'] ?? null;
@@ -545,38 +850,87 @@
         @endphp
 
         @if($team)
-        <!-- PAYMENT PROOF CARD - BASKET PUTRA -->
-        <div class="card payment-proof-card">
+        <!-- PAYMENT PROOF & ACTION CARD - BASKET PUTRA (2 KOLOM) -->
+        <div class="card payment-action-card">
             <div class="card-header">
-                <i class="fas fa-receipt"></i> 
-                Bukti Pembayaran - Basket Putra
+                <i class="fas fa-receipt"></i>
+                Bukti Pembayaran & Aksi Tim - Basket Putra
             </div>
             <div class="card-body">
-                <div class="payment-proof-content">
-                    <div class="payment-proof-label">
-                        <i class="fas fa-money-bill-wave"></i> Status Pembayaran:
-                        @if($team->payment_status == 'paid')
-                            <span class="payment-status-badge payment-status-paid"><i class="fas fa-check-circle"></i> Lunas</span>
-                        @elseif($team->payment_status == 'failed')
-                            <span class="payment-status-badge payment-status-failed"><i class="fas fa-times-circle"></i> Gagal</span>
-                        @else
-                            <span class="payment-status-badge payment-status-pending"><i class="fas fa-clock"></i> Pending</span>
-                        @endif
+                <div class="row">
+                    <!-- KOLOM KIRI: Bukti Pembayaran -->
+                    <div class="col-md-6">
+                        <div class="payment-info-box">
+                            <div class="payment-proof-label mb-2">
+                                <i class="fas fa-money-bill-wave"></i> Status Pembayaran:
+                                @if($team->payment_status == 'paid')
+                                <span class="payment-status-badge payment-status-paid"><i class="fas fa-check-circle"></i> Lunas</span>
+                                @elseif($team->payment_status == 'failed')
+                                <span class="payment-status-badge payment-status-failed"><i class="fas fa-times-circle"></i> Gagal</span>
+                                @else
+                                <span class="payment-status-badge payment-status-pending"><i class="fas fa-clock"></i> Pending</span>
+                                @endif
+                            </div>
+
+                            @if($team->payment_proof)
+                            <a href="{{ Storage::url($team->payment_proof) }}" target="_blank" class="payment-proof-link available">
+                                <i class="fas fa-file-invoice-dollar"></i> Lihat Bukti Pembayaran
+                            </a>
+                            @else
+                            <span class="payment-proof-link unavailable" onclick="showAlert('Bukti Pembayaran')">
+                                <i class="fas fa-exclamation-triangle"></i> Bukti Pembayaran Belum Diupload
+                            </span>
+                            @endif
+
+                            @if($team->payment_date)
+                            <div class="mt-2">
+                                <small class="text-muted"><i class="fas fa-calendar-alt"></i> Tanggal Bayar: {{ \Carbon\Carbon::parse($team->payment_date)->isoFormat('D MMM YYYY, HH:mm') }}</small>
+                            </div>
+                            @endif
+                        </div>
                     </div>
-                    
-                    @if($team->payment_proof)
-                        <a href="{{ Storage::url($team->payment_proof) }}" target="_blank" class="payment-proof-link available">
-                            <i class="fas fa-file-invoice-dollar"></i> Lihat Bukti Pembayaran
-                        </a>
-                    @else
-                        <span class="payment-proof-link unavailable" onclick="showAlert('Bukti Pembayaran')">
-                            <i class="fas fa-exclamation-triangle"></i> Bukti Pembayaran Belum Diupload
-                        </span>
-                    @endif
-                    
-                    @if($team->payment_date)
-                        <small class="text-muted"><i class="fas fa-calendar-alt"></i> Tanggal Bayar: {{ \Carbon\Carbon::parse($team->payment_date)->isoFormat('D MMM YYYY, HH:mm') }}</small>
-                    @endif
+
+                    <!-- KOLOM KANAN: Aksi Tim (Kunci & Verifikasi) -->
+                    <div class="col-md-6">
+                        <div class="action-buttons-box">
+                            <div class="action-buttons-title">
+                                <i class="fas fa-cogs"></i> Aksi Tim
+                            </div>
+                            <div class="action-buttons-row">
+                                @if($team->locked_status != 'locked')
+                                <form action="{{ route('admin.team.lock', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Kunci tim Basket Putra?')">
+                                    @csrf
+                                    <button type="submit" class="btn-action-simple btn-lock">
+                                        <i class="fas fa-lock"></i> Kunci Tim
+                                    </button>
+                                </form>
+                                @else
+                                <form action="{{ route('admin.team.unlock', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Buka kunci tim Basket Putra?')">
+                                    @csrf
+                                    <button type="submit" class="btn-action-simple btn-unlock">
+                                        <i class="fas fa-unlock"></i> Buka Kunci
+                                    </button>
+                                </form>
+                                @endif
+
+                                @if($team->verification_status != 'verified')
+                                <form action="{{ route('admin.team.verify', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Verifikasi tim Basket Putra?')">
+                                    @csrf
+                                    <button type="submit" class="btn-action-simple btn-verify">
+                                        <i class="fas fa-check-circle"></i> Verifikasi Tim
+                                    </button>
+                                </form>
+                                @else
+                                <form action="{{ route('admin.team.unverify', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Batalkan verifikasi tim Basket Putra?')">
+                                    @csrf
+                                    <button type="submit" class="btn-action-simple btn-unverify">
+                                        <i class="fas fa-times-circle"></i> Batalkan Verifikasi
+                                    </button>
+                                </form>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -610,7 +964,7 @@
                                 <td>{{ $player->school_name ?? $mainTeam->school_name ?? '-' }}</td>
                                 <td>@if($player->grade){{ $player->grade }}@else-@endif</td>
                                 <td>@if($player->sttb_year){{ $player->sttb_year }}@else-@endif</td>
-                                <td>@if(strtolower($player->role ?? '') == 'leader')Leader @else<span class="badge-role-player">Player</span>@endif</td>
+                                <td>@if(strtolower($player->role ?? '') == 'leader')<span class="badge-role-leader">Leader</span>@else<span class="badge-role-player">Player</span>@endif</td>
                                 <td><a href="{{ route('admin.player.detail', $player->id) }}" class="btn-detail"><i class="fas fa-eye"></i> Detail</a></td>
                             </tr>
                             @endforeach
@@ -618,7 +972,10 @@
                     </table>
                 </div>
                 @else
-                <div class="empty-state"><i class="fas fa-users"></i><h5>Belum ada data pemain</h5><p>Data pemain akan muncul setelah mendaftar menggunakan referral code tim ini.</p></div>
+                <div class="empty-state"><i class="fas fa-users"></i>
+                    <h5>Belum ada data pemain</h5>
+                    <p>Data pemain akan muncul setelah mendaftar menggunakan referral code tim ini.</p>
+                </div>
                 @endif
             </div>
         </div>
@@ -630,7 +987,16 @@
                 <div class="table-container">
                     <table class="data">
                         <thead>
-                            <tr><th>#</th><th>NAMA LENGKAP</th><th>JABATAN</th><th>EMAIL</th><th>TELEPON</th><th>JENIS KELAMIN</th><th>KATEGORI</th><th>STATUS</th><th>TINDAKAN</th>
+                            <tr>
+                                <th>#</th>
+                                <th>NAMA LENGKAP</th>
+                                <th>JABATAN</th>
+                                <th>EMAIL</th>
+                                <th>TELEPON</th>
+                                <th>JENIS KELAMIN</th>
+                                <th>KATEGORI</th>
+                                <th>STATUS</th>
+                                <th>TINDAKAN</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -651,17 +1017,22 @@
                     </table>
                 </div>
                 @else
-                <div class="empty-state"><i class="fas fa-user-tie"></i><h5>Belum ada data official</h5></div>
+                <div class="empty-state"><i class="fas fa-user-tie"></i>
+                    <h5>Belum ada data official</h5>
+                </div>
                 @endif
             </div>
         </div>
 
         @include('team_verification.partials.jersey_gallery', ['team' => $team, 'category' => 'Basket Putra'])
         @else
-        <div class="empty-state"><i class="fas fa-basketball-ball" style="color:#3b82f6;"></i><h5>Tim Basket Putra Belum Terdaftar</h5><p>Sekolah <strong>{{ $mainTeam->school_name }}</strong> belum mendaftarkan tim untuk kategori ini.</p></div>
+        <div class="empty-state"><i class="fas fa-basketball-ball" style="color:#3b82f6;"></i>
+            <h5>Tim Basket Putra Belum Terdaftar</h5>
+            <p>Sekolah <strong>{{ $mainTeam->school_name }}</strong> belum mendaftarkan tim untuk kategori ini.</p>
+        </div>
         @endif
 
-        {{-- BASKET PUTRI --}}
+        {{-- ==================== BASKET PUTRI ==================== --}}
         @elseif($activeTab == 'Basket Putri')
         @php
         $team = $teamData['team_putri'] ?? null;
@@ -670,38 +1041,76 @@
         @endphp
 
         @if($team)
-        <!-- PAYMENT PROOF CARD - BASKET PUTRI -->
-        <div class="card payment-proof-card">
+        <!-- PAYMENT PROOF & ACTION CARD - BASKET PUTRI (2 KOLOM) -->
+        <div class="card payment-action-card">
             <div class="card-header" style="background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);">
-                <i class="fas fa-receipt"></i> 
-                Bukti Pembayaran - Basket Putri
+                <i class="fas fa-receipt"></i>
+                Bukti Pembayaran & Aksi Tim - Basket Putri
             </div>
             <div class="card-body">
-                <div class="payment-proof-content">
-                    <div class="payment-proof-label">
-                        <i class="fas fa-money-bill-wave"></i> Status Pembayaran:
-                        @if($team->payment_status == 'paid')
-                            <span class="payment-status-badge payment-status-paid"><i class="fas fa-check-circle"></i> Lunas</span>
-                        @elseif($team->payment_status == 'failed')
-                            <span class="payment-status-badge payment-status-failed"><i class="fas fa-times-circle"></i> Gagal</span>
-                        @else
-                            <span class="payment-status-badge payment-status-pending"><i class="fas fa-clock"></i> Pending</span>
-                        @endif
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="payment-info-box">
+                            <div class="payment-proof-label mb-2">
+                                <i class="fas fa-money-bill-wave"></i> Status Pembayaran:
+                                @if($team->payment_status == 'paid')
+                                <span class="payment-status-badge payment-status-paid"><i class="fas fa-check-circle"></i> Lunas</span>
+                                @elseif($team->payment_status == 'failed')
+                                <span class="payment-status-badge payment-status-failed"><i class="fas fa-times-circle"></i> Gagal</span>
+                                @else
+                                <span class="payment-status-badge payment-status-pending"><i class="fas fa-clock"></i> Pending</span>
+                                @endif
+                            </div>
+
+                            @if($team->payment_proof)
+                            <a href="{{ Storage::url($team->payment_proof) }}" target="_blank" class="payment-proof-link available">
+                                <i class="fas fa-file-invoice-dollar"></i> Lihat Bukti Pembayaran
+                            </a>
+                            @else
+                            <span class="payment-proof-link unavailable" onclick="showAlert('Bukti Pembayaran')">
+                                <i class="fas fa-exclamation-triangle"></i> Bukti Pembayaran Belum Diupload
+                            </span>
+                            @endif
+
+                            @if($team->payment_date)
+                            <div class="mt-2">
+                                <small class="text-muted"><i class="fas fa-calendar-alt"></i> Tanggal Bayar: {{ \Carbon\Carbon::parse($team->payment_date)->isoFormat('D MMM YYYY, HH:mm') }}</small>
+                            </div>
+                            @endif
+                        </div>
                     </div>
-                    
-                    @if($team->payment_proof)
-                        <a href="{{ Storage::url($team->payment_proof) }}" target="_blank" class="payment-proof-link available">
-                            <i class="fas fa-file-invoice-dollar"></i> Lihat Bukti Pembayaran
-                        </a>
-                    @else
-                        <span class="payment-proof-link unavailable" onclick="showAlert('Bukti Pembayaran')">
-                            <i class="fas fa-exclamation-triangle"></i> Bukti Pembayaran Belum Diupload
-                        </span>
-                    @endif
-                    
-                    @if($team->payment_date)
-                        <small class="text-muted"><i class="fas fa-calendar-alt"></i> Tanggal Bayar: {{ \Carbon\Carbon::parse($team->payment_date)->isoFormat('D MMM YYYY, HH:mm') }}</small>
-                    @endif
+
+                    <div class="col-md-6">
+                        <div class="action-buttons-box">
+                            <div class="action-buttons-title">
+                                <i class="fas fa-cogs"></i> Aksi Tim
+                            </div>
+                            <div class="action-buttons-row">
+                                @if($team->locked_status != 'locked')
+                                <form action="{{ route('admin.team.lock', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Kunci tim Basket Putri?')">
+                                    @csrf
+                                    <button type="submit" class="btn-action-simple btn-lock"><i class="fas fa-lock"></i> Kunci Tim</button>
+                                </form>
+                                @else
+                                <form action="{{ route('admin.team.unlock', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Buka kunci tim Basket Putri?')">
+                                    @csrf
+                                    <button type="submit" class="btn-action-simple btn-unlock"><i class="fas fa-unlock"></i> Buka Kunci</button>
+                                </form>
+                                @endif
+                                @if($team->verification_status != 'verified')
+                                <form action="{{ route('admin.team.verify', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Verifikasi tim Basket Putri?')">
+                                    @csrf
+                                    <button type="submit" class="btn-action-simple btn-verify"><i class="fas fa-check-circle"></i> Verifikasi Tim</button>
+                                </form>
+                                @else
+                                <form action="{{ route('admin.team.unverify', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Batalkan verifikasi tim Basket Putri?')">
+                                    @csrf
+                                    <button type="submit" class="btn-action-simple btn-unverify"><i class="fas fa-times-circle"></i> Batalkan Verifikasi</button>
+                                </form>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -735,7 +1144,7 @@
                                 <td>{{ $player->school_name ?? $mainTeam->school_name ?? '-' }}</td>
                                 <td>@if($player->grade){{ $player->grade }}@else-@endif</td>
                                 <td>@if($player->sttb_year){{ $player->sttb_year }}@else-@endif</td>
-                                <td>@if(strtolower($player->role ?? '') == 'leader')Leader @else<span class="badge-role-player">Player</span>@endif</td>
+                                <td>@if(strtolower($player->role ?? '') == 'leader')<span class="badge-role-leader">Leader</span>@else<span class="badge-role-player">Player</span>@endif</td>
                                 <td><a href="{{ route('admin.player.detail', $player->id) }}" class="btn-detail"><i class="fas fa-eye"></i> Detail</a></td>
                             </tr>
                             @endforeach
@@ -743,7 +1152,9 @@
                     </table>
                 </div>
                 @else
-                <div class="empty-state"><i class="fas fa-users"></i><h5>Belum ada data pemain</h5></div>
+                <div class="empty-state"><i class="fas fa-users"></i>
+                    <h5>Belum ada data pemain</h5>
+                </div>
                 @endif
             </div>
         </div>
@@ -755,7 +1166,16 @@
                 <div class="table-container">
                     <table class="data">
                         <thead>
-                            <tr><th>#</th><th>NAMA LENGKAP</th><th>JABATAN</th><th>EMAIL</th><th>TELEPON</th><th>JENIS KELAMIN</th><th>KATEGORI</th><th>STATUS</th><th>TINDAKAN</th>
+                            <tr>
+                                <th>#</th>
+                                <th>NAMA LENGKAP</th>
+                                <th>JABATAN</th>
+                                <th>EMAIL</th>
+                                <th>TELEPON</th>
+                                <th>JENIS KELAMIN</th>
+                                <th>KATEGORI</th>
+                                <th>STATUS</th>
+                                <th>TINDAKAN</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -776,17 +1196,21 @@
                     </table>
                 </div>
                 @else
-                <div class="empty-state"><i class="fas fa-user-tie"></i><h5>Belum ada data official</h5></div>
+                <div class="empty-state"><i class="fas fa-user-tie"></i>
+                    <h5>Belum ada data official</h5>
+                </div>
                 @endif
             </div>
         </div>
 
         @include('team_verification.partials.jersey_gallery', ['team' => $team, 'category' => 'Basket Putri'])
         @else
-        <div class="empty-state"><i class="fas fa-basketball-ball" style="color:#ec4899;"></i><h5>Tim Basket Putri Belum Terdaftar</h5></div>
+        <div class="empty-state"><i class="fas fa-basketball-ball" style="color:#ec4899;"></i>
+            <h5>Tim Basket Putri Belum Terdaftar</h5>
+        </div>
         @endif
 
-        {{-- DANCER --}}
+        {{-- ==================== DANCER ==================== --}}
         @elseif($activeTab == 'Dancer')
         @php
         $team = $teamData['team_dancer'] ?? null;
@@ -795,38 +1219,76 @@
         @endphp
 
         @if($team)
-        <!-- PAYMENT PROOF CARD - DANCER -->
-        <div class="card payment-proof-card">
+        <!-- PAYMENT PROOF & ACTION CARD - DANCER (2 KOLOM) -->
+        <div class="card payment-action-card">
             <div class="card-header" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
-                <i class="fas fa-receipt"></i> 
-                Bukti Pembayaran - Dancer
+                <i class="fas fa-receipt"></i>
+                Bukti Pembayaran & Aksi Tim - Dancer
             </div>
             <div class="card-body">
-                <div class="payment-proof-content">
-                    <div class="payment-proof-label">
-                        <i class="fas fa-money-bill-wave"></i> Status Pembayaran:
-                        @if($team->payment_status == 'paid')
-                            <span class="payment-status-badge payment-status-paid"><i class="fas fa-check-circle"></i> Lunas</span>
-                        @elseif($team->payment_status == 'failed')
-                            <span class="payment-status-badge payment-status-failed"><i class="fas fa-times-circle"></i> Gagal</span>
-                        @else
-                            <span class="payment-status-badge payment-status-pending"><i class="fas fa-clock"></i> Pending</span>
-                        @endif
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="payment-info-box">
+                            <div class="payment-proof-label mb-2">
+                                <i class="fas fa-money-bill-wave"></i> Status Pembayaran:
+                                @if($team->payment_status == 'paid')
+                                <span class="payment-status-badge payment-status-paid"><i class="fas fa-check-circle"></i> Lunas</span>
+                                @elseif($team->payment_status == 'failed')
+                                <span class="payment-status-badge payment-status-failed"><i class="fas fa-times-circle"></i> Gagal</span>
+                                @else
+                                <span class="payment-status-badge payment-status-pending"><i class="fas fa-clock"></i> Pending</span>
+                                @endif
+                            </div>
+
+                            @if($team->payment_proof)
+                            <a href="{{ Storage::url($team->payment_proof) }}" target="_blank" class="payment-proof-link available">
+                                <i class="fas fa-file-invoice-dollar"></i> Lihat Bukti Pembayaran
+                            </a>
+                            @else
+                            <span class="payment-proof-link unavailable" onclick="showAlert('Bukti Pembayaran')">
+                                <i class="fas fa-exclamation-triangle"></i> Bukti Pembayaran Belum Diupload
+                            </span>
+                            @endif
+
+                            @if($team->payment_date)
+                            <div class="mt-2">
+                                <small class="text-muted"><i class="fas fa-calendar-alt"></i> Tanggal Bayar: {{ \Carbon\Carbon::parse($team->payment_date)->isoFormat('D MMM YYYY, HH:mm') }}</small>
+                            </div>
+                            @endif
+                        </div>
                     </div>
-                    
-                    @if($team->payment_proof)
-                        <a href="{{ Storage::url($team->payment_proof) }}" target="_blank" class="payment-proof-link available">
-                            <i class="fas fa-file-invoice-dollar"></i> Lihat Bukti Pembayaran
-                        </a>
-                    @else
-                        <span class="payment-proof-link unavailable" onclick="showAlert('Bukti Pembayaran')">
-                            <i class="fas fa-exclamation-triangle"></i> Bukti Pembayaran Belum Diupload
-                        </span>
-                    @endif
-                    
-                    @if($team->payment_date)
-                        <small class="text-muted"><i class="fas fa-calendar-alt"></i> Tanggal Bayar: {{ \Carbon\Carbon::parse($team->payment_date)->isoFormat('D MMM YYYY, HH:mm') }}</small>
-                    @endif
+
+                    <div class="col-md-6">
+                        <div class="action-buttons-box">
+                            <div class="action-buttons-title">
+                                <i class="fas fa-cogs"></i> Aksi Tim
+                            </div>
+                            <div class="action-buttons-row">
+                                @if($team->locked_status != 'locked')
+                                <form action="{{ route('admin.team.lock', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Kunci tim Dancer?')">
+                                    @csrf
+                                    <button type="submit" class="btn-action-simple btn-lock"><i class="fas fa-lock"></i> Kunci Tim</button>
+                                </form>
+                                @else
+                                <form action="{{ route('admin.team.unlock', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Buka kunci tim Dancer?')">
+                                    @csrf
+                                    <button type="submit" class="btn-action-simple btn-unlock"><i class="fas fa-unlock"></i> Buka Kunci</button>
+                                </form>
+                                @endif
+                                @if($team->verification_status != 'verified')
+                                <form action="{{ route('admin.team.verify', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Verifikasi tim Dancer?')">
+                                    @csrf
+                                    <button type="submit" class="btn-action-simple btn-verify"><i class="fas fa-check-circle"></i> Verifikasi Tim</button>
+                                </form>
+                                @else
+                                <form action="{{ route('admin.team.unverify', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Batalkan verifikasi tim Dancer?')">
+                                    @csrf
+                                    <button type="submit" class="btn-action-simple btn-unverify"><i class="fas fa-times-circle"></i> Batalkan Verifikasi</button>
+                                </form>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -860,7 +1322,7 @@
                                 <td>{{ $dancer->school_name ?? $mainTeam->school_name ?? '-' }}</td>
                                 <td>@if($dancer->grade){{ $dancer->grade }}@else-@endif</td>
                                 <td>@if($dancer->sttb_year){{ $dancer->sttb_year }}@else-@endif</td>
-                                <td>@if(strtolower($dancer->role ?? '') == 'leader')Leader @else<span class="badge-role-player">Member</span>@endif</td>
+                                <td>@if(strtolower($dancer->role ?? '') == 'leader')<span class="badge-role-leader">Leader</span>@else<span class="badge-role-player">Member</span>@endif</td>
                                 <td><a href="{{ route('admin.dancer.detail', $dancer->dancer_id) }}" class="btn-detail"><i class="fas fa-eye"></i> Detail</a></td>
                             </tr>
                             @endforeach
@@ -868,7 +1330,9 @@
                     </table>
                 </div>
                 @else
-                <div class="empty-state"><i class="fas fa-music"></i><h5>Belum ada data dancer</h5></div>
+                <div class="empty-state"><i class="fas fa-music"></i>
+                    <h5>Belum ada data dancer</h5>
+                </div>
                 @endif
             </div>
         </div>
@@ -880,7 +1344,16 @@
                 <div class="table-container">
                     <table class="data">
                         <thead>
-                            <tr><th>#</th><th>NAMA LENGKAP</th><th>JABATAN</th><th>EMAIL</th><th>TELEPON</th><th>JENIS KELAMIN</th><th>KATEGORI</th><th>STATUS</th><th>TINDAKAN</th>
+                            <tr>
+                                <th>#</th>
+                                <th>NAMA LENGKAP</th>
+                                <th>JABATAN</th>
+                                <th>EMAIL</th>
+                                <th>TELEPON</th>
+                                <th>JENIS KELAMIN</th>
+                                <th>KATEGORI</th>
+                                <th>STATUS</th>
+                                <th>TINDAKAN</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -901,14 +1374,18 @@
                     </table>
                 </div>
                 @else
-                <div class="empty-state"><i class="fas fa-user-tie"></i><h5>Belum ada data official</h5></div>
+                <div class="empty-state"><i class="fas fa-user-tie"></i>
+                    <h5>Belum ada data official</h5>
+                </div>
                 @endif
             </div>
         </div>
 
         @include('team_verification.partials.jersey_gallery', ['team' => $team, 'category' => 'Dancer'])
         @else
-        <div class="empty-state"><i class="fas fa-music" style="color:#8b5cf6;"></i><h5>Tim Dancer Belum Terdaftar</h5></div>
+        <div class="empty-state"><i class="fas fa-music" style="color:#8b5cf6;"></i>
+            <h5>Tim Dancer Belum Terdaftar</h5>
+        </div>
         @endif
 
         @endif
@@ -919,44 +1396,44 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         window.showAlert = function(documentName) {
-            Swal.fire({ 
-                title: 'Dokumen Tidak Tersedia', 
-                html: `<strong>${documentName}</strong> belum diupload.`, 
-                icon: 'warning', 
-                confirmButtonText: 'Mengerti', 
-                confirmButtonColor: '#f59e0b', 
-                timer: 3000 
+            Swal.fire({
+                title: 'Dokumen Tidak Tersedia',
+                html: `<strong>${documentName}</strong> belum diupload.`,
+                icon: 'warning',
+                confirmButtonText: 'Mengerti',
+                confirmButtonColor: '#f59e0b',
+                timer: 3000
             });
             return false;
         };
-        
+
         window.confirmAction = function(message) {
-            return Swal.fire({ 
-                title: 'Konfirmasi', 
-                text: message, 
-                icon: 'question', 
-                showCancelButton: true, 
-                confirmButtonText: 'Ya', 
-                cancelButtonText: 'Batal', 
-                confirmButtonColor: '#3b82f6' 
+            return Swal.fire({
+                title: 'Konfirmasi',
+                text: message,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#3b82f6'
             }).then((result) => result.isConfirmed);
         };
-        
+
         window.showLogoPopup = function(logoUrl, schoolName, category) {
-            Swal.fire({ 
-                title: 'Logo Sekolah', 
-                html: `<div style="text-align:center;"><img src="${logoUrl || ''}" style="max-width:300px; max-height:300px; border-radius:8px;"><p>${schoolName}</p><p>${category}</p></div>`, 
-                showCloseButton: true, 
-                showConfirmButton: false 
+            Swal.fire({
+                title: 'Logo Sekolah',
+                html: `<div style="text-align:center;"><img src="${logoUrl || ''}" style="max-width:300px; max-height:300px; border-radius:8px;"><p>${schoolName}</p><p>${category}</p></div>`,
+                showCloseButton: true,
+                showConfirmButton: false
             });
         };
-        
+
         window.showJerseyPopup = function(imageUrl, title, schoolName, category) {
-            Swal.fire({ 
-                title: `${title}`, 
-                html: `<div style="text-align:center;"><img src="${imageUrl || ''}" style="max-width:300px; max-height:300px; border-radius:8px;"><p>${schoolName}</p></div>`, 
-                showCloseButton: true, 
-                showConfirmButton: false 
+            Swal.fire({
+                title: `${title}`,
+                html: `<div style="text-align:center;"><img src="${imageUrl || ''}" style="max-width:300px; max-height:300px; border-radius:8px;"><p>${schoolName}</p></div>`,
+                showCloseButton: true,
+                showConfirmButton: false
             });
         };
     });

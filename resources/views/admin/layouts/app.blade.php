@@ -7,7 +7,7 @@
     <title>@yield('title', 'Admin - SBL Riau Pos')</title>
 
     {{-- Favicon --}}
-    <link rel="icon" href="{{ asset('uploads/logo/hsbl.png') }}" type="image/png" />
+    <link rel="icon" href="{{ asset('uploads/logo/logo.png') }}" type="image/png" />
 
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
