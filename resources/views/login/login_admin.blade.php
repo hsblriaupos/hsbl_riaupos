@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Favicon -->
-    <link rel="icon" href="{{ asset('uploads/logo/logo.png') }}" type="image/png" />
+    <link rel="icon" href="{{ asset('uploads/logo/hsbl.png') }}" type="image/png" />
 
     <style>
         * {
@@ -488,7 +488,7 @@
         <!-- Left Side - Branding -->
         <div class="login-left">
             <div class="brand-logo">
-                <img src="{{ asset('uploads/logo/logo.png') }}" alt="SBL Logo">
+                <img src="{{ asset('uploads/logo/hsbl.png') }}" alt="SBL Logo">
                 <h1>SBL Riau Pos</h1>
                 <p>Student Basketball League</p>
             </div>

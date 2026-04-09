@@ -283,7 +283,7 @@
         <!-- Header -->
         <div class="forgot-header">
             <div class="logo">
-                <img src="{{ asset('uploads/logo/logo.png') }}" alt="SBL Logo">
+                <img src="{{ asset('uploads/logo/hsbl.png') }}" alt="SBL Logo">
             </div>
             <h1><i class="fas fa-key"></i> Password Recovery</h1>
             <p>Reset your SBL Student Portal password with admin assistance</p>
