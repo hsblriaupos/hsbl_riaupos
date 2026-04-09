@@ -313,7 +313,7 @@ class FormTeamController extends Controller
 
             if ($request->school_option == 'existing') {
                 $validationRules['existing_school_id'] = 'required|exists:schools,id';
-                // Logo tidak required di validasi, akan dicek manual
+                // Logo tidak wajib di validasi Laravel, kita handle manual
             } else {
                 $validationRules['new_school_name'] = 'required|string|max:255';
                 $validationRules['new_city_id'] = 'required|exists:cities,id';
@@ -346,33 +346,43 @@ class FormTeamController extends Controller
                     Log::info('✅ Using existing school logo: ' . $schoolLogoPath);
                     session()->flash('info', 'Sekolah "' . $schoolName . '" sudah memiliki logo. Menggunakan logo yang ada.');
                 } else {
-                    // ⚠️ Sekolah belum punya logo, cek apakah user upload logo
-                    Log::info('School has NO logo, checking for uploaded file...');
+                    // ⚠️ Sekolah belum punya logo
+                    // Cek apakah user upload logo (bisa dari school_logo_existing atau school_logo)
+                    $uploadedFile = null;
 
-                    if (!$request->hasFile('school_logo')) {
-                        Log::error('No file uploaded for school_logo');
-                        return back()->withErrors(['school_logo' => 'Sekolah "' . $schoolName . '" belum memiliki logo. Silakan upload logo sekolah.'])->withInput();
+                    if ($request->hasFile('school_logo')) {
+                        $uploadedFile = $request->file('school_logo');
+                        Log::info('File uploaded via school_logo: ' . $uploadedFile->getClientOriginalName());
+                    } elseif ($request->hasFile('school_logo_existing')) {
+                        $uploadedFile = $request->file('school_logo_existing');
+                        Log::info('File uploaded via school_logo_existing: ' . $uploadedFile->getClientOriginalName());
                     }
 
-                    $uploadedFile = $request->file('school_logo');
-                    Log::info('File uploaded: ' . $uploadedFile->getClientOriginalName());
+                    if (!$uploadedFile) {
+                        Log::error('No file uploaded for school logo');
+                        // Jangan return error, biarkan pakai default logo
+                        // Tapi kita kasih warning
+                        session()->flash('warning', 'Sekolah "' . $schoolName . '" belum memiliki logo. Akan menggunakan logo default.');
+                        $schoolLogoPath = null;
+                    } else {
+                        // Validasi file
+                        if (!$uploadedFile->isValid()) {
+                            Log::error('Uploaded file is not valid');
+                            session()->flash('warning', 'File logo tidak valid. Menggunakan logo default.');
+                            $schoolLogoPath = null;
+                        } else {
+                            // Upload logo baru untuk sekolah
+                            $schoolLogoPath = $this->uploadSchoolLogo($uploadedFile, $schoolName, $validated['team_category']);
 
-                    // Validasi file
-                    if (!$uploadedFile->isValid()) {
-                        Log::error('Uploaded file is not valid');
-                        return back()->withErrors(['school_logo' => 'File logo tidak valid. Silakan upload ulang.'])->withInput();
+                            // Update logo di tabel schools
+                            $school->school_logo = $schoolLogoPath;
+                            $school->save();
+                            Log::info('✅ Logo uploaded and saved to school: ' . $schoolLogoPath);
+                        }
                     }
-
-                    // Upload logo baru untuk sekolah
-                    $schoolLogoPath = $this->uploadSchoolLogo($uploadedFile, $schoolName, $validated['team_category']);
-
-                    // Update logo di tabel schools
-                    $school->school_logo = $schoolLogoPath;
-                    $school->save();
-                    Log::info('✅ Logo uploaded and saved to school: ' . $schoolLogoPath);
                 }
             } else {
-                // 🔥 SEKOLAH BARU - kode tetap sama seperti sebelumnya
+                // 🔥 SEKOLAH BARU
                 $existingSchool = School::where('school_name', $validated['new_school_name'])->first();
 
                 if ($existingSchool) {
@@ -396,6 +406,8 @@ class FormTeamController extends Controller
                     $school->school_logo = $schoolLogoPath;
                     $school->save();
                     Log::info('✅ New school created with logo: ' . $schoolLogoPath);
+                } else {
+                    Log::warning('⚠️ No logo uploaded for new school');
                 }
             }
 
@@ -591,7 +603,7 @@ class FormTeamController extends Controller
             'message' => $exists ? 'Sekolah sudah terdaftar! Silakan gunakan opsi "Pilih Sekolah".' : 'Sekolah belum terdaftar. Silakan lengkapi data.'
         ]);
     }
-    
+
     /**
      * Check if school has logo (untuk validasi)
      */
