@@ -102,12 +102,16 @@ Route::prefix('student')->name('student.')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
-    // Dashboard
+    // Dashboard utama
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Alias /admin/dashboard → redirect ke /admin
+    Route::get('/dashboard', function () {
+        return redirect()->route('admin.dashboard');
+    })->name('dashboard.index');
+
     Route::get('/dashboard/stats', [DashboardController::class, 'getStats'])->name('dashboard.stats');
     Route::get('/dashboard/export', [DashboardController::class, 'export'])->name('dashboard.export');
-
     // ========== USER MANAGEMENT ROUTES ==========
     Route::prefix('resetpassword')->name('resetpassword.')->group(function () {
         Route::get('/', [ResetPasswordController::class, 'index'])->name('index');
