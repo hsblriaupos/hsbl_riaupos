@@ -216,7 +216,7 @@
                 </div>
                 
                 <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 leading-tight">
-                    Creating Forever
+                    tes dulu
                     <span class="block text-blue-600">New Beginning</span>
                 </h1>
                 
