@@ -10,7 +10,7 @@
                 <div class="card-body p-3">
                     
                     <!-- Header -->
-                    <div class="text-center mb-2">
+                    <div class="text-center mb-2 mt-2">
                         <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex p-1 mb-1">
                             <i class="fas fa-check-circle text-success" style="font-size: 1.5rem;"></i>
                         </div>
