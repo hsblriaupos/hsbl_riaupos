@@ -67,20 +67,9 @@
                 <input type="hidden" name="category" value="{{ $category }}">
                 <input type="hidden" name="team_role" value="{{ $role }}">
 
-                <!-- Quick Guide -->
-                <div class="bg-light p-3 rounded-3 mb-4" style="background: #f8f9fa;">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-lightbulb text-primary me-2" style="font-size: 1rem;"></i>
-                        <span class="small fw-semibold me-3">Tips Pengisian:</span>
-                        <span class="small text-muted me-3">✓ Data diri lengkap</span>
-                        <span class="small text-muted me-3">✓ Dokumen jelas</span>
-                        <span class="small text-muted">✓ Pastikan file sesuai</span>
-                    </div>
-                </div>
-
                 <!-- Role Alert -->
                 @if($role === 'Leader')
-                <div class="alert bg-warning bg-opacity-10 border-0 mb-4" style="border-radius: 12px; border-left: 4px solid #ffc107 !important;">
+                <div class="alert alert-warning border-0 mb-4" style="background: rgba(248, 150, 30, 0.1); border-radius: 12px; border-left: 4px solid #f8961e !important;">
                     <div class="d-flex align-items-center">
                         <i class="fas fa-crown text-warning me-2" style="font-size: 1.1rem;"></i>
                         <div>
@@ -90,7 +79,7 @@
                     </div>
                 </div>
                 @else
-                <div class="alert bg-success bg-opacity-10 border-0 mb-4" style="border-radius: 12px; border-left: 4px solid #10b981 !important;">
+                <div class="alert alert-success border-0 mb-4" style="background: rgba(16, 185, 129, 0.1); border-radius: 12px; border-left: 4px solid #10b981 !important;">
                     <div class="d-flex align-items-center">
                         <i class="fas fa-users text-success me-2" style="font-size: 1.1rem;"></i>
                         <div>
@@ -472,7 +461,7 @@
                 </div>
                 @else
                 <div class="mt-4 pt-3 border-top">
-                    <div class="alert bg-success bg-opacity-10 border-0 mb-0" style="border-radius: 12px;">
+                    <div class="alert alert-success border-0 mb-0" style="background: rgba(16, 185, 129, 0.1); border-radius: 12px;">
                         <div class="d-flex align-items-center">
                             <i class="fas fa-check-circle text-success me-2"></i>
                             <small class="fw-medium">Biaya pendaftaran sudah dibayar oleh Kapten tim</small>
@@ -639,33 +628,37 @@ document.addEventListener('DOMContentLoaded', function() {
     // Validasi NIK (AJAX)
     const nikInput = document.getElementById('nik');
     if (nikInput) {
-        nikInput.addEventListener('blur', function() {
+        let nikTimeout;
+        nikInput.addEventListener('input', function() {
+            clearTimeout(nikTimeout);
             const nik = this.value;
             if (nik.length === 16) {
-                fetch('{{ route("form.player.checkNik") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({ nik: nik })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.exists) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'NIK Sudah Terdaftar',
-                            text: 'NIK ini sudah digunakan oleh pemain lain.',
-                            confirmButtonColor: '#4361ee'
-                        });
-                        nikInput.classList.add('is-invalid');
-                        document.getElementById('nikFeedback').innerText = 'NIK sudah terdaftar';
-                    } else {
-                        nikInput.classList.remove('is-invalid');
-                        document.getElementById('nikFeedback').innerText = '';
-                    }
-                });
+                nikTimeout = setTimeout(() => {
+                    fetch('{{ route("form.player.checkNik") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ nik: nik })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.exists) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'NIK Sudah Terdaftar',
+                                text: 'NIK ini sudah digunakan oleh pemain lain.',
+                                confirmButtonColor: '#4361ee'
+                            });
+                            nikInput.classList.add('is-invalid');
+                            document.getElementById('nikFeedback').innerText = 'NIK sudah terdaftar';
+                        } else {
+                            nikInput.classList.remove('is-invalid');
+                            document.getElementById('nikFeedback').innerText = '';
+                        }
+                    });
+                }, 500);
             }
         });
     }
@@ -673,33 +666,37 @@ document.addEventListener('DOMContentLoaded', function() {
     // Validasi Email (AJAX)
     const emailInput = document.getElementById('email');
     if (emailInput) {
-        emailInput.addEventListener('blur', function() {
+        let emailTimeout;
+        emailInput.addEventListener('input', function() {
+            clearTimeout(emailTimeout);
             const email = this.value;
             if (email && email.includes('@')) {
-                fetch('{{ route("form.player.checkEmail") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({ email: email })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.exists) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Email Sudah Terdaftar',
-                            text: 'Email ini sudah digunakan oleh pemain lain.',
-                            confirmButtonColor: '#4361ee'
-                        });
-                        emailInput.classList.add('is-invalid');
-                        document.getElementById('emailFeedback').innerText = 'Email sudah terdaftar';
-                    } else {
-                        emailInput.classList.remove('is-invalid');
-                        document.getElementById('emailFeedback').innerText = '';
-                    }
-                });
+                emailTimeout = setTimeout(() => {
+                    fetch('{{ route("form.player.checkEmail") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ email: email })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.exists) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Email Sudah Terdaftar',
+                                text: 'Email ini sudah digunakan oleh pemain lain.',
+                                confirmButtonColor: '#4361ee'
+                            });
+                            emailInput.classList.add('is-invalid');
+                            document.getElementById('emailFeedback').innerText = 'Email sudah terdaftar';
+                        } else {
+                            emailInput.classList.remove('is-invalid');
+                            document.getElementById('emailFeedback').innerText = '';
+                        }
+                    });
+                }, 500);
             }
         });
     }
