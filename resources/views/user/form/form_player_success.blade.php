@@ -3,241 +3,131 @@
 @section('title', 'Pendaftaran Berhasil - SBL')
 
 @section('content')
-<div class="container py-5">
+<div class="container py-4">
     <div class="row justify-content-center">
-        <div class="col-md-10 col-lg-8">
-            <!-- Success Notification -->
-            @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-check-circle fa-2x me-3"></i>
-                    <div>
-                        <h5 class="alert-heading mb-1">🎉 Pendaftaran Berhasil!</h5>
-                        <p class="mb-0">{{ session('success') }}</p>
-                    </div>
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            @endif
-
-            <!-- Debug Info (Hanya untuk development) -->
-            @if(env('APP_DEBUG'))
-            <div class="alert alert-info mb-4">
-                <h6 class="alert-heading">🔍 DEBUG INFO:</h6>
-                <ul class="mb-0">
-                    <li>Role Player: <strong>{{ $player->role }}</strong></li>
-                    <li>Is Captain: <strong>{{ $isCaptain ? 'YA' : 'TIDAK' }}</strong></li>
-                    <li>Referral Code: <strong>{{ $referralCode ?: 'NULL/EMPTY' }}</strong></li>
-                    <li>Team Paid: <strong>{{ $team->is_leader_paid ? 'YA' : 'BELUM' }}</strong></li>
-                    <li>Team ID: <strong>{{ $team->team_id }}</strong></li>
-                </ul>
-            </div>
-            @endif
-
-            <!-- Screenshot Warning -->
-            <div class="alert alert-warning alert-dismissible fade show mb-4">
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-camera fa-2x me-3"></i>
-                    <div>
-                        <h5 class="alert-heading mb-1">📸 Screenshot Halaman Ini!</h5>
-                        <p class="mb-0">
-                            <strong>Simpan bukti pendaftaran Anda!</strong> 
-                            Screenshot atau salin informasi di bawah untuk referensi.
-                            Referral code hanya muncul sekali!
-                        </p>
-                    </div>
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-
-            <!-- Success Card -->
-            <div class="card border-0 shadow-lg">
-                <div class="card-header bg-success text-white py-3">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
-                            <h4 class="mb-0">
-                                <i class="fas fa-trophy me-2"></i>
-                                @if($isCaptain)
-                                KAPTEN TIM TERDAFTAR
-                                @else
-                                ANGGOTA TIM TERDAFTAR
-                                @endif
-                            </h4>
-                            <small class="opacity-75">SBL Registration System</small>
-                        </div>
-                        <div class="text-end">
-                            <small class="opacity-75">ID: {{ $team->team_id }}/{{ $player->id }}</small>
-                            <br>
-                            <small class="opacity-75">{{ now()->format('d/m/Y H:i') }}</small>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card-body p-5">
-                    <!-- Success Icon -->
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm" style="border-radius: 20px;">
+                <div class="card-body p-4">
+                    
+                    <!-- Header dengan Icon -->
                     <div class="text-center mb-4">
-                        <div class="success-icon mb-3">
-                            @if($isCaptain)
-                            <i class="fas fa-crown"></i>
-                            @else
-                            <i class="fas fa-user-check"></i>
-                            @endif
+                        <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex p-3 mb-3">
+                            <i class="fas fa-check-circle text-success" style="font-size: 3rem;"></i>
                         </div>
-                        <h2 class="text-success fw-bold mb-2">
+                        <h4 class="fw-bold text-success mb-1">
                             @if($isCaptain)
-                            👑 SELAMAT, ANDA KAPTEN!
+                            👑 Pendaftaran Kapten Berhasil!
                             @else
-                            🎉 SELAMAT, ANDA TERDAFTAR!
+                            🎉 Pendaftaran Berhasil!
                             @endif
-                        </h2>
-                        <p class="text-muted">
-                            {{ $successMessage }}
-                        </p>
+                        </h4>
+                        <p class="text-muted small">{{ $successMessage }}</p>
                     </div>
 
-                    <!-- Team Info Card -->
-                    <div class="card border mb-4">
-                        <div class="card-header bg-light">
-                            <h5 class="card-title mb-0">
-                                <i class="fas fa-info-circle me-2"></i>Informasi Pendaftaran
-                            </h5>
+                    <!-- Alert Penting untuk Kapten -->
+                    @if($isCaptain)
+                    <div class="alert alert-warning border-0 bg-soft-warning p-3 mb-4" style="border-radius: 12px;">
+                        <div class="d-flex">
+                            <i class="fas fa-exclamation-triangle text-warning me-3 mt-1" style="font-size: 1.2rem;"></i>
+                            <div>
+                                <strong class="d-block mb-1">⚠️ Simpan Referral Code Anda!</strong>
+                                <span class="small">Referral code hanya muncul sekali. Screenshot atau catat sekarang untuk dibagikan ke anggota tim.</span>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <div class="info-item">
-                                        <i class="fas fa-school text-primary"></i>
-                                        <div>
-                                            <small class="text-muted">Sekolah</small>
-                                            <p class="mb-0 fw-bold">{{ $team->school_name }}</p>
-                                        </div>
-                                    </div>
+                    </div>
+                    @endif
+
+                    <!-- Informasi Pendaftaran -->
+                    <div class="bg-light p-3 rounded-3 mb-4" style="background: #f8f9fa;">
+                        <h6 class="fw-semibold mb-3 text-primary">
+                            <i class="fas fa-info-circle me-2"></i>Informasi Pendaftaran
+                        </h6>
+                        
+                        <div class="row g-2">
+                            <div class="col-sm-6">
+                                <div class="d-flex justify-content-between py-1">
+                                    <span class="text-muted small">Nama Lengkap:</span>
+                                    <span class="fw-semibold small">{{ $player->name }}</span>
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <div class="info-item">
-                                        <i class="fas fa-basketball-ball text-danger"></i>
-                                        <div>
-                                            <small class="text-muted">Kategori Tim</small>
-                                            <p class="mb-0 fw-bold">{{ $team->team_category }}</p>
-                                        </div>
-                                    </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="d-flex justify-content-between py-1">
+                                    <span class="text-muted small">NIK:</span>
+                                    <span class="fw-semibold small">{{ $player->nik }}</span>
                                 </div>
-                                <div class="col-md-4 mb-3">
-                                    <div class="info-item">
-                                        <i class="fas fa-calendar text-success"></i>
-                                        <div>
-                                            <small class="text-muted">Season</small>
-                                            <p class="mb-0 fw-bold">{{ $team->season }}</p>
-                                        </div>
-                                    </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="d-flex justify-content-between py-1">
+                                    <span class="text-muted small">Sekolah:</span>
+                                    <span class="fw-semibold small">{{ $team->school_name }}</span>
                                 </div>
-                                <div class="col-md-4 mb-3">
-                                    <div class="info-item">
-                                        <i class="fas fa-user-tag text-warning"></i>
-                                        <div>
-                                            <small class="text-muted">Role Anda</small>
-                                            <p class="mb-0 fw-bold">
-                                                @if($isCaptain)
-                                                <span class="badge bg-warning">KAPTEN</span>
-                                                @else
-                                                <span class="badge bg-info">ANGGOTA</span>
-                                                @endif
-                                            </p>
-                                        </div>
-                                    </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="d-flex justify-content-between py-1">
+                                    <span class="text-muted small">Kategori Tim:</span>
+                                    <span class="fw-semibold small">{{ $team->team_category }}</span>
                                 </div>
-                                <div class="col-md-4 mb-3">
-                                    <div class="info-item">
-                                        <i class="fas fa-user text-warning"></i>
-                                        <div>
-                                            <small class="text-muted">Nama Anda</small>
-                                            <p class="mb-0 fw-bold">{{ $player->name }}</p>
-                                        </div>
-                                    </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="d-flex justify-content-between py-1">
+                                    <span class="text-muted small">Role Anda:</span>
+                                    <span class="badge {{ $isCaptain ? 'bg-warning' : 'bg-info' }} text-dark px-2 py-1">
+                                        {{ $isCaptain ? 'KAPTEN' : 'ANGGOTA' }}
+                                    </span>
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <div class="info-item">
-                                        <i class="fas fa-id-card text-info"></i>
-                                        <div>
-                                            <small class="text-muted">NIK</small>
-                                            <p class="mb-0 fw-bold">{{ $player->nik }}</p>
-                                        </div>
-                                    </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="d-flex justify-content-between py-1">
+                                    <span class="text-muted small">Nomor Jersey:</span>
+                                    <span class="fw-semibold small">{{ $player->jersey_number ?? '-' }}</span>
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <div class="info-item">
-                                        <i class="fas fa-envelope text-purple"></i>
-                                        <div>
-                                            <small class="text-muted">Email</small>
-                                            <p class="mb-0 fw-bold">{{ $player->email }}</p>
-                                        </div>
-                                    </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="d-flex justify-content-between py-1">
+                                    <span class="text-muted small">Email:</span>
+                                    <span class="fw-semibold small">{{ $player->email }}</span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="d-flex justify-content-between py-1">
+                                    <span class="text-muted small">WhatsApp:</span>
+                                    <span class="fw-semibold small">{{ $player->phone }}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 🔥 REFERRAL CODE SECTION (Hanya untuk Leader) -->
+                    <!-- REFERRAL CODE SECTION (Hanya untuk Kapten) -->
                     @if($isCaptain)
                         @if($referralCode && $referralCode !== '')
-                        <div class="card border-success border-3 mb-4">
-                            <div class="card-header bg-success bg-opacity-10 border-success">
-                                <h5 class="card-title mb-0 text-success">
-                                    <i class="fas fa-gift me-2"></i>REFERRAL CODE ANDA
-                                </h5>
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-3 mb-4 text-center">
+                            <div class="d-flex flex-column align-items-center">
+                                <i class="fas fa-key text-primary mb-2" style="font-size: 1.5rem;"></i>
+                                <strong class="d-block mb-2">🎫 REFERRAL CODE ANDA</strong>
+                                <div class="bg-white p-2 rounded border border-primary d-inline-block mb-3">
+                                    <code class="fw-bold fs-4">{{ $referralCode }}</code>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button onclick="copyReferralCode()" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-copy me-1"></i> Salin Kode
+                                    </button>
+                                    <button onclick="printPage()" class="btn btn-outline-secondary btn-sm">
+                                        <i class="fas fa-print me-1"></i> Print
+                                    </button>
+                                </div>
+                                <small class="text-muted mt-2">Bagikan kode ini ke anggota tim untuk bergabung</small>
                             </div>
-                            <div class="card-body text-center py-4">
-                                <!-- Important Notice -->
-                                <div class="alert alert-warning mb-4">
-                                    <div class="d-flex">
-                                        <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
-                                        <div>
-                                            <h6 class="alert-heading mb-2">⚠️ SIMPAN REFERRAL CODE INI!</h6>
-                                            <p class="mb-0">
-                                                <strong>Kode ini hanya muncul sekali!</strong> 
-                                                Screenshot atau salin sekarang. 
-                                                Anggota lain perlu kode ini untuk bergabung.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Referral Code Display -->
-                                <div class="referral-code-display mb-4">
-                                    <div class="referral-code-label">
-                                        <i class="fas fa-key me-2"></i>Kode Referral
-                                    </div>
-                                    <div class="referral-code-value">
-                                        {{ $referralCode }}
-                                    </div>
-                                    <small class="text-muted mt-2">
-                                        <i class="fas fa-info-circle me-1"></i>
-                                        Bagikan kode ini ke calon anggota tim
-                                    </small>
-                                </div>
-                                
-                                <!-- Action Buttons -->
-                                <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mb-4">
-                                    <button class="btn btn-success" onclick="copyReferralCode()">
-                                        <i class="fas fa-copy me-2"></i>Salin Referral Code
-                                    </button>
-                                    <button class="btn btn-outline-success" onclick="printPage()">
-                                        <i class="fas fa-print me-2"></i>Print Halaman Ini
-                                    </button>
-                                    <a href="whatsapp://send?text=Halo!%20Join%20tim%20{{ $team->school_name }}%20di%20HSBL.%20Referral%20Code:%20{{ $referralCode }}%0A%0ALink:%20{{ url('/form/team/join') }}" 
-                                       class="btn btn-outline-primary" target="_blank">
-                                        <i class="fab fa-whatsapp me-2"></i>Share via WhatsApp
-                                    </a>
-                                </div>
+                        </div>
 
-                                <!-- Join Instructions -->
-                                <div class="alert alert-info">
-                                    <h6 class="alert-heading">
-                                        <i class="fas fa-users me-2"></i>Cara Bergabung untuk Anggota:
-                                    </h6>
-                                    <ol class="mb-0">
-                                        <li>Buka <a href="{{ url('/form/team/join') }}">halaman "Gabung Tim"</a></li>
-                                        <li>Masukkan referral code: <code class="bg-light p-1">{{ $referralCode }}</code></li>
+                        <!-- Cara Bergabung untuk Anggota -->
+                        <div class="bg-info bg-opacity-10 p-3 rounded-3 mb-4">
+                            <div class="d-flex">
+                                <i class="fas fa-users text-info me-3 mt-1" style="font-size: 1.2rem;"></i>
+                                <div>
+                                    <strong class="d-block mb-1">📋 Cara Anggota Bergabung:</strong>
+                                    <ol class="small mb-0 ps-3">
+                                        <li>Buka halaman "Gabung Tim"</li>
+                                        <li>Masukkan referral code: <code class="bg-white p-1 rounded">{{ $referralCode }}</code></li>
                                         <li>Isi data diri sebagai anggota</li>
                                         <li><strong>Tidak perlu membayar</strong> - biaya sudah ditanggung Kapten</li>
                                     </ol>
@@ -245,180 +135,96 @@
                             </div>
                         </div>
                         @else
-                        <!-- 🔥 Jika Leader tapi belum ada referral code -->
-                        <div class="card border-danger border-3 mb-4">
-                            <div class="card-header bg-danger bg-opacity-10 border-danger">
-                                <h5 class="card-title mb-0 text-danger">
-                                    <i class="fas fa-exclamation-circle me-2"></i>REFERRAL CODE BELUM TERSEDIA
-                                </h5>
-                            </div>
-                            <div class="card-body text-center py-4">
-                                <div class="alert alert-danger mb-4">
-                                    <div class="d-flex">
-                                        <i class="fas fa-times-circle fa-2x me-3"></i>
-                                        <div>
-                                            <h6 class="alert-heading mb-2">❌ TERJADI KESALAHAN SISTEM</h6>
-                                            <p class="mb-0">
-                                                Sebagai Kapten, Anda seharusnya sudah mendapatkan referral code.<br>
-                                                <strong>Hubungi panitia SBL segera!</strong>
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="bg-light p-4 rounded mb-4">
-                                    <h6 class="mb-3">📋 Informasi untuk Panitia:</h6>
-                                    <ul class="list-unstyled text-start">
-                                        <li><strong>ID Tim:</strong> {{ $team->team_id }}</li>
-                                        <li><strong>ID Player:</strong> {{ $player->id }}</li>
-                                        <li><strong>Nama Leader:</strong> {{ $player->name }}</li>
-                                        <li><strong>Sekolah:</strong> {{ $team->school_name }}</li>
-                                        <li><strong>Kategori:</strong> {{ $team->team_category }}</li>
-                                        <li><strong>Email:</strong> {{ $player->email }}</li>
-                                    </ul>
-                                </div>
-                                
-                                <div class="alert alert-warning">
-                                    <i class="fas fa-phone-alt me-2"></i>
-                                    <strong>Kontak Panitia:</strong> 
-                                    <a href="mailto:support@sbl.com" class="text-decoration-none">support@sbl.com</a> | 
-                                    <a href="https://wa.me/6281234567890" class="text-decoration-none">WhatsApp</a>
+                        <!-- Jika Kapten tapi belum ada referral code -->
+                        <div class="alert alert-danger border-0 bg-soft-danger p-3 mb-4" style="border-radius: 12px;">
+                            <div class="d-flex">
+                                <i class="fas fa-times-circle text-danger me-3 mt-1" style="font-size: 1.2rem;"></i>
+                                <div>
+                                    <strong class="d-block mb-1">❌ Referral Code Belum Tersedia</strong>
+                                    <span class="small">Hubungi panitia SBL untuk mendapatkan referral code tim Anda.</span>
                                 </div>
                             </div>
                         </div>
                         @endif
-
-                        <!-- Instructions for Leader -->
-                        <div class="card border-info mb-4">
-                            <div class="card-header bg-info bg-opacity-10 border-info">
-                                <h5 class="card-title mb-0 text-info">
-                                    <i class="fas fa-list-check me-2"></i>LANGKAH SELANJUTNYA UNTUK KAPTEN
-                                </h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <div class="step-card">
-                                            <div class="step-number">1</div>
-                                            <h6>Bagikan Referral Code</h6>
-                                            <p class="small mb-0">Berikan referral code ke calon anggota tim</p>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <div class="step-card">
-                                            <div class="step-number">2</div>
-                                            <h6>Anggota Bergabung</h6>
-                                            <p class="small mb-0">Anggota join dengan referral code tanpa bayar</p>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <div class="step-card">
-                                            <div class="step-number">3</div>
-                                            <h6>Pantau Tim</h6>
-                                            <p class="small mb-0">Cek dashboard untuk lihat anggota yang join</p>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <div class="step-card">
-                                            <div class="step-number">4</div>
-                                            <h6>Tunggu Konfirmasi</h6>
-                                            <p class="small mb-0">Tunggu verifikasi dari panitia SBL</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     @else
-                        <!-- For Member -->
-                        <div class="card border-success mb-4">
-                            <div class="card-body text-center py-4">
-                                <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
-                                <h4 class="text-success mb-3">🎉 BERHASIL BERGABUNG!</h4>
-                                <p class="lead">
-                                    Anda telah terdaftar sebagai anggota tim 
-                                    <strong>{{ $team->school_name }}</strong>.
-                                </p>
-                                <div class="alert alert-success">
-                                    <i class="fas fa-money-bill-wave me-2"></i>
-                                    <strong>Tidak perlu membayar!</strong> 
-                                    Biaya registrasi sudah ditanggung oleh Kapten tim.
+                        <!-- Untuk Member (bukan Kapten) -->
+                        <div class="bg-success bg-opacity-10 p-3 rounded-3 mb-4">
+                            <div class="d-flex">
+                                <i class="fas fa-check-circle text-success me-3 mt-1" style="font-size: 1.2rem;"></i>
+                                <div>
+                                    <strong class="d-block mb-1">✅ Pendaftaran Anggota Berhasil</strong>
+                                    <span class="small">Anda telah bergabung sebagai anggota tim. Biaya pendaftaran sudah ditanggung oleh Kapten tim.</span>
                                 </div>
-                                
-                                @if($team->referral_code && $team->referral_code !== '')
-                                <div class="mt-3">
-                                    <small class="text-muted">
-                                        <i class="fas fa-info-circle me-1"></i>
-                                        Referral code tim: <code class="bg-light p-1">{{ $team->referral_code }}</code>
-                                    </small>
-                                </div>
-                                @endif
                             </div>
                         </div>
                     @endif
 
-                    <!-- Important Notes -->
-                    <div class="alert alert-danger">
-                        <h6 class="alert-heading">
-                            <i class="fas fa-exclamation-triangle me-2"></i>PENTING: SIMPAN BUKTI PENDAFTARAN
+                    <!-- Langkah Selanjutnya -->
+                    <div class="mb-4">
+                        <h6 class="fw-semibold mb-3 text-primary">
+                            <i class="fas fa-list-check me-2"></i>Langkah Selanjutnya
                         </h6>
-                        <ul class="mb-0">
-                            <li><strong>Screenshot halaman ini</strong> sebagai bukti pendaftaran</li>
-                            @if($isCaptain)
-                            <li><strong>Simpan referral code</strong> jika sudah ada</li>
-                            @endif
-                            <li>Data Anda akan diverifikasi oleh panitia dalam 1x24 jam</li>
-                            <li>Jika ada masalah, hubungi panitia dengan menyertakan ID Pendaftaran</li>
-                        </ul>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="d-grid gap-3">
-                        <a href="{{ route('user.dashboard') }}" class="btn btn-primary btn-lg py-3">
-                            <i class="fas fa-tachometer-alt me-2"></i>PERGI KE DASHBOARD
-                        </a>
-                        
                         <div class="row g-2">
-                            @if($isCaptain && $referralCode && $referralCode !== '')
-                            <div class="col-md-6">
-                                <a href="{{ route('form.team.join') }}" class="btn btn-success w-100 py-3">
-                                    <i class="fas fa-share-alt me-2"></i>BAGIKAN LINK GABUNG
-                                </a>
+                            <div class="col-md-4 col-6">
+                                <div class="text-center p-2 border rounded-3 h-100 bg-white">
+                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 32px; height: 32px;">
+                                        <span class="fw-bold small">1</span>
+                                    </div>
+                                    <span class="small">Screenshot Halaman Ini</span>
+                                </div>
                             </div>
-                            @endif
-                            <div class="{{ $isCaptain && $referralCode ? 'col-md-6' : 'col-12' }}">
-                                <a href="{{ route('form.team.choice') }}" class="btn btn-outline-secondary w-100 py-3">
-                                    <i class="fas fa-home me-2"></i>KEMBALI KE HALAMAN UTAMA
-                                </a>
+                            <div class="col-md-4 col-6">
+                                <div class="text-center p-2 border rounded-3 h-100 bg-white">
+                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 32px; height: 32px;">
+                                        <span class="fw-bold small">2</span>
+                                    </div>
+                                    <span class="small">Simpan Referral Code</span>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-6">
+                                <div class="text-center p-2 border rounded-3 h-100 bg-white">
+                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 32px; height: 32px;">
+                                        <span class="fw-bold small">3</span>
+                                    </div>
+                                    <span class="small">Tunggu Verifikasi</span>
+                                </div>
                             </div>
                         </div>
-                        
-                        <button class="btn btn-outline-dark" onclick="printPage()">
-                            <i class="fas fa-print me-2"></i>PRINT HALAMAN INI
-                        </button>
                     </div>
 
-                    <!-- Footer Info -->
-                    <div class="mt-5 pt-4 border-top text-center">
-                        <h6 class="text-muted mb-3">
-                            <i class="fas fa-headset me-2"></i>BUTUH BANTUAN?
-                        </h6>
-                        <div class="row justify-content-center">
-                            <div class="col-md-6 mb-2">
-                                <i class="fas fa-envelope me-2"></i>
-                                <a href="mailto:support@sbl.com" class="text-decoration-none">
-                                    support@sbl.com
-                                </a>
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <i class="fab fa-whatsapp me-2 text-success"></i>
-                                <a href="https://wa.me/6281234567890" class="text-decoration-none">
-                                    +62 812-3456-7890
-                                </a>
+                    <!-- Informasi Penting -->
+                    <div class="alert alert-danger border-0 bg-soft-danger p-3 mb-4" style="border-radius: 12px;">
+                        <div class="d-flex">
+                            <i class="fas fa-exclamation-triangle text-danger me-3 mt-1" style="font-size: 1.2rem;"></i>
+                            <div>
+                                <strong class="d-block mb-1">📌 Informasi Penting:</strong>
+                                <ul class="small mb-0 ps-3">
+                                    <li>Data Anda akan diverifikasi oleh panitia dalam 1x24 jam</li>
+                                    <li>Simpan halaman ini sebagai bukti pendaftaran</li>
+                                    <li>Hubungi panitia jika ada perubahan data</li>
+                                </ul>
                             </div>
                         </div>
-                        <small class="text-muted mt-3 d-block">
-                            ID Pendaftaran: {{ $team->team_id }}-{{ $player->id }} • 
-                            Tanggal: {{ now()->format('d/m/Y H:i') }}
+                    </div>
+
+                    <!-- Tombol Aksi -->
+                    <div class="d-grid gap-2">
+                        <a href="{{ route('user.dashboard') }}" class="btn btn-primary py-2 fw-semibold">
+                            <i class="fas fa-tachometer-alt me-2"></i> Ke Dashboard
+                        </a>
+                        <a href="{{ route('form.team.choice') }}" class="btn btn-outline-secondary py-2">
+                            <i class="fas fa-home me-2"></i> Kembali ke Halaman Utama
+                        </a>
+                    </div>
+
+                    <!-- Footer Note -->
+                    <div class="text-center mt-4 pt-2 border-top">
+                        <small class="text-muted">
+                            <i class="fas fa-envelope me-1"></i> Ada pertanyaan? Hubungi support@sbl.com
+                        </small>
+                        <br>
+                        <small class="text-muted">
+                            ID Pendaftaran: {{ $team->team_id }}-{{ $player->id }}
                         </small>
                     </div>
                 </div>
@@ -429,153 +235,40 @@
 
 @push('styles')
 <style>
-    /* Success Icon */
-    .success-icon {
-        width: 120px;
-        height: 120px;
-        margin: 0 auto;
-        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 60px;
-        box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
+    .bg-soft-warning {
+        background: rgba(248, 150, 30, 0.1);
     }
-
-    /* Info Item */
-    .info-item {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        padding: 10px;
-        border-radius: 8px;
-        background: #f8f9fa;
-        transition: all 0.3s;
+    .bg-soft-info {
+        background: rgba(14, 165, 233, 0.1);
+    }
+    .bg-soft-danger {
+        background: rgba(249, 65, 68, 0.1);
+    }
+    .bg-opacity-10 {
+        background: rgba(67, 97, 238, 0.1);
+    }
+    .bg-success {
+        background: #28a745 !important;
+    }
+    .bg-success.bg-opacity-10 {
+        background: rgba(40, 167, 69, 0.1) !important;
     }
     
-    .info-item:hover {
-        background: #e9ecef;
-        transform: translateY(-2px);
-    }
-    
-    .info-item i {
-        font-size: 24px;
-        width: 40px;
-        text-align: center;
-    }
-
-    /* Referral Code Display */
-    .referral-code-display {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        padding: 2rem;
-        border-radius: 15px;
-        border: 3px dashed #28a745;
-        margin: 2rem 0;
-    }
-    
-    .referral-code-label {
-        font-size: 1.1rem;
-        color: #6c757d;
-        margin-bottom: 0.5rem;
-    }
-    
-    .referral-code-value {
-        font-size: 2.5rem;
-        font-weight: 900;
-        letter-spacing: 3px;
-        color: #212529;
-        background: white;
-        padding: 1rem 2rem;
-        border-radius: 10px;
-        border: 2px solid #28a745;
-        margin: 1rem 0;
-        font-family: 'Courier New', monospace;
-    }
-
-    /* Step Cards */
-    .step-card {
-        text-align: center;
-        padding: 1.5rem;
-        border-radius: 10px;
-        background: #f8f9fa;
-        height: 100%;
-        transition: all 0.3s;
-    }
-    
-    .step-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-    }
-    
-    .step-number {
-        width: 40px;
-        height: 40px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        margin: 0 auto 1rem;
-    }
-
-    /* Buttons */
-    .btn {
-        font-weight: 600;
-        transition: all 0.3s;
-    }
-    
-    .btn:hover {
-        transform: translateY(-3px);
-    }
-    
-    .btn-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: none;
-    }
-    
-    .btn-success {
-        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        border: none;
-    }
-
-    /* Alerts */
-    .alert {
-        border-radius: 10px;
-        border: none;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    }
-
-    /* Print Styles */
     @media print {
-        .btn, .alert-dismissible, .d-print-none {
+        .btn {
             display: none !important;
         }
-        
         .card {
-            border: 2px solid #000 !important;
+            border: 1px solid #ddd !important;
             box-shadow: none !important;
-        }
-        
-        .referral-code-value {
-            font-size: 2rem !important;
-            border: 3px solid #000 !important;
-        }
-        
-        body {
-            font-size: 12pt !important;
-            background: white !important;
         }
     }
 </style>
 @endpush
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    // Copy Referral Code to Clipboard
     function copyReferralCode() {
         const referralCode = '{{ $referralCode }}';
         
@@ -583,84 +276,41 @@
             Swal.fire({
                 icon: 'error',
                 title: 'Referral Code Tidak Tersedia',
-                text: 'Referral code belum tersedia. Hubungi panitia.',
-                confirmButtonText: 'OK',
+                text: 'Hubungi panitia untuk mendapatkan referral code.',
                 confirmButtonColor: '#dc3545'
             });
             return;
         }
         
-        // Create temporary input
-        const tempInput = document.createElement('input');
-        tempInput.value = referralCode;
-        document.body.appendChild(tempInput);
-        
-        // Select and copy
-        tempInput.select();
-        tempInput.setSelectionRange(0, 99999);
-        
-        try {
-            const successful = document.execCommand('copy');
-            if (successful) {
-                // Show sweet alert
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil Disalin!',
-                    html: `
-                        <div class="text-center">
-                            <h5 class="mb-3">Referral Code:</h5>
-                            <div class="bg-light p-3 rounded">
-                                <code class="fs-4 fw-bold">${referralCode}</code>
-                            </div>
-                            <p class="mt-3">Kode telah disalin ke clipboard.</p>
-                        </div>
-                    `,
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#28a745'
-                });
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Gagal Menyalin',
-                    html: `
-                        <div class="text-center">
-                            <p>Gagal menyalin referral code secara otomatis.</p>
-                            <div class="bg-light p-3 rounded mt-3">
-                                <code class="fs-5 fw-bold">${referralCode}</code>
-                            </div>
-                            <p class="mt-3">Silakan salin manual kode di atas.</p>
-                        </div>
-                    `,
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#dc3545'
-                });
-            }
-        } catch (err) {
-            console.error('Copy failed:', err);
+        // Copy ke clipboard
+        navigator.clipboard.writeText(referralCode).then(function() {
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil Disalin!',
+                html: `Referral code <strong class="text-primary">${referralCode}</strong> telah disalin ke clipboard.`,
+                confirmButtonColor: '#28a745',
+                timer: 2000,
+                showConfirmButton: true
+            });
+        }).catch(function() {
             Swal.fire({
                 icon: 'error',
                 title: 'Gagal Menyalin',
                 text: 'Silakan salin manual: ' + referralCode,
-                confirmButtonText: 'OK',
                 confirmButtonColor: '#dc3545'
             });
-        }
-        
-        // Clean up
-        document.body.removeChild(tempInput);
+        });
     }
 
-    // Print Page
     function printPage() {
         Swal.fire({
-            title: 'Print Halaman',
-            text: 'Pastikan semua informasi terlihat sebelum print.',
+            title: 'Cetak Halaman',
+            text: 'Pastikan semua informasi terlihat sebelum mencetak.',
             icon: 'info',
             showCancelButton: true,
-            confirmButtonText: 'Print',
+            confirmButtonText: 'Cetak',
             cancelButtonText: 'Batal',
-            confirmButtonColor: '#28a745',
-            cancelButtonColor: '#6c757d'
+            confirmButtonColor: '#28a745'
         }).then((result) => {
             if (result.isConfirmed) {
                 window.print();
@@ -668,32 +318,23 @@
         });
     }
 
-    // Auto-hide alerts after 10 seconds
-    document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(() => {
-            const alerts = document.querySelectorAll('.alert-dismissible');
-            alerts.forEach(alert => {
-                const bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
-            });
-        }, 10000);
-        
-        // Auto-scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-
-        // Add beforeunload warning for Captain
-        @if($isCaptain && $referralCode)
-        window.addEventListener('beforeunload', function (e) {
-            // Cancel the event
+    // Peringatan sebelum keluar halaman (khusus Kapten dengan referral code)
+    @if($isCaptain && $referralCode)
+    let hasCopied = false;
+    
+    window.addEventListener('beforeunload', function(e) {
+        if (!hasCopied) {
             e.preventDefault();
-            // Chrome requires returnValue to be set
-            e.returnValue = '⚠️ JANGAN TUTUP! Pastikan Anda telah menyimpan/screenshot referral code.';
-        });
-        @endif
+            e.returnValue = '⚠️ Jangan lupa salin referral code Anda! Kode hanya muncul sekali.';
+        }
     });
+    
+    // Tandai sudah copy
+    document.querySelector('[onclick="copyReferralCode()"]')?.addEventListener('click', function() {
+        hasCopied = true;
+    });
+    @endif
 </script>
-
-<!-- SweetAlert2 -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @endpush
+
 @endsection
