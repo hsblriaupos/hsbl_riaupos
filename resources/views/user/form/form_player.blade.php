@@ -25,7 +25,7 @@
                 <div class="small fw-semibold text-primary">Data Pemain</div>
             </div>
             <div class="mx-3">
-                <div style="width: 80px; height: 2px; background: linear-gradient(90deg, #4361ee, #e9ecef);"></div>
+                <div style="width: 80px; height: 2px; background: #e9ecef;"></div>
             </div>
             <div class="text-center">
                 <div class="rounded-circle bg-white border d-flex align-items-center justify-content-center mx-auto mb-2"
@@ -38,41 +38,51 @@
     </div>
 
     <!-- Main Form Card -->
-    <div class="card border-0 shadow-sm mx-auto" style="max-width: 950px; border-radius: 20px;">
+    <div class="card border-0 shadow-sm mx-auto" style="max-width: 1000px; border-radius: 20px;">
         <!-- Card Header -->
         <div class="card-header bg-white border-0 pt-4 px-4">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h5 class="fw-semibold mb-1" style="color: #2b2d42;">
-                        <i class="fas fa-user-plus text-primary me-2" style="font-size: 1.2rem;"></i>
+            <div class="row align-items-center">
+                <div class="col">
+                    <h5 class="fw-semibold mb-1 text-primary">
+                        <i class="fas {{ $role === 'Leader' ? 'fa-crown' : 'fa-user-plus' }} me-2"></i>
                         @if($role === 'Leader')
-                        Form Leader {{ ucfirst($category) }}
+                            Form Pendaftaran Kapten
                         @else
-                        Form Pemain {{ ucfirst($category) }}
+                            Form Pendaftaran Pemain
                         @endif
                     </h5>
-                    <p class="text-muted small mb-0">{{ $team->school_name }} • {{ $team->team_category }}</p>
+                    <p class="text-muted small mb-0">
+                        <i class="fas fa-school me-1"></i>{{ $team->school_name }}
+                        <span class="mx-1">•</span>
+                        <i class="fas fa-basketball me-1"></i>{{ $team->team_category }}
+                        <span class="mx-1">•</span>
+                        <i class="fas fa-tag me-1"></i>{{ ucfirst($category) }}
+                    </p>
                 </div>
-                <a href="{{ route('form.team.choice') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
-                    <i class="fas fa-arrow-left me-1"></i>Kembali
-                </a>
+                <div class="col-auto">
+                    <a href="{{ route('form.team.choice') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                        <i class="fas fa-arrow-left me-1"></i>Kembali
+                    </a>
+                </div>
             </div>
         </div>
 
-        <!-- Alert Messages -->
+        <!-- Alert Errors -->
         @if($errors->any())
         <div class="px-4 pt-3">
-            <div class="alert alert-danger alert-dismissible fade show py-2 border-0 bg-soft-danger" role="alert" style="border-radius: 12px;">
+            <div class="alert alert-danger alert-dismissible fade show py-2 border-0" role="alert" style="background: rgba(249, 65, 68, 0.1); border-radius: 12px;">
                 <div class="d-flex align-items-start">
                     <i class="fas fa-times-circle me-2 mt-1" style="color: #f94144;"></i>
-                    <div>
-                        <small class="d-block fw-semibold">Terdapat {{ $errors->count() }} kesalahan:</small>
-                        @foreach($errors->all() as $error)
-                        <small class="d-block">{{ $error }}</small>
-                        @endforeach
+                    <div class="small">
+                        <strong>Terdapat {{ $errors->count() }} kesalahan:</strong>
+                        <ul class="mb-0 mt-1 ps-3">
+                            @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
                     </div>
+                    <button type="button" class="btn-close btn-sm ms-auto" data-bs-dismiss="alert"></button>
                 </div>
-                <button type="button" class="btn-close btn-sm" data-bs-dismiss="alert"></button>
             </div>
         </div>
         @endif
@@ -85,96 +95,97 @@
                 <input type="hidden" name="category" value="{{ $category }}">
                 <input type="hidden" name="team_role" value="{{ $role }}">
 
-                <!-- Quick Guide -->
-                <div class="bg-light p-3 rounded-3 mb-4" style="background: #f8f9fa;">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-lightbulb text-primary me-2" style="font-size: 1rem;"></i>
-                        <span class="small fw-semibold me-3">Tips:</span>
-                        <span class="small text-muted me-3">1. Data Pribadi</span>
-                        <span class="small text-muted me-3">→</span>
-                        <span class="small text-muted me-3">2. Data Fisik</span>
-                        <span class="small text-muted me-3">→</span>
-                        <span class="small text-muted">3. Upload Dokumen</span>
-                    </div>
-                </div>
-
-                <!-- Role Alert -->
+                <!-- Role Alert Banner -->
                 @if($role === 'Leader')
-                <div class="alert bg-soft-warning py-2 px-3 mb-4 border-0" role="alert" style="border-radius: 10px;">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-crown text-warning me-2"></i>
-                        <small class="fw-medium">Anda adalah Leader Tim - Bertanggung jawab untuk pembayaran dan upload jersey tim</small>
+                <div class="alert mb-4 border-0" style="background: linear-gradient(135deg, rgba(248, 150, 30, 0.1), rgba(248, 150, 30, 0.05)); border-radius: 12px; border-left: 4px solid #f8961e !important;">
+                    <div class="d-flex">
+                        <div class="me-3">
+                            <i class="fas fa-crown text-warning" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div>
+                            <span class="fw-bold text-warning">Anda adalah KAPTEN TIM</span>
+                            <p class="small text-muted mb-0 mt-1">Sebagai Kapten, Anda bertanggung jawab untuk:<br>
+                            • Upload bukti pembayaran registrasi tim<br>
+                            • Upload foto jersey tim (minimal 1 foto)<br>
+                            • Mendapatkan referral code untuk anggota tim</p>
+                        </div>
                     </div>
                 </div>
                 @else
-                <div class="alert bg-soft-teal py-2 px-3 mb-4 border-0" role="alert" style="border-radius: 10px;">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-users text-teal me-2"></i>
-                        <small class="fw-medium">Anda adalah Member Tim - Bergabung dengan referral code</small>
+                <div class="alert mb-4 border-0" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05)); border-radius: 12px; border-left: 4px solid #10b981 !important;">
+                    <div class="d-flex">
+                        <div class="me-3">
+                            <i class="fas fa-users text-success" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div>
+                            <span class="fw-bold text-success">Anda adalah ANGGOTA TIM</span>
+                            <p class="small text-muted mb-0 mt-1">Biaya pendaftaran sudah ditanggung oleh Kapten tim.<br>
+                            Anda hanya perlu mengisi data diri dan melengkapi dokumen yang diperlukan.</p>
+                        </div>
                     </div>
                 </div>
                 @endif
 
-                <!-- LAYOUT 2 KOLOM -->
+                <!-- 2 KOLOM LAYOUT -->
                 <div class="row g-4">
-                    <!-- KOLOM KIRI: Data Pribadi & Data Fisik -->
+                    <!-- KOLOM KIRI -->
                     <div class="col-md-6">
-                        <div class="border-end pe-3">
+                        <div class="pe-md-3">
                             <!-- Data Pribadi -->
                             <div class="mb-4">
-                                <div class="d-flex align-items-center mb-3">
-                                    <div class="bg-primary bg-opacity-10 text-primary rounded-2 d-flex align-items-center justify-content-center me-2"
-                                        style="width: 32px; height: 32px;">
-                                        <i class="fas fa-id-card" style="font-size: 1rem;"></i>
-                                    </div>
-                                    <h6 class="fw-semibold mb-0" style="color: #2b2d42;">Data Pribadi</h6>
-                                </div>
-
-                                <div class="row g-2">
+                                <h6 class="fw-semibold mb-3 pb-1 border-bottom">
+                                    <i class="fas fa-id-card text-primary me-2"></i>Data Pribadi
+                                </h6>
+                                <div class="row g-3">
                                     <div class="col-12">
-                                        <label class="form-label small fw-medium mb-1">NIK <span class="text-danger">*</span></label>
+                                        <label class="form-label small fw-medium">NIK <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control form-control-sm @error('nik') is-invalid @enderror"
                                             id="nik" name="nik" value="{{ old('nik') }}" required
-                                            placeholder="16 digit" maxlength="16"
-                                            oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                            placeholder="16 digit angka" maxlength="16">
+                                        <div class="invalid-feedback small" id="nikFeedback"></div>
                                     </div>
                                     <div class="col-12">
-                                        <label class="form-label small fw-medium mb-1">Nama Lengkap <span class="text-danger">*</span></label>
+                                        <label class="form-label small fw-medium">Nama Lengkap <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control form-control-sm @error('name') is-invalid @enderror"
                                             id="name" name="name" value="{{ old('name') }}" required
-                                            placeholder="Nama lengkap">
+                                            placeholder="Nama lengkap sesuai KTP">
                                     </div>
                                     <div class="col-6">
-                                        <label class="form-label small fw-medium mb-1">Tanggal Lahir <span class="text-danger">*</span></label>
+                                        <label class="form-label small fw-medium">Tempat Lahir <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control form-control-sm @error('birth_place') is-invalid @enderror"
+                                            id="birth_place" name="birth_place" value="{{ old('birth_place') }}" required
+                                            placeholder="Kota lahir">
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label small fw-medium">Tanggal Lahir <span class="text-danger">*</span></label>
                                         <input type="date" class="form-control form-control-sm @error('birthdate') is-invalid @enderror"
-                                            id="birthdate" name="birthdate" value="{{ old('birthdate') }}" required
-                                            max="{{ date('Y-m-d', strtotime('-10 years')) }}">
+                                            id="birthdate" name="birthdate" value="{{ old('birthdate') }}" required>
                                     </div>
                                     <div class="col-6">
-                                        <label class="form-label small fw-medium mb-1">Jenis Kelamin <span class="text-danger">*</span></label>
+                                        <label class="form-label small fw-medium">Jenis Kelamin <span class="text-danger">*</span></label>
                                         <select class="form-select form-select-sm @error('gender') is-invalid @enderror"
                                             id="gender" name="gender" required>
                                             <option value="">Pilih</option>
                                             @foreach($genderOptions as $gender)
-                                            <option value="{{ $gender }}" {{ old('gender') == $gender ? 'selected' : '' }}>{{ $gender }}</option>
+                                            <option value="{{ $gender }}" {{ old('gender') == $gender ? 'selected' : '' }}>{{ $gender == 'Male' ? 'Laki-laki' : 'Perempuan' }}</option>
                                             @endforeach
                                         </select>
                                     </div>
                                     <div class="col-6">
-                                        <label class="form-label small fw-medium mb-1">WhatsApp <span class="text-danger">*</span></label>
+                                        <label class="form-label small fw-medium">WhatsApp <span class="text-danger">*</span></label>
                                         <input type="tel" class="form-control form-control-sm @error('phone') is-invalid @enderror"
                                             id="phone" name="phone" value="{{ old('phone') }}" required
-                                            placeholder="081234567890"
-                                            oninput="this.value = this.value.replace(/[^0-9+]/g, '')">
+                                            placeholder="081234567890">
                                     </div>
-                                    <div class="col-6">
-                                        <label class="form-label small fw-medium mb-1">Email <span class="text-danger">*</span></label>
+                                    <div class="col-12">
+                                        <label class="form-label small fw-medium">Email <span class="text-danger">*</span></label>
                                         <input type="email" class="form-control form-control-sm @error('email') is-invalid @enderror"
                                             id="email" name="email" value="{{ old('email') }}" required
                                             placeholder="email@example.com">
+                                        <div class="invalid-feedback small" id="emailFeedback"></div>
                                     </div>
                                     <div class="col-6">
-                                        <label class="form-label small fw-medium mb-1">Kelas <span class="text-danger">*</span></label>
+                                        <label class="form-label small fw-medium">Kelas <span class="text-danger">*</span></label>
                                         <select class="form-select form-select-sm @error('grade') is-invalid @enderror"
                                             id="grade" name="grade" required>
                                             <option value="">Pilih</option>
@@ -184,40 +195,34 @@
                                         </select>
                                     </div>
                                     <div class="col-6">
-                                        <label class="form-label small fw-medium mb-1">Tahun STTB <span class="text-danger">*</span></label>
+                                        <label class="form-label small fw-medium">Tahun STTB <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control form-control-sm @error('sttb_year') is-invalid @enderror"
                                             id="sttb_year" name="sttb_year" value="{{ old('sttb_year') }}" required
-                                            placeholder="2024" maxlength="4"
-                                            oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                            placeholder="2024" maxlength="4">
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Data Fisik -->
                             <div class="mb-4">
-                                <div class="d-flex align-items-center mb-3">
-                                    <div class="bg-primary bg-opacity-10 text-primary rounded-2 d-flex align-items-center justify-content-center me-2"
-                                        style="width: 32px; height: 32px;">
-                                        <i class="fas fa-running" style="font-size: 1rem;"></i>
-                                    </div>
-                                    <h6 class="fw-semibold mb-0" style="color: #2b2d42;">Data Fisik & Basket</h6>
-                                </div>
-
-                                <div class="row g-2">
+                                <h6 class="fw-semibold mb-3 pb-1 border-bottom">
+                                    <i class="fas fa-running text-primary me-2"></i>Data Fisik
+                                </h6>
+                                <div class="row g-3">
                                     <div class="col-6">
-                                        <label class="form-label small fw-medium mb-1">Tinggi (cm) <span class="text-danger">*</span></label>
+                                        <label class="form-label small fw-medium">Tinggi Badan (cm) <span class="text-danger">*</span></label>
                                         <input type="number" class="form-control form-control-sm @error('height') is-invalid @enderror"
                                             id="height" name="height" value="{{ old('height') }}" required
                                             min="100" max="250" step="1" placeholder="170">
                                     </div>
                                     <div class="col-6">
-                                        <label class="form-label small fw-medium mb-1">Berat (kg) <span class="text-danger">*</span></label>
+                                        <label class="form-label small fw-medium">Berat Badan (kg) <span class="text-danger">*</span></label>
                                         <input type="number" class="form-control form-control-sm @error('weight') is-invalid @enderror"
                                             id="weight" name="weight" value="{{ old('weight') }}" required
-                                            min="30" max="150" step="0.5" placeholder="65.5">
+                                            min="30" max="150" step="0.5" placeholder="65">
                                     </div>
                                     <div class="col-6">
-                                        <label class="form-label small fw-medium mb-1">Ukuran Kaos <span class="text-danger">*</span></label>
+                                        <label class="form-label small fw-medium">Ukuran Kaos <span class="text-danger">*</span></label>
                                         <select class="form-select form-select-sm @error('tshirt_size') is-invalid @enderror"
                                             id="tshirt_size" name="tshirt_size" required>
                                             <option value="">Pilih</option>
@@ -227,7 +232,7 @@
                                         </select>
                                     </div>
                                     <div class="col-6">
-                                        <label class="form-label small fw-medium mb-1">Ukuran Sepatu <span class="text-danger">*</span></label>
+                                        <label class="form-label small fw-medium">Ukuran Sepatu <span class="text-danger">*</span></label>
                                         <select class="form-select form-select-sm @error('shoes_size') is-invalid @enderror"
                                             id="shoes_size" name="shoes_size" required>
                                             <option value="">Pilih</option>
@@ -238,8 +243,8 @@
                                     </div>
 
                                     @if($category !== 'dancer')
-                                    <div class="col-6">
-                                        <label class="form-label small fw-medium mb-1">Posisi Basket <span class="text-danger">*</span></label>
+                                    <div class="col-12">
+                                        <label class="form-label small fw-medium">Posisi Basket <span class="text-danger">*</span></label>
                                         <select class="form-select form-select-sm @error('basketball_position') is-invalid @enderror"
                                             id="basketball_position" name="basketball_position" required>
                                             <option value="">Pilih Posisi</option>
@@ -248,12 +253,12 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="col-6">
-                                        <label class="form-label small fw-medium mb-1">Nomor Jersey <span class="text-danger">*</span></label>
+                                    <div class="col-12">
+                                        <label class="form-label small fw-medium">Nomor Jersey <span class="text-danger">*</span></label>
                                         <input type="number" class="form-control form-control-sm @error('jersey_number') is-invalid @enderror"
                                             id="jersey_number" name="jersey_number" value="{{ old('jersey_number') }}" required
-                                            min="0" max="99" placeholder="0-99"
-                                            oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                            min="0" max="99" placeholder="0-99">
+                                        <small class="text-muted d-block mt-1">Nomor punggung yang akan dipakai saat bertanding</small>
                                     </div>
                                     @endif
                                 </div>
@@ -261,41 +266,65 @@
                         </div>
                     </div>
 
-                    <!-- KOLOM KANAN: Data Orang Tua -->
+                    <!-- KOLOM KANAN -->
                     <div class="col-md-6">
-                        <div class="ps-3">
+                        <div class="ps-md-3">
                             <!-- Data Orang Tua -->
                             <div class="mb-4">
-                                <div class="d-flex align-items-center mb-3">
-                                    <div class="bg-primary bg-opacity-10 text-primary rounded-2 d-flex align-items-center justify-content-center me-2"
-                                        style="width: 32px; height: 32px;">
-                                        <i class="fas fa-users" style="font-size: 1rem;"></i>
-                                    </div>
-                                    <h6 class="fw-semibold mb-0" style="color: #2b2d42;">Data Orang Tua</h6>
-                                </div>
-
-                                <div class="row g-2">
+                                <h6 class="fw-semibold mb-3 pb-1 border-bottom">
+                                    <i class="fas fa-users text-primary me-2"></i>Data Orang Tua / Wali
+                                </h6>
+                                <div class="row g-3">
                                     <div class="col-12">
-                                        <label class="form-label small fw-medium mb-1">Nama Ayah <span class="text-danger">*</span></label>
+                                        <label class="form-label small fw-medium">Nama Ayah <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control form-control-sm @error('father_name') is-invalid @enderror"
-                                            id="father_name" name="father_name" value="{{ old('father_name') }}" placeholder="Nama ayah" required>
+                                            id="father_name" name="father_name" value="{{ old('father_name') }}" required
+                                            placeholder="Nama lengkap ayah">
                                     </div>
                                     <div class="col-12">
-                                        <label class="form-label small fw-medium mb-1">No. Telepon Ayah <span class="text-danger">*</span></label>
+                                        <label class="form-label small fw-medium">No. Telepon Ayah <span class="text-danger">*</span></label>
                                         <input type="tel" class="form-control form-control-sm @error('father_phone') is-invalid @enderror"
-                                            id="father_phone" name="father_phone" value="{{ old('father_phone') }}" placeholder="No. telepon" required
-                                            oninput="this.value = this.value.replace(/[^0-9+]/g, '')">
+                                            id="father_phone" name="father_phone" value="{{ old('father_phone') }}" required
+                                            placeholder="081234567890">
                                     </div>
                                     <div class="col-12">
-                                        <label class="form-label small fw-medium mb-1">Nama Ibu <span class="text-danger">*</span></label>
+                                        <label class="form-label small fw-medium">Nama Ibu <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control form-control-sm @error('mother_name') is-invalid @enderror"
-                                            id="mother_name" name="mother_name" value="{{ old('mother_name') }}" placeholder="Nama ibu" required>
+                                            id="mother_name" name="mother_name" value="{{ old('mother_name') }}" required
+                                            placeholder="Nama lengkap ibu">
                                     </div>
                                     <div class="col-12">
-                                        <label class="form-label small fw-medium mb-1">No. Telepon Ibu <span class="text-danger">*</span></label>
+                                        <label class="form-label small fw-medium">No. Telepon Ibu <span class="text-danger">*</span></label>
                                         <input type="tel" class="form-control form-control-sm @error('mother_phone') is-invalid @enderror"
-                                            id="mother_phone" name="mother_phone" value="{{ old('mother_phone') }}" placeholder="No. telepon" required
-                                            oninput="this.value = this.value.replace(/[^0-9+]/g, '')">
+                                            id="mother_phone" name="mother_phone" value="{{ old('mother_phone') }}" required
+                                            placeholder="081234567890">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Media Sosial -->
+                            <div class="mb-4">
+                                <h6 class="fw-semibold mb-3 pb-1 border-bottom">
+                                    <i class="fab fa-instagram text-primary me-2"></i>Media Sosial (Opsional)
+                                </h6>
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label class="form-label small fw-medium">Instagram</label>
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text bg-light">@</span>
+                                            <input type="text" class="form-control form-control-sm @error('instagram') is-invalid @enderror"
+                                                id="instagram" name="instagram" value="{{ old('instagram') }}"
+                                                placeholder="username">
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label small fw-medium">TikTok</label>
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text bg-light">@</span>
+                                            <input type="text" class="form-control form-control-sm @error('tiktok') is-invalid @enderror"
+                                                id="tiktok" name="tiktok" value="{{ old('tiktok') }}"
+                                                placeholder="username">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -303,16 +332,12 @@
                     </div>
                 </div>
 
-                <!-- Dokumen Wajib (Full Width) -->
-                <div class="mt-4">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="bg-primary bg-opacity-10 text-primary rounded-2 d-flex align-items-center justify-content-center me-2"
-                            style="width: 32px; height: 32px;">
-                            <i class="fas fa-file-alt" style="font-size: 1rem;"></i>
-                        </div>
-                        <h6 class="fw-semibold mb-0" style="color: #2b2d42;">Dokumen Wajib</h6>
-                        <span class="badge bg-primary bg-opacity-10 text-primary ms-3 px-3 py-1 small">6 Dokumen</span>
-                    </div>
+                <!-- Dokumen Wajib -->
+                <div class="mt-4 pt-3 border-top">
+                    <h6 class="fw-semibold mb-3">
+                        <i class="fas fa-file-alt text-primary me-2"></i>Dokumen Wajib
+                        <span class="badge bg-primary bg-opacity-10 text-primary ms-2 px-3 py-1 small">6 Dokumen</span>
+                    </h6>
 
                     <div class="row g-3">
                         <div class="col-md-6">
@@ -323,7 +348,7 @@
                                 </div>
                                 <input type="file" class="form-control form-control-sm"
                                     id="birth_certificate" name="birth_certificate" accept=".pdf" required>
-                                <small class="text-muted d-block mt-1">Maks. 1MB, PDF</small>
+                                <small class="text-muted d-block mt-1">PDF, maks. 1MB</small>
                             </div>
                         </div>
 
@@ -335,7 +360,7 @@
                                 </div>
                                 <input type="file" class="form-control form-control-sm"
                                     id="kk" name="kk" accept=".pdf" required>
-                                <small class="text-muted d-block mt-1">Maks. 1MB, PDF</small>
+                                <small class="text-muted d-block mt-1">PDF, maks. 1MB</small>
                             </div>
                         </div>
 
@@ -343,11 +368,11 @@
                             <div class="border rounded-3 p-3">
                                 <div class="d-flex align-items-center mb-2">
                                     <i class="fas fa-file-pdf text-danger me-2"></i>
-                                    <span class="small fw-medium">SHUN <span class="text-danger">*</span></span>
+                                    <span class="small fw-medium">SHUN / Ijazah <span class="text-danger">*</span></span>
                                 </div>
                                 <input type="file" class="form-control form-control-sm"
                                     id="shun" name="shun" accept=".pdf" required>
-                                <small class="text-muted d-block mt-1">Maks. 1MB, PDF</small>
+                                <small class="text-muted d-block mt-1">PDF, maks. 1MB</small>
                             </div>
                         </div>
 
@@ -359,7 +384,7 @@
                                 </div>
                                 <input type="file" class="form-control form-control-sm"
                                     id="last_report_card" name="last_report_card" accept=".pdf" required>
-                                <small class="text-muted d-block mt-1">Maks. 1MB, PDF</small>
+                                <small class="text-muted d-block mt-1">PDF, maks. 1MB</small>
                             </div>
                         </div>
 
@@ -371,7 +396,7 @@
                                 </div>
                                 <input type="file" class="form-control form-control-sm"
                                     id="formal_photo" name="formal_photo" accept=".jpg,.jpeg,.png" required>
-                                <small class="text-muted d-block mt-1">Maks. 1MB, JPG/PNG</small>
+                                <small class="text-muted d-block mt-1">JPG/PNG, maks. 1MB (background merah)</small>
                             </div>
                         </div>
 
@@ -383,7 +408,7 @@
                                 </div>
                                 <input type="file" class="form-control form-control-sm"
                                     id="assignment_letter" name="assignment_letter" accept=".pdf" required>
-                                <small class="text-muted d-block mt-1">Maks. 1MB, PDF</small>
+                                <small class="text-muted d-block mt-1">PDF, maks. 1MB</small>
                             </div>
                         </div>
                     </div>
@@ -392,14 +417,10 @@
                 <!-- SECTION KHUSUS LEADER -->
                 @if($role === 'Leader')
                 <div class="mt-4 pt-3 border-top">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="bg-warning bg-opacity-10 text-warning rounded-2 d-flex align-items-center justify-content-center me-2"
-                            style="width: 32px; height: 32px;">
-                            <i class="fas fa-crown" style="font-size: 1rem;"></i>
-                        </div>
-                        <h6 class="fw-semibold mb-0" style="color: #2b2d42;">Khusus Leader</h6>
-                        <span class="badge bg-warning bg-opacity-10 text-warning ms-3 px-3 py-1 small">Wajib diisi</span>
-                    </div>
+                    <h6 class="fw-semibold mb-3">
+                        <i class="fas fa-crown text-warning me-2"></i>Khusus Kapten Tim
+                        <span class="badge bg-warning bg-opacity-10 text-warning ms-2 px-3 py-1 small">Wajib diisi</span>
+                    </h6>
 
                     <div class="row g-3">
                         @if($category !== 'dancer')
@@ -407,7 +428,7 @@
                             <div class="border rounded-3 p-3">
                                 <div class="d-flex align-items-center mb-2">
                                     <i class="fas fa-tshirt text-warning me-2"></i>
-                                    <span class="small fw-medium">Jersey Tim <span class="text-danger">*</span></span>
+                                    <span class="small fw-medium">Foto Jersey Tim <span class="text-danger">*</span></span>
                                 </div>
                                 <div class="row g-2">
                                     <div class="col-4">
@@ -426,7 +447,7 @@
                                                name="jersey_alternate" accept=".jpg,.jpeg,.png">
                                     </div>
                                 </div>
-                                <small class="text-muted d-block mt-2">Upload minimal 1 foto jersey (maks 2MB per file)</small>
+                                <small class="text-warning d-block mt-2">⚠️ Minimal upload 1 foto jersey tim (maks 2MB per file)</small>
                             </div>
                         </div>
                         @endif
@@ -439,17 +460,17 @@
                                 </div>
                                 <input type="file" class="form-control form-control-sm"
                                     id="payment_proof" name="payment_proof" accept=".jpg,.jpeg,.png,.pdf" required>
-                                <small class="text-muted d-block mt-1">Maks. 2MB, JPG/PNG/PDF</small>
+                                <small class="text-muted d-block mt-1">JPG/PNG/PDF, maks. 2MB</small>
                             </div>
                         </div>
                     </div>
                 </div>
                 @else
                 <div class="mt-4 pt-3 border-top">
-                    <div class="alert bg-soft-teal py-2 px-3 mb-0 border-0" role="alert" style="border-radius: 10px;">
+                    <div class="alert alert-success border-0 mb-0" style="background: rgba(16, 185, 129, 0.1); border-radius: 12px;">
                         <div class="d-flex align-items-center">
-                            <i class="fas fa-check-circle text-teal me-2"></i>
-                            <small>Biaya pendaftaran sudah dibayar oleh Leader Tim</small>
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <small class="fw-medium">✅ Biaya pendaftaran sudah dibayar oleh Kapten tim</small>
                         </div>
                     </div>
                 </div>
@@ -460,29 +481,57 @@
                     <input class="form-check-input @error('terms') is-invalid @enderror"
                         type="checkbox" id="terms" name="terms" required>
                     <label class="form-check-label small" for="terms">
-                        Saya menyetujui Syarat & Ketentuan dan memastikan semua data yang diisi adalah benar.
+                        Saya menyetujui <a href="#" class="text-primary" data-bs-toggle="modal" data-bs-target="#termsModal">Syarat & Ketentuan</a> dan memastikan semua data yang diisi adalah benar.
                     </label>
                 </div>
 
                 <!-- Submit Buttons -->
                 <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-4">
                     <small class="text-muted">
-                        <i class="fas fa-shield-alt text-primary me-1"></i>Data aman
+                        <i class="fas fa-shield-alt text-primary me-1"></i>Data Anda aman
                     </small>
                     <div>
                         <a href="{{ route('form.team.choice') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-4 me-2">
-                            Batal
+                            <i class="fas fa-times me-1"></i>Batal
                         </a>
                         <button type="submit" id="submitBtn" class="btn btn-primary btn-sm rounded-pill px-4">
                             @if($role === 'Leader')
-                            Daftar Leader <i class="fas fa-crown ms-1"></i>
+                            <i class="fas fa-crown me-1"></i> Daftar sebagai Kapten
                             @else
-                            Kirim <i class="fas fa-paper-plane ms-1"></i>
+                            <i class="fas fa-paper-plane me-1"></i> Kirim Pendaftaran
                             @endif
                         </button>
                     </div>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<!-- Terms Modal -->
+<div class="modal fade" id="termsModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title">Syarat & Ketentuan</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body small">
+                <p class="fw-semibold">1. Keabsahan Data</p>
+                <p class="text-muted">Peserta wajib mengisi data dengan benar dan sesuai dokumen resmi.</p>
+                
+                <p class="fw-semibold mt-3">2. Dokumen</p>
+                <p class="text-muted">Semua dokumen yang diupload harus asli dan dapat diverifikasi.</p>
+                
+                <p class="fw-semibold mt-3">3. Pembayaran</p>
+                <p class="text-muted">Pembayaran dilakukan sesuai ketentuan yang berlaku dan tidak dapat dikembalikan.</p>
+                
+                <p class="fw-semibold mt-3">4. Verifikasi</p>
+                <p class="text-muted">Tim berhak melakukan verifikasi data dan menolak pendaftaran yang tidak memenuhi syarat.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">Setuju & Tutup</button>
+            </div>
         </div>
     </div>
 </div>
@@ -493,7 +542,7 @@
         <div class="modal-content border-0 shadow" style="border-radius: 16px;">
             <div class="modal-body text-center p-4">
                 <div class="spinner-border text-primary mb-3" style="width: 2rem; height: 2rem;" role="status"></div>
-                <h6 class="fw-semibold mb-1">Memproses...</h6>
+                <h6 class="fw-semibold mb-1">Memproses Pendaftaran...</h6>
                 <small class="text-muted">Mohon tunggu sebentar</small>
             </div>
         </div>
@@ -502,37 +551,17 @@
 
 @push('styles')
 <style>
-    /* Soft Backgrounds */
-    .bg-soft-warning {
-        background: rgba(248, 150, 30, 0.1);
+    .bg-opacity-10 {
+        background: rgba(67, 97, 238, 0.1);
     }
-
-    .bg-soft-danger {
-        background: rgba(249, 65, 68, 0.1);
-    }
-
-    .bg-soft-teal {
-        background: rgba(16, 185, 129, 0.1);
-    }
-
-    .bg-soft-success {
-        background: rgba(16, 185, 129, 0.1);
-    }
-
-    .text-teal {
-        color: #10b981;
-    }
-
-    /* Form Controls */
-    .form-control-sm,
-    .form-select-sm {
+    
+    .form-control-sm, .form-select-sm {
         border-radius: 8px;
         font-size: 0.9rem;
         padding: 0.4rem 0.75rem;
     }
 
-    .form-control:focus,
-    .form-select:focus {
+    .form-control:focus, .form-select:focus {
         border-color: #4361ee;
         box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
     }
@@ -544,12 +573,6 @@
         font-size: 0.85rem;
     }
 
-    /* Alert */
-    .alert {
-        border-radius: 10px;
-    }
-
-    /* Button */
     .btn-sm {
         padding: 0.4rem 1rem;
         font-size: 0.9rem;
@@ -567,77 +590,54 @@
         box-shadow: 0 4px 10px rgba(67, 97, 238, 0.2);
     }
 
-    .btn-outline-secondary {
-        border-color: #dee2e6;
-        color: #6c757d;
+    .border-end, .pe-md-3, .ps-md-3 {
+        border-right: none !important;
+    }
+    
+    @media (min-width: 768px) {
+        .border-end {
+            border-right: 1px solid #e9ecef !important;
+        }
+        .pe-md-3 {
+            padding-right: 1rem !important;
+            border-right: 1px solid #e9ecef;
+        }
+        .ps-md-3 {
+            padding-left: 1rem !important;
+        }
     }
 
-    .btn-outline-secondary:hover {
-        background: #f8f9fa;
-        border-color: #adb5bd;
-        color: #495057;
-    }
-
-    /* Border separator */
-    .border-end {
-        border-right: 1px solid #e9ecef !important;
-        height: 100%;
-    }
-
-    /* Badge */
-    .badge {
-        font-weight: 500;
-        letter-spacing: 0.3px;
+    .invalid-feedback {
         font-size: 0.7rem;
     }
 
-    /* Responsive */
     @media (max-width: 768px) {
-        .mx-3 {
-            margin-left: 0.5rem !important;
-            margin-right: 0.5rem !important;
-        }
-
-        .mx-3 div {
-            width: 40px !important;
-        }
-
         .btn {
             width: 100%;
             margin-bottom: 0.25rem;
         }
-
         .d-flex.justify-content-between {
             flex-direction: column;
             gap: 0.5rem;
         }
-
-        .border-end {
-            border-right: none !important;
-            border-bottom: 1px solid #e9ecef !important;
-            padding-bottom: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .ps-3 {
+        .pe-md-3, .ps-md-3 {
             padding-left: 0 !important;
-        }
-
-        .pe-3 {
             padding-right: 0 !important;
+            border-right: none !important;
         }
     }
 </style>
 @endpush
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('playerForm');
     const submitBtn = document.getElementById('submitBtn');
     const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
     
-    // Set max birthdate
+    // Set max birthdate (minimal 10 tahun)
     const today = new Date();
     const minBirthDate = new Date();
     minBirthDate.setFullYear(today.getFullYear() - 10);
@@ -646,99 +646,179 @@ document.addEventListener('DOMContentLoaded', function() {
         birthdateInput.max = minBirthDate.toISOString().split('T')[0];
     }
 
+    // Validasi NIK (AJAX dengan debounce)
+    const nikInput = document.getElementById('nik');
+    if (nikInput) {
+        let nikTimeout;
+        nikInput.addEventListener('input', function() {
+            clearTimeout(nikTimeout);
+            const nik = this.value;
+            if (nik.length === 16) {
+                nikTimeout = setTimeout(() => {
+                    fetch('{{ route("form.player.checkNik") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ nik: nik })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.exists) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'NIK Sudah Terdaftar',
+                                text: 'NIK ini sudah digunakan oleh pemain lain.',
+                                confirmButtonColor: '#4361ee'
+                            });
+                            nikInput.classList.add('is-invalid');
+                            document.getElementById('nikFeedback').innerText = 'NIK sudah terdaftar';
+                        } else {
+                            nikInput.classList.remove('is-invalid');
+                            document.getElementById('nikFeedback').innerText = '';
+                        }
+                    });
+                }, 500);
+            }
+        });
+    }
+
+    // Validasi Email (AJAX dengan debounce)
+    const emailInput = document.getElementById('email');
+    if (emailInput) {
+        let emailTimeout;
+        emailInput.addEventListener('input', function() {
+            clearTimeout(emailTimeout);
+            const email = this.value;
+            if (email && email.includes('@')) {
+                emailTimeout = setTimeout(() => {
+                    fetch('{{ route("form.player.checkEmail") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ email: email })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.exists) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Email Sudah Terdaftar',
+                                text: 'Email ini sudah digunakan oleh pemain lain.',
+                                confirmButtonColor: '#4361ee'
+                            });
+                            emailInput.classList.add('is-invalid');
+                            document.getElementById('emailFeedback').innerText = 'Email sudah terdaftar';
+                        } else {
+                            emailInput.classList.remove('is-invalid');
+                            document.getElementById('emailFeedback').innerText = '';
+                        }
+                    });
+                }, 500);
+            }
+        });
+    }
+
     // Validasi STTB tahun
-    const birthdateField = document.getElementById('birthdate');
     const sttbYearField = document.getElementById('sttb_year');
-    
-    if (birthdateField && sttbYearField) {
-        birthdateField.addEventListener('change', function() {
-            if (this.value) {
+    if (birthdateInput && sttbYearField) {
+        birthdateInput.addEventListener('change', function() {
+            if (this.value && sttbYearField.value) {
                 const birthYear = new Date(this.value).getFullYear();
                 const minSttbYear = birthYear + 16;
                 const currentYear = new Date().getFullYear();
                 
-                if (sttbYearField.value && (parseInt(sttbYearField.value) < minSttbYear || parseInt(sttbYearField.value) > currentYear)) {
-                    alert(`Tahun STTB harus antara ${minSttbYear} - ${currentYear}`);
+                if (parseInt(sttbYearField.value) < minSttbYear || parseInt(sttbYearField.value) > currentYear) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Tahun STTB Tidak Valid',
+                        text: `Tahun STTB harus antara ${minSttbYear} - ${currentYear}`,
+                        confirmButtonColor: '#4361ee'
+                    });
                     sttbYearField.value = '';
                 }
             }
         });
     }
 
-    // NIK validation
-    const nikInput = document.getElementById('nik');
-    if (nikInput) {
-        nikInput.addEventListener('blur', function() {
-            if (this.value.length !== 16 && this.value.length > 0) {
-                alert('NIK harus 16 digit');
-                this.focus();
-            }
-        });
-    }
-
-    // Phone validation
+    // Phone number validation
     function validatePhone(input, fieldName) {
         if (input.value) {
             const phone = input.value.replace(/[^0-9]/g, '');
-            if (phone.length < 10) {
-                alert(`${fieldName} minimal 10 digit`);
-                input.focus();
+            if (phone.length < 10 || phone.length > 13) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Nomor Telepon Tidak Valid',
+                    text: `${fieldName} harus 10-13 digit angka`,
+                    confirmButtonColor: '#4361ee'
+                });
+                input.value = '';
                 return false;
             }
         }
         return true;
     }
 
-    const phoneInput = document.getElementById('phone');
-    const fatherPhone = document.getElementById('father_phone');
-    const motherPhone = document.getElementById('mother_phone');
-
-    if (phoneInput) {
-        phoneInput.addEventListener('blur', function() {
-            validatePhone(this, 'Nomor WhatsApp');
-        });
-    }
-
-    if (fatherPhone) {
-        fatherPhone.addEventListener('blur', function() {
-            validatePhone(this, 'Nomor telepon ayah');
-        });
-    }
-
-    if (motherPhone) {
-        motherPhone.addEventListener('blur', function() {
-            validatePhone(this, 'Nomor telepon ibu');
-        });
-    }
+    document.getElementById('phone')?.addEventListener('blur', function() {
+        validatePhone(this, 'Nomor WhatsApp');
+    });
+    document.getElementById('father_phone')?.addEventListener('blur', function() {
+        validatePhone(this, 'Nomor telepon ayah');
+    });
+    document.getElementById('mother_phone')?.addEventListener('blur', function() {
+        validatePhone(this, 'Nomor telepon ibu');
+    });
 
     // Jersey number validation
     const jerseyNumber = document.getElementById('jersey_number');
     if (jerseyNumber) {
         jerseyNumber.addEventListener('input', function() {
-            if (this.value < 0) this.value = 0;
-            if (this.value > 99) this.value = 99;
+            let val = parseInt(this.value);
+            if (isNaN(val)) val = 0;
+            if (val < 0) this.value = 0;
+            if (val > 99) this.value = 99;
         });
     }
 
-    // Form validation
+    // Form validation with SweetAlert
     form.addEventListener('submit', function(e) {
         if (!validateAllFields()) {
             e.preventDefault();
             return false;
         }
 
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Memproses...';
-        submitBtn.disabled = true;
-        loadingModal.show();
-
-        return true;
+        // Konfirmasi sebelum submit
+        Swal.fire({
+            title: 'Konfirmasi Pendaftaran',
+            text: 'Pastikan semua data sudah benar. Apakah Anda yakin?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#4361ee',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Ya, Kirim!',
+            cancelButtonText: 'Cek Lagi'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Memproses...';
+                submitBtn.disabled = true;
+                loadingModal.show();
+                form.submit();
+            }
+        });
+        
+        e.preventDefault();
+        return false;
     });
 
     function validateAllFields() {
-        // Required fields
-        const requiredInputs = [
+        // Required text fields
+        const requiredTextFields = [
             { id: 'nik', name: 'NIK' },
             { id: 'name', name: 'Nama Lengkap' },
+            { id: 'birth_place', name: 'Tempat Lahir' },
             { id: 'birthdate', name: 'Tanggal Lahir' },
             { id: 'gender', name: 'Jenis Kelamin' },
             { id: 'phone', name: 'WhatsApp' },
@@ -756,25 +836,35 @@ document.addEventListener('DOMContentLoaded', function() {
         ];
 
         @if($category !== 'dancer')
-        requiredInputs.push(
+        requiredTextFields.push(
             { id: 'basketball_position', name: 'Posisi Basket' },
             { id: 'jersey_number', name: 'Nomor Jersey' }
         );
         @endif
 
-        for (const field of requiredInputs) {
+        for (const field of requiredTextFields) {
             const element = document.getElementById(field.id);
             if (!element || !element.value.trim()) {
-                alert(`Harap isi ${field.name}`);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Field Tidak Lengkap',
+                    text: `Harap isi ${field.name}`,
+                    confirmButtonColor: '#4361ee'
+                });
                 if (element) element.focus();
                 return false;
             }
         }
 
-        // NIK validation
+        // NIK validation (16 digit)
         const nik = document.getElementById('nik').value;
         if (nik.length !== 16) {
-            alert('NIK harus 16 digit');
+            Swal.fire({
+                icon: 'error',
+                title: 'NIK Tidak Valid',
+                text: 'NIK harus 16 digit angka',
+                confirmButtonColor: '#4361ee'
+            });
             document.getElementById('nik').focus();
             return false;
         }
@@ -783,42 +873,43 @@ document.addEventListener('DOMContentLoaded', function() {
         const email = document.getElementById('email').value;
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-            alert('Format email tidak valid');
+            Swal.fire({
+                icon: 'error',
+                title: 'Email Tidak Valid',
+                text: 'Format email tidak valid',
+                confirmButtonColor: '#4361ee'
+            });
             document.getElementById('email').focus();
             return false;
         }
 
         // Phone numbers
         const phone = document.getElementById('phone').value.replace(/[^0-9]/g, '');
-        if (phone.length < 10) {
-            alert('Nomor WhatsApp minimal 10 digit');
+        if (phone.length < 10 || phone.length > 13) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Nomor WhatsApp Tidak Valid',
+                text: 'Nomor WhatsApp harus 10-13 digit',
+                confirmButtonColor: '#4361ee'
+            });
             document.getElementById('phone').focus();
             return false;
         }
 
-        const fatherPhoneVal = document.getElementById('father_phone').value.replace(/[^0-9]/g, '');
-        if (fatherPhoneVal.length < 10) {
-            alert('Nomor telepon ayah minimal 10 digit');
-            document.getElementById('father_phone').focus();
-            return false;
-        }
-
-        const motherPhoneVal = document.getElementById('mother_phone').value.replace(/[^0-9]/g, '');
-        if (motherPhoneVal.length < 10) {
-            alert('Nomor telepon ibu minimal 10 digit');
-            document.getElementById('mother_phone').focus();
-            return false;
-        }
-
-        // STTB year validation
-        if (document.getElementById('birthdate').value) {
+        // STTB validation
+        if (birthdateInput && birthdateInput.value) {
             const sttbYear = parseInt(document.getElementById('sttb_year').value);
-            const birthYear = new Date(document.getElementById('birthdate').value).getFullYear();
+            const birthYear = new Date(birthdateInput.value).getFullYear();
             const minSttbYear = birthYear + 16;
             const currentYear = new Date().getFullYear();
             
             if (sttbYear < minSttbYear || sttbYear > currentYear) {
-                alert(`Tahun STTB harus antara ${minSttbYear} - ${currentYear}`);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Tahun STTB Tidak Valid',
+                    text: `Tahun STTB harus antara ${minSttbYear} - ${currentYear}`,
+                    confirmButtonColor: '#4361ee'
+                });
                 document.getElementById('sttb_year').focus();
                 return false;
             }
@@ -837,7 +928,12 @@ document.addEventListener('DOMContentLoaded', function() {
         for (const doc of docInputs) {
             const element = document.getElementById(doc.id);
             if (!element.files || element.files.length === 0) {
-                alert(`Upload ${doc.name}`);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Dokumen Kurang',
+                    text: `Upload ${doc.name}`,
+                    confirmButtonColor: '#4361ee'
+                });
                 element.focus();
                 return false;
             }
@@ -847,7 +943,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // Payment proof
         const paymentProof = document.getElementById('payment_proof');
         if (!paymentProof.files || paymentProof.files.length === 0) {
-            alert('Upload bukti transfer');
+            Swal.fire({
+                icon: 'error',
+                title: 'Bukti Transfer Belum Diupload',
+                text: 'Sebagai Kapten, Anda wajib upload bukti transfer',
+                confirmButtonColor: '#4361ee'
+            });
             paymentProof.focus();
             return false;
         }
@@ -863,7 +964,12 @@ document.addEventListener('DOMContentLoaded', function() {
                          (jerseyAlt && jerseyAlt.files.length > 0);
         
         if (!hasJersey) {
-            alert('Sebagai Leader, Anda wajib upload minimal 1 foto jersey tim!');
+            Swal.fire({
+                icon: 'error',
+                title: 'Foto Jersey Belum Diupload',
+                text: 'Sebagai Kapten, Anda wajib upload minimal 1 foto jersey tim!',
+                confirmButtonColor: '#4361ee'
+            });
             return false;
         }
         @endif
@@ -871,7 +977,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Terms checkbox
         if (!document.getElementById('terms').checked) {
-            alert('Anda harus menyetujui syarat & ketentuan');
+            Swal.fire({
+                icon: 'warning',
+                title: 'Syarat & Ketentuan',
+                text: 'Anda harus menyetujui syarat & ketentuan',
+                confirmButtonColor: '#4361ee'
+            });
             document.getElementById('terms').focus();
             return false;
         }
@@ -881,4 +992,5 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endpush
+
 @endsection
