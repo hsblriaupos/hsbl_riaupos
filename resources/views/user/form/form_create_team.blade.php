@@ -163,17 +163,15 @@
                                             id="existing_school_id" name="existing_school_id">
                                             <option value="">-- Pilih Sekolah --</option>
                                             @foreach($schools as $school)
-                                            <option value="{{ $school->id }}" data-school-name="{{ $school->school_name }}"
+                                            <option value="{{ $school->id }}"
                                                 {{ old('existing_school_id') == $school->id ? 'selected' : '' }}>
                                                 {{ $school->school_name }}
                                             </option>
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="col-12" id="logoUploadSectionExisting">
-                                        <label class="form-label small fw-medium mb-1" id="logoLabelExisting">
-                                            Logo Sekolah <span id="logoRequiredExisting" class="text-danger"></span>
-                                        </label>
+                                    <div class="col-12">
+                                        <label class="form-label small fw-medium mb-1" id="logoLabelExisting">Logo Sekolah</label>
                                         <input type="file" class="form-control form-control-sm" id="school_logo_existing"
                                             name="school_logo" accept=".jpg,.jpeg,.png,.webp">
                                         <small class="text-muted d-block mt-1" id="logoHintExisting"></small>
@@ -197,7 +195,7 @@
                                     <div class="col-12">
                                         <label class="form-label small fw-medium mb-1">Logo Sekolah <span class="text-danger">*</span></label>
                                         <input type="file" class="form-control form-control-sm" id="school_logo_new"
-                                            name="school_logo" accept=".jpg,.jpeg,.png,.webp" required>
+                                            name="school_logo" accept=".jpg,.jpeg,.png,.webp">
                                         <small class="text-muted d-block mt-1">Upload logo sekolah (wajib untuk sekolah baru)</small>
                                     </div>
                                     <div class="col-md-6">
@@ -471,11 +469,50 @@ document.addEventListener('DOMContentLoaded', function() {
     const schoolNameHidden = document.getElementById('school_name');
     const submitBtn = document.getElementById('submitBtn');
     const form = document.getElementById('createTeamForm');
-    const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+    const loadingModalEl = document.getElementById('loadingModal');
+    const loadingModal = loadingModalEl ? new bootstrap.Modal(loadingModalEl) : null;
     
     // State
     let currentSchoolHasLogo = false;
     let currentSchoolLogoUrl = null;
+    
+    // Helper: Show notification
+    function showNotification(message, type = 'info') {
+        // Cek apakah sudah ada alert container
+        let alertContainer = document.getElementById('dynamicAlert');
+        if (!alertContainer) {
+            alertContainer = document.createElement('div');
+            alertContainer.id = 'dynamicAlert';
+            alertContainer.className = 'px-4 pt-3';
+            const formCard = document.querySelector('.card-body');
+            if (formCard) formCard.insertBefore(alertContainer, formCard.firstChild);
+        }
+        
+        const alertClass = type === 'info' ? 'alert-info' : (type === 'warning' ? 'alert-warning' : 'alert-success');
+        const icon = type === 'info' ? 'fa-info-circle' : (type === 'warning' ? 'fa-exclamation-triangle' : 'fa-check-circle');
+        
+        alertContainer.innerHTML = `
+            <div class="alert ${alertClass} alert-dismissible fade show py-2 border-0 bg-soft-${type === 'info' ? 'info' : (type === 'warning' ? 'warning' : 'success')}" role="alert" style="border-radius: 12px;">
+                <div class="d-flex align-items-center">
+                    <i class="fas ${icon} me-2"></i>
+                    <small>${message}</small>
+                    <button type="button" class="btn-close btn-sm ms-auto" data-bs-dismiss="alert"></button>
+                </div>
+            </div>
+        `;
+        
+        setTimeout(() => {
+            const alert = alertContainer.querySelector('.alert');
+            if (alert) {
+                alert.style.opacity = '0';
+                setTimeout(() => {
+                    if (alertContainer.innerHTML.includes(message)) {
+                        alertContainer.innerHTML = '';
+                    }
+                }, 300);
+            }
+        }, 5000);
+    }
     
     // ==================== 1. TOGGLE SCHOOL FIELDS ====================
     function toggleSchoolFields() {
@@ -484,16 +521,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (schoolOption === 'new') {
             existingSection.style.display = 'none';
             newSection.style.display = 'block';
-            // Reset existing section
             if (existingSchoolSelect) existingSchoolSelect.value = '';
             hideLogoPreview();
         } else {
             existingSection.style.display = 'block';
             newSection.style.display = 'none';
-            // Reset new section
             document.getElementById('new_school_name').value = '';
-            document.getElementById('schoolCheckMessage').style.display = 'none';
-            // Check logo for selected school
+            const schoolCheckMsg = document.getElementById('schoolCheckMessage');
+            if (schoolCheckMsg) schoolCheckMsg.style.display = 'none';
             if (existingSchoolSelect && existingSchoolSelect.value) {
                 checkSchoolLogo(existingSchoolSelect.value);
             } else {
@@ -517,8 +552,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // ==================== 3. HIDE LOGO PREVIEW ====================
     function hideLogoPreview() {
-        logoPreview.style.display = 'none';
-        previewImage.src = '#';
+        if (logoPreview) logoPreview.style.display = 'none';
+        if (previewImage) previewImage.src = '#';
         currentSchoolHasLogo = false;
         currentSchoolLogoUrl = null;
     }
@@ -526,20 +561,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // ==================== 4. UPDATE LOGO REQUIREMENT UI ====================
     function updateLogoRequirement(required) {
         const logoLabel = document.getElementById('logoLabelExisting');
-        const requiredSpan = document.getElementById('logoRequiredExisting');
         const hintSpan = document.getElementById('logoHintExisting');
         const logoInput = document.getElementById('school_logo_existing');
         
         if (required) {
-            if (requiredSpan) requiredSpan.innerHTML = '*';
+            if (logoLabel) logoLabel.innerHTML = 'Logo Sekolah <span class="text-danger">*</span>';
             if (hintSpan) hintSpan.innerHTML = 'Sekolah belum memiliki logo. Wajib upload logo.';
             if (logoInput) logoInput.required = true;
-            if (logoLabel) logoLabel.style.color = '#dc2626';
         } else {
-            if (requiredSpan) requiredSpan.innerHTML = '';
+            if (logoLabel) logoLabel.innerHTML = 'Logo Sekolah <span class="text-muted">(Opsional)</span>';
             if (hintSpan) hintSpan.innerHTML = 'Sekolah sudah memiliki logo. Upload hanya jika ingin mengganti.';
             if (logoInput) logoInput.required = false;
-            if (logoLabel) logoLabel.style.color = '';
         }
     }
     
@@ -551,10 +583,9 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Show loading
-        previewStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memeriksa logo...';
-        logoPreview.style.display = 'block';
-        previewImage.src = '#';
+        if (previewStatus) previewStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memeriksa logo...';
+        if (logoPreview) logoPreview.style.display = 'block';
+        if (previewImage) previewImage.src = '#';
         
         fetch('{{ route("form.team.checkSchoolLogo") }}', {
             method: 'POST',
@@ -568,27 +599,25 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.has_logo) {
-                // School has logo
                 currentSchoolHasLogo = true;
                 currentSchoolLogoUrl = data.logo_url;
-                previewImage.src = data.logo_url + '?v=' + Date.now();
-                previewStatus.innerHTML = '<i class="fas fa-check-circle text-success"></i> Logo sudah ada. Upload hanya jika ingin mengganti.';
+                if (previewImage) previewImage.src = data.logo_url + '?v=' + Date.now();
+                if (previewStatus) previewStatus.innerHTML = '<i class="fas fa-check-circle text-success"></i> Logo sudah ada. Upload hanya jika ingin mengganti.';
                 updateLogoRequirement(false);
             } else {
-                // School has no logo
                 currentSchoolHasLogo = false;
                 currentSchoolLogoUrl = null;
-                previewImage.src = '{{ asset("images/default-school-logo.png") }}';
-                previewStatus.innerHTML = '<i class="fas fa-exclamation-triangle text-warning"></i> Sekolah belum memiliki logo. Wajib upload logo.';
+                if (previewImage) previewImage.src = '{{ asset("images/default-school-logo.png") }}';
+                if (previewStatus) previewStatus.innerHTML = '<i class="fas fa-exclamation-triangle text-warning"></i> Sekolah belum memiliki logo. Wajib upload logo.';
                 updateLogoRequirement(true);
             }
-            logoPreview.style.display = 'block';
+            if (logoPreview) logoPreview.style.display = 'block';
         })
         .catch(error => {
             console.error('Error checking school logo:', error);
-            previewStatus.innerHTML = '<i class="fas fa-times-circle text-danger"></i> Gagal memeriksa logo. Silakan upload manual.';
+            if (previewStatus) previewStatus.innerHTML = '<i class="fas fa-times-circle text-danger"></i> Gagal memeriksa logo. Silakan upload manual.';
             updateLogoRequirement(true);
-            logoPreview.style.display = 'block';
+            if (logoPreview) logoPreview.style.display = 'block';
         });
     }
     
@@ -599,6 +628,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const schoolCheckMessage = document.getElementById('schoolCheckMessage');
     
     function checkSchoolExists(schoolName) {
+        if (!schoolCheckMessage) return;
         schoolCheckMessage.innerHTML = '<div class="alert py-2 px-3 mb-0 border-0 bg-light"><small><i class="fas fa-spinner fa-spin me-1"></i>Memeriksa ketersediaan...</small></div>';
         schoolCheckMessage.style.display = 'block';
         
@@ -626,8 +656,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     </div>
                 `;
-                submitBtn.disabled = true;
-                submitBtn.title = 'Sekolah sudah terdaftar, gunakan opsi Pilih Sekolah';
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.title = 'Sekolah sudah terdaftar, gunakan opsi Pilih Sekolah';
+                }
             } else {
                 schoolCheckMessage.innerHTML = `
                     <div class="alert alert-success py-2 px-3 mb-0 border-0 bg-soft-success" style="border-radius: 8px;">
@@ -640,14 +672,16 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     </div>
                 `;
-                submitBtn.disabled = false;
-                submitBtn.title = '';
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.title = '';
+                }
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            schoolCheckMessage.style.display = 'none';
-            submitBtn.disabled = false;
+            if (schoolCheckMessage) schoolCheckMessage.style.display = 'none';
+            if (submitBtn) submitBtn.disabled = false;
         });
     }
     
@@ -656,8 +690,8 @@ document.addEventListener('DOMContentLoaded', function() {
             clearTimeout(typingTimer);
             const schoolName = this.value.trim();
             if (schoolName.length < 3) {
-                schoolCheckMessage.style.display = 'none';
-                submitBtn.disabled = false;
+                if (schoolCheckMessage) schoolCheckMessage.style.display = 'none';
+                if (submitBtn) submitBtn.disabled = false;
                 return;
             }
             typingTimer = setTimeout(() => checkSchoolExists(schoolName), doneTypingInterval);
@@ -679,12 +713,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    previewImage.src = e.target.result;
-                    logoPreview.style.display = 'block';
-                    previewStatus.innerHTML = '<i class="fas fa-upload"></i> Logo baru akan diupload.';
+                    if (previewImage) previewImage.src = e.target.result;
+                    if (logoPreview) logoPreview.style.display = 'block';
+                    if (previewStatus) previewStatus.innerHTML = '<i class="fas fa-upload"></i> Logo baru akan diupload.';
                 }
                 reader.readAsDataURL(file);
-            } else if (!currentSchoolHasLogo) {
+            } else if (!currentSchoolHasLogo && inputId === 'school_logo_existing') {
                 hideLogoPreview();
             }
         });
@@ -707,7 +741,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function validateAllFields() {
         const schoolOption = document.querySelector('input[name="school_option"]:checked').value;
         
-        // Validate school based on option
         if (schoolOption === 'existing') {
             if (!existingSchoolSelect.value) {
                 alert('Pilih sekolah terlebih dahulu');
@@ -715,14 +748,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 return false;
             }
             
-            // Check if logo required
             if (!currentSchoolHasLogo && !document.getElementById('school_logo_existing').files[0]) {
                 alert('Sekolah ini belum memiliki logo. Silakan upload logo sekolah.');
                 document.getElementById('school_logo_existing').focus();
                 return false;
             }
         } else {
-            // New school validation
             const newSchoolName = document.getElementById('new_school_name').value.trim();
             if (!newSchoolName) {
                 alert('Masukkan nama sekolah baru');
@@ -730,8 +761,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return false;
             }
             
-            // Check if school already exists (from real-time check)
-            if (schoolCheckMessage.innerHTML.includes('sudah terdaftar')) {
+            if (schoolCheckMessage && schoolCheckMessage.innerHTML.includes('sudah terdaftar')) {
                 alert('Sekolah sudah terdaftar! Silakan gunakan opsi "Pilih Sekolah"');
                 document.getElementById('school_existing').checked = true;
                 toggleSchoolFields();
@@ -761,7 +791,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        // Validate team & competition fields
         const requiredFields = [
             { id: 'competition', name: 'Kompetisi' },
             { id: 'team_category', name: 'Kategori Tim' },
@@ -774,12 +803,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const element = document.getElementById(field.id);
             if (!element || !element.value.trim()) {
                 alert(`Pilih/Masukkan ${field.name}`);
-                element?.focus();
+                if (element) element.focus();
                 return false;
             }
         }
         
-        // Validate file uploads
         if (!document.getElementById('recommendation_letter').files[0]) {
             alert('Upload surat rekomendasi');
             document.getElementById('recommendation_letter').focus();
@@ -795,30 +823,33 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // ==================== 10. FORM SUBMIT ====================
-    form.addEventListener('submit', function(e) {
-        if (!validateAllFields()) {
-            e.preventDefault();
-            return false;
-        }
-        
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Memproses...';
-        submitBtn.disabled = true;
-        loadingModal.show();
-        return true;
-    });
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            if (!validateAllFields()) {
+                e.preventDefault();
+                return false;
+            }
+            
+            if (submitBtn) {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Memproses...';
+                submitBtn.disabled = true;
+            }
+            if (loadingModal) loadingModal.show();
+            return true;
+        });
+    }
     
     // ==================== 11. EVENT LISTENERS ====================
-    // School option cards
     document.querySelectorAll('.option-card').forEach(card => {
         card.addEventListener('click', function() {
             const option = this.dataset.option;
-            document.getElementById(`school_${option}`).checked = true;
+            const radio = document.getElementById(`school_${option}`);
+            if (radio) radio.checked = true;
             toggleSchoolFields();
             updateCardSelection();
         });
     });
     
-    // Radio buttons change
     document.querySelectorAll('input[name="school_option"]').forEach(radio => {
         radio.addEventListener('change', function() {
             toggleSchoolFields();
@@ -826,21 +857,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Existing school select change
-    existingSchoolSelect?.addEventListener('change', function() {
-        if (this.value) {
-            checkSchoolLogo(this.value);
-        } else {
-            hideLogoPreview();
-            updateLogoRequirement(false);
-        }
-        updateSchoolName();
-    });
+    if (existingSchoolSelect) {
+        existingSchoolSelect.addEventListener('change', function() {
+            if (this.value) {
+                checkSchoolLogo(this.value);
+            } else {
+                hideLogoPreview();
+                updateLogoRequirement(false);
+            }
+            updateSchoolName();
+        });
+    }
     
-    // New school name input
-    document.getElementById('new_school_name')?.addEventListener('input', updateSchoolName);
+    const newSchoolNameInput = document.getElementById('new_school_name');
+    if (newSchoolNameInput) {
+        newSchoolNameInput.addEventListener('input', updateSchoolName);
+    }
     
-    // Logo preview handlers
     handleLogoPreview('school_logo_existing');
     handleLogoPreview('school_logo_new');
     
@@ -848,7 +881,6 @@ document.addEventListener('DOMContentLoaded', function() {
     toggleSchoolFields();
     updateCardSelection();
     
-    // If there's an existing school selected from old input, check its logo
     if (existingSchoolSelect && existingSchoolSelect.value) {
         checkSchoolLogo(existingSchoolSelect.value);
     }
