@@ -310,6 +310,7 @@
 
     /* ===== RESPONSIVE FIX - SAMA DENGAN MASTER DATA ===== */
     @media (max-width: 768px) {
+
         /* Fix body overflow */
         body {
             overflow-x: hidden !important;
@@ -711,7 +712,7 @@
                 <a href="{{ url('/admin/school') }}" class="btn-secondary btn-sm">
                     <i class="fas fa-redo me-1"></i> Reset
                 </a>
-                <a href="{{ url('/admin/export/school') }}" class="btn-submit btn-sm">
+                <a href="{{ route('admin.export.school') }}" class="btn-submit btn-sm">
                     <i class="fas fa-file-export me-1"></i> Export
                 </a>
             </div>
@@ -803,21 +804,21 @@
             <!-- Pagination - Hanya Angka -->
             <div class="pagination-container">
                 @if($schools->hasPages())
-                    {{ $schools->onEachSide(1)->links('pagination::bootstrap-5') }}
+                {{ $schools->onEachSide(1)->links('pagination::bootstrap-5') }}
                 @else
-                    <nav>
-                        <ul class="pagination">
-                            <li class="page-item disabled">
-                                <span class="page-link"><i class="fas fa-chevron-left"></i></span>
-                            </li>
-                            <li class="page-item active">
-                                <span class="page-link">1</span>
-                            </li>
-                            <li class="page-item disabled">
-                                <span class="page-link"><i class="fas fa-chevron-right"></i></span>
-                            </li>
-                        </ul>
-                    </nav>
+                <nav>
+                    <ul class="pagination">
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+                        </li>
+                        <li class="page-item active">
+                            <span class="page-link">1</span>
+                        </li>
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="fas fa-chevron-right"></i></span>
+                        </li>
+                    </ul>
+                </nav>
                 @endif
             </div>
         </div>
@@ -905,7 +906,7 @@
         const filterForm = document.getElementById('filterForm');
         if (filterForm) {
             const filterSelects = filterForm.querySelectorAll('select:not([name="per_page"])');
-            
+
             filterSelects.forEach(select => {
                 select.addEventListener('change', function() {
                     filterForm.submit();

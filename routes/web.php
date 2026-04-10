@@ -164,6 +164,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/export/{type}', [DataActionController::class, 'export'])
         ->where('type', 'school|venue|match|award')
         ->name('data.export');
+    Route::get('/export-school', [DataActionController::class, 'exportSchool'])->name('export.school');
 
     // ========== TEAM VERIFICATION ==========
     Route::get('/team-list', [TeamController::class, 'teamList'])->name('tv_team_list');

@@ -568,7 +568,7 @@ class DataActionController extends Controller
     }
 
     /**
-     * Export data ke CSV.
+     * Export data ke CSV (GENERAL - untuk tipe data lain)
      */
     public function export(string $type)
     {
@@ -598,5 +598,66 @@ class DataActionController extends Controller
             'Content-Type'        => 'text/csv',
             'Content-Disposition' => "attachment; filename={$filename}",
         ]);
+    }
+
+    /**
+     * EXPORT KHUSUS UNTUK DATA SEKOLAH
+     * Ambil semua data yang berhubungan dengan sekolah, TANPA city_id
+     */
+    public function exportSchool()
+    {
+        // Ambil semua data sekolah dengan relasi city
+        $schools = School::with('city')
+            ->orderBy('school_name')
+            ->get();
+
+        // Nama file export
+        $filename = 'data_sekolah_' . date('Y-m-d_His') . '.csv';
+        
+        // Header CSV
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
+        ];
+
+        // Buat callback untuk output CSV
+        $callback = function() use ($schools) {
+            $output = fopen('php://output', 'w');
+            
+            // Set BOM untuk UTF-8 biar excel gak error
+            fwrite($output, "\xEF\xBB\xBF");
+            
+            // Header kolom - TANPA city_id, pake nama kota aja
+            fputcsv($output, [
+                'No',
+                'Nama Sekolah',
+                'Kota',
+                'Kategori (SMA/SMK/MA)',
+                'Jenis (NEGERI/SWASTA)',
+                'Tanggal Dibuat',
+                'Terakhir Diupdate'
+            ]);
+            
+            // Looping data
+            $no = 1;
+            foreach ($schools as $school) {
+                fputcsv($output, [
+                    $no++,
+                    $school->school_name,
+                    $school->city->city_name ?? 'Tidak diketahui',
+                    $school->category_name,
+                    $school->type,
+                    $school->created_at ? date('d-m-Y H:i:s', strtotime($school->created_at)) : '-',
+                    $school->updated_at ? date('d-m-Y H:i:s', strtotime($school->updated_at)) : '-'
+                ]);
+            }
+            
+            fclose($output);
+        };
+        
+        return Response::stream($callback, 200, $headers);
     }
 }
