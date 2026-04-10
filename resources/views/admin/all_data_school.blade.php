@@ -10,7 +10,7 @@
 
 @push('styles')
 <style>
-    /* ===== TYPOGRAPHY - SAMA DENGAN MASTER DATA ===== */
+    /* ===== TYPOGRAPHY ===== */
     .page-header {
         margin-bottom: 15px;
         margin-top: 5px;
@@ -114,29 +114,131 @@
         border-radius: 4px;
     }
 
-    /* ===== FILTER SECTION ===== */
+    /* ===== FILTER SECTION - 1 ROW COMPACT ===== */
     .filter-section {
         background-color: #f8fafc;
         padding: 12px 16px;
         border-bottom: 1px solid #e0e0e0;
     }
 
-    .filter-form {
+    .filter-row {
         display: flex;
         flex-wrap: wrap;
-        gap: 10px;
         align-items: center;
+        gap: 10px;
+        width: 100%;
     }
 
     .filter-select {
-        min-width: 150px;
-        max-width: 200px;
+        width: auto;
+        min-width: 130px;
+        background-color: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
     }
 
-    .search-box {
-        flex-grow: 1;
+    .filter-select:hover {
+        border-color: #3498db;
+    }
+
+    .search-wrapper {
+        position: relative;
+        flex: 1;
         min-width: 200px;
-        max-width: 300px;
+        max-width: 280px;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 8px 35px 8px 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: #3498db;
+        box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+    }
+
+    .search-btn {
+        position: absolute;
+        right: 5px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #94a3b8;
+        cursor: pointer;
+        padding: 5px 8px;
+        border-radius: 6px;
+        transition: all 0.2s;
+    }
+
+    .search-btn:hover {
+        color: #3498db;
+        background: #f1f5f9;
+    }
+
+    .info-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .data-count {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #475569;
+        white-space: nowrap;
+    }
+
+    .per-page-select {
+        padding: 5px 8px;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        background: white;
+        cursor: pointer;
+        font-weight: 500;
+    }
+
+    .per-page-select:focus {
+        outline: none;
+        border-color: #3498db;
+    }
+
+    .reset-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #64748b;
+        text-decoration: none;
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+
+    .reset-btn:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+        color: #475569;
+        text-decoration: none;
     }
 
     /* ===== TABLE STYLING ===== */
@@ -308,10 +410,20 @@
         filter: invert(1) grayscale(100%) brightness(200%);
     }
 
-    /* ===== RESPONSIVE FIX - SAMA DENGAN MASTER DATA ===== */
-    @media (max-width: 768px) {
+    /* ===== RESPONSIVE FIX ===== */
+    @media (max-width: 992px) {
+        .filter-row {
+            gap: 8px;
+        }
+        
+        .filter-select {
+            min-width: 120px;
+            font-size: 0.8rem;
+            padding: 7px 10px;
+        }
+    }
 
-        /* Fix body overflow */
+    @media (max-width: 768px) {
         body {
             overflow-x: hidden !important;
             width: 100% !important;
@@ -325,7 +437,6 @@
             overflow-x: hidden !important;
         }
 
-        /* Container */
         .container {
             padding-left: 3px !important;
             padding-right: 3px !important;
@@ -335,14 +446,12 @@
             overflow-x: hidden !important;
         }
 
-        /* Force all rows to be full width */
         .row {
             margin-left: 0 !important;
             margin-right: 0 !important;
             width: 100% !important;
         }
 
-        /* Force all columns to be full width */
         .row>[class*="col-"] {
             padding-left: 3px !important;
             padding-right: 3px !important;
@@ -351,7 +460,6 @@
             max-width: 100% !important;
         }
 
-        /* Form inputs jadi full width */
         .row.g-3>[class*="col-"] {
             width: 100% !important;
             flex: 0 0 100% !important;
@@ -360,7 +468,6 @@
             padding-right: 3px !important;
         }
 
-        /* Button submit di HP */
         .text-end {
             width: 100% !important;
             padding-left: 3px !important;
@@ -374,7 +481,6 @@
             margin-right: 0 !important;
         }
 
-        /* Card header flex untuk mobile */
         .card-header.d-flex {
             flex-direction: column;
             align-items: flex-start !important;
@@ -396,7 +502,6 @@
             text-align: center;
         }
 
-        /* Card styling */
         .card {
             width: 100% !important;
             margin-left: 0 !important;
@@ -412,28 +517,36 @@
             font-size: 0.9rem;
         }
 
-        /* Filter Section */
-        .filter-form {
+        /* Filter responsive - jadi column di HP */
+        .filter-section {
+            padding: 12px;
+        }
+        
+        .filter-row {
             flex-direction: column;
             align-items: stretch;
-            gap: 8px;
+            gap: 10px;
         }
-
-        .filter-select,
-        .search-box {
+        
+        .filter-select {
+            width: 100%;
+        }
+        
+        .search-wrapper {
             max-width: 100%;
             width: 100%;
         }
-
-        .search-box {
-            display: flex;
+        
+        .info-wrapper {
+            justify-content: space-between;
+            width: 100%;
+        }
+        
+        .reset-btn {
+            justify-content: center;
+            width: 100%;
         }
 
-        .search-box input {
-            flex: 1;
-        }
-
-        /* Table styling */
         .table-container {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
@@ -476,7 +589,6 @@
             padding: 2px 5px;
         }
 
-        /* Pagination */
         .pagination-container {
             justify-content: center;
             padding: 12px 15px;
@@ -487,7 +599,6 @@
             font-size: 0.75rem;
         }
 
-        /* Fix any potential overflow */
         * {
             max-width: 100%;
             box-sizing: border-box;
@@ -637,66 +748,68 @@
         </div>
     </div>
 
-    <!-- Filter Section -->
+    <!-- Filter Section - 1 ROW COMPACT -->
     <div class="card">
         <div class="card-header">
             <i class="fas fa-filter me-2"></i> Filter & Pencarian
         </div>
         <div class="filter-section">
-            <form method="GET" action="{{ url('/admin/school') }}" class="filter-form" id="filterForm">
-                <select name="city_filter" class="form-control filter-select">
-                    <option value="">Semua Kota</option>
-                    @foreach($cities as $city)
-                    <option value="{{ $city->id }}" {{ request('city_filter') == $city->id ? 'selected' : '' }}>
-                        {{ $city->city_name }}
-                    </option>
-                    @endforeach
-                </select>
-
-                <select name="category_filter" class="form-control filter-select">
-                    <option value="">Semua Kategori</option>
-                    @foreach(['SMA', 'SMK', 'MA'] as $category)
-                    <option value="{{ $category }}" {{ request('category_filter') == $category ? 'selected' : '' }}>
-                        {{ $category }}
-                    </option>
-                    @endforeach
-                </select>
-
-                <select name="type_filter" class="form-control filter-select">
-                    <option value="">Semua Jenis</option>
-                    @foreach(['NEGERI', 'SWASTA'] as $type)
-                    <option value="{{ $type }}" {{ request('type_filter') == $type ? 'selected' : '' }}>
-                        {{ $type }}
-                    </option>
-                    @endforeach
-                </select>
-
-                <div class="input-group search-box">
-                    <input type="text"
-                        name="search"
-                        class="form-control"
-                        placeholder="Cari sekolah..."
-                        value="{{ request('search') }}">
-                    <button class="btn btn-outline-secondary" type="submit">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
-
-                <div class="d-flex align-items-center gap-2">
-                    <span class="text-secondary small">
-                        {{ $schools->total() }} data
-                    </span>
-                    <select name="per_page" class="form-control" style="width: auto;">
-                        <option value="10" {{ request('per_page', 10) == 10 ? 'selected' : '' }}>10</option>
-                        <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
-                        <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
-                        <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+            <form method="GET" action="{{ url('/admin/school') }}" id="filterForm">
+                <div class="filter-row">
+                    <select name="city_filter" class="filter-select">
+                        <option value="">Semua Kota</option>
+                        @foreach($cities as $city)
+                        <option value="{{ $city->id }}" {{ request('city_filter') == $city->id ? 'selected' : '' }}>
+                            {{ $city->city_name }}
+                        </option>
+                        @endforeach
                     </select>
-                </div>
 
-                <a href="{{ url('/admin/school') }}" class="btn btn-outline-secondary btn-sm">
-                    <i class="fas fa-redo me-1"></i> Reset
-                </a>
+                    <select name="category_filter" class="filter-select">
+                        <option value="">Semua Kategori</option>
+                        @foreach(['SMA', 'SMK', 'MA'] as $category)
+                        <option value="{{ $category }}" {{ request('category_filter') == $category ? 'selected' : '' }}>
+                            {{ $category }}
+                        </option>
+                        @endforeach
+                    </select>
+
+                    <select name="type_filter" class="filter-select">
+                        <option value="">Semua Jenis</option>
+                        @foreach(['NEGERI', 'SWASTA'] as $type)
+                        <option value="{{ $type }}" {{ request('type_filter') == $type ? 'selected' : '' }}>
+                            {{ $type }}
+                        </option>
+                        @endforeach
+                    </select>
+
+                    <div class="search-wrapper">
+                        <input type="text"
+                            name="search"
+                            class="search-input"
+                            placeholder="Cari sekolah..."
+                            value="{{ request('search') }}">
+                        <button class="search-btn" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+
+                    <div class="info-wrapper">
+                        <span class="data-count">
+                            <i class="fas fa-database me-1"></i> {{ $schools->total() }}
+                        </span>
+                        <select name="per_page" class="per-page-select">
+                            <option value="10" {{ request('per_page', 10) == 10 ? 'selected' : '' }}>10</option>
+                            <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
+                            <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                            <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+                        </select>
+                    </div>
+
+                    <a href="{{ url('/admin/school') }}" class="reset-btn">
+                        <i class="fas fa-redo-alt me-1"></i> Reset
+                    </a>
+                </div>
             </form>
         </div>
     </div>
@@ -801,7 +914,7 @@
                 </table>
             </div>
 
-            <!-- Pagination - Hanya Angka -->
+            <!-- Pagination -->
             <div class="pagination-container">
                 @if($schools->hasPages())
                 {{ $schools->onEachSide(1)->links('pagination::bootstrap-5') }}
@@ -905,15 +1018,15 @@
     document.addEventListener('DOMContentLoaded', function() {
         const filterForm = document.getElementById('filterForm');
         if (filterForm) {
-            const filterSelects = filterForm.querySelectorAll('select:not([name="per_page"])');
-
+            const filterSelects = filterForm.querySelectorAll('.filter-select');
+            
             filterSelects.forEach(select => {
                 select.addEventListener('change', function() {
                     filterForm.submit();
                 });
             });
 
-            const perPageSelect = document.querySelector('select[name="per_page"]');
+            const perPageSelect = filterForm.querySelector('.per-page-select');
             if (perPageSelect) {
                 perPageSelect.addEventListener('change', function() {
                     filterForm.submit();
