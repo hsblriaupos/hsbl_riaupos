@@ -2,87 +2,86 @@
 
 namespace App\Exports;
 
-use App\Models\TeamList;
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\WithStyles;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Illuminate\Support\Facades\Response;
 
-class TeamsExport implements FromCollection, WithHeadings, WithMapping, WithStyles
+class TeamsExport
 {
     protected $teams;
-
-    public function __construct($teams)
+    protected $columns;
+    
+    protected $columnNames = [
+        'team_id' => 'ID Tim',
+        'school_name' => 'Nama Sekolah',
+        'team_category' => 'Kategori Tim',
+        'competition' => 'Kompetisi',
+        'season' => 'Season/Tahun',
+        'series' => 'Series',
+        'registered_by' => 'Didaftar Oleh',
+        'referral_code' => 'Referral Code',
+        'locked_status' => 'Status Kunci',
+        'verification_status' => 'Status Verifikasi',
+        'payment_status' => 'Status Pembayaran',
+        'created_at' => 'Tanggal Dibuat',
+        'updated_at' => 'Terakhir Update',
+    ];
+    
+    public function __construct($teams, $columns = [])
     {
         $this->teams = $teams;
-    }
-
-    public function collection()
-    {
-        return $this->teams;
-    }
-
-    public function headings(): array
-    {
-        return [
-            'No',
-            'Nama Sekolah',
-            'Kode Referral',
-            'Season',
-            'Series',
-            'Kompetisi',
-            'Kategori',
-            'Status Verifikasi',
-            'Status Kunci',
-            'Didaftarkan Oleh',
-            'Tanggal Daftar'
+        $this->columns = !empty($columns) ? $columns : [
+            'team_id', 'school_name', 'team_category', 'competition', 
+            'season', 'series', 'registered_by', 'referral_code',
+            'locked_status', 'verification_status', 'payment_status', 
+            'created_at', 'updated_at'
         ];
     }
-
-    public function map($team): array
+    
+    public function download($filename)
     {
-        return [
-            '', // No akan diisi nanti
-            $team->school_name,
-            $team->referral_code,
-            $team->season,
-            $team->series,
-            $team->competition,
-            $team->team_category,
-            $team->verification_status == 'verified' ? 'Terverifikasi' : 
-                 ($team->verification_status == 'pending' ? 'Pending' : 
-                 ($team->verification_status == 'rejected' ? 'Ditolak' : 'Belum Verifikasi')),
-            $team->locked_status == 'locked' ? 'Terkunci' : 'Terbuka',
-            $team->registered_by,
-            $team->created_at->format('d/m/Y H:i')
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
         ];
-    }
-
-    public function styles(Worksheet $sheet)
-    {
-        // Set column widths
-        $sheet->getColumnDimension('A')->setWidth(5);
-        $sheet->getColumnDimension('B')->setWidth(30);
-        $sheet->getColumnDimension('C')->setWidth(20);
-        $sheet->getColumnDimension('D')->setWidth(15);
-        $sheet->getColumnDimension('E')->setWidth(15);
-        $sheet->getColumnDimension('F')->setWidth(30);
-        $sheet->getColumnDimension('G')->setWidth(15);
-        $sheet->getColumnDimension('H')->setWidth(20);
-        $sheet->getColumnDimension('I')->setWidth(15);
-        $sheet->getColumnDimension('J')->setWidth(20);
-        $sheet->getColumnDimension('K')->setWidth(20);
-
-        // Style header row
-        return [
-            1 => [
-                'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
-                'fill' => [
-                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                    'startColor' => ['rgb' => '3498db']
-                ]
-            ],
-        ];
+        
+        $callback = function() {
+            $output = fopen('php://output', 'w');
+            fwrite($output, "\xEF\xBB\xBF"); // BOM untuk UTF-8
+            
+            // Header
+            $headings = [];
+            foreach ($this->columns as $col) {
+                $headings[] = $this->columnNames[$col] ?? ucfirst(str_replace('_', ' ', $col));
+            }
+            fputcsv($output, $headings);
+            
+            // Data
+            foreach ($this->teams as $team) {
+                $row = [];
+                foreach ($this->columns as $col) {
+                    $value = $team->$col ?? '-';
+                    
+                    if ($col == 'locked_status') {
+                        $value = $value == 'locked' ? 'Terkunci' : 'Terbuka';
+                    } elseif ($col == 'verification_status') {
+                        $value = $value == 'verified' ? 'Terverifikasi' : 'Belum Verifikasi';
+                    } elseif ($col == 'payment_status') {
+                        $statusMap = ['pending' => 'Menunggu', 'paid' => 'Lunas', 'failed' => 'Gagal'];
+                        $value = $statusMap[$value] ?? $value;
+                    } elseif (in_array($col, ['created_at', 'updated_at']) && $value && $value !== '-') {
+                        $value = date('d-m-Y H:i:s', strtotime($value));
+                    }
+                    
+                    $row[] = $value;
+                }
+                fputcsv($output, $row);
+            }
+            
+            fclose($output);
+        };
+        
+        return Response::stream($callback, 200, $headers);
     }
 }

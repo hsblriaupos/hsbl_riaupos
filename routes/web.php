@@ -169,8 +169,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     // ========== TEAM VERIFICATION ==========
     Route::get('/team-list', [TeamController::class, 'teamList'])->name('tv_team_list');
     Route::get('/team-list/{id}', [TeamController::class, 'teamShow'])->name('team-list.show');
-    Route::get('/team-list/export', [TeamController::class, 'export'])->name('team-list.export');
-
+    Route::post('/team-list/export', [TeamController::class, 'export'])->name('team-list.export');
+    
     // Team Verification Actions
     Route::post('/team/{id}/lock', [TeamController::class, 'lock'])->name('team.lock');
     Route::post('/team/{id}/unlock', [TeamController::class, 'unlock'])->name('team.unlock');

@@ -11,7 +11,6 @@ use App\Models\OfficialList;
 use App\Models\School;
 use App\Exports\TeamsExport;
 use Illuminate\Support\Facades\Log;
-use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 
@@ -130,17 +129,23 @@ class TeamController extends Controller
         return view('team_verification.tv_team_list', compact('teamList', 'schools', 'competitions', 'years'));
     }
 
-    /**
-     * Export teams to Excel
+        /**
+     * Export teams to CSV
      */
     public function export(Request $request)
     {
+        // Ambil kolom yang dipilih user
+        $selectedColumns = $request->input('columns', []);
+        
+        // Gunakan applyFilters yang sudah ada (biar konsisten)
         $query = $this->applyFilters($request);
         $teams = $query->get();
-        $filename = 'teams_export_' . date('Y-m-d_H-i') . '.xlsx';
-        return Excel::download(new TeamsExport($teams), $filename);
+        
+        $filename = 'teams_export_' . date('Y-m-d_H-i') . '.csv';
+        $export = new TeamsExport($teams, $selectedColumns);
+        return $export->download($filename);
     }
-
+    
     private function applyFilters(Request $request)
     {
         $query = TeamList::query();
@@ -167,7 +172,7 @@ class TeamController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('school_name', 'like', '%' . $search . '%')
-                    ->orWhere('team_name', 'like', '%' . $search . '%')
+                    ->orWhere('team_category', 'like', '%' . $search . '%')
                     ->orWhere('referral_code', 'like', '%' . $search . '%')
                     ->orWhere('competition', 'like', '%' . $search . '%')
                     ->orWhere('registered_by', 'like', '%' . $search . '%');
@@ -176,7 +181,6 @@ class TeamController extends Controller
 
         return $query->orderBy('updated_at', 'desc');
     }
-
     /**
      * 🔥🔥🔥 FIX UTAMA: Show team detail - MENGIKUTI TeamListProfileController
      */
