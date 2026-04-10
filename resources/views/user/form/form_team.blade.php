@@ -109,7 +109,6 @@
                 <a href="{{ route('user.download_terms') }}" 
                    class="download-btn"
                    id="downloadSnKButton"
-                   target="_blank"
                    aria-label="Download Template">
                     <i class="fas fa-file-pdf"></i>
                 </a>
@@ -160,6 +159,32 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Notifikasi Template Belum Tersedia -->
+<div class="modal fade" id="templateUnavailableModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-body text-center p-4">
+                <div class="mb-3">
+                    <div class="icon-circle bg-warning bg-opacity-10 mx-auto mb-3" style="width: 70px; height: 70px; background: rgba(255, 193, 7, 0.1);">
+                        <i class="fas fa-file-pdf fa-2x text-warning"></i>
+                    </div>
+                </div>
+                <h5 class="fw-bold mb-2">⚠️ Template Belum Tersedia</h5>
+                <p class="text-muted mb-3" style="font-size: 0.95rem;">
+                    Template pendaftaran belum diperbarui oleh admin.<br>
+                    Mohon tunggu update selanjutnya ya! 🙏
+                </p>
+                <div class="alert alert-info py-2 px-3 mb-3" style="font-size: 0.85rem; background: #e3f2fd; border: none;">
+                    <i class="fas fa-clock me-1"></i> Pantau terus halaman ini untuk info terbaru
+                </div>
+                <button type="button" class="btn btn-warning px-4 py-2 fw-semibold" data-bs-dismiss="modal" style="background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%); border: none; color: white;">
+                    <i class="fas fa-check-circle me-1"></i> Mengerti
+                </button>
             </div>
         </div>
     </div>
@@ -427,6 +452,21 @@
         transform: translateX(0);
     }
     
+    /* Modal custom styling */
+    .modal-content {
+        border-radius: 1.5rem;
+    }
+    
+    .modal .btn-warning {
+        background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
+        transition: all 0.3s ease;
+    }
+    
+    .modal .btn-warning:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+    }
+    
     /* Responsive */
     @media (max-width: 768px) {
         .icon-circle {
@@ -462,20 +502,70 @@
             font-size: 10px;
             padding: 3px 6px;
         }
+        
+        .download-label {
+            font-size: 11px;
+            padding: 6px 12px;
+            right: 70px;
+        }
     }
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const downloadBtn = document.getElementById('downloadSnKButton');
+    
     if (downloadBtn) {
         downloadBtn.addEventListener('click', function(e) {
+            e.preventDefault(); // Mencegah langsung buka link
             const originalIcon = this.innerHTML;
-            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            const originalHref = this.getAttribute('href');
             
-            setTimeout(() => {
+            // Tampilkan loading
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            this.style.pointerEvents = 'none';
+            
+            // Cek dulu apakah file tersedia
+            fetch(originalHref, {
+                method: 'HEAD', // Cuma cek header, gak download filenya
+                cache: 'no-cache'
+            })
+            .then(response => {
+                if (response.ok) {
+                    // File tersedia, lanjut download
+                    window.open(originalHref, '_blank');
+                    // Animasi sukses bentar
+                    setTimeout(() => {
+                        this.innerHTML = '<i class="fas fa-check-circle"></i>';
+                        setTimeout(() => {
+                            if (this.innerHTML !== originalIcon) {
+                                this.innerHTML = originalIcon;
+                            }
+                        }, 800);
+                    }, 300);
+                } else if (response.status === 404) {
+                    // File belum diupload admin - tampilkan modal
+                    const modal = new bootstrap.Modal(document.getElementById('templateUnavailableModal'));
+                    modal.show();
+                    // Kembalikan icon
+                    this.innerHTML = originalIcon;
+                } else {
+                    // Error lainnya
+                    alert('Terjadi kesalahan. Silakan coba lagi nanti.');
+                    this.innerHTML = originalIcon;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Gagal mengakses file. Coba lagi nanti ya!');
                 this.innerHTML = originalIcon;
-            }, 1500);
+            })
+            .finally(() => {
+                // Kembalikan state tombol
+                setTimeout(() => {
+                    downloadBtn.style.pointerEvents = 'auto';
+                }, 500);
+            });
         });
     }
 });

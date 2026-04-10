@@ -245,18 +245,19 @@
             position: relative;
         }
 
-        .input-with-icon i {
+        .input-with-icon i:not(.password-toggle i) {
             position: absolute;
             left: 15px;
             top: 50%;
             transform: translateY(-50%);
             color: #64748b;
             font-size: 1.1rem;
+            z-index: 1;
         }
 
         .form-control {
             width: 100%;
-            padding: 14px 15px 14px 45px;
+            padding: 14px 50px 14px 45px;
             border: 1px solid #d1d5db;
             border-radius: 10px;
             font-size: 0.95rem;
@@ -272,7 +273,7 @@
 
         .password-toggle {
             position: absolute;
-            right: 15px;
+            right: 12px;
             top: 50%;
             transform: translateY(-50%);
             background: none;
@@ -280,13 +281,26 @@
             color: #64748b;
             cursor: pointer;
             font-size: 1rem;
-            padding: 5px;
-            border-radius: 4px;
+            padding: 8px;
+            border-radius: 6px;
             transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
         }
 
         .password-toggle:hover {
-            background: #f3f4f6;
+            background: #f1f5f9;
+            color: #1a237e;
+        }
+
+        .password-toggle:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+
+        .password-toggle i {
+            font-size: 1.1rem;
         }
 
         .remember-forgot {
@@ -305,6 +319,13 @@
         .remember-me input {
             margin-right: 8px;
             cursor: pointer;
+            width: 16px;
+            height: 16px;
+        }
+
+        .remember-me label {
+            cursor: pointer;
+            color: #475569;
         }
 
         .forgot-password {
@@ -354,6 +375,12 @@
             transform: translateY(0);
         }
 
+        .login-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .register-link {
             text-align: center;
             margin-top: 25px;
@@ -401,11 +428,12 @@
             color: #ef4444;
             font-size: 0.85rem;
             margin-top: 5px;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 8px;
             background: #fef2f2;
-            padding: 10px 12px;
+            padding: 12px 15px;
             border-radius: 8px;
             border-left: 4px solid #ef4444;
         }
@@ -414,14 +442,14 @@
             color: #10b981;
             font-size: 0.85rem;
             margin-top: 5px;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 8px;
             background: #f0fdf4;
-            padding: 10px 12px;
+            padding: 12px 15px;
             border-radius: 8px;
             border-left: 4px solid #10b981;
-            margin-bottom: 20px;
         }
 
         /* Loading Animation */
@@ -479,6 +507,15 @@
             .login-header h2 {
                 flex-direction: column;
                 gap: 5px;
+            }
+
+            .form-control {
+                padding: 12px 45px 12px 40px;
+                font-size: 0.9rem;
+            }
+
+            .password-toggle {
+                padding: 6px;
             }
         }
     </style>
@@ -564,7 +601,7 @@
                     <input type="hidden" name="login_type" value="admin">
 
                     <div class="form-group">
-                        <label for="admin_name"><i class="fas fa-user"></i> Username</label>
+                        <label><i class="fas fa-user"></i> Username</label>
                         <div class="input-with-icon">
                             <i class="fas fa-user"></i>
                             <input type="text" 
@@ -578,7 +615,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="admin_password"><i class="fas fa-lock"></i> Password</label>
+                        <label><i class="fas fa-lock"></i> Password</label>
                         <div class="input-with-icon">
                             <i class="fas fa-lock"></i>
                             <input type="password" 
@@ -640,7 +677,7 @@
                     <input type="hidden" name="login_type" value="student">
 
                     <div class="form-group">
-                        <label for="student_email"><i class="fas fa-envelope"></i> Email Address</label>
+                        <label><i class="fas fa-envelope"></i> Email Address</label>
                         <div class="input-with-icon">
                             <i class="fas fa-envelope"></i>
                             <input type="email" 
@@ -654,7 +691,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="student_password"><i class="fas fa-lock"></i> Password</label>
+                        <label><i class="fas fa-lock"></i> Password</label>
                         <div class="input-with-icon">
                             <i class="fas fa-lock"></i>
                             <input type="password" 
@@ -721,35 +758,45 @@
 
         // Toggle Password Visibility
         document.querySelectorAll('.password-toggle').forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
                 const targetId = this.getAttribute('data-target');
                 const passwordInput = document.getElementById(targetId);
-                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
                 
-                passwordInput.setAttribute('type', type);
-                this.innerHTML = type === 'password' ? 
-                    '<i class="fas fa-eye"></i>' : 
-                    '<i class="fas fa-eye-slash"></i>';
+                if (passwordInput) {
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
+                    
+                    // Change icon
+                    const icon = this.querySelector('i');
+                    if (icon) {
+                        icon.className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+                    }
+                }
             });
         });
 
         // Form Submission Handling
         document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
             const loginButton = document.getElementById('adminLoginButton');
-            const loadingSpinner = loginButton.querySelector('.loading');
+            const originalContent = loginButton.innerHTML;
             
             loginButton.disabled = true;
-            loadingSpinner.classList.add('active');
             loginButton.innerHTML = '<span class="loading active"></span> Authenticating...';
+            
+            // Store original content to restore if needed (optional)
+            loginButton.setAttribute('data-original', originalContent);
         });
 
         document.getElementById('studentLoginForm').addEventListener('submit', function(e) {
             const loginButton = document.getElementById('studentLoginButton');
-            const loadingSpinner = loginButton.querySelector('.loading');
+            const originalContent = loginButton.innerHTML;
             
             loginButton.disabled = true;
-            loadingSpinner.classList.add('active');
             loginButton.innerHTML = '<span class="loading active"></span> Authenticating...';
+            
+            // Store original content to restore if needed (optional)
+            loginButton.setAttribute('data-original', originalContent);
         });
 
         // Auto-switch tab based on previous errors
@@ -758,20 +805,28 @@
             
             if (loginType === 'student') {
                 // Switch to student tab
-                document.querySelector('.tab[data-tab="admin"]').classList.remove('active');
-                document.querySelector('.tab[data-tab="student"]').classList.add('active');
+                const adminTab = document.querySelector('.tab[data-tab="admin"]');
+                const studentTab = document.querySelector('.tab[data-tab="student"]');
                 
-                document.getElementById('admin-tab').classList.remove('active');
-                document.getElementById('student-tab').classList.add('active');
+                if (adminTab) adminTab.classList.remove('active');
+                if (studentTab) studentTab.classList.add('active');
+                
+                const adminContent = document.getElementById('admin-tab');
+                const studentContent = document.getElementById('student-tab');
+                
+                if (adminContent) adminContent.classList.remove('active');
+                if (studentContent) studentContent.classList.add('active');
                 
                 // Focus on email if empty
-                if (document.getElementById('student_email').value === '') {
-                    document.getElementById('student_email').focus();
+                const emailInput = document.getElementById('student_email');
+                if (emailInput && emailInput.value === '') {
+                    emailInput.focus();
                 }
             } else {
                 // Focus on username if empty
-                if (document.getElementById('admin_name').value === '') {
-                    document.getElementById('admin_name').focus();
+                const usernameInput = document.getElementById('admin_name');
+                if (usernameInput && usernameInput.value === '') {
+                    usernameInput.focus();
                 }
             }
             
@@ -779,11 +834,11 @@
             const inputs = document.querySelectorAll('.form-control');
             inputs.forEach(input => {
                 input.addEventListener('focus', function() {
-                    this.parentElement.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.15)';
+                    this.style.borderColor = '#3b82f6';
                 });
                 
                 input.addEventListener('blur', function() {
-                    this.parentElement.style.boxShadow = 'none';
+                    this.style.borderColor = '#d1d5db';
                 });
             });
         });
