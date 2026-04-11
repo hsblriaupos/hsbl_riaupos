@@ -205,32 +205,32 @@
 
 @section('content')
 {{-- Hero Section Full Width tanpa background gradient --}}
-<div class="-mt-6 mb-12 bg-white relative overflow-hidden">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
-        <div class="flex flex-col md:flex-row items-center justify-between gap-12">
+<div class="-mt-16 mb-8 bg-white relative overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-8">
             {{-- Left Content --}}
             <div class="md:w-1/2 text-center md:text-left animate-fadeInLeft">
-                <div class="inline-flex items-center bg-gray-100 px-4 py-2 rounded-full mb-6">
+                <div class="inline-flex items-center bg-gray-100 px-3 py-1.5 rounded-full mb-4">
                     <div class="w-2 h-2 bg-blue-600 rounded-full mr-2 animate-pulse"></div>
-                    <span class="text-sm font-medium text-gray-700 tracking-wider">STUDENT BASKETBALL LEAGUE</span>
+                    <span class="text-xs font-medium text-gray-700 tracking-wider">STUDENT BASKETBALL LEAGUE</span>
                 </div>
                 
-                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 leading-tight">
+                <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 leading-tight">
                     Creating Forever
                     <span class="block text-blue-600">New Beginning</span>
                 </h1>
                 
-                <p class="text-lg text-gray-600 mb-8 max-w-lg mx-auto md:mx-0">
+                <p class="text-sm text-gray-600 mb-6 max-w-lg mx-auto md:mx-0">
                     The biggest student basketball competition in Riau, where young talents showcase their skills and fighting spirit.
                 </p>
                 
-                <div class="flex flex-wrap gap-4 justify-center md:justify-start">
+                <div class="flex flex-wrap gap-3 justify-center md:justify-start">
                     <a href="{{ route('user.schedule_result') }}" 
-                       class="px-8 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-all transform hover:scale-105 shadow-lg">
+                       class="px-5 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-all transform hover:scale-105 shadow text-sm">
                         Latest Event
                     </a>
                     <a href="#about" 
-                       class="px-8 py-3 border-2 border-gray-300 text-gray-700 font-medium rounded-lg hover:border-blue-600 hover:text-blue-600 transition-all">
+                       class="px-5 py-2 border-2 border-gray-300 text-gray-700 font-medium rounded-lg hover:border-blue-600 hover:text-blue-600 transition-all text-sm">
                         About Us
                     </a>
                 </div>
@@ -240,19 +240,16 @@
             {{-- Right Image --}}
             <div class="md:w-1/2 animate-fadeInRight">
                 <div class="relative">
-                    {{-- Main Image --}}
                     <img src="https://images.unsplash.com/photo-1546519638-68e109498ffc?w=800&h=600&fit=crop&auto=format" 
                          alt="Basketball Player" 
-                         class="rounded-2xl shadow-2xl w-full h-auto object-cover">
+                         class="rounded-xl shadow-xl w-full h-auto object-cover">
                     
-                    {{-- Decorative Elements --}}
-                    <div class="absolute -top-4 -left-4 w-24 h-24 bg-yellow-400 rounded-full opacity-20 blur-2xl"></div>
-                    <div class="absolute -bottom-4 -right-4 w-32 h-32 bg-blue-600 rounded-full opacity-20 blur-2xl"></div>
+                    <div class="absolute -top-3 -left-3 w-20 h-20 bg-yellow-400 rounded-full opacity-20 blur-xl"></div>
+                    <div class="absolute -bottom-3 -right-3 w-28 h-28 bg-blue-600 rounded-full opacity-20 blur-xl"></div>
                     
-                    {{-- Quote Overlay --}}
-                    <div class="absolute bottom-6 left-6 right-6 bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-xl">
-                        <p class="text-gray-800 text-sm italic">
-                            "We Believe That Crafting The Perfect Wedding Goes Beyond Mere Coordination – It's About Curating An Experience That Echoes Your Unique Love Story."
+                    <div class="absolute bottom-3 left-3 right-3 bg-white/90 backdrop-blur-sm rounded-lg p-2 shadow">
+                        <p class="text-gray-800 text-xs italic">
+                            "Crafting an experience that echoes your unique story."
                         </p>
                     </div>
                 </div>
