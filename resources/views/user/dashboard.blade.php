@@ -204,8 +204,8 @@
 @endphp
 
 @section('content')
-{{-- Hero Section Full Width tanpa background gradient --}}
-<div class="-mt-20 mb-8 bg-white relative overflow-hidden">
+{{-- Hero Section Full Width - Responsive margin --}}
+<div class="md:-mt-10 -mt-20 mb-8 bg-white relative overflow-hidden">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <div class="flex flex-col md:flex-row items-center justify-between gap-8">
             {{-- Left Content --}}
