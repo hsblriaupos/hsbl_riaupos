@@ -15,7 +15,7 @@
         align-items: center;
         border: 1px solid #93c5fd;
     }
-    
+
     .about-hero::before {
         content: '';
         position: absolute;
@@ -23,12 +23,12 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: 
+        background:
             radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
             radial-gradient(circle at 80% 20%, rgba(96, 165, 250, 0.1) 0%, transparent 50%);
         z-index: 1;
     }
-    
+
     .about-hero::after {
         content: '';
         position: absolute;
@@ -36,22 +36,20 @@
         left: -50%;
         width: 200%;
         height: 200%;
-        background: linear-gradient(
-            45deg,
-            transparent 30%,
-            rgba(255, 255, 255, 0.3) 50%,
-            transparent 70%
-        );
+        background: linear-gradient(45deg,
+                transparent 30%,
+                rgba(255, 255, 255, 0.3) 50%,
+                transparent 70%);
         animation: shine 3s infinite linear;
         z-index: 1;
     }
-    
+
     .hero-content {
         position: relative;
         z-index: 2;
         width: 100%;
     }
-    
+
     .hero-icon-container {
         background: rgba(255, 255, 255, 0.8);
         backdrop-filter: blur(10px);
@@ -61,50 +59,49 @@
         transition: all 0.4s ease;
         box-shadow: 0 8px 32px rgba(59, 130, 246, 0.1);
     }
-    
+
     .hero-icon-container:hover {
         background: rgba(255, 255, 255, 0.95);
         transform: translateY(-5px);
         box-shadow: 0 15px 40px rgba(59, 130, 246, 0.2);
         border-color: rgba(59, 130, 246, 0.4);
     }
-    
+
     .hero-badge {
         background: rgba(59, 130, 246, 0.1);
         border: 1px solid rgba(59, 130, 246, 0.3);
         color: #1e40af;
         transition: all 0.3s ease;
     }
-    
+
     .hero-badge:hover {
         background: rgba(59, 130, 246, 0.2);
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
     }
-    
+
     @keyframes shine {
         0% {
             transform: translateX(-100%) translateY(-100%) rotate(45deg);
         }
+
         100% {
             transform: translateX(100%) translateY(100%) rotate(45deg);
         }
     }
-    
-    /* Responsive adjustments */
+
     @media (max-width: 768px) {
         .about-hero {
             min-height: 300px;
             padding: 2rem 1rem !important;
         }
-        
+
         .hero-icon-container {
             padding: 1.5rem;
             margin-top: 1rem;
         }
     }
-    
-    /* Sisa style tetap sama */
+
     .icon-card {
         background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
         border-radius: 1rem;
@@ -112,18 +109,18 @@
         transition: all 0.3s ease;
         border: 1px solid #e2e8f0;
     }
-    
+
     .icon-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 10px 25px rgba(59, 130, 246, 0.15);
         border-color: #3b82f6;
     }
-    
+
     .timeline {
         position: relative;
         padding-left: 2rem;
     }
-    
+
     .timeline::before {
         content: '';
         position: absolute;
@@ -133,12 +130,12 @@
         width: 2px;
         background: linear-gradient(to bottom, #3b82f6, #60a5fa, #93c5fd);
     }
-    
+
     .timeline-item {
         position: relative;
         margin-bottom: 2rem;
     }
-    
+
     .timeline-item::before {
         content: '';
         position: absolute;
@@ -151,13 +148,13 @@
         border: 3px solid white;
         box-shadow: 0 0 0 3px #dbeafe;
     }
-    
+
     .feature-list li {
         position: relative;
         padding-left: 1.75rem;
         margin-bottom: 0.75rem;
     }
-    
+
     .feature-list li::before {
         content: '✓';
         position: absolute;
@@ -165,7 +162,7 @@
         color: #10b981;
         font-weight: bold;
     }
-    
+
     .stat-card {
         background: white;
         border-radius: 1rem;
@@ -174,104 +171,129 @@
         text-align: center;
         transition: all 0.3s ease;
     }
-    
+
     .stat-card:hover {
         transform: translateY(-3px);
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     }
-    
+
     .bounce {
         animation: bounce 2s infinite;
     }
-    
+
     @keyframes bounce {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-8px); }
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-8px);
+        }
     }
-    
+
     .pulse {
         animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
-    
+
     @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.8; }
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.8;
+        }
     }
-    
+
     .float-animation {
         animation: float 3s ease-in-out infinite;
     }
-    
+
     @keyframes float {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-10px); }
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-10px);
+        }
     }
 </style>
 @endsection
 
 @section('content')
-<div class="max-w-6xl mx-auto">
-    {{-- Hero Section dengan Latar Belakang Biru Muda --}}
-    <div class="about-hero text-gray-800 mb-8 p-8 md:p-12">
-        <div class="hero-content">
-            <div class="flex flex-col md:flex-row items-center justify-between gap-8">
-                <div class="md:w-2/3">
-                    <div class="mb-6">
-                        <div class="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 mb-4 border border-blue-200">
-                            <i class="fas fa-star text-blue-500"></i>
-                            <span class="text-sm font-medium text-blue-700">Tentang Kami</span>
-                        </div>
-                        <h1 class="text-4xl md:text-5xl font-bold mb-4 flex items-center gap-3 text-gray-800">
-                            <span class="bg-white/90 p-3 rounded-xl shadow-sm">
-                                <i class="fas fa-info-circle text-2xl text-blue-500 bounce"></i>
-                            </span>
-                            <span class="leading-tight">Riau Pos Honda<br><span class="text-blue-600">Student Basketball League</span></span>
-                        </h1>
-                        <p class="text-xl md:text-2xl text-gray-700 leading-relaxed mb-6">
-                            Kompetisi bola basket dan dance tingkat pelajar SMA dan sederajat di Provinsi Riau yang menjadi wadah pembinaan dan pencarian bakat muda.
-                        </p>
-                    </div>
-                    
-                    <div class="flex flex-wrap gap-3">
-                        <span class="hero-badge text-sm px-4 py-2 rounded-full font-medium inline-flex items-center gap-2">
-                            <i class="fas fa-basketball-ball text-blue-600"></i> Basket Competition
-                        </span>
-                        <span class="hero-badge text-sm px-4 py-2 rounded-full font-medium inline-flex items-center gap-2">
-                            <i class="fas fa-music text-blue-600"></i> Dance Competition
-                        </span>
-                        <span class="hero-badge text-sm px-4 py-2 rounded-full font-medium inline-flex items-center gap-2">
-                            <i class="fas fa-school text-blue-600"></i> High School Level
-                        </span>
-                        <span class="hero-badge text-sm px-4 py-2 rounded-full font-medium inline-flex items-center gap-2">
-                            <i class="fas fa-map-marker-alt text-blue-600"></i> Riau Province
-                        </span>
-                    </div>
-                </div>
-                
-                <div class="md:w-1/3 flex justify-center">
-                    <div class="hero-icon-container text-center float-animation">
-                        <div class="relative">
-                            <div class="absolute inset-0 bg-gradient-to-r from-blue-300 to-blue-400 rounded-full blur-xl opacity-50"></div>
-                            <i class="fas fa-basketball-ball text-7xl md:text-8xl text-blue-500 relative z-10"></i>
-                        </div>
-                        <div class="mt-6">
-                            <div class="text-3xl font-bold text-blue-600 mb-1">16+</div>
-                            <p class="text-gray-700 font-medium">Tahun Pengalaman</p>
-                            <p class="text-xs text-gray-500 mt-1">Membangun Generasi Basket</p>
-                        </div>
-                        <div class="mt-4 pt-4 border-t border-blue-200">
-                            <p class="text-sm text-gray-600">
-                                <i class="fas fa-calendar-alt mr-1 text-blue-500"></i>
-                                Est. 2008
+{{-- Hero Section - DINAINKAN UNTUK SEMUA LAYAR --}}
+<div class="-mt-20">
+    <div class="max-w-6xl mx-auto">
+        <div class="about-hero text-gray-800 mb-8 p-8 md:p-12">
+            <div class="hero-content">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+                    <div class="md:w-2/3">
+                        <div class="mb-6">
+                            <div class="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 mb-4 border border-blue-200">
+                                <i class="fas fa-star text-blue-500"></i>
+                                <span class="text-sm font-medium text-blue-700">Tentang Kami</span>
+                            </div>
+                            <h1 class="text-4xl md:text-5xl font-bold mb-4 flex items-center gap-3 text-gray-800">
+                                <span>
+                                    <i class="fas fa-info-circle text-2xl text-blue-500 bounce"></i>
+                                </span>
+                                <span class="leading-tight">Riau Pos<br><span class="text-blue-600">Student Basketball League</span></span>
+                            </h1>
+                            <p class="text-xl md:text-2xl text-gray-700 leading-relaxed mb-6">
+                                Kompetisi bola basket dan dance tingkat pelajar SMA dan sederajat di Provinsi Riau yang menjadi wadah pembinaan dan pencarian bakat muda.
                             </p>
+                        </div>
+
+                        <div class="flex flex-wrap gap-3">
+                            <span class="hero-badge text-sm px-4 py-2 rounded-full font-medium inline-flex items-center gap-2">
+                                <i class="fas fa-basketball-ball text-blue-600"></i> Basket Competition
+                            </span>
+                            <span class="hero-badge text-sm px-4 py-2 rounded-full font-medium inline-flex items-center gap-2">
+                                <i class="fas fa-music text-blue-600"></i> Dance Competition
+                            </span>
+                            <span class="hero-badge text-sm px-4 py-2 rounded-full font-medium inline-flex items-center gap-2">
+                                <i class="fas fa-school text-blue-600"></i> High School Level
+                            </span>
+                            <span class="hero-badge text-sm px-4 py-2 rounded-full font-medium inline-flex items-center gap-2">
+                                <i class="fas fa-map-marker-alt text-blue-600"></i> Riau Province
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="md:w-1/3 flex justify-center">
+                        <div class="hero-icon-container text-center float-animation">
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-r from-blue-300 to-blue-400 rounded-full blur-xl opacity-50"></div>
+                                <i class="fas fa-basketball-ball text-7xl md:text-8xl text-blue-500 relative z-10"></i>
+                            </div>
+                            <div class="mt-6">
+                                <div class="text-3xl font-bold text-blue-600 mb-1">16+</div>
+                                <p class="text-gray-700 font-medium">Tahun Pengalaman</p>
+                                <p class="text-xs text-gray-500 mt-1">Membangun Generasi Basket</p>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-blue-200">
+                                <p class="text-sm text-gray-600">
+                                    <i class="fas fa-calendar-alt mr-1 text-blue-500"></i>
+                                    Est. 2008
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    {{-- Sisa konten tetap sama --}}
+{{-- Sisa konten --}}
+<div class="max-w-6xl mx-auto">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {{-- Left Column - Timeline --}}
         <div class="lg:col-span-2">
@@ -283,12 +305,12 @@
                 </div>
                 <div class="space-y-4 text-gray-600 leading-relaxed">
                     <p>
-                        Riau Pos Honda Student Basketball League (HSBL) merupakan kompetisi bola basket dan dance tingkat pelajar SMA dan sederajat di Provinsi Riau. Ajang ini dirancang sebagai wadah pembinaan dan pencarian bakat muda di bidang olahraga basket dan dance, sekaligus menjadi agenda tahunan yang dinantikan oleh pelajar serta komunitas pencinta olahraga di daerah tersebut.
+                        Riau Pos Student Basketball League (SBL) merupakan kompetisi bola basket dan dance tingkat pelajar SMA dan sederajat di Provinsi Riau. Ajang ini dirancang sebagai wadah pembinaan dan pencarian bakat muda di bidang olahraga basket dan dance, sekaligus menjadi agenda tahunan yang dinantikan oleh pelajar serta komunitas pencinta olahraga di daerah tersebut.
                     </p>
                     <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg">
                         <p class="text-sm text-gray-700 italic">
                             <i class="fas fa-quote-left text-blue-400 mr-2"></i>
-                            HSBL bukan hanya tentang kompetisi, tetapi juga tentang membangun karakter, sportivitas, dan persahabatan antar pelajar se-Provinsi Riau.
+                            SBL bukan hanya tentang kompetisi, tetapi juga tentang membangun karakter, sportivitas, dan persahabatan antar pelajar se-Provinsi Riau.
                         </p>
                     </div>
                 </div>
@@ -312,7 +334,7 @@
                             </p>
                         </div>
                     </div>
-                    
+
                     <div class="timeline-item">
                         <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg">
                             <h3 class="font-bold text-gray-800 mb-1 flex items-center gap-2">
@@ -324,7 +346,7 @@
                             </p>
                         </div>
                     </div>
-                    
+
                     <div class="timeline-item">
                         <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg">
                             <h3 class="font-bold text-gray-800 mb-1 flex items-center gap-2">
@@ -336,7 +358,7 @@
                             </p>
                         </div>
                     </div>
-                    
+
                     <div class="timeline-item">
                         <div class="bg-green-50 border-l-4 border-green-400 p-4 rounded-r-lg">
                             <h3 class="font-bold text-gray-800 mb-1 flex items-center gap-2">
@@ -361,7 +383,7 @@
                     <p class="text-gray-600 leading-relaxed">
                         Sebagai event berskala besar yang melibatkan banyak sekolah, peserta, dan pemangku kepentingan, pengembangan sistem informasi berbasis web menjadi kebutuhan strategis untuk mendukung operasional dan publikasi HSBL.
                     </p>
-                    
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
                         <div class="icon-card">
                             <div class="flex items-start gap-3">
@@ -376,7 +398,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="icon-card">
                             <div class="flex items-start gap-3">
                                 <div class="bg-green-100 text-green-600 p-2 rounded-lg">
@@ -390,7 +412,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="icon-card">
                             <div class="flex items-start gap-3">
                                 <div class="bg-purple-100 text-purple-600 p-2 rounded-lg">
@@ -404,7 +426,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="icon-card">
                             <div class="flex items-start gap-3">
                                 <div class="bg-yellow-100 text-yellow-600 p-2 rounded-lg">
@@ -455,19 +477,19 @@
                         <div class="text-sm text-gray-600">Tahun Legacy</div>
                         <div class="text-xs text-gray-500 mt-1">sejak 2008</div>
                     </div>
-                    
+
                     <div class="stat-card">
                         <div class="text-3xl font-bold text-blue-600 mb-1 pulse">2</div>
                         <div class="text-sm text-gray-600">Bidang Kompetisi</div>
                         <div class="text-xs text-gray-500 mt-1">Basket & Dance</div>
                     </div>
-                    
+
                     <div class="stat-card">
                         <div class="text-3xl font-bold text-blue-600 mb-1 pulse">100+</div>
                         <div class="text-sm text-gray-600">Sekolah</div>
                         <div class="text-xs text-gray-500 mt-1">terlibat</div>
                     </div>
-                    
+
                     <div class="stat-card">
                         <div class="text-3xl font-bold text-blue-600 mb-1 pulse">2024</div>
                         <div class="text-sm text-gray-600">Kebangkitan</div>
@@ -492,7 +514,7 @@
                             <p class="text-sm text-gray-600">Media Partner Utama</p>
                         </div>
                     </div>
-                    
+
                     <div class="flex items-center gap-3">
                         <div class="bg-white p-2 rounded-lg">
                             <i class="fas fa-car text-blue-600"></i>
@@ -502,7 +524,7 @@
                             <p class="text-sm text-gray-600">Sponsor Utama</p>
                         </div>
                     </div>
-                    
+
                     <div class="flex items-center gap-3">
                         <div class="bg-white p-2 rounded-lg">
                             <i class="fas fa-graduation-cap text-blue-600"></i>
@@ -513,7 +535,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="mt-4 pt-4 border-t border-blue-200">
                     <p class="text-sm text-gray-600 text-center">
                         <i class="fas fa-basketball-ball text-blue-500 mr-1"></i>
@@ -524,8 +546,8 @@
 
             {{-- CTA --}}
             <div class="text-center">
-                <a href="{{ url('user/dashboard') }}" 
-                   class="btn-primary inline-flex items-center gap-2">
+                <a href="{{ url('user/dashboard') }}"
+                    class="btn-primary inline-flex items-center gap-2">
                     <i class="fas fa-home"></i>
                     Kembali ke Dashboard
                 </a>
@@ -538,12 +560,12 @@
         <div class="text-center p-8">
             <i class="fas fa-quote-left text-4xl text-blue-400 mb-4"></i>
             <p class="text-xl md:text-2xl font-medium mb-6 leading-relaxed text-gray-800">
-                "HSBL bukan sekadar kompetisi, tapi wadah pembinaan karakter, sportivitas, dan pencarian bakat muda basket Riau untuk prestasi nasional."
+                "SBL bukan sekadar kompetisi, tapi wadah pembinaan karakter, sportivitas, dan pencarian bakat muda basket Riau untuk prestasi nasional."
             </p>
             <div class="flex items-center justify-center gap-3 text-blue-600">
                 <div class="h-px w-12 bg-blue-400"></div>
                 <i class="fas fa-bullseye"></i>
-                <span class="text-sm font-medium">Misi Riau Pos Honda HSBL</span>
+                <span class="text-sm font-medium">Misi Riau Pos Honda SBL</span>
                 <div class="h-px w-12 bg-blue-400"></div>
             </div>
         </div>
@@ -553,15 +575,12 @@
 
 @section('scripts')
 <script>
-    // Animasi saat scroll
     document.addEventListener('DOMContentLoaded', function() {
-        // Add animation to stats cards
         const stats = document.querySelectorAll('.stat-card');
         stats.forEach((stat, index) => {
             stat.style.animationDelay = `${index * 0.1}s`;
         });
-        
-        // Smooth reveal for timeline items
+
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -569,17 +588,17 @@
                     entry.target.style.transform = 'translateY(0)';
                 }
             });
-        }, { threshold: 0.1 });
-        
-        // Observe timeline items
+        }, {
+            threshold: 0.1
+        });
+
         document.querySelectorAll('.timeline-item').forEach(item => {
             item.style.opacity = '0';
             item.style.transform = 'translateY(20px)';
             item.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
             observer.observe(item);
         });
-        
-        // Observe icon cards
+
         document.querySelectorAll('.icon-card').forEach(card => {
             card.style.opacity = '0';
             card.style.transform = 'translateY(20px)';
