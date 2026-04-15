@@ -29,7 +29,7 @@ class AdminSeeder extends Seeder
         ];
 
         foreach ($admins as $admin) {
-            User::firstOrCreate(
+            User::updateOrCreate(  
                 ['email' => $admin['email']],
                 [
                     'name' => $admin['name'],
