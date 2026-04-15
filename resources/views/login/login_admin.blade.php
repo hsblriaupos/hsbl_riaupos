@@ -121,11 +121,19 @@
             background: #2563eb;
         }
 
-        /* Toggle Dark/Light Button */
-        .theme-toggle {
+        /* Tombol Navigasi */
+        .nav-buttons {
             position: fixed;
             top: 20px;
+            left: 20px;
             right: 20px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .nav-btn {
             background: white;
             border: none;
             width: 44px;
@@ -136,17 +144,55 @@
             justify-content: center;
             cursor: pointer;
             box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-            z-index: 999;
             color: #0b1e33;
             font-size: 1.2rem;
             transition: all 0.2s;
             border: 1px solid #e2e8f0;
+            pointer-events: auto;
+            text-decoration: none;
+        }
+
+        .nav-btn:hover {
+            transform: scale(1.05);
+            background: #f8fafc;
+        }
+
+        body.dark .nav-btn {
+            background: #1e293b;
+            color: #e2e8f0;
+            border-color: #334155;
+        }
+
+        body.dark .nav-btn:hover {
+            background: #334155;
+        }
+
+        .theme-toggle {
+            background: white;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            color: #0b1e33;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+            border: 1px solid #e2e8f0;
+            pointer-events: auto;
         }
 
         body.dark .theme-toggle {
             background: #1e293b;
             color: #fbbf24;
             border-color: #334155;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.05);
         }
 
         /* Compact modern card */
@@ -180,6 +226,12 @@
             align-items: center;
             gap: 16px;
             margin-bottom: 28px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .brand-header:hover {
+            opacity: 0.8;
         }
 
         .brand-logo-mini {
@@ -194,6 +246,7 @@
             box-shadow: 0 6px 10px rgba(0,0,0,0.02);
             border: 1px solid #eef2ff;
             transition: all 0.3s ease;
+            cursor: pointer;
         }
 
         .brand-logo-mini img {
@@ -201,6 +254,10 @@
             height: 100%;
             object-fit: contain;
             transition: filter 0.3s ease;
+        }
+
+        .brand-logo-mini:hover {
+            transform: scale(1.05);
         }
 
         .brand-text h3 {
@@ -351,7 +408,7 @@
             border-radius: 20px;
             background: white;
             transition: all 0.2s;
-            overflow: hidden; /* Ini penting biar icon gak keluar */
+            overflow: hidden;
         }
 
         body.dark .input-field {
@@ -545,9 +602,13 @@
                 align-items: flex-start;
             }
 
-            .theme-toggle {
+            .nav-buttons {
                 top: 12px;
+                left: 12px;
                 right: 12px;
+            }
+
+            .nav-btn, .theme-toggle {
                 width: 40px;
                 height: 40px;
             }
@@ -556,7 +617,7 @@
                 flex-direction: column;
                 max-width: 100%;
                 border-radius: 28px;
-                margin-top: 50px;
+                margin-top: 60px;
             }
 
             .brand-panel {
@@ -729,15 +790,20 @@
     </style>
 </head>
 <body>
-    <!-- Tombol Dark/Light Mode -->
-    <button class="theme-toggle" id="themeToggle" aria-label="Dark/Light Mode">
-        <i class="fas fa-moon"></i>
-    </button>
+    <!-- Tombol Navigasi -->
+    <div class="nav-buttons">
+        <a href="{{ route('user.dashboard') }}" class="nav-btn" title="Kembali ke Dashboard">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <button class="theme-toggle" id="themeToggle" aria-label="Dark/Light Mode">
+            <i class="fas fa-moon"></i>
+        </button>
+    </div>
 
     <div class="login-wrapper">
         <!-- Left - Brand -->
         <div class="brand-panel">
-            <div class="brand-header">
+            <div class="brand-header" onclick="window.location.href='{{ route('user.dashboard') }}'" title="Klik untuk kembali ke Dashboard">
                 <div class="brand-logo-mini">
                     <img src="{{ asset('uploads/logo/hsbl.png') }}" alt="SBL Logo">
                 </div>

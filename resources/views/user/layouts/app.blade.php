@@ -351,46 +351,41 @@
 
         /* Content wrapper spacing - Mobile First Approach */
         .content-wrapper {
-            margin-top: 0.75rem; /* 12px on mobile - lebih ke atas */
+            margin-top: 0.75rem;
         }
 
-        /* Tablet */
         @media (min-width: 640px) {
             .content-wrapper {
-                margin-top: 1.25rem; /* 20px on tablet */
+                margin-top: 1.25rem;
             }
         }
 
-        /* Desktop */
         @media (min-width: 1024px) {
             .content-wrapper {
-                margin-top: 2rem; /* 32px on desktop */
+                margin-top: 2rem;
             }
         }
 
-        /* Untuk halaman dengan header yang lebih besar, beri sedikit jarak */
         .page-header + .content-wrapper {
-            margin-top: 0.5rem; /* 8px jika ada page header */
+            margin-top: 0.5rem;
         }
 
-        /* JARAK ANTARA KONTEN DAN SPONSOR */
         .content-bottom-spacing {
-            margin-bottom: 2rem; /* 32px jarak default */
+            margin-bottom: 2rem;
         }
 
         @media (min-width: 640px) {
             .content-bottom-spacing {
-                margin-bottom: 3rem; /* 48px pada tablet */
+                margin-bottom: 3rem;
             }
         }
 
         @media (min-width: 1024px) {
             .content-bottom-spacing {
-                margin-bottom: 4rem; /* 64px pada desktop */
+                margin-bottom: 4rem;
             }
         }
 
-        /* Sponsor section dengan background yang sama dengan konten */
         .sponsor-section {
             background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
             padding: 3rem 0;
@@ -408,7 +403,6 @@
             }
         }
 
-        /* Sponsor card dengan background putih agar logo terlihat jelas */
         .sponsor-card-bg {
             background: white;
             border-radius: 0.75rem;
@@ -438,7 +432,6 @@
             <div class="flex items-center justify-between h-16">
                 {{-- Logo --}}
                 <a href="{{ url('user/dashboard') }}" class="flex items-center space-x-2 group">
-                    
                 </a>
 
                 {{-- Desktop Navigation --}}
@@ -448,14 +441,11 @@
                         ['label' => 'Home', 'url' => url('user/dashboard'), 'icon' => 'fas fa-home text-sm'],
                         ['label' => 'News', 'url' => url('user/news'), 'icon' => 'fas fa-newspaper text-sm'],
                         ['label' => 'Schedules & Results', 'url' => url('user/schedule-result'), 'icon' => 'fas fa-calendar-alt text-sm'],
-                        // Statistics - mengarah ke halaman statistics.blade.php
                         ['label' => 'Statistics', 'url' => url('user/statistics'), 'icon' => 'fas fa-chart-bar text-sm'],
                         ['label' => 'Gallery', 'url' => '#', 'icon' => 'fas fa-images text-sm', 'submenu' => [
                             ['label' => 'Videos', 'url' => route('user.media.gallery.videos'), 'icon' => 'fas fa-video text-xs'],
-                            // PERBAIKAN: Menggunakan route atau URL yang benar
                             ['label' => 'Photos', 'url' => route('user.gallery.photos.index'), 'icon' => 'fas fa-camera text-xs'],
                         ]],
-                        // About
                         ['label' => 'About', 'url' => url('user/media/about'), 'icon' => 'fas fa-landmark text-sm'],
                     ];
                     @endphp
@@ -490,7 +480,7 @@
                         @endif
                     @endforeach
 
-                    {{-- Developer Menu - Tidak ada dropdown, hanya link biasa dengan efek menonjol --}}
+                    {{-- Developer Menu --}}
                     <a href="{{ url('user/media/developer') }}"
                        class="developer-menu flex items-center space-x-1.5 px-4 py-2 text-xs font-semibold rounded-md hover:opacity-90 transition-all duration-300 relative overflow-hidden pulse-glow ml-2">
                         <i class="fas fa-glasses text-sm"></i>
@@ -521,16 +511,16 @@
                                     <span class="whitespace-nowrap">Events</span>
                                 </a>
                             @else
+                                {{-- LOGIN TANPA target="_blank" --}}
                                 <a href="{{ route('login.form') }}" 
-                                   target="_blank"
                                    class="flex items-center space-x-1.5 px-3 py-2 bg-gradient-to-r from-blue-500 to-blue-400 rounded-md hover:from-blue-600 hover:to-blue-500 transition-all duration-200 text-xs font-medium">
                                     <i class="fas fa-sign-in-alt text-xs"></i>
                                     <span class="whitespace-nowrap">Login</span>
                                 </a>
                             @endif
                         @else
+                            {{-- LOGIN TANPA target="_blank" --}}
                             <a href="{{ route('login.form') }}" 
-                               target="_blank"
                                class="flex items-center space-x-1.5 px-3 py-2 bg-gradient-to-r from-blue-500 to-blue-400 rounded-md hover:from-blue-600 hover:to-blue-500 transition-all duration-200 text-xs font-medium">
                                 <i class="fas fa-sign-in-alt text-xs"></i>
                                 <span class="whitespace-nowrap">Login</span>
@@ -607,16 +597,16 @@
                                     <span class="font-semibold">Events</span>
                                 </a>
                             @else
+                                {{-- LOGIN MOBILE TANPA target="_blank" --}}
                                 <a href="{{ route('login.form') }}" 
-                                   target="_blank"
                                    class="flex items-center space-x-2 px-3 py-2 bg-blue-500 rounded-md hover:bg-blue-600 transition-colors duration-200 text-sm">
                                     <i class="fas fa-sign-in-alt"></i>
                                     <span>Login</span>
                                 </a>
                             @endif
                         @else
+                            {{-- LOGIN MOBILE TANPA target="_blank" --}}
                             <a href="{{ route('login.form') }}" 
-                               target="_blank"
                                class="flex items-center space-x-2 px-3 py-2 bg-blue-500 rounded-md hover:bg-blue-600 transition-colors duration-200 text-sm">
                                 <i class="fas fa-sign-in-alt"></i>
                                 <span>Login</span>
@@ -710,8 +700,8 @@
                             </a>
                         @endif
                     @else
+                        {{-- LOGIN FLOATING TANPA target="_blank" --}}
                         <a href="{{ route('login.form') }}" 
-                           target="_blank"
                            @click="floatingMenuOpen = false"
                            class="flex items-center space-x-1.5 px-2.5 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded transition-colors duration-200 text-sm">
                             <i class="fas fa-sign-in-alt text-xs"></i>
@@ -723,22 +713,19 @@
         </div>
     </div>
 
-    {{-- ==================== MAIN CONTENT with margin bottom untuk jarak ke sponsor ==================== --}}
+    {{-- ==================== MAIN CONTENT ==================== --}}
     <main class="flex-grow w-full animate-fadeInUp content-wrapper content-bottom-spacing">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {{-- Page Content --}}
             @yield('content')
         </div>
     </main>
 
-    {{-- ==================== SPONSORS SECTION (Background sama dengan konten) ==================== --}}
+    {{-- ==================== SPONSORS SECTION ==================== --}}
     <div class="sponsor-section">
         <div class="max-w-7xl mx-auto px-6">
             <div class="mb-8">
                 @php
                     $groupedSponsors = $groupedSponsors ?? collect();
-                    
-                    // Definisikan urutan kategori yang diinginkan
                     $orderedCategories = [
                         'Presented by',
                         'Official Partners', 
@@ -749,10 +736,8 @@
                 @endphp
 
                 @if($groupedSponsors->count() > 0)
-                    {{-- Loop melalui kategori yang diurutkan --}}
                     @foreach($orderedCategories as $category)
                         @php
-                            // Cari kategori yang cocok (case-insensitive)
                             $matchingKey = null;
                             foreach ($groupedSponsors->keys() as $key) {
                                 $lowerKey = strtolower($key);
@@ -797,7 +782,6 @@
                         @endif
                     @endforeach
                     
-                    {{-- Tampilkan kategori lain yang tidak sesuai dengan urutan di atas --}}
                     @php
                         $displayedCategories = [];
                         foreach ($orderedCategories as $cat) {
@@ -854,39 +838,37 @@
         </div>
     </div>
 
-    {{-- ==================== FOOTER (Background Biru dengan Rounded Top) ==================== --}}
+    {{-- ==================== FOOTER ==================== --}}
     <footer class="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-t-3xl">
-    <div class="max-w-7xl mx-auto px-6 py-4">  {{-- ganti py-8 jadi py-4 biar lebih ramping --}}
-        {{-- Footer Info --}}
-<div class="text-center pt-0">  {{-- ganti pt-2 jadi pt-0 --}}
-    <div class="flex flex-col md:flex-row items-center justify-between mb-0">  {{-- ganti mb-2 jadi mb-0 --}}
-        <div class="md:mb-0">
-            <img src="{{ asset('uploads/logo/hsbl.png') }}" 
-                 alt="SBL Logo" 
-                 class="rounded-lg mx-auto md:mx-0"
-                 style="height: 100px; width: auto; object-fit: contain; margin-top: -10px; margin-bottom: -10px;">
-        </div>
-        <div class="text-center md:text-left">
-            <h3 class="text-lg font-semibold mb-0">Riau Pos - SBL</h3>  {{-- ganti mb-1 jadi mb-0 --}}
-            <p class="text-blue-100 text-xs">Student Basketball League</p>
-        </div>
-    </div>
-            
-            <div class="text-xs text-blue-200">
-                <p class="mb-1">&copy; {{ date('Y') }} Riau Pos - Student Basketball League. All Rights Reserved.</p>
-                <p class="flex items-center justify-center space-x-1">
-                    <span>Developed with</span>
-                    <i class="fas fa-heart text-red-300"></i>
-                    <span>by : Mutia Rizkianti | Wafiq Wardatul Khairani</span>
-                </p>
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="text-center pt-0">
+                <div class="flex flex-col md:flex-row items-center justify-between mb-0">
+                    <div class="md:mb-0">
+                        <img src="{{ asset('uploads/logo/hsbl.png') }}" 
+                             alt="SBL Logo" 
+                             class="rounded-lg mx-auto md:mx-0"
+                             style="height: 100px; width: auto; object-fit: contain; margin-top: -10px; margin-bottom: -10px;">
+                    </div>
+                    <div class="text-center md:text-left">
+                        <h3 class="text-lg font-semibold mb-0">Riau Pos - SBL</h3>
+                        <p class="text-blue-100 text-xs">Student Basketball League</p>
+                    </div>
+                </div>
+                
+                <div class="text-xs text-blue-200">
+                    <p class="mb-1">&copy; {{ date('Y') }} Riau Pos - Student Basketball League. All Rights Reserved.</p>
+                    <p class="flex items-center justify-center space-x-1">
+                        <span>Developed with</span>
+                        <i class="fas fa-heart text-red-300"></i>
+                        <span>by : Mutia Rizkianti | Wafiq Wardatul Khairani</span>
+                    </p>
+                </div>
             </div>
         </div>
-    </div>
-</footer>
+    </footer>
 
-    {{-- JavaScript untuk Floating Navigation dan Scrollbar --}}
+    {{-- JavaScript --}}
     <script>
-        // Smooth scroll untuk anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -903,7 +885,6 @@
             });
         });
 
-        // Close floating menu ketika link diklik
         document.querySelectorAll('.floating-nav-menu a').forEach(link => {
             link.addEventListener('click', () => {
                 const alpineData = document.querySelector('[x-data*="floatingMenuOpen"]').__x.$data;
@@ -913,7 +894,6 @@
             });
         });
 
-        // Add active class to current page links
         document.addEventListener('DOMContentLoaded', function() {
             const currentPath = window.location.pathname;
             document.querySelectorAll('.nav-link').forEach(link => {
