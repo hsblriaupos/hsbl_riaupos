@@ -12,19 +12,19 @@ class AdminSeeder extends Seeder
     {
         $admins = [
             [
-                'name' => 'Admin 1 HSBL',
-                'email' => 'Admin1RPHSBL@sbl.id',
-                'password' => '@adminHSBL_RIAUPOS(1)First_2025',
+                'name' => env('ADMIN_1_NAME', 'Admin 1 HSBL'),
+                'email' => env('ADMIN_1_EMAIL', 'Admin1RPHSBL@sbl.id'),
+                'password' => env('ADMIN_1_PASSWORD', '@adminHSBL_RIAUPOS(1)First_2025'),
             ],
             [
-                'name' => 'Admin 2 HSBL',
-                'email' => 'admin2RPHSBL@sbl.id',
-                'password' => '@adminHSBL_RIAUPOSSecond(2)_2025',
+                'name' => env('ADMIN_2_NAME', 'Admin 2 HSBL'),
+                'email' => env('ADMIN_2_EMAIL', 'admin2RPHSBL@sbl.id'),
+                'password' => env('ADMIN_2_PASSWORD', '@adminHSBL_RIAUPOSSecond(2)_2025'),
             ],
             [
-                'name' => 'Admin 3 HSBL',
-                'email' => 'admin3RPHSBL@sbl.id',
-                'password' => '@adminHSBL_RIAUPOSThird_2025(3)',
+                'name' => env('ADMIN_3_NAME', 'Admin 3 HSBL'),
+                'email' => env('ADMIN_3_EMAIL', 'admin3RPHSBL@sbl.id'),
+                'password' => env('ADMIN_3_PASSWORD', '@adminHSBL_RIAUPOSThird_2025(3)'),
             ],
         ];
 
