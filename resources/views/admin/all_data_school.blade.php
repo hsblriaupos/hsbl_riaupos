@@ -415,7 +415,7 @@
         .filter-row {
             gap: 8px;
         }
-        
+
         .filter-select {
             min-width: 120px;
             font-size: 0.8rem;
@@ -521,27 +521,27 @@
         .filter-section {
             padding: 12px;
         }
-        
+
         .filter-row {
             flex-direction: column;
             align-items: stretch;
             gap: 10px;
         }
-        
+
         .filter-select {
             width: 100%;
         }
-        
+
         .search-wrapper {
             max-width: 100%;
             width: 100%;
         }
-        
+
         .info-wrapper {
             justify-content: space-between;
             width: 100%;
         }
-        
+
         .reset-btn {
             justify-content: center;
             width: 100%;
@@ -881,17 +881,14 @@
                                         <i class="fas fa-edit"></i>
                                     </button>
 
-                                    <form method="POST" action="{{ url('/admin/school/delete') }}" class="delete-form d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <input type="hidden" name="table" value="schools">
-                                        <input type="hidden" name="id" value="{{ $school->id }}">
-                                        <button type="button"
-                                            class="action-icon delete-icon btn-delete"
-                                            title="Hapus">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
+                                    <form method="POST" action="{{ route('admin.school.delete') }}" class="delete-form d-inline">
+    @csrf
+    <input type="hidden" name="table" value="schools">
+    <input type="hidden" name="id" value="{{ $school->id }}">
+    <button type="button" class="action-icon delete-icon btn-delete" title="Hapus">
+        <i class="fas fa-trash"></i>
+    </button>
+</form>
                                 </div>
                             </td>
                         </tr>
@@ -1019,7 +1016,7 @@
         const filterForm = document.getElementById('filterForm');
         if (filterForm) {
             const filterSelects = filterForm.querySelectorAll('.filter-select');
-            
+
             filterSelects.forEach(select => {
                 select.addEventListener('change', function() {
                     filterForm.submit();

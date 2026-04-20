@@ -289,223 +289,161 @@ class FormTeamController extends Controller
      * - Jika sekolah belum punya logo, wajib upload
      */
     public function createTeam(Request $request)
-    {
-        try {
-            Log::info('=== CREATE TEAM START ===');
-            Log::info('Create Team Request Data:', $request->all());
-            Log::info('Has file school_logo? ' . ($request->hasFile('school_logo') ? 'YES' : 'NO'));
+{
+    try {
+        Log::info('=== CREATE TEAM START ===');
+        
+        $validationRules = [
+            'school_option' => 'required|in:existing,new',
+            'competition' => 'required',
+            'season' => 'required',
+            'series' => 'required',
+            'team_category' => 'required|in:Basket Putra,Basket Putri,Dancer,Official',
+            'registered_by' => 'required|string|max:255',
+            'recommendation_letter' => 'required|file|mimes:pdf|max:2048',
+            'koran' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+        ];
 
-            if ($request->hasFile('school_logo')) {
-                Log::info('school_logo file: ' . $request->file('school_logo')->getClientOriginalName());
-            }
+        if ($request->school_option == 'existing') {
+            $validationRules['existing_school_id'] = 'required|exists:schools,id';
+        } else {
+            $validationRules['new_school_name'] = 'required|string|max:255';
+            $validationRules['new_city_id'] = 'required|exists:cities,id';
+            $validationRules['new_category_name'] = 'required|in:SMA,SMK,MA';
+            $validationRules['new_type'] = 'required|in:NEGERI,SWASTA';
+            $validationRules['school_logo'] = 'required|image|mimes:jpg,jpeg,png,webp|max:2048';
+        }
 
-            // Validation rules
-            $validationRules = [
-                'school_option' => 'required|in:existing,new',
-                'competition' => 'required',
-                'season' => 'required',
-                'series' => 'required',
-                'team_category' => 'required|in:Basket Putra,Basket Putri,Dancer,Official',
-                'registered_by' => 'required|string|max:255',
-                'recommendation_letter' => 'required|file|mimes:pdf|max:2048',
-                'koran' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            ];
+        $validated = $request->validate($validationRules);
+        Log::info('✅ Validation passed');
 
-            if ($request->school_option == 'existing') {
-                $validationRules['existing_school_id'] = 'required|exists:schools,id';
-                // Logo tidak wajib di validasi Laravel, kita handle manual
+        $schoolName = '';
+        $schoolId = null;
+        $schoolLogoPath = null;
+
+        if ($validated['school_option'] == 'existing') {
+            $school = School::findOrFail($validated['existing_school_id']);
+            $schoolName = $school->school_name;
+            $schoolId = $school->id;
+
+            Log::info('School found: ' . $schoolName);
+
+            if ($school->hasLogo()) {
+                $schoolLogoPath = $school->school_logo;
+                Log::info('✅ Using existing school logo');
             } else {
-                $validationRules['new_school_name'] = 'required|string|max:255';
-                $validationRules['new_city_id'] = 'required|exists:cities,id';
-                $validationRules['new_category_name'] = 'required|in:SMA,SMK,MA';
-                $validationRules['new_type'] = 'required|in:NEGERI,SWASTA';
-                $validationRules['school_logo'] = 'required|image|mimes:jpg,jpeg,png,webp|max:2048';
-            }
-
-            $validated = $request->validate($validationRules);
-            Log::info('✅ Validation passed');
-
-            // Process school
-            $schoolName = '';
-            $schoolId = null;
-            $schoolLogoPath = null;
-
-            if ($validated['school_option'] == 'existing') {
-                // 🔥 PILIH SEKOLAH EXISTING
-                $school = School::findOrFail($validated['existing_school_id']);
-                $schoolName = $school->school_name;
-                $schoolId = $school->id;
-
-                Log::info('School found: ' . $schoolName);
-                Log::info('School has logo? ' . ($school->hasLogo() ? 'YES - ' . $school->school_logo : 'NO'));
-
-                // 🔥 CEK APAKAH SEKOLAH SUDAH PUNYA LOGO?
-                if ($school->hasLogo()) {
-                    // ✅ Sekolah sudah punya logo, gunakan logo yang ada
-                    $schoolLogoPath = $school->school_logo;
-                    Log::info('✅ Using existing school logo: ' . $schoolLogoPath);
-                    session()->flash('info', 'Sekolah "' . $schoolName . '" sudah memiliki logo. Menggunakan logo yang ada.');
-                } else {
-                    // ⚠️ Sekolah belum punya logo
-                    // Cek apakah user upload logo (bisa dari school_logo_existing atau school_logo)
-                    $uploadedFile = null;
-
-                    if ($request->hasFile('school_logo')) {
-                        $uploadedFile = $request->file('school_logo');
-                        Log::info('File uploaded via school_logo: ' . $uploadedFile->getClientOriginalName());
-                    } elseif ($request->hasFile('school_logo_existing')) {
-                        $uploadedFile = $request->file('school_logo_existing');
-                        Log::info('File uploaded via school_logo_existing: ' . $uploadedFile->getClientOriginalName());
-                    }
-
-                    if (!$uploadedFile) {
-                        Log::error('No file uploaded for school logo');
-                        // Jangan return error, biarkan pakai default logo
-                        // Tapi kita kasih warning
-                        session()->flash('warning', 'Sekolah "' . $schoolName . '" belum memiliki logo. Akan menggunakan logo default.');
-                        $schoolLogoPath = null;
-                    } else {
-                        // Validasi file
-                        if (!$uploadedFile->isValid()) {
-                            Log::error('Uploaded file is not valid');
-                            session()->flash('warning', 'File logo tidak valid. Menggunakan logo default.');
-                            $schoolLogoPath = null;
-                        } else {
-                            // Upload logo baru untuk sekolah
-                            $schoolLogoPath = $this->uploadSchoolLogo($uploadedFile, $schoolName, $validated['team_category']);
-
-                            // Update logo di tabel schools
-                            $school->school_logo = $schoolLogoPath;
-                            $school->save();
-                            Log::info('✅ Logo uploaded and saved to school: ' . $schoolLogoPath);
-                        }
-                    }
-                }
-            } else {
-                // 🔥 SEKOLAH BARU
-                $existingSchool = School::where('school_name', $validated['new_school_name'])->first();
-
-                if ($existingSchool) {
-                    Log::warning('⚠️ School already exists: ' . $validated['new_school_name']);
-                    return back()->withErrors([
-                        'new_school_name' => 'Sekolah "' . $validated['new_school_name'] . '" sudah terdaftar! Silakan gunakan opsi "Pilih Sekolah" untuk memilih sekolah ini.'
-                    ])->withInput();
-                }
-
-                $school = School::create([
-                    'school_name' => $validated['new_school_name'],
-                    'city_id' => $validated['new_city_id'],
-                    'category_name' => $validated['new_category_name'],
-                    'type' => $validated['new_type'],
-                ]);
-                $schoolName = $school->school_name;
-                $schoolId = $school->id;
-
-                if ($request->hasFile('school_logo')) {
-                    $schoolLogoPath = $this->uploadSchoolLogo($request->file('school_logo'), $schoolName, $validated['team_category']);
+                $uploadedFile = $request->file('school_logo') ?? $request->file('school_logo_existing');
+                
+                if ($uploadedFile && $uploadedFile->isValid()) {
+                    $schoolLogoPath = $this->uploadSchoolLogo($uploadedFile, $schoolName, $validated['team_category']);
                     $school->school_logo = $schoolLogoPath;
                     $school->save();
-                    Log::info('✅ New school created with logo: ' . $schoolLogoPath);
+                    Log::info('✅ Logo uploaded and saved to schools table');
                 } else {
-                    Log::warning('⚠️ No logo uploaded for new school');
+                    Log::warning('No logo uploaded, will use default');
                 }
             }
+        } else {
+            $existingSchool = School::where('school_name', $validated['new_school_name'])->first();
 
-            Log::info('✅ Final school logo path: ' . ($schoolLogoPath ?? 'null'));
-
-            // 🔥 CEK APAKAH SUDAH ADA TIM UNTUK KATEGORI INI
-            $existingTeamForCategory = TeamList::where('school_name', $schoolName)
-                ->where('season', $validated['season'])
-                ->where('team_category', $validated['team_category'])
-                ->first();
-
-            if ($existingTeamForCategory) {
-                Log::info('⚠️ Team already exists for category: ' . $validated['team_category']);
-                $referralCode = $existingTeamForCategory->referral_code;
-
-                if ($referralCode && $existingTeamForCategory->is_leader_paid) {
-                    return redirect()->route('form.team.join')
-                        ->with('warning', 'Tim ' . $validated['team_category'] . ' untuk "' . $schoolName . '" sudah memiliki Kapten. Gunakan referral code: ' . $referralCode . ' untuk bergabung.')
-                        ->with('referral_code', $referralCode);
-                } else {
-                    return redirect()->route('form.team.join')
-                        ->with('warning', 'Tim ' . $validated['team_category'] . ' untuk "' . $schoolName . '" sudah ada tetapi Kapten belum menyelesaikan pembayaran. Silakan tunggu atau hubungi Kapten tim.');
-                }
+            if ($existingSchool) {
+                return back()->withErrors([
+                    'new_school_name' => 'Sekolah sudah terdaftar! Gunakan opsi "Pilih Sekolah".'
+                ])->withInput();
             }
 
-            Log::info('🎯 Creating NEW team for category ' . $validated['team_category']);
+            $school = School::create([
+                'school_name' => $validated['new_school_name'],
+                'city_id' => $validated['new_city_id'],
+                'category_name' => $validated['new_category_name'],
+                'type' => $validated['new_type'],
+            ]);
+            $schoolName = $school->school_name;
+            $schoolId = $school->id;
 
-            // Save documents
-            Storage::disk('public')->makeDirectory('team_docs');
-            $baseSlug = Str::slug($schoolName);
-            $categorySlug = Str::slug($validated['team_category']);
-            $timestamp = time();
-
-            $recommendationPath = $request->file('recommendation_letter')
-                ->storeAs('team_docs', "{$baseSlug}_{$categorySlug}_recommendation_{$timestamp}.pdf", 'public');
-
-            $koranPath = $request->file('koran')
-                ->storeAs('team_docs', "{$baseSlug}_{$categorySlug}_koran_{$timestamp}." . $request->file('koran')->extension(), 'public');
-
-            // Generate unique referral code
-            $referralCode = strtoupper(Str::random(8));
-            while (TeamList::where('referral_code', $referralCode)->exists()) {
-                $referralCode = strtoupper(Str::random(8));
+            if ($request->hasFile('school_logo')) {
+                $schoolLogoPath = $this->uploadSchoolLogo($request->file('school_logo'), $schoolName, $validated['team_category']);
+                $school->school_logo = $schoolLogoPath;
+                $school->save();
+                Log::info('✅ New school created with logo');
             }
-
-            // Create team
-            $team = TeamList::create([
-                'school_name' => $schoolName,
-                'school_id' => $schoolId,
-                'school_logo' => $schoolLogoPath,
-                'referral_code' => $referralCode,
-                'competition' => $validated['competition'],
-                'season' => $validated['season'],
-                'series' => $validated['series'],
-                'team_category' => $validated['team_category'],
-                'registered_by' => $validated['registered_by'],
-                'locked_status' => 'unlocked',
-                'verification_status' => 'unverified',
-                'recommendation_letter' => $recommendationPath,
-                'koran' => $koranPath,
-                'jersey_home' => null,
-                'jersey_away' => null,
-                'jersey_alternate' => null,
-                'payment_proof' => null,
-                'is_leader_paid' => false,
-                'payment_status' => 'pending',
-                'payment_date' => null,
-            ]);
-
-            Log::info('✅ Team created with ID: ' . $team->team_id);
-
-            $normalizedCategory = $this->normalizeCategory($validated['team_category']);
-
-            session([
-                'created_team_id' => $team->team_id,
-                'created_team_category' => $validated['team_category'],
-                'created_school_name' => $schoolName,
-                'is_first_team_for_category' => true,
-                'registered_by_name' => $validated['registered_by'],
-                'normalized_category' => $normalizedCategory,
-                'team_paid' => false,
-                'current_can_be_leader' => true,
-                'current_player_category' => $normalizedCategory,
-                'referral_code' => $referralCode,
-            ]);
-
-            return redirect()->route('form.team.success', [
-                'team_id' => $team->team_id
-            ])->with('success', 'Tim ' . $validated['team_category'] . ' berhasil dibuat! Silakan lengkapi data diri Anda sebagai Kapten.');
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            Log::error('❌ Validation error: ', $e->errors());
-            return back()->withErrors($e->errors())->withInput();
-        } catch (\Exception $e) {
-            Log::error('❌ Error in createTeam: ' . $e->getMessage());
-            Log::error('Stack trace: ' . $e->getTraceAsString());
-            return back()->withErrors(['error' => 'Terjadi kesalahan sistem: ' . $e->getMessage()])->withInput();
         }
+
+        // Cek tim existing
+        $existingTeam = TeamList::where('school_name', $schoolName)
+            ->where('season', $validated['season'])
+            ->where('team_category', $validated['team_category'])
+            ->first();
+
+        if ($existingTeam) {
+            $referralCode = $existingTeam->referral_code;
+            if ($referralCode && $existingTeam->is_leader_paid) {
+                return redirect()->route('form.team.join')
+                    ->with('warning', 'Tim sudah ada! Gunakan referral code: ' . $referralCode)
+                    ->with('referral_code', $referralCode);
+            } else {
+                return redirect()->route('form.team.join')
+                    ->with('warning', 'Tim sudah ada tetapi Kapten belum membayar.');
+            }
+        }
+
+        // Save documents
+        Storage::disk('public')->makeDirectory('team_docs');
+        $baseSlug = Str::slug($schoolName);
+        $categorySlug = Str::slug($validated['team_category']);
+        $timestamp = time();
+
+        $recommendationPath = $request->file('recommendation_letter')
+            ->storeAs('team_docs', "{$baseSlug}_{$categorySlug}_rec_{$timestamp}.pdf", 'public');
+
+        $koranPath = $request->file('koran')
+            ->storeAs('team_docs', "{$baseSlug}_{$categorySlug}_koran_{$timestamp}." . $request->file('koran')->extension(), 'public');
+
+        // Generate referral code
+        do {
+            $referralCode = strtoupper(Str::random(8));
+        } while (TeamList::where('referral_code', $referralCode)->exists());
+
+        // Create team
+        $team = TeamList::create([
+            'school_name' => $schoolName,
+            'school_id' => $schoolId,
+            'school_logo' => $schoolLogoPath,
+            'referral_code' => $referralCode,
+            'competition' => $validated['competition'],
+            'season' => $validated['season'],
+            'series' => $validated['series'],
+            'team_category' => $validated['team_category'],
+            'registered_by' => $validated['registered_by'],
+            'locked_status' => 'unlocked',
+            'verification_status' => 'unverified',
+            'recommendation_letter' => $recommendationPath,
+            'koran' => $koranPath,
+            'is_leader_paid' => false,
+            'payment_status' => 'pending',
+        ]);
+
+        Log::info('✅ Team created with ID: ' . $team->team_id);
+
+        session([
+            'created_team_id' => $team->team_id,
+            'created_team_category' => $validated['team_category'],
+            'created_school_name' => $schoolName,
+            'normalized_category' => $this->normalizeCategory($validated['team_category']),
+            'referral_code' => $referralCode,
+            'current_can_be_leader' => true,
+        ]);
+
+        return redirect()->route('form.team.success', ['team_id' => $team->team_id])
+            ->with('success', 'Tim berhasil dibuat!');
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return back()->withErrors($e->errors())->withInput();
+    } catch (\Exception $e) {
+        Log::error('❌ Error: ' . $e->getMessage());
+        return back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])->withInput();
     }
+}
 
     /**
      * Show Team Success Page

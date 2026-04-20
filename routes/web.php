@@ -170,13 +170,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/team-list', [TeamController::class, 'teamList'])->name('tv_team_list');
     Route::get('/team-list/{id}', [TeamController::class, 'teamShow'])->name('team-list.show');
     Route::post('/team-list/export', [TeamController::class, 'export'])->name('team-list.export');
-    
+
     // Team Verification Actions
     Route::post('/team/{id}/lock', [TeamController::class, 'lock'])->name('team.lock');
     Route::post('/team/{id}/unlock', [TeamController::class, 'unlock'])->name('team.unlock');
     Route::post('/team/{id}/verify', [TeamController::class, 'verify'])->name('team.verify');
     Route::post('/team/{id}/unverify', [TeamController::class, 'unverify'])->name('team.unverify');
-
+    Route::post('/team-list/delete-all', [TeamController::class, 'deleteAll'])->name('team-list.delete-all');
     Route::get('/team-verification', [TeamController::class, 'teamVerification'])->name('tv_team_verification');
     Route::get('/team-awards', [TeamController::class, 'teamAwards'])->name('tv_team_awards');
 

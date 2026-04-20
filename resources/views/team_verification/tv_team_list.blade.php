@@ -116,8 +116,15 @@
     }
 
     @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(5px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+            opacity: 0;
+            transform: translateY(5px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .filter-grid {
@@ -255,16 +262,62 @@
         background: #f8fafc;
     }
 
-    .table th:nth-child(1), .table td:nth-child(1) { width: 70px; text-align: center; }
-    .table th:nth-child(2), .table td:nth-child(2) { width: 60px; text-align: center; }
-    .table th:nth-child(3), .table td:nth-child(3) { width: 140px; }
-    .table th:nth-child(4), .table td:nth-child(4) { width: 120px; }
-    .table th:nth-child(5), .table td:nth-child(5) { width: 140px; }
-    .table th:nth-child(6), .table td:nth-child(6) { width: 90px; text-align: center; }
-    .table th:nth-child(7), .table td:nth-child(7) { width: 80px; text-align: center; }
-    .table th:nth-child(8), .table td:nth-child(8) { width: 80px; text-align: center; }
-    .table th:nth-child(9), .table td:nth-child(9) { width: 85px; text-align: center; }
-    .table th:nth-child(10), .table td:nth-child(10) { width: 85px; text-align: center; }
+    .table th:nth-child(1),
+    .table td:nth-child(1) {
+        width: 70px;
+        text-align: center;
+    }
+
+    .table th:nth-child(2),
+    .table td:nth-child(2) {
+        width: 60px;
+        text-align: center;
+    }
+
+    .table th:nth-child(3),
+    .table td:nth-child(3) {
+        width: 140px;
+    }
+
+    .table th:nth-child(4),
+    .table td:nth-child(4) {
+        width: 120px;
+    }
+
+    .table th:nth-child(5),
+    .table td:nth-child(5) {
+        width: 140px;
+    }
+
+    .table th:nth-child(6),
+    .table td:nth-child(6) {
+        width: 90px;
+        text-align: center;
+    }
+
+    .table th:nth-child(7),
+    .table td:nth-child(7) {
+        width: 80px;
+        text-align: center;
+    }
+
+    .table th:nth-child(8),
+    .table td:nth-child(8) {
+        width: 80px;
+        text-align: center;
+    }
+
+    .table th:nth-child(9),
+    .table td:nth-child(9) {
+        width: 85px;
+        text-align: center;
+    }
+
+    .table th:nth-child(10),
+    .table td:nth-child(10) {
+        width: 85px;
+        text-align: center;
+    }
 
     .logo-container {
         width: 42px;
@@ -308,7 +361,9 @@
         display: inline-block;
     }
 
-    .school-name, .team-name, .competition-name {
+    .school-name,
+    .team-name,
+    .competition-name {
         font-weight: 500;
         color: #1e293b;
         font-size: 0.8rem;
@@ -331,10 +386,25 @@
         gap: 4px;
     }
 
-    .badge-locked { background: linear-gradient(135deg, #fed7d7 0%, #fc8181 100%); color: #9b2c2c; }
-    .badge-unlocked { background: linear-gradient(135deg, #c6f6d5 0%, #68d391 100%); color: #276749; }
-    .badge-verified { background: linear-gradient(135deg, #c6f6d5 0%, #48bb78 100%); color: #276749; }
-    .badge-unverified { background: linear-gradient(135deg, #fed7d7 0%, #feb2b2 100%); color: #9b2c2c; }
+    .badge-locked {
+        background: linear-gradient(135deg, #fed7d7 0%, #fc8181 100%);
+        color: #9b2c2c;
+    }
+
+    .badge-unlocked {
+        background: linear-gradient(135deg, #c6f6d5 0%, #68d391 100%);
+        color: #276749;
+    }
+
+    .badge-verified {
+        background: linear-gradient(135deg, #c6f6d5 0%, #48bb78 100%);
+        color: #276749;
+    }
+
+    .badge-unverified {
+        background: linear-gradient(135deg, #fed7d7 0%, #feb2b2 100%);
+        color: #9b2c2c;
+    }
 
     .action-buttons {
         display: flex;
@@ -355,13 +425,35 @@
         font-size: 0.75rem;
     }
 
-    .btn-view { background: var(--primary-gradient); color: white; }
-    .btn-verify { background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white; }
-    .btn-unverify { background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%); color: white; }
-    .btn-action:hover { transform: scale(1.05); }
+    .btn-view {
+        background: var(--primary-gradient);
+        color: white;
+    }
 
-    .date-primary { font-weight: 500; color: #1e293b; font-size: 0.75rem; }
-    .date-secondary { font-size: 0.65rem; color: #94a3b8; }
+    .btn-verify {
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        color: white;
+    }
+
+    .btn-unverify {
+        background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+        color: white;
+    }
+
+    .btn-action:hover {
+        transform: scale(1.05);
+    }
+
+    .date-primary {
+        font-weight: 500;
+        color: #1e293b;
+        font-size: 0.75rem;
+    }
+
+    .date-secondary {
+        font-size: 0.65rem;
+        color: #94a3b8;
+    }
 
     .pagination-container {
         background: transparent;
@@ -398,30 +490,123 @@
         cursor: pointer;
     }
 
-    .page-link i { font-size: 0.85rem; }
-    .page-item:not(.active) .page-link:hover { background: #f1f5f9; color: #1e293b; }
-    .page-item.active .page-link { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; box-shadow: 0 4px 10px rgba(102, 126, 234, 0.25); }
-    .page-item.disabled .page-link { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
-    .page-link.active-page { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; box-shadow: 0 4px 10px rgba(102, 126, 234, 0.25); }
+    .page-link i {
+        font-size: 0.85rem;
+    }
 
-    .empty-state { padding: 50px; text-align: center; }
-    .empty-icon { font-size: 3rem; color: #cbd5e0; margin-bottom: 15px; }
-    .empty-title { font-size: 1rem; color: #64748b; margin-bottom: 5px; }
-    .empty-text { font-size: 0.8rem; color: #94a3b8; }
+    .page-item:not(.active) .page-link:hover {
+        background: #f1f5f9;
+        color: #1e293b;
+    }
+
+    .page-item.active .page-link {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 10px rgba(102, 126, 234, 0.25);
+    }
+
+    .page-item.disabled .page-link {
+        opacity: 0.4;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    .page-link.active-page {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 10px rgba(102, 126, 234, 0.25);
+    }
+
+    .empty-state {
+        padding: 50px;
+        text-align: center;
+    }
+
+    .empty-icon {
+        font-size: 3rem;
+        color: #cbd5e0;
+        margin-bottom: 15px;
+    }
+
+    .empty-title {
+        font-size: 1rem;
+        color: #64748b;
+        margin-bottom: 5px;
+    }
+
+    .empty-text {
+        font-size: 0.8rem;
+        color: #94a3b8;
+    }
 
     @media (max-width: 768px) {
-        .filter-tabs { overflow-x: auto; }
-        .filter-tab { white-space: nowrap; }
-        .filter-grid { flex-direction: column; }
-        .filter-field, .search-field { width: 100%; }
-        .table { min-width: 750px; }
-        .pagination-container { justify-content: center; }
-        .search-clear span { display: none; }
-        .search-clear i { margin: 0; }
-        .custom-pagination { gap: 4px; }
-        .page-link { min-width: 32px; height: 32px; font-size: 0.75rem; }
-        .page-link i { font-size: 0.75rem; }
+        .filter-tabs {
+            overflow-x: auto;
+        }
+
+        .filter-tab {
+            white-space: nowrap;
+        }
+
+        .filter-grid {
+            flex-direction: column;
+        }
+
+        .filter-field,
+        .search-field {
+            width: 100%;
+        }
+
+        .table {
+            min-width: 750px;
+        }
+
+        .pagination-container {
+            justify-content: center;
+        }
+
+        .search-clear span {
+            display: none;
+        }
+
+        .search-clear i {
+            margin: 0;
+        }
+
+        .custom-pagination {
+            gap: 4px;
+        }
+
+        .page-link {
+            min-width: 32px;
+            height: 32px;
+            font-size: 0.75rem;
+        }
+
+        .page-link i {
+            font-size: 0.75rem;
+        }
     }
+
+  .danger-btn {
+    background: #dc2626;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.danger-btn:hover {
+    background: #b91c1c;
+    transform: translateY(-1px);
+}
 </style>
 @endpush
 
@@ -433,9 +618,14 @@
             </h1>
             <p class="page-subtitle">Kelola dan monitor tim peserta SBL</p>
         </div>
-        <a href="#" class="export-btn" id="exportBtn">
-            <i class="fas fa-file-excel me-1"></i> Export Excel
-        </a>
+        <div class="btn-group-flex">
+            <a href="#" class="export-btn" id="exportBtn">
+                <i class="fas fa-file-excel me-1"></i> Export Excel
+            </a>
+            <button class="export-btn danger-btn" id="deleteAllBtn">
+                <i class="fas fa-trash-alt me-1"></i> Hapus Semua Data Tim
+            </button>
+        </div>
     </div>
 
     <div class="filter-section">
@@ -597,7 +787,9 @@
                                 <div class="school-name">{{ Str::limit($team->school_name ?? '-', 28) }}</div>
                                 @if(!empty($team->season))<div class="text-small"><i class="fas fa-calendar-alt"></i> {{ $team->season }}</div>@endif
                             </td>
-                            <td><div class="team-name">{{ Str::limit($team->team_name ?? '-', 20) }}</div></td>
+                            <td>
+                                <div class="team-name">{{ Str::limit($team->team_name ?? '-', 20) }}</div>
+                            </td>
                             <td>
                                 <div class="competition-name">{{ Str::limit($team->competition ?? '-', 28) }}</div>
                                 @if(!empty($team->series))<div class="text-small"><i class="fas fa-layer-group"></i> {{ $team->series }}</div>@endif
@@ -642,39 +834,48 @@
                             </td>
                         </tr>
                         @empty
-                        <td><td colspan="10"><div class="empty-state"><div class="empty-icon"><i class="fas fa-users-slash"></i></div><h5 class="empty-title">Tidak ada data</h5><p class="empty-text">Coba sesuaikan filter pencarian</p></div></div></td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                        <td>
+                        <td colspan="10">
+                            <div class="empty-state">
+                                <div class="empty-icon"><i class="fas fa-users-slash"></i></div>
+                                <h5 class="empty-title">Tidak ada data</h5>
+                                <p class="empty-text">Coba sesuaikan filter pencarian</p>
+                            </div>
             </div>
+            </td>
+            </tr>
+            @endforelse
+            </tbody>
+            </table>
+        </div>
 
-            <div class="pagination-container">
-                <nav>
-                    <ul class="custom-pagination">
-                        <li class="page-item {{ $teamList->onFirstPage() ? 'disabled' : '' }}">
-                            <a class="page-link" href="{{ $teamList->onFirstPage() ? '#' : $teamList->url(1) }}" title="Halaman Pertama">
-                                <i class="fas fa-angle-double-left"></i>
-                            </a>
+        <div class="pagination-container">
+            <nav>
+                <ul class="custom-pagination">
+                    <li class="page-item {{ $teamList->onFirstPage() ? 'disabled' : '' }}">
+                        <a class="page-link" href="{{ $teamList->onFirstPage() ? '#' : $teamList->url(1) }}" title="Halaman Pertama">
+                            <i class="fas fa-angle-double-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item {{ $teamList->onFirstPage() ? 'disabled' : '' }}">
+                        <a class="page-link" href="{{ $teamList->onFirstPage() ? '#' : $teamList->previousPageUrl() }}" title="Halaman Sebelumnya">
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                    </li>
+                    @php
+                    $currentPage = $teamList->currentPage();
+                    $lastPage = max(5, $teamList->lastPage());
+                    $startPage = 1;
+                    $endPage = 5;
+                    @endphp
+                    @for ($i = $startPage; $i <= $endPage; $i++)
+                        <li class="page-item {{ $i == $currentPage ? 'active' : '' }}">
+                        @if($i == $currentPage)
+                        <span class="page-link active-page">{{ $i }}</span>
+                        @else
+                        <a class="page-link" href="{{ $teamList->url($i) }}">{{ $i }}</a>
+                        @endif
                         </li>
-                        <li class="page-item {{ $teamList->onFirstPage() ? 'disabled' : '' }}">
-                            <a class="page-link" href="{{ $teamList->onFirstPage() ? '#' : $teamList->previousPageUrl() }}" title="Halaman Sebelumnya">
-                                <i class="fas fa-angle-left"></i>
-                            </a>
-                        </li>
-                        @php
-                        $currentPage = $teamList->currentPage();
-                        $lastPage = max(5, $teamList->lastPage());
-                        $startPage = 1;
-                        $endPage = 5;
-                        @endphp
-                        @for ($i = $startPage; $i <= $endPage; $i++)
-                            <li class="page-item {{ $i == $currentPage ? 'active' : '' }}">
-                                @if($i == $currentPage)
-                                <span class="page-link active-page">{{ $i }}</span>
-                                @else
-                                <a class="page-link" href="{{ $teamList->url($i) }}">{{ $i }}</a>
-                                @endif
-                            </li>
                         @endfor
                         <li class="page-item {{ !$teamList->hasMorePages() ? 'disabled' : '' }}">
                             <a class="page-link" href="{{ !$teamList->hasMorePages() ? '#' : $teamList->nextPageUrl() }}" title="Halaman Selanjutnya">
@@ -686,11 +887,11 @@
                                 <i class="fas fa-angle-double-right"></i>
                             </a>
                         </li>
-                    </ul>
-                </nav>
-            </div>
+                </ul>
+            </nav>
         </div>
     </div>
+</div>
 </div>
 
 @push('scripts')
@@ -698,7 +899,9 @@
     let debounceTimer;
 
     document.querySelectorAll('.filter-select').forEach(select => {
-        select.addEventListener('change', function() { this.form.submit(); });
+        select.addEventListener('change', function() {
+            this.form.submit();
+        });
     });
 
     const searchInput = document.getElementById('searchInput');
@@ -709,7 +912,9 @@
         searchInput.addEventListener('input', function() {
             if (clearBtn) clearBtn.style.display = this.value.length > 0 ? 'flex' : 'none';
             clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => { filterForm.submit(); }, 500);
+            debounceTimer = setTimeout(() => {
+                filterForm.submit();
+            }, 500);
         });
     }
 
@@ -732,10 +937,20 @@
 
     function showLogoPopup(logoUrl, schoolName) {
         if (!logoUrl || logoUrl === 'null' || logoUrl.includes('placehold')) {
-            Swal.fire({ title: schoolName, html: '<div style="padding:20px"><i class="fas fa-school" style="font-size:4rem; color:#cbd5e1"></i><p style="margin-top:10px">Logo belum tersedia</p></div>', showCloseButton: true, showConfirmButton: false });
+            Swal.fire({
+                title: schoolName,
+                html: '<div style="padding:20px"><i class="fas fa-school" style="font-size:4rem; color:#cbd5e1"></i><p style="margin-top:10px">Logo belum tersedia</p></div>',
+                showCloseButton: true,
+                showConfirmButton: false
+            });
             return;
         }
-        Swal.fire({ title: schoolName, html: `<img src="${logoUrl}" style="max-width:250px; border-radius:8px;">`, showCloseButton: true, showConfirmButton: false });
+        Swal.fire({
+            title: schoolName,
+            html: `<img src="${logoUrl}" style="max-width:250px; border-radius:8px;">`,
+            showCloseButton: true,
+            showConfirmButton: false
+        });
     }
 
     document.querySelectorAll('.verify-form, .unverify-form').forEach(form => {
@@ -750,7 +965,9 @@
                 confirmButtonColor: isVerify ? '#10b981' : '#f59e0b',
                 confirmButtonText: `Ya, ${isVerify ? 'Verifikasi' : 'Batalkan'}!`,
                 cancelButtonText: 'Batal'
-            }).then((result) => { if (result.isConfirmed) form.submit(); });
+            }).then((result) => {
+                if (result.isConfirmed) form.submit();
+            });
         });
     });
 
@@ -759,7 +976,7 @@
     if (exportBtn) {
         exportBtn.addEventListener('click', function(e) {
             e.preventDefault();
-            
+
             const urlParams = new URLSearchParams(window.location.search);
             let activeFilters = [];
             if (urlParams.get('school')) activeFilters.push('Sekolah');
@@ -769,9 +986,9 @@
             if (urlParams.get('year')) activeFilters.push('Tahun');
             if (urlParams.get('locked')) activeFilters.push('Kunci');
             if (urlParams.get('search')) activeFilters.push('Pencarian');
-            
+
             const filterText = activeFilters.length > 0 ? `✓ ${activeFilters.length} filter aktif` : '✗ Tidak ada filter';
-            
+
             // HTML COMPACT - UKURAN KECIL
             const columnOptions = `
                 <div style="text-align: left; max-height: 380px; overflow-y: auto; padding-right: 5px;">
@@ -828,7 +1045,7 @@
                     </div>
                 </div>
             `;
-            
+
             Swal.fire({
                 title: 'Export Data Tim',
                 html: columnOptions,
@@ -863,48 +1080,136 @@
                         Swal.showValidationMessage('⚠️ Pilih minimal 1 kolom!');
                         return false;
                     }
-                    return { columns: selectedColumns };
+                    return {
+                        columns: selectedColumns
+                    };
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
                     const selectedColumns = result.value.columns;
-                    
-                    Swal.fire({ title: 'Mengekspor...', text: `Mengekspor ${selectedColumns.length} kolom`, icon: 'info', allowOutsideClick: false, showConfirmButton: false, didOpen: () => { Swal.showLoading(); } });
-                    
+
+                    Swal.fire({
+                        title: 'Mengekspor...',
+                        text: `Mengekspor ${selectedColumns.length} kolom`,
+                        icon: 'info',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
                     const currentUrlParams = new URLSearchParams(window.location.search);
                     const filterParams = {};
                     for (let [key, value] of currentUrlParams.entries()) {
                         if (key !== 'page') filterParams[key] = value;
                     }
-                    
+
                     fetch('{{ route("admin.team-list.export") }}', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                        body: JSON.stringify({ columns: selectedColumns, filters: filterParams })
-                    })
-                    .then(response => {
-                        if (!response.ok) throw new Error('Gagal export');
-                        return response.blob();
-                    })
-                    .then(blob => {
-                        const url = window.URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = 'teams_export_' + new Date().toISOString().slice(0,19).replace(/:/g, '-') + '.csv';
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                        window.URL.revokeObjectURL(url);
-                        Swal.fire({ title: 'Berhasil!', text: 'Data berhasil diexport.', icon: 'success', confirmButtonColor: '#10b981', timer: 1500, showConfirmButton: false });
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        Swal.fire({ title: 'Gagal!', text: 'Terjadi kesalahan saat export.', icon: 'error', confirmButtonColor: '#ef4444' });
-                    });
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                columns: selectedColumns,
+                                filters: filterParams
+                            })
+                        })
+                        .then(response => {
+                            if (!response.ok) throw new Error('Gagal export');
+                            return response.blob();
+                        })
+                        .then(blob => {
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'teams_export_' + new Date().toISOString().slice(0, 19).replace(/:/g, '-') + '.csv';
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            window.URL.revokeObjectURL(url);
+                            Swal.fire({
+                                title: 'Berhasil!',
+                                text: 'Data berhasil diexport.',
+                                icon: 'success',
+                                confirmButtonColor: '#10b981',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire({
+                                title: 'Gagal!',
+                                text: 'Terjadi kesalahan saat export.',
+                                icon: 'error',
+                                confirmButtonColor: '#ef4444'
+                            });
+                        });
                 }
             });
         });
+
     }
+   // ========== DELETE ALL DATA (SUPER SIMPLE) ==========
+const deleteAllBtn = document.getElementById('deleteAllBtn');
+if (deleteAllBtn) {
+    deleteAllBtn.addEventListener('click', function() {
+        Swal.fire({
+            title: '⚠️ Hapus Semua Data Tim?',
+            html: `
+                <p style="margin-bottom: 10px;">Data tim, pemain, dancer, dan official akan dihapus.</p>
+                <p style="color: #dc2626; font-weight: 500; margin-bottom: 5px;">
+                    <i class="fas fa-exclamation-triangle"></i> 
+                    Data yang dihapus TIDAK DAPAT dikembalikan!
+                </p>
+                <p style="color: #10b981; font-size: 0.85rem;">
+                    <i class="fas fa-shield-alt"></i> 
+                    Data sekolah TETAP AMAN.
+                </p>
+            `,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            confirmButtonText: '<i class="fas fa-trash-alt"></i> Hapus Semua',
+            cancelButtonText: '<i class="fas fa-times"></i> Batal',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Menghapus data...',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
+                });
+
+                fetch('{{ route("admin.team-list.delete-all") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ confirmation: 'YA,HAPUS,SEMUA,DATA' })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: '✅ Berhasil!',
+                            text: data.message,
+                            icon: 'success'
+                        }).then(() => location.reload());
+                    } else {
+                        Swal.fire('❌ Gagal!', data.message, 'error');
+                    }
+                })
+                .catch(() => {
+                    Swal.fire('❌ Error!', 'Terjadi kesalahan.', 'error');
+                });
+            }
+        });
+    });
+}
 </script>
 @endpush
 @endsection

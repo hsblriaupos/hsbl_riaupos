@@ -129,23 +129,23 @@ class TeamController extends Controller
         return view('team_verification.tv_team_list', compact('teamList', 'schools', 'competitions', 'years'));
     }
 
-        /**
+    /**
      * Export teams to CSV
      */
     public function export(Request $request)
     {
         // Ambil kolom yang dipilih user
         $selectedColumns = $request->input('columns', []);
-        
+
         // Gunakan applyFilters yang sudah ada (biar konsisten)
         $query = $this->applyFilters($request);
         $teams = $query->get();
-        
+
         $filename = 'teams_export_' . date('Y-m-d_H-i') . '.csv';
         $export = new TeamsExport($teams, $selectedColumns);
         return $export->download($filename);
     }
-    
+
     private function applyFilters(Request $request)
     {
         $query = TeamList::query();
@@ -907,6 +907,49 @@ class TeamController extends Controller
     {
         return view('team_verification.tv_team_awards');
     }
+
+    public function deleteAll(Request $request)
+{
+    $request->validate([
+        'confirmation' => 'required|string|in:YA,HAPUS,SEMUA,DATA'
+    ]);
+
+    DB::beginTransaction();
+    try {
+        // 🔥 DISABLE FOREIGN KEY CHECKS
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        
+        // Hapus semua data tim & anggota
+        PlayerList::query()->delete();
+        DancerList::query()->delete();
+        OfficialList::query()->delete();
+        
+        $count = TeamList::count();
+        TeamList::query()->delete();
+        
+        // 🔥 ENABLE FOREIGN KEY CHECKS
+        DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        
+        DB::commit();
+        
+        Log::info("✅ Delete All Success: {$count} teams deleted. Schools are SAFE.");
+        
+        return response()->json([
+            'success' => true,
+            'message' => "{$count} data tim beserta player/dancer/official berhasil dihapus! Data sekolah TETAP AMAN."
+        ]);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        
+        Log::error('❌ Delete All Error: ' . $e->getMessage());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Gagal menghapus: ' . $e->getMessage()
+        ], 500);
+    }
+}
 
     /**
      * Player detail
