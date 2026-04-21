@@ -788,6 +788,9 @@ Route::prefix('form')->name('form.')->group(function () {
     Route::get('/player/create/{team_id}/{category}', [FormPlayerController::class, 'showPlayerFormWithCategory'])
         ->name('player.create.with-category')
         ->where('category', 'putra|putri'); // hanya putra/putri untuk player
+    Route::get('/player/auto-leader/{team_id}/{category}', [FormPlayerController::class, 'showAutoLeaderForm'])
+        ->name('player.create.auto-leader')
+        ->where('category', 'putra|putri');
 
     Route::post('/player/store', [FormPlayerController::class, 'storePlayer'])->name('player.store');
     Route::get('/player/success/{team_id}/{player_id}', [FormPlayerController::class, 'showSuccessPage'])->name('player.success');

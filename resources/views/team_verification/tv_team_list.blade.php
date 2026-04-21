@@ -588,25 +588,25 @@
         }
     }
 
-  .danger-btn {
-    background: #dc2626;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-weight: 500;
-    font-size: 0.8rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s;
-    cursor: pointer;
-}
+    .danger-btn {
+        background: #dc2626;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.8rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
 
-.danger-btn:hover {
-    background: #b91c1c;
-    transform: translateY(-1px);
-}
+    .danger-btn:hover {
+        background: #b91c1c;
+        transform: translateY(-1px);
+    }
 </style>
 @endpush
 
@@ -1152,13 +1152,13 @@
         });
 
     }
-   // ========== DELETE ALL DATA (SUPER SIMPLE) ==========
-const deleteAllBtn = document.getElementById('deleteAllBtn');
-if (deleteAllBtn) {
-    deleteAllBtn.addEventListener('click', function() {
-        Swal.fire({
-            title: '⚠️ Hapus Semua Data Tim?',
-            html: `
+    // ========== DELETE ALL DATA (SUPER SIMPLE) ==========
+    const deleteAllBtn = document.getElementById('deleteAllBtn');
+    if (deleteAllBtn) {
+        deleteAllBtn.addEventListener('click', function() {
+            Swal.fire({
+                title: '⚠️ Hapus Semua Data Tim?',
+                html: `
                 <p style="margin-bottom: 10px;">Data tim, pemain, dancer, dan official akan dihapus.</p>
                 <p style="color: #dc2626; font-weight: 500; margin-bottom: 5px;">
                     <i class="fas fa-exclamation-triangle"></i> 
@@ -1169,47 +1169,49 @@ if (deleteAllBtn) {
                     Data sekolah TETAP AMAN.
                 </p>
             `,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#dc2626',
-            confirmButtonText: '<i class="fas fa-trash-alt"></i> Hapus Semua',
-            cancelButtonText: '<i class="fas fa-times"></i> Batal',
-            reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                Swal.fire({
-                    title: 'Menghapus data...',
-                    allowOutsideClick: false,
-                    didOpen: () => Swal.showLoading()
-                });
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                confirmButtonText: '<i class="fas fa-trash-alt"></i> Hapus Semua',
+                cancelButtonText: '<i class="fas fa-times"></i> Batal',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Menghapus data...',
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading()
+                    });
 
-                fetch('{{ route("admin.team-list.delete-all") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({ confirmation: 'YA,HAPUS,SEMUA,DATA' })
-                })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.success) {
-                        Swal.fire({
-                            title: '✅ Berhasil!',
-                            text: data.message,
-                            icon: 'success'
-                        }).then(() => location.reload());
-                    } else {
-                        Swal.fire('❌ Gagal!', data.message, 'error');
-                    }
-                })
-                .catch(() => {
-                    Swal.fire('❌ Error!', 'Terjadi kesalahan.', 'error');
-                });
-            }
+                    fetch('{{ route("admin.team-list.delete-all") }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                confirmation: 'YA,HAPUS,SEMUA,DATA'
+                            })
+                        })
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire({
+                                    title: '✅ Berhasil!',
+                                    text: data.message,
+                                    icon: 'success'
+                                }).then(() => location.reload());
+                            } else {
+                                Swal.fire('❌ Gagal!', data.message, 'error');
+                            }
+                        })
+                        .catch(() => {
+                            Swal.fire('❌ Error!', 'Terjadi kesalahan.', 'error');
+                        });
+                }
+            });
         });
-    });
-}
+    }
 </script>
 @endpush
 @endsection

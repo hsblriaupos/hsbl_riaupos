@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
@@ -143,7 +144,7 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
             color: #0b1e33;
             font-size: 1.2rem;
             transition: all 0.2s;
@@ -177,7 +178,7 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
             color: #0b1e33;
             font-size: 1.2rem;
             transition: all 0.2s;
@@ -243,7 +244,7 @@
             align-items: center;
             justify-content: center;
             padding: 10px;
-            box-shadow: 0 6px 10px rgba(0,0,0,0.02);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.02);
             border: 1px solid #eef2ff;
             transition: all 0.3s ease;
             cursor: pointer;
@@ -354,7 +355,7 @@
         .tab-btn.active {
             background: white;
             color: #0f172a;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
         }
 
         body.dark .tab-btn.active {
@@ -416,9 +417,18 @@
             border-color: #334155;
         }
 
+        /* Light Mode - Focus (SOFT) */
         .input-field:focus-within {
-            border-color: #1e3a8a;
-            box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.08);
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.1);
+            /* ← UBAH 4px JADI 1px */
+        }
+
+        /* Dark Mode - Focus (SOFT) */
+        body.dark .input-field:focus-within {
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.15);
+            /* ← TAMBAHIN INI */
         }
 
         .input-icon {
@@ -441,6 +451,26 @@
 
         .input-control::placeholder {
             color: #94a3b8;
+        }
+
+        /* 🔥 TAMBAHIN INI - HILANGIN KOTAK AUTO-FILL 🔥 */
+        .input-control:-webkit-autofill,
+        .input-control:-webkit-autofill:hover,
+        .input-control:-webkit-autofill:focus,
+        .input-control:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px white inset !important;
+            -webkit-text-fill-color: #0f172a !important;
+            transition: background-color 5000s ease-in-out 0s;
+            caret-color: #0f172a;
+        }
+
+        body.dark .input-control:-webkit-autofill,
+        body.dark .input-control:-webkit-autofill:hover,
+        body.dark .input-control:-webkit-autofill:focus,
+        body.dark .input-control:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px #0f172a inset !important;
+            -webkit-text-fill-color: white !important;
+            caret-color: white;
         }
 
         /* Toggle password - di dalam flex container */
@@ -553,7 +583,8 @@
             border-left: 5px solid #1e3a8a;
         }
 
-        .error-msg, .success-msg {
+        .error-msg,
+        .success-msg {
             padding: 12px 16px;
             border-radius: 18px;
             font-size: 0.85rem;
@@ -579,7 +610,7 @@
             display: none;
             width: 20px;
             height: 20px;
-            border: 2px solid rgba(255,255,255,0.3);
+            border: 2px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
             border-top-color: white;
             animation: spin 0.8s linear infinite;
@@ -593,7 +624,11 @@
             display: none;
         }
 
-        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
 
         /* Responsive Design */
         @media (max-width: 700px) {
@@ -608,7 +643,8 @@
                 right: 12px;
             }
 
-            .nav-btn, .theme-toggle {
+            .nav-btn,
+            .theme-toggle {
                 width: 40px;
                 height: 40px;
             }
@@ -789,6 +825,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Tombol Navigasi -->
     <div class="nav-buttons">
@@ -848,7 +885,7 @@
                     <input type="hidden" name="login_type" value="admin">
 
                     @if ($errors->any() && old('login_type', 'admin') === 'admin')
-                        <div class="error-msg"><i class="fas fa-exclamation-circle"></i> {{ $errors->first() }}</div>
+                    <div class="error-msg"><i class="fas fa-exclamation-circle"></i> {{ $errors->first() }}</div>
                     @endif
 
                     <div class="input-group">
@@ -890,10 +927,10 @@
                     <input type="hidden" name="login_type" value="student">
 
                     @if ($errors->any() && old('login_type', 'admin') === 'student')
-                        <div class="error-msg"><i class="fas fa-exclamation-circle"></i> {{ $errors->first() }}</div>
+                    <div class="error-msg"><i class="fas fa-exclamation-circle"></i> {{ $errors->first() }}</div>
                     @endif
                     @if(session('success') && old('login_type', 'admin') === 'student')
-                        <div class="success-msg"><i class="fas fa-check-circle"></i> {{ session('success') }}</div>
+                    <div class="success-msg"><i class="fas fa-check-circle"></i> {{ session('success') }}</div>
                     @endif
 
                     <div class="input-group">
@@ -936,7 +973,7 @@
             const themeToggle = document.getElementById('themeToggle');
             const body = document.body;
             const icon = themeToggle.querySelector('i');
-            
+
             if (localStorage.getItem('theme') === 'dark') {
                 body.classList.add('dark');
                 icon.className = 'fas fa-sun';
@@ -1021,4 +1058,5 @@
         })();
     </script>
 </body>
+
 </html>
