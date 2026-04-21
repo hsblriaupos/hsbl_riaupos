@@ -63,7 +63,7 @@
                         @csrf
                         <input type="hidden" name="team_id" value="{{ $team->team_id }}">
                         <input type="hidden" name="team_role" value="{{ $role }}">
-
+                        <input type="hidden" name="school_name" value="{{ $team->school_name }}">
                         <!-- SECTION 1: Data Pribadi -->
                         <div class="mb-5">
                             <div class="d-flex align-items-center mb-4">
@@ -72,7 +72,7 @@
                                 </div>
                                 <h5 class="fw-bold mb-0">Data Pribadi</h5>
                             </div>
-                            
+
                             <div class="row g-4">
                                 <div class="col-md-3">
                                     <label class="form-label fw-medium">NIK <span class="text-danger">*</span></label>
@@ -155,7 +155,7 @@
                                 </div>
                                 <h5 class="fw-bold mb-0">Data Fisik</h5>
                             </div>
-                            
+
                             <div class="row g-4">
                                 <div class="col-md-3">
                                     <label class="form-label fw-medium">Tinggi (cm) <span class="text-danger">*</span></label>
@@ -187,8 +187,8 @@
                                         id="shoes_size" name="shoes_size" required>
                                         <option value="">Pilih</option>
                                         @for($i = 36; $i <= 46; $i++)
-                                        <option value="{{ $i }}" {{ old('shoes_size') == $i ? 'selected' : '' }}>{{ $i }}</option>
-                                        @endfor
+                                            <option value="{{ $i }}" {{ old('shoes_size') == $i ? 'selected' : '' }}>{{ $i }}</option>
+                                            @endfor
                                     </select>
                                 </div>
                             </div>
@@ -202,7 +202,7 @@
                                 </div>
                                 <h5 class="fw-bold mb-0">Data Orang Tua</h5>
                             </div>
-                            
+
                             <div class="row g-4">
                                 <div class="col-md-6">
                                     <div class="card border-0 shadow-sm p-4">
@@ -247,7 +247,7 @@
                                 </div>
                                 <h5 class="fw-bold mb-0">Dokumen Wajib</h5>
                             </div>
-                            
+
                             <div class="row g-4">
                                 <div class="col-md-4">
                                     <label class="form-label fw-medium">Akta Kelahiran <span class="text-danger">*</span></label>
@@ -302,7 +302,7 @@
                                 </div>
                                 <h5 class="fw-bold mb-0">Pembayaran</h5>
                             </div>
-                            
+
                             @if($role === 'Leader')
                             <div class="card border-0 shadow-sm p-4">
                                 <label class="form-label fw-medium">Bukti Transfer <span class="text-danger">*</span></label>
@@ -373,27 +373,27 @@
     .bg-gradient-orange {
         background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
     }
-    
+
     .bg-gradient-teal {
         background: linear-gradient(135deg, #4ECDC4 0%, #556270 100%);
     }
-    
+
     .bg-gradient-primary {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
-    
+
     .bg-soft-primary {
         background-color: rgba(79, 70, 229, 0.1);
     }
-    
+
     .bg-soft-warning {
         background-color: rgba(255, 159, 67, 0.1);
     }
-    
+
     .bg-soft-teal {
         background-color: rgba(78, 205, 196, 0.1);
     }
-    
+
     .icon-circle {
         width: 40px;
         height: 40px;
@@ -403,87 +403,89 @@
         justify-content: center;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     }
-    
+
     .badge {
         font-weight: 500;
         letter-spacing: 0.3px;
     }
-    
+
     .card {
         border-radius: 1.5rem;
         overflow: hidden;
     }
-    
+
     .card-body {
         border-radius: 1.5rem;
     }
-    
-    .form-control, .form-select {
+
+    .form-control,
+    .form-select {
         border: 1.5px solid #e9ecef;
         border-radius: 12px;
         padding: 0.75rem 1rem;
         transition: all 0.3s;
     }
-    
-    .form-control:focus, .form-select:focus {
+
+    .form-control:focus,
+    .form-select:focus {
         border-color: #667eea;
         box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
     }
-    
+
     .form-label {
         font-weight: 500;
         margin-bottom: 0.5rem;
         color: #2b2d42;
     }
-    
+
     .btn-primary {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border: none;
         font-weight: 600;
         padding: 0.75rem 2rem;
     }
-    
+
     .btn-primary:hover {
         background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
         transform: translateY(-2px);
         box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
     }
-    
+
     .btn-outline-secondary {
         border: 1.5px solid #e9ecef;
         font-weight: 500;
     }
-    
+
     .btn-outline-secondary:hover {
         background: #f8f9fa;
         border-color: #adb5bd;
         transform: translateY(-2px);
     }
-    
+
     .alert {
         border-radius: 12px;
     }
-    
+
     /* Responsive */
     @media (max-width: 768px) {
         .card-body {
             padding: 2rem !important;
         }
-        
+
         .btn {
             width: 100%;
             margin-bottom: 0.5rem;
         }
-        
+
         .d-flex.justify-content-between {
             flex-direction: column;
             gap: 1rem;
         }
-        
-        .d-flex.justify-content-between > div {
+
+        .d-flex.justify-content-between>div {
             width: 100%;
         }
-        
+
         .d-flex.justify-content-between .btn {
             width: 100%;
             margin: 0.25rem 0;
@@ -500,33 +502,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const nikInput = document.getElementById('nik');
     const emailInput = document.getElementById('email');
     const birthdateInput = document.getElementById('birthdate');
-    const sttbYearInput = document.getElementById('sttb_year');
     const phoneInput = document.getElementById('phone');
     const fatherPhone = document.getElementById('father_phone');
     const motherPhone = document.getElementById('mother_phone');
-    
+
     // Set max birthdate untuk usia minimal 10 tahun
     const today = new Date();
     const minBirthDate = new Date();
     minBirthDate.setFullYear(today.getFullYear() - 10);
     birthdateInput.max = minBirthDate.toISOString().split('T')[0];
-    
-    // Validasi STTB tahun (antara tahun lahir + 16 sampai tahun sekarang)
-    birthdateInput.addEventListener('change', function() {
-        if (this.value) {
-            const birthYear = new Date(this.value).getFullYear();
-            const minSttbYear = birthYear + 16;
-            const currentYear = new Date().getFullYear();
-            
-            sttbYearInput.min = minSttbYear;
-            sttbYearInput.max = currentYear;
-            
-            if (sttbYearInput.value && (sttbYearInput.value < minSttbYear || sttbYearInput.value > currentYear)) {
-                alert(`Tahun STTB harus antara ${minSttbYear} - ${currentYear}`);
-                sttbYearInput.value = '';
-            }
-        }
-    });
+
+    // ========== VALIDASI STTB TAHUN TELAH DIHAPUS ==========
+    // User bebas input tahun berapa saja, asalkan 4 digit angka
 
     // NIK validation
     nikInput.addEventListener('blur', function() {
@@ -572,7 +559,7 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 maxSize = 1 * 1024 * 1024;
             }
-            
+
             if (file.size > maxSize) {
                 alert(`File terlalu besar! Maksimal ${maxSize / (1024 * 1024)}MB`);
                 this.value = '';
@@ -580,15 +567,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // ===== 🔥 PERBAIKAN UTAMA: FORM VALIDATION 🔥 =====
+    // Form validation
     form.addEventListener('submit', function(e) {
-        // Validasi lengkap terlebih dahulu
         if (!validateAllFields()) {
             e.preventDefault();
             return false;
         }
 
-        // Baru tampilkan loading setelah validasi sukses
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Memproses...';
         submitBtn.disabled = true;
         loadingModal.show();
@@ -597,7 +582,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function validateAllFields() {
-        // 1. Cek semua input text/select yang required
+        // Required fields
         const requiredInputs = [
             { id: 'nik', name: 'NIK' },
             { id: 'name', name: 'Nama Lengkap' },
@@ -628,7 +613,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        // 2. Validasi khusus NIK harus 16 digit
+        // NIK validation - harus 16 digit
         const nik = document.getElementById('nik').value;
         if (nik.length !== 16) {
             alert('NIK harus 16 digit');
@@ -636,7 +621,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return false;
         }
 
-        // 3. Validasi email format
+        // Email format validation
         const email = document.getElementById('email').value;
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
@@ -645,7 +630,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return false;
         }
 
-        // 4. Validasi phone minimal 10 digit
+        // Phone number validation - minimal 10 digit
         const phone = document.getElementById('phone').value.replace(/[^0-9]/g, '');
         if (phone.length < 10) {
             alert('Nomor WhatsApp minimal 10 digit');
@@ -653,19 +638,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return false;
         }
 
-        // 5. Validasi STTB tahun
-        const sttbYear = document.getElementById('sttb_year').value;
-        const birthYear = new Date(document.getElementById('birthdate').value).getFullYear();
-        const minSttbYear = birthYear + 16;
-        const currentYear = new Date().getFullYear();
-        
-        if (sttbYear < minSttbYear || sttbYear > currentYear) {
-            alert(`Tahun STTB harus antara ${minSttbYear} - ${currentYear}`);
-            document.getElementById('sttb_year').focus();
-            return false;
-        }
-
-        // 6. Validasi nomor telepon orang tua (jika diisi)
+        // Parent phone validation
         const fatherPhoneVal = document.getElementById('father_phone').value.replace(/[^0-9]/g, '');
         if (fatherPhoneVal && fatherPhoneVal.length < 10) {
             alert('Nomor telepon ayah minimal 10 digit');
@@ -680,8 +653,17 @@ document.addEventListener('DOMContentLoaded', function() {
             return false;
         }
 
-        // 7. Cek file upload (kecuali payment proof untuk member)
-        const fileInputs = [
+        // ========== STTB TAHUN VALIDATION - HANYA CEK 4 DIGIT ==========
+        const sttbYear = document.getElementById('sttb_year').value;
+        if (!/^\d{4}$/.test(sttbYear)) {
+            alert('Tahun STTB harus 4 digit angka (contoh: 2024)');
+            document.getElementById('sttb_year').focus();
+            return false;
+        }
+        // TIDAK ADA LAGI VALIDASI MIN/MAX BERDASARKAN TANGGAL LAHIR!
+
+        // File upload validation
+        const fileInputsList = [
             { id: 'birth_certificate', name: 'Akta Kelahiran' },
             { id: 'kk', name: 'Kartu Keluarga' },
             { id: 'shun', name: 'SHUN' },
@@ -692,10 +674,10 @@ document.addEventListener('DOMContentLoaded', function() {
         ];
 
         @if($role === 'Leader')
-        fileInputs.push({ id: 'payment_proof', name: 'Bukti Transfer' });
+        fileInputsList.push({ id: 'payment_proof', name: 'Bukti Transfer' });
         @endif
 
-        for (const file of fileInputs) {
+        for (const file of fileInputsList) {
             const element = document.getElementById(file.id);
             if (!element.files || element.files.length === 0) {
                 alert(`Upload ${file.name}`);
@@ -704,7 +686,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        // 8. Cek terms checkbox
+        // Terms checkbox
         if (!document.getElementById('terms').checked) {
             alert('Anda harus menyetujui syarat & ketentuan');
             document.getElementById('terms').focus();

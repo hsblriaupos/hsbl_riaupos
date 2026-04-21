@@ -126,10 +126,12 @@ class FormDancerController extends Controller
             // Ambil data tim
             $team = TeamList::findOrFail($teamId);
 
-            Log::info('Team payment status:', [
+            Log::info('Team info:', [
+                'team_id' => $team->team_id,
+                'school_name' => $team->school_name,
+                'team_category' => $team->team_category,
                 'is_leader_paid' => $team->is_leader_paid,
-                'referral_code' => $team->referral_code,
-                'team_category' => $team->team_category
+                'referral_code' => $team->referral_code
             ]);
 
             // ============================================
@@ -164,7 +166,7 @@ class FormDancerController extends Controller
             }
 
             // ============================================
-            // VALIDASI RULES
+            // VALIDASI RULES - TANPA BATASAN STTB TAHUN
             // ============================================
             $rules = [
                 'nik' => 'required|string|size:16|unique:dancer_list,nik',
@@ -173,9 +175,8 @@ class FormDancerController extends Controller
                 'gender' => 'required|in:Laki-laki,Perempuan',
                 'email' => 'required|email|unique:dancer_list,email',
                 'phone' => 'required|string|max:20',
-                'school_name' => 'required|string|max:255',
                 'grade' => 'required|string|max:10',
-                'sttb_year' => 'required|digits:4|integer|min:2000|max:' . (date('Y') + 1),
+                'sttb_year' => 'required|digits:4|integer', // ✅ HANYA CEK 4 DIGIT, TIDAK ADA MIN/MAX
                 'height' => 'required|numeric|min:100|max:250',
                 'weight' => 'required|numeric|min:30|max:150',
                 'tshirt_size' => 'required|string|max:10',
@@ -209,24 +210,24 @@ class FormDancerController extends Controller
             Log::info('✅ Dancer validation passed');
 
             // ============================================
-            // AMBIL DATA SEKOLAH
+            // AMBIL DATA SEKOLAH - gunakan dari team, bukan dari form
             // ============================================
-            $school = School::where('school_name', $validated['school_name'])->first();
+            $school = School::where('school_name', $team->school_name)->first();
 
             if (!$school) {
                 $school = School::create([
-                    'school_name' => $validated['school_name'],
+                    'school_name' => $team->school_name,
                     'category_name' => 'SMA',
                     'type' => 'SWASTA',
                     'city_id' => 1,
                 ]);
-                Log::info('✅ Created new school: ' . $validated['school_name']);
+                Log::info('✅ Created new school: ' . $team->school_name);
             }
 
             // ============================================
             // GENERATE NAMA FILE
             // ============================================
-            $schoolSlug = Str::slug($validated['school_name']);
+            $schoolSlug = Str::slug($team->school_name);
             $dancerSlug = Str::slug($validated['name']);
             $timestamp = time();
 
@@ -249,8 +250,7 @@ class FormDancerController extends Controller
             Storage::disk('public')->makeDirectory('payment_proofs');
 
             // ============================================
-            // 🔥🔥🔥 PERBAIKAN: PROSES PEMBAYARAN LEADER
-            // TANPA MEMBUAT TEAM BARU ATAU MEMINDAHKAN DANCER
+            // PROSES PEMBAYARAN LEADER
             // ============================================
             $paymentProofPath = null;
 
@@ -270,13 +270,13 @@ class FormDancerController extends Controller
                 $paymentProofPath = $saveFile('payment_proof', 'payment_proofs');
                 Log::info('✅ Payment proof saved: ' . $paymentProofPath);
 
-                // 2. UPDATE TEAM YANG SUDAH ADA - JANGAN BUAT BARU!
+                // 2. UPDATE TEAM YANG SUDAH ADA
                 $updateData = [
                     'payment_proof' => $paymentProofPath,
                     'is_leader_paid' => true,
                     'payment_status' => 'paid',
                     'payment_date' => now(),
-                    'registered_by' => $validated['name'], // Update dengan nama Leader dancer
+                    'registered_by' => $validated['name'],
                 ];
 
                 // 3. Generate referral code JIKA BELUM ADA
@@ -294,18 +294,15 @@ class FormDancerController extends Controller
                 // 4. Update team
                 $team->update($updateData);
                 Log::info('✅ Team updated with payment status - Team ID: ' . $team->team_id);
-                Log::info('✅ NO NEW TEAM CREATED - Using existing team');
             } else {
                 Log::info('✅ Member registration (no payment required)');
-                Log::info('✅ Using existing team ID: ' . $team->team_id);
             }
 
             // ============================================
-            // 🔥🔥🔥 PERBAIKAN: SIMPAN DATA DANCER
-            // GUNAKAN TEAM_ID YANG SUDAH ADA - JANGAN DIPINDAHKAN!
+            // SIMPAN DATA DANCER
             // ============================================
             $dancerData = [
-                'team_id' => $teamId, // Gunakan team_id yang sama dengan tim yang sudah ada
+                'team_id' => $teamId,
                 'school_id' => $school->id,
                 'nik' => $validated['nik'],
                 'name' => $validated['name'],
@@ -313,7 +310,7 @@ class FormDancerController extends Controller
                 'gender' => $validated['gender'],
                 'email' => $validated['email'],
                 'phone' => $validated['phone'],
-                'school_name' => $validated['school_name'],
+                'school_name' => $team->school_name, // 🔥 AMBIL DARI TEAM
                 'grade' => $validated['grade'],
                 'sttb_year' => $validated['sttb_year'],
                 'height' => $validated['height'],
@@ -342,42 +339,6 @@ class FormDancerController extends Controller
             // Simpan data dancer
             $dancer = DancerList::create($dancerData);
             Log::info('✅ Dancer created with ID: ' . $dancer->dancer_id . ', Role: ' . $teamRole);
-            Log::info('✅ Dancer assigned to team_id: ' . $teamId . ' (existing team)');
-
-            // ============================================
-            // 🚫🚫🚫 HAPUS SEMUA KODE YANG MEMBUAT TEAM BARU 
-            // ATAU MEMINDAHKAN DANCER KE TEAM LAIN
-            // ============================================
-            /*
-            🔴 KODE INI TELAH DIHAPUS KARENA MENYEBABKAN DUPLIKASI:
-            
-            if ($isLeader) {
-                // Cari tim dancer yang benar di sekolah yang sama
-                $dancerTeam = TeamList::where('school_name', $team->school_name)
-                    ->where('season', $team->season)
-                    ->where('team_category', 'Dancer')
-                    ->first();
-
-                if ($dancerTeam) {
-                    // 🔴 SALAH: Memindahkan dancer ke team yang berbeda
-                    DB::table('dancer_list')
-                        ->where('dancer_id', $dancer->dancer_id)
-                        ->update(['team_id' => $dancerTeam->team_id]);
-                } else {
-                    // 🔴 SALAH: Membuat team baru
-                    $newTeam = $team->replicate();
-                    $newTeam->team_category = 'Dancer';
-                    $newTeam->registered_by = $validated['name'];
-                    $newTeam->referral_code = strtoupper(Str::slug($team->school_name)) . '-DNC-' . strtoupper(Str::random(6));
-                    $newTeam->save();
-                    
-                    // Pindahkan dancer ke team baru
-                    DB::table('dancer_list')
-                        ->where('dancer_id', $dancer->dancer_id)
-                        ->update(['team_id' => $newTeam->team_id]);
-                }
-            }
-            */
 
             // ============================================
             // CLEAR SESSION
@@ -411,8 +372,8 @@ class FormDancerController extends Controller
                 'is_leader_registered' => $isLeader,
             ]);
 
-            // Ambil referral code terbaru dari TIM yang sudah di-update
-            $team->refresh(); // Reload team data
+            // Ambil referral code terbaru
+            $team->refresh();
             $referralCodeForSuccess = $team->referral_code;
 
             if ($referralCodeForSuccess && $referralCodeForSuccess !== '') {
@@ -424,25 +385,12 @@ class FormDancerController extends Controller
             Log::info('Team ID: ' . $teamId);
             Log::info('Dancer ID: ' . $dancer->dancer_id);
             Log::info('Dancer Role: ' . $teamRole);
-            Log::info('Referral Code: ' . ($team->referral_code ?: 'EMPTY'));
-            Log::info('Is Leader: ' . ($isLeader ? 'YES' : 'NO'));
-
-
-            // ============================================
-            // REDIRECT KE HALAMAN SUKSES
-            // ============================================
-            // ============================================
-            // 🔥🔥🔥 FIX: REDIRECT KE HALAMAN SUKSES DENGAN TEAM_ID YANG BENAR
-            // ============================================
-            $successTeamId = $dancer->team_id; // PAKE team_id DARI DANCER!
-
-
-            // Redirect ke halaman sukses
 
             return redirect()->route('form.dancer.success', [
-                'team_id' => $successTeamId,
+                'team_id' => $teamId,
                 'dancer_id' => $dancer->dancer_id
             ])->with('success', '🎉 Pendaftaran dancer berhasil!');
+            
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('❌ Validation error in storeDancer: ', $e->errors());
             return back()->withErrors($e->errors())->withInput();
@@ -482,41 +430,28 @@ class FormDancerController extends Controller
             Log::info('✅ Team found: ' . $team->school_name);
             Log::info('✅ Dancer found: ' . $dancer->name);
             Log::info('✅ Dancer Role from DB: ' . $dancer->role);
-            Log::info('✅ Team ID from dancer: ' . $dancer->team_id);
-            Log::info('✅ Team ID consistency: ' . ($dancer->team_id == $team_id ? 'MATCH' : 'MISMATCH'));
 
             // Ambil referral code dari TEAM
             $referralCode = $team->referral_code;
 
-            // Filter empty string
             if ($referralCode === '' || $referralCode === null) {
                 $referralCode = null;
-                Log::info('ℹ️ Referral code filtered to NULL');
-            } else {
-                Log::info('✅ Referral code is valid: ' . $referralCode);
             }
 
             // Cek apakah ini Leader
             $isLeader = ($dancer->role === 'Leader');
-            Log::info('Is Leader: ' . ($isLeader ? 'YES' : 'NO'));
 
-            // Tampilkan pesan sesuai role
             if ($isLeader) {
                 $successMessage = '🎉 Selamat! Anda telah terdaftar sebagai LEADER tim dancer ' . $team->school_name . '.';
-
                 if ($referralCode && $referralCode !== '') {
                     $instructions = 'Sebagai Leader, Anda telah berhasil membayar biaya registrasi tim dancer. Gunakan kode referral berikut untuk mengajak anggota lain bergabung:';
-                    Log::info('✅ Leader WITH referral code: ' . $referralCode);
                 } else {
                     $instructions = 'Sebagai Leader, Anda telah berhasil mendaftar. Referral code akan dibuat setelah pembayaran diverifikasi oleh admin.';
-                    Log::info('ℹ️ Leader WITHOUT referral code');
                 }
             } else {
                 $successMessage = '🎉 Selamat! Anda telah bergabung dengan tim dancer ' . $team->school_name . '.';
                 $instructions = 'Anda telah terdaftar sebagai anggota tim dancer. Biaya pendaftaran sudah ditanggung oleh Leader tim.';
             }
-
-            Log::info('=== SHOW SUCCESS PAGE END ===');
 
             return view('user.form.form_dancer_success', compact(
                 'team',
@@ -528,7 +463,6 @@ class FormDancerController extends Controller
             ))->with('success', session('success'));
         } catch (\Exception $e) {
             Log::error('❌ Error in showSuccessPage: ' . $e->getMessage());
-            Log::error('Stack trace: ' . $e->getTraceAsString());
             return redirect()->route('form.team.choice')
                 ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
@@ -539,16 +473,9 @@ class FormDancerController extends Controller
      */
     public function checkNik(Request $request)
     {
-        $request->validate([
-            'nik' => 'required|string'
-        ]);
-
+        $request->validate(['nik' => 'required|string']);
         $exists = DancerList::where('nik', $request->nik)->exists();
-
-        return response()->json([
-            'exists' => $exists,
-            'message' => $exists ? 'NIK sudah terdaftar' : 'NIK tersedia'
-        ]);
+        return response()->json(['exists' => $exists]);
     }
 
     /**
@@ -556,100 +483,8 @@ class FormDancerController extends Controller
      */
     public function checkEmail(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email'
-        ]);
-
+        $request->validate(['email' => 'required|email']);
         $exists = DancerList::where('email', $request->email)->exists();
-
-        return response()->json([
-            'exists' => $exists,
-            'message' => $exists ? 'Email sudah terdaftar' : 'Email tersedia'
-        ]);
-    }
-
-    /**
-     * Cek apakah dancer sudah ada di tim
-     */
-    public function checkLeaderExists(Request $request)
-    {
-        try {
-            $request->validate([
-                'team_id' => 'required|exists:team_list,team_id'
-            ]);
-
-            $team = TeamList::find($request->team_id);
-
-            if (!$team) {
-                return response()->json([
-                    'exists' => false,
-                    'role' => 'Member'
-                ]);
-            }
-
-            // Cek apakah sudah ada Leader dancer di tim ini
-            $existingLeaderCount = DancerList::where('team_id', $request->team_id)
-                ->where('role', 'Leader')
-                ->count();
-
-            // Cek apakah tim sudah bayar
-            $hasLeaderPaid = $team->is_leader_paid;
-
-            // Jika tim SUDAH bayar dan BELUM ada Leader dancer di tim ini, maka bisa jadi Leader
-            // Jika tim BELUM bayar, tidak bisa jadi Leader (harus ada yang bayar dulu)
-            $canBeLeader = ($hasLeaderPaid && $existingLeaderCount === 0);
-
-            return response()->json([
-                'exists' => !$canBeLeader,
-                'role' => $canBeLeader ? 'Leader' : 'Member',
-                'has_paid_leader' => $hasLeaderPaid,
-                'existing_leader_count' => $existingLeaderCount
-            ]);
-        } catch (\Exception $e) {
-            Log::error('❌ Error in checkLeaderExists: ' . $e->getMessage());
-            return response()->json([
-                'exists' => false,
-                'role' => 'Member',
-                'error' => $e->getMessage()
-            ]);
-        }
-    }
-
-    /**
-     * Cek status pembayaran tim
-     */
-    public function checkTeamPayment(Request $request)
-    {
-        try {
-            $request->validate([
-                'team_id' => 'required|exists:team_list,team_id'
-            ]);
-
-            $team = TeamList::find($request->team_id);
-
-            if (!$team) {
-                return response()->json([
-                    'paid' => false,
-                    'message' => 'Tim tidak ditemukan'
-                ]);
-            }
-
-            $hasPaidLeader = $team->is_leader_paid;
-            $referralCode = ($hasPaidLeader && $team->referral_code !== '') ? $team->referral_code : null;
-
-            return response()->json([
-                'paid' => $hasPaidLeader,
-                'referral_code' => $referralCode,
-                'message' => $hasPaidLeader ?
-                    'Tim sudah memiliki Leader yang membayar' :
-                    'Tim belum memiliki Leader yang membayar'
-            ]);
-        } catch (\Exception $e) {
-            Log::error('❌ Error in checkTeamPayment: ' . $e->getMessage());
-            return response()->json([
-                'paid' => false,
-                'message' => 'Error: ' . $e->getMessage()
-            ]);
-        }
+        return response()->json(['exists' => $exists]);
     }
 }
