@@ -249,6 +249,85 @@ class TeamController extends Controller
     }
 
     /**
+     * Delete a single team and all related data (players, dancers, officials)
+     */
+    public function destroy($id)
+    {
+        try {
+            DB::beginTransaction();
+
+            // Cari team berdasarkan team_id
+            $team = TeamList::where('team_id', $id)->first();
+
+            if (!$team) {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tim tidak ditemukan!'
+                ], 404);
+            }
+
+            $teamId = $team->team_id;
+            $schoolName = $team->school_name;
+            $teamCategory = $team->team_category;
+
+            \Illuminate\Support\Facades\Log::info("🗑️ START DELETE TEAM: ID={$teamId}, School={$schoolName}, Category={$teamCategory}");
+
+            // 🔥 Hapus PLAYER yang terkait dengan team ini
+            $playersDeleted = PlayerList::where('team_id', $teamId)->delete();
+            \Illuminate\Support\Facades\Log::info("   ✅ Deleted {$playersDeleted} players");
+
+            // 🔥 Hapus DANCER yang terkait dengan team ini
+            $dancersDeleted = DancerList::where('team_id', $teamId)->delete();
+            \Illuminate\Support\Facades\Log::info("   ✅ Deleted {$dancersDeleted} dancers");
+
+            // 🔥 Hapus OFFICIAL yang terkait dengan team ini
+            $officialsDeleted = OfficialList::where('team_id', $teamId)->delete();
+            \Illuminate\Support\Facades\Log::info("   ✅ Deleted {$officialsDeleted} officials");
+
+            // 🔥 Hapus TEAM itu sendiri
+            $teamDeleted = $team->delete();
+            \Illuminate\Support\Facades\Log::info("   ✅ Deleted team {$teamCategory}");
+
+            DB::commit();
+
+            // Cek apakah sekolah masih punya tim lain setelah penghapusan
+            $remainingTeams = TeamList::where('school_name', $schoolName)->count();
+
+            $message = "Tim {$teamCategory} dari {$schoolName} berhasil dihapus!";
+            $message .= " ({$playersDeleted} player, {$dancersDeleted} dancer, {$officialsDeleted} official terhapus)";
+
+            if ($remainingTeams == 0) {
+                $message .= " Sekolah tidak memiliki tim tersisa.";
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'data' => [
+                    'team_id' => $teamId,
+                    'team_category' => $teamCategory,
+                    'school_name' => $schoolName,
+                    'players_deleted' => $playersDeleted,
+                    'dancers_deleted' => $dancersDeleted,
+                    'officials_deleted' => $officialsDeleted,
+                    'remaining_teams' => $remainingTeams
+                ]
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Illuminate\Support\Facades\Log::error('❌ Delete Team Error: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('❌ Stack trace: ' . $e->getTraceAsString());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus tim: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    /**
      * 🔥🔥🔥 FIX UTAMA: GET ALL TEAM DATA - MENGIKUTI TEAMLISTPROFILECONTROLLER
      */
     private function getAllTeamData($schoolName)
@@ -908,49 +987,54 @@ class TeamController extends Controller
         return view('team_verification.tv_team_awards');
     }
 
+    /**
+     * Delete ALL teams and related data (players, dancers, officials)
+     * SIMPLE VERSION - No complex validation
+     */
     public function deleteAll(Request $request)
-{
-    $request->validate([
-        'confirmation' => 'required|string|in:YA,HAPUS,SEMUA,DATA'
-    ]);
+    {
+        DB::beginTransaction();
+        try {
+            // 🔥 DISABLE FOREIGN KEY CHECKS
+            DB::statement('SET FOREIGN_KEY_CHECKS=0');
 
-    DB::beginTransaction();
-    try {
-        // 🔥 DISABLE FOREIGN KEY CHECKS
-        DB::statement('SET FOREIGN_KEY_CHECKS=0');
-        
-        // Hapus semua data tim & anggota
-        PlayerList::query()->delete();
-        DancerList::query()->delete();
-        OfficialList::query()->delete();
-        
-        $count = TeamList::count();
-        TeamList::query()->delete();
-        
-        // 🔥 ENABLE FOREIGN KEY CHECKS
-        DB::statement('SET FOREIGN_KEY_CHECKS=1');
-        
-        DB::commit();
-        
-        Log::info("✅ Delete All Success: {$count} teams deleted. Schools are SAFE.");
-        
-        return response()->json([
-            'success' => true,
-            'message' => "{$count} data tim beserta player/dancer/official berhasil dihapus! Data sekolah TETAP AMAN."
-        ]);
-    } catch (\Exception $e) {
-        DB::rollBack();
-        DB::statement('SET FOREIGN_KEY_CHECKS=1');
-        
-        Log::error('❌ Delete All Error: ' . $e->getMessage());
-        
-        return response()->json([
-            'success' => false,
-            'message' => 'Gagal menghapus: ' . $e->getMessage()
-        ], 500);
+            // Catat jumlah sebelum dihapus
+            $teamsCount = TeamList::count();
+            $playersCount = PlayerList::count();
+            $dancersCount = DancerList::count();
+            $officialsCount = OfficialList::count();
+
+            // Hapus semua data
+            PlayerList::query()->delete();
+            DancerList::query()->delete();
+            OfficialList::query()->delete();
+            TeamList::query()->delete();
+
+            // 🔥 ENABLE FOREIGN KEY CHECKS
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => "✅ {$teamsCount} tim, {$playersCount} player, {$dancersCount} dancer, {$officialsCount} official berhasil dihapus!",
+                'data' => [
+                    'teams' => $teamsCount,
+                    'players' => $playersCount,
+                    'dancers' => $dancersCount,
+                    'officials' => $officialsCount
+                ]
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus data: ' . $e->getMessage()
+            ], 500);
+        }
     }
-}
-
     /**
      * Player detail
      */

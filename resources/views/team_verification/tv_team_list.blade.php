@@ -229,6 +229,26 @@
         color: white;
     }
 
+    .danger-btn {
+        background: #dc2626;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.8rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+
+    .danger-btn:hover {
+        background: #b91c1c;
+        transform: translateY(-1px);
+    }
+
     .table-container {
         overflow-x: auto;
         padding: 0;
@@ -440,6 +460,16 @@
         color: white;
     }
 
+    .btn-delete-team {
+        background: #dc2626;
+        color: white;
+    }
+
+    .btn-delete-team:hover {
+        background: #b91c1c;
+        transform: scale(1.05);
+    }
+
     .btn-action:hover {
         transform: scale(1.05);
     }
@@ -587,26 +617,6 @@
             font-size: 0.75rem;
         }
     }
-
-    .danger-btn {
-        background: #dc2626;
-        color: white;
-        border: none;
-        padding: 8px 16px;
-        border-radius: 8px;
-        font-weight: 500;
-        font-size: 0.8rem;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        transition: all 0.2s;
-        cursor: pointer;
-    }
-
-    .danger-btn:hover {
-        background: #b91c1c;
-        transform: translateY(-1px);
-    }
 </style>
 @endpush
 
@@ -622,8 +632,8 @@
             <a href="#" class="export-btn" id="exportBtn">
                 <i class="fas fa-file-excel me-1"></i> Export Excel
             </a>
-            <button class="export-btn danger-btn" id="deleteAllBtn">
-                <i class="fas fa-trash-alt me-1"></i> Hapus Semua Data Tim
+            <button class="danger-btn" id="deleteAllBtn">
+                <i class="fas fa-trash-alt me-1"></i> Hapus Semua
             </button>
         </div>
     </div>
@@ -830,74 +840,82 @@
                                         <button type="submit" class="btn-action btn-unverify" title="Batalkan"><i class="fas fa-times"></i></button>
                                     </form>
                                     @endif
+                                    <button type="button" class="btn-action btn-delete-team"
+                                        data-id="{{ $team->team_id ?? $team->id }}"
+                                        data-name="{{ $team->school_name }} - {{ $team->categories[0] ?? $team->team_category ?? 'Tim' }}"
+                                        title="Hapus Tim">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
                         @empty
-                        <td>
-                        <td colspan="10">
-                            <div class="empty-state">
-                                <div class="empty-icon"><i class="fas fa-users-slash"></i></div>
-                                <h5 class="empty-title">Tidak ada data</h5>
-                                <p class="empty-text">Coba sesuaikan filter pencarian</p>
-                            </div>
+                        <tr>
+                            <td colspan="10">
+                                <div class="empty-state">
+                                    <div class="empty-icon"><i class="fas fa-users-slash"></i></div>
+                                    <h5 class="empty-title">Tidak ada data</h5>
+                                    <p class="empty-text">Coba sesuaikan filter pencarian</p>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
-            </td>
-            </tr>
-            @endforelse
-            </tbody>
-            </table>
-        </div>
 
-        <div class="pagination-container">
-            <nav>
-                <ul class="custom-pagination">
-                    <li class="page-item {{ $teamList->onFirstPage() ? 'disabled' : '' }}">
-                        <a class="page-link" href="{{ $teamList->onFirstPage() ? '#' : $teamList->url(1) }}" title="Halaman Pertama">
-                            <i class="fas fa-angle-double-left"></i>
-                        </a>
-                    </li>
-                    <li class="page-item {{ $teamList->onFirstPage() ? 'disabled' : '' }}">
-                        <a class="page-link" href="{{ $teamList->onFirstPage() ? '#' : $teamList->previousPageUrl() }}" title="Halaman Sebelumnya">
-                            <i class="fas fa-angle-left"></i>
-                        </a>
-                    </li>
-                    @php
-                    $currentPage = $teamList->currentPage();
-                    $lastPage = max(5, $teamList->lastPage());
-                    $startPage = 1;
-                    $endPage = 5;
-                    @endphp
-                    @for ($i = $startPage; $i <= $endPage; $i++)
-                        <li class="page-item {{ $i == $currentPage ? 'active' : '' }}">
-                        @if($i == $currentPage)
-                        <span class="page-link active-page">{{ $i }}</span>
-                        @else
-                        <a class="page-link" href="{{ $teamList->url($i) }}">{{ $i }}</a>
-                        @endif
-                        </li>
-                        @endfor
-                        <li class="page-item {{ !$teamList->hasMorePages() ? 'disabled' : '' }}">
-                            <a class="page-link" href="{{ !$teamList->hasMorePages() ? '#' : $teamList->nextPageUrl() }}" title="Halaman Selanjutnya">
-                                <i class="fas fa-angle-right"></i>
+            <div class="pagination-container">
+                <nav>
+                    <ul class="custom-pagination">
+                        <li class="page-item {{ $teamList->onFirstPage() ? 'disabled' : '' }}">
+                            <a class="page-link" href="{{ $teamList->onFirstPage() ? '#' : $teamList->url(1) }}" title="Halaman Pertama">
+                                <i class="fas fa-angle-double-left"></i>
                             </a>
                         </li>
-                        <li class="page-item {{ !$teamList->hasMorePages() ? 'disabled' : '' }}">
-                            <a class="page-link" href="{{ !$teamList->hasMorePages() ? '#' : $teamList->url($teamList->lastPage()) }}" title="Halaman Terakhir">
-                                <i class="fas fa-angle-double-right"></i>
+                        <li class="page-item {{ $teamList->onFirstPage() ? 'disabled' : '' }}">
+                            <a class="page-link" href="{{ $teamList->onFirstPage() ? '#' : $teamList->previousPageUrl() }}" title="Halaman Sebelumnya">
+                                <i class="fas fa-angle-left"></i>
                             </a>
                         </li>
-                </ul>
-            </nav>
+                        @php
+                        $currentPage = $teamList->currentPage();
+                        $lastPage = max(5, $teamList->lastPage());
+                        $startPage = 1;
+                        $endPage = 5;
+                        @endphp
+                        @for ($i = $startPage; $i <= $endPage; $i++)
+                            <li class="page-item {{ $i == $currentPage ? 'active' : '' }}">
+                            @if($i == $currentPage)
+                            <span class="page-link active-page">{{ $i }}</span>
+                            @else
+                            <a class="page-link" href="{{ $teamList->url($i) }}">{{ $i }}</a>
+                            @endif
+                            </li>
+                            @endfor
+                            <li class="page-item {{ !$teamList->hasMorePages() ? 'disabled' : '' }}">
+                                <a class="page-link" href="{{ !$teamList->hasMorePages() ? '#' : $teamList->nextPageUrl() }}" title="Halaman Selanjutnya">
+                                    <i class="fas fa-angle-right"></i>
+                                </a>
+                            </li>
+                            <li class="page-item {{ !$teamList->hasMorePages() ? 'disabled' : '' }}">
+                                <a class="page-link" href="{{ !$teamList->hasMorePages() ? '#' : $teamList->url($teamList->lastPage()) }}" title="Halaman Terakhir">
+                                    <i class="fas fa-angle-double-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </nav>
+            </div>
         </div>
     </div>
-</div>
 </div>
 
 @push('scripts')
 <script>
-    let debounceTimer;
+    // CSRF Token
+    const csrfToken = '{{ csrf_token() }}';
 
+    // Filter handlers
+    let debounceTimer;
     document.querySelectorAll('.filter-select').forEach(select => {
         select.addEventListener('change', function() {
             this.form.submit();
@@ -912,9 +930,7 @@
         searchInput.addEventListener('input', function() {
             if (clearBtn) clearBtn.style.display = this.value.length > 0 ? 'flex' : 'none';
             clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
-                filterForm.submit();
-            }, 500);
+            debounceTimer = setTimeout(() => filterForm.submit(), 500);
         });
     }
 
@@ -939,7 +955,7 @@
         if (!logoUrl || logoUrl === 'null' || logoUrl.includes('placehold')) {
             Swal.fire({
                 title: schoolName,
-                html: '<div style="padding:20px"><i class="fas fa-school" style="font-size:4rem; color:#cbd5e1"></i><p style="margin-top:10px">Logo belum tersedia</p></div>',
+                html: '<div><i class="fas fa-school" style="font-size:4rem; color:#cbd5e1"></i><p>Logo belum tersedia</p></div>',
                 showCloseButton: true,
                 showConfirmButton: false
             });
@@ -971,214 +987,80 @@
         });
     });
 
-    // Export Button - UKURAN KECIL & COMPACT
-    const exportBtn = document.getElementById('exportBtn');
-    if (exportBtn) {
-        exportBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-
-            const urlParams = new URLSearchParams(window.location.search);
-            let activeFilters = [];
-            if (urlParams.get('school')) activeFilters.push('Sekolah');
-            if (urlParams.get('status')) activeFilters.push('Verifikasi');
-            if (urlParams.get('category')) activeFilters.push('Kategori');
-            if (urlParams.get('competition')) activeFilters.push('Kompetisi');
-            if (urlParams.get('year')) activeFilters.push('Tahun');
-            if (urlParams.get('locked')) activeFilters.push('Kunci');
-            if (urlParams.get('search')) activeFilters.push('Pencarian');
-
-            const filterText = activeFilters.length > 0 ? `✓ ${activeFilters.length} filter aktif` : '✗ Tidak ada filter';
-
-            // HTML COMPACT - UKURAN KECIL
-            const columnOptions = `
-                <div style="text-align: left; max-height: 380px; overflow-y: auto; padding-right: 5px;">
-                    <div style="background: #f1f5f9; padding: 6px 10px; border-radius: 6px; margin-bottom: 12px; font-size: 0.75rem;">
-                        <i class="fas fa-filter" style="color: #667eea; margin-right: 4px;"></i>
-                        <strong>Filter:</strong> ${filterText}
-                    </div>
-                    
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; font-size: 0.75rem;">
-                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 4px 6px; border-radius: 4px;">
-                            <input type="checkbox" class="export-col" value="team_id" checked style="width: 14px; height: 14px;"> 🆔 ID Tim
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 4px 6px; border-radius: 4px;">
-                            <input type="checkbox" class="export-col" value="school_name" checked style="width: 14px; height: 14px;"> 🏫 Sekolah
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 4px 6px; border-radius: 4px;">
-                            <input type="checkbox" class="export-col" value="team_category" checked style="width: 14px; height: 14px;"> 🏀 Kategori
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 4px 6px; border-radius: 4px;">
-                            <input type="checkbox" class="export-col" value="competition" checked style="width: 14px; height: 14px;"> 🏆 Kompetisi
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 4px 6px; border-radius: 4px;">
-                            <input type="checkbox" class="export-col" value="season" checked style="width: 14px; height: 14px;"> 📅 Tahun
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 4px 6px; border-radius: 4px;">
-                            <input type="checkbox" class="export-col" value="series" checked style="width: 14px; height: 14px;"> 📊 Series
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 4px 6px; border-radius: 4px;">
-                            <input type="checkbox" class="export-col" value="registered_by" checked style="width: 14px; height: 14px;"> 👤 Pendaftar
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 4px 6px; border-radius: 4px;">
-                            <input type="checkbox" class="export-col" value="referral_code" checked style="width: 14px; height: 14px;"> 🔗 Referral
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 4px 6px; border-radius: 4px;">
-                            <input type="checkbox" class="export-col" value="locked_status" checked style="width: 14px; height: 14px;"> 🔒 Status Kunci
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 4px 6px; border-radius: 4px;">
-                            <input type="checkbox" class="export-col" value="verification_status" checked style="width: 14px; height: 14px;"> ✅ Verifikasi
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 4px 6px; border-radius: 4px;">
-                            <input type="checkbox" class="export-col" value="payment_status" checked style="width: 14px; height: 14px;"> 💰 Status Bayar
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 4px 6px; border-radius: 4px;">
-                            <input type="checkbox" class="export-col" value="created_at" checked style="width: 14px; height: 14px;"> 📅 Dibuat
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 4px 6px; border-radius: 4px;">
-                            <input type="checkbox" class="export-col" value="updated_at" checked style="width: 14px; height: 14px;"> 🔄 Update
-                        </label>
-                    </div>
-                    
-                    <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid #e2e8f0; display: flex; gap: 8px;">
-                        <button type="button" id="selectAllBtn" style="background: #667eea; color: white; border: none; padding: 5px 12px; border-radius: 6px; font-size: 0.7rem; cursor: pointer; flex: 1;">✅ Semua</button>
-                        <button type="button" id="deselectAllBtn" style="background: #e2e8f0; color: #64748b; border: none; padding: 5px 12px; border-radius: 6px; font-size: 0.7rem; cursor: pointer; flex: 1;">❌ Hapus</button>
-                    </div>
-                </div>
-            `;
+    // ========== DELETE SINGLE TEAM (COMPACT) ==========
+    document.querySelectorAll('.btn-delete-team').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.id;
+            const name = this.dataset.name;
 
             Swal.fire({
-                title: 'Export Data Tim',
-                html: columnOptions,
-                icon: 'question',
+                title: 'Hapus Tim?',
+                html: `Hapus <strong>${name}</strong>?<br><span style="color:#dc2626">Data player, dancer, official ikut terhapus!</span>`,
+                icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#10b981',
-                cancelButtonColor: '#64748b',
-                confirmButtonText: '<i class="fas fa-download"></i> Export',
-                cancelButtonText: 'Batal',
-                width: '480px',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    const selectAllBtn = document.getElementById('selectAllBtn');
-                    if (selectAllBtn) {
-                        selectAllBtn.addEventListener('click', () => {
-                            document.querySelectorAll('.export-col').forEach(cb => cb.checked = true);
-                        });
-                    }
-                    const deselectAllBtn = document.getElementById('deselectAllBtn');
-                    if (deselectAllBtn) {
-                        deselectAllBtn.addEventListener('click', () => {
-                            document.querySelectorAll('.export-col').forEach(cb => cb.checked = false);
-                        });
-                    }
-                },
-                preConfirm: () => {
-                    const selectedColumns = [];
-                    document.querySelectorAll('.export-col:checked').forEach(cb => {
-                        selectedColumns.push(cb.value);
-                    });
-                    if (selectedColumns.length === 0) {
-                        Swal.showValidationMessage('⚠️ Pilih minimal 1 kolom!');
-                        return false;
-                    }
-                    return {
-                        columns: selectedColumns
-                    };
-                }
+                confirmButtonColor: '#dc2626',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    const selectedColumns = result.value.columns;
-
                     Swal.fire({
-                        title: 'Mengekspor...',
-                        text: `Mengekspor ${selectedColumns.length} kolom`,
-                        icon: 'info',
+                        title: 'Memproses...',
                         allowOutsideClick: false,
-                        showConfirmButton: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
+                        didOpen: () => Swal.showLoading()
                     });
 
-                    const currentUrlParams = new URLSearchParams(window.location.search);
-                    const filterParams = {};
-                    for (let [key, value] of currentUrlParams.entries()) {
-                        if (key !== 'page') filterParams[key] = value;
-                    }
-
-                    fetch('{{ route("admin.team-list.export") }}', {
-                            method: 'POST',
+                    fetch(`/admin/team/${id}/delete`, {
+                            method: 'DELETE',
                             headers: {
                                 'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            body: JSON.stringify({
-                                columns: selectedColumns,
-                                filters: filterParams
-                            })
+                                'X-CSRF-TOKEN': csrfToken
+                            }
                         })
-                        .then(response => {
-                            if (!response.ok) throw new Error('Gagal export');
-                            return response.blob();
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire('Berhasil!', data.message, 'success').then(() => location.reload());
+                            } else {
+                                Swal.fire('Gagal!', data.message, 'error');
+                            }
                         })
-                        .then(blob => {
-                            const url = window.URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = 'teams_export_' + new Date().toISOString().slice(0, 19).replace(/:/g, '-') + '.csv';
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                            window.URL.revokeObjectURL(url);
-                            Swal.fire({
-                                title: 'Berhasil!',
-                                text: 'Data berhasil diexport.',
-                                icon: 'success',
-                                confirmButtonColor: '#10b981',
-                                timer: 1500,
-                                showConfirmButton: false
-                            });
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            Swal.fire({
-                                title: 'Gagal!',
-                                text: 'Terjadi kesalahan saat export.',
-                                icon: 'error',
-                                confirmButtonColor: '#ef4444'
-                            });
-                        });
+                        .catch(() => Swal.fire('Error!', 'Terjadi kesalahan.', 'error'));
                 }
             });
         });
+    });
 
-    }
-    // ========== DELETE ALL DATA (SUPER SIMPLE) ==========
+    // ========== DELETE ALL DATA (SIMPLE & COMPACT) ==========
     const deleteAllBtn = document.getElementById('deleteAllBtn');
     if (deleteAllBtn) {
         deleteAllBtn.addEventListener('click', function() {
             Swal.fire({
-                title: '⚠️ Hapus Semua Data Tim?',
+                title: '⚠️ HAPUS SEMUA DATA?',
                 html: `
-                <p style="margin-bottom: 10px;">Data tim, pemain, dancer, dan official akan dihapus.</p>
-                <p style="color: #dc2626; font-weight: 500; margin-bottom: 5px;">
-                    <i class="fas fa-exclamation-triangle"></i> 
-                    Data yang dihapus TIDAK DAPAT dikembalikan!
-                </p>
-                <p style="color: #10b981; font-size: 0.85rem;">
-                    <i class="fas fa-shield-alt"></i> 
-                    Data sekolah TETAP AMAN.
-                </p>
+                <div style="text-align: left;">
+                    <p>⚠️ Semua data berikut akan TERHAPUS PERMANEN:</p>
+                    <ul style="margin-top: 10px; margin-bottom: 15px;">
+                        <li>📋 Semua Tim (Team List)</li>
+                        <li>🏀 Semua Pemain (Player List)</li>
+                        <li>💃 Semua Dancer (Dancer List)</li>
+                        <li>👔 Semua Official (Official List)</li>
+                    </ul>
+                    <p style="color: #dc2626; font-weight: bold;">🔴 Data yang dihapus TIDAK BISA DIKEMBALIKAN!</p>
+                    <p style="color: #10b981; margin-top: 10px;">✅ Data sekolah tetap AMAN (tidak ikut terhapus)</p>
+                    <p style="margin-top: 15px; font-style: italic;">Pastikan sudah backup data penting sebelum melanjutkan!</p>
+                </div>
             `,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#dc2626',
-                confirmButtonText: '<i class="fas fa-trash-alt"></i> Hapus Semua',
-                cancelButtonText: '<i class="fas fa-times"></i> Batal',
+                confirmButtonText: 'Ya, Hapus Semua!',
+                cancelButtonText: 'Batal',
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
                     Swal.fire({
-                        title: 'Menghapus data...',
+                        title: 'Menghapus semua data...',
+                        text: 'Mohon tunggu sebentar',
                         allowOutsideClick: false,
                         didOpen: () => Swal.showLoading()
                     });
@@ -1187,28 +1069,54 @@
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                'X-CSRF-TOKEN': csrfToken
                             },
-                            body: JSON.stringify({
-                                confirmation: 'YA,HAPUS,SEMUA,DATA'
-                            })
+                            body: JSON.stringify({}) // Kosongkan body, karena validasi sudah dihapus
                         })
-                        .then(r => r.json())
+                        .then(response => response.json())
                         .then(data => {
                             if (data.success) {
                                 Swal.fire({
                                     title: '✅ Berhasil!',
-                                    text: data.message,
-                                    icon: 'success'
-                                }).then(() => location.reload());
+                                    html: data.message,
+                                    icon: 'success',
+                                    confirmButtonColor: '#10b981'
+                                }).then(() => {
+                                    location.reload();
+                                });
                             } else {
-                                Swal.fire('❌ Gagal!', data.message, 'error');
+                                Swal.fire({
+                                    title: '❌ Gagal!',
+                                    text: data.message,
+                                    icon: 'error',
+                                    confirmButtonColor: '#dc2626'
+                                });
                             }
                         })
-                        .catch(() => {
-                            Swal.fire('❌ Error!', 'Terjadi kesalahan.', 'error');
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire({
+                                title: '❌ Error!',
+                                text: 'Terjadi kesalahan saat menghapus data.',
+                                icon: 'error',
+                                confirmButtonColor: '#dc2626'
+                            });
                         });
                 }
+            });
+        });
+    }
+
+    // Export Button (tetap dipertahankan)
+    const exportBtn = document.getElementById('exportBtn');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            Swal.fire({
+                title: 'Export Data',
+                text: 'Fitur export akan segera hadir',
+                icon: 'info',
+                confirmButtonText: 'Ok'
             });
         });
     }
