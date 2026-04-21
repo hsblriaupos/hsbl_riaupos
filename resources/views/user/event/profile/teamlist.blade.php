@@ -1315,18 +1315,7 @@
             </div>
         </div>
         
-        <!-- Footer Info -->
-        <div class="card-footer bg-white border-top p-4">
-            <div class="alert alert-info alert-hsbl mb-0">
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-info-circle fa-lg me-3"></i>
-                    <div>
-                        <strong class="d-block mb-1">Team Member Information</strong>
-                        <p class="mb-0 small">This page displays all members registered under this team. Team logo and details are retrieved from team_list table. Officials now display Team Role from official_list table. Formal photos are displayed using the same system as Review My Data page.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+        
     </div>
 </div>
 

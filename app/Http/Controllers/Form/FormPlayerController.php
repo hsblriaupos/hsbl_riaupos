@@ -334,7 +334,7 @@ if ($canBeLeader) {
                 'email' => 'required|email|unique:player_list,email',
                 'phone' => 'required|string|max:20',
                 'grade' => 'required|string|max:10',
-                'sttb_year' => 'required|digits:4|integer|min:2000|max:' . (date('Y') + 1),
+                'sttb_year' => 'required|digits:4|integer',
                 'height' => 'required|numeric|min:100|max:250',
                 'weight' => 'required|numeric|min:30|max:150',
                 'tshirt_size' => 'required|string|max:10',

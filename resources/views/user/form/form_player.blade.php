@@ -631,29 +631,8 @@ document.addEventListener('DOMContentLoaded', function() {
         birthdateInput.max = minBirthDate.toISOString().split('T')[0];
     }
 
-    // Validasi STTB tahun dengan SweetAlert
-    const birthdateField = document.getElementById('birthdate');
-    const sttbYearField = document.getElementById('sttb_year');
-    
-    if (birthdateField && sttbYearField) {
-        birthdateField.addEventListener('change', function() {
-            if (this.value && sttbYearField.value) {
-                const birthYear = new Date(this.value).getFullYear();
-                const minSttbYear = birthYear + 16;
-                const currentYear = new Date().getFullYear();
-                
-                if (parseInt(sttbYearField.value) < minSttbYear || parseInt(sttbYearField.value) > currentYear) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Tahun STTB Tidak Valid',
-                        text: `Tahun STTB harus antara ${minSttbYear} - ${currentYear}`,
-                        confirmButtonColor: '#4361ee'
-                    });
-                    sttbYearField.value = '';
-                }
-            }
-        });
-    }
+    // ========== VALIDASI STTB TAHUN TELAH DIHAPUS ==========
+    // User bebas input tahun berapa saja, asalkan 4 digit angka
 
     // NIK validation dengan AJAX + SweetAlert
     const nikInput = document.getElementById('nik');
@@ -918,24 +897,20 @@ document.addEventListener('DOMContentLoaded', function() {
             return false;
         }
 
-        // STTB year validation
-        if (document.getElementById('birthdate').value) {
-            const sttbYear = parseInt(document.getElementById('sttb_year').value);
-            const birthYear = new Date(document.getElementById('birthdate').value).getFullYear();
-            const minSttbYear = birthYear + 16;
-            const currentYear = new Date().getFullYear();
-            
-            if (sttbYear < minSttbYear || sttbYear > currentYear) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Tahun STTB Tidak Valid',
-                    text: `Tahun STTB harus antara ${minSttbYear} - ${currentYear}`,
-                    confirmButtonColor: '#4361ee'
-                });
-                document.getElementById('sttb_year').focus();
-                return false;
-            }
+        // ========== VALIDASI STTB TAHUN TELAH DIHAPUS ==========
+        // CUKUP CEK HANYA 4 DIGIT ANGKA
+        const sttbYear = document.getElementById('sttb_year').value;
+        if (!/^\d{4}$/.test(sttbYear)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Tahun STTB Tidak Valid',
+                text: 'Tahun STTB harus 4 digit angka (contoh: 2024)',
+                confirmButtonColor: '#4361ee'
+            });
+            document.getElementById('sttb_year').focus();
+            return false;
         }
+        // TIDAK ADA LAGI VALIDASI MIN/MAX!
 
         // File uploads
         const docInputs = [
