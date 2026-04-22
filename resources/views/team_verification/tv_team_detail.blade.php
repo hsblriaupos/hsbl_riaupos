@@ -815,13 +815,9 @@
         <div class="card-body">
             <div class="team-info">
                 <div class="logo-column">
-    @php
-        // 🔥 PAKAI CARA YANG SAMA KAYAK DI TEAM LIST
-        $logoUrl = !empty($mainTeam->school_logo) ? asset('storage/' . $mainTeam->school_logo) : null;
-    @endphp
-    <div class="logo-box-square" onclick="showLogoPopup('{{ $logoUrl ?? '' }}', '{{ $mainTeam->school_name }}', '')">
-        @if($logoUrl)
-            <img src="{{ $logoUrl }}" alt="Logo {{ $mainTeam->school_name }}" onerror="this.src='https://placehold.co/120x120?text=No+Logo'">
+    <div class="logo-box-square" onclick="showLogoPopup('{{ $mainTeam->school_logo_url }}', '{{ $mainTeam->school_name }}', '')">
+        @if($mainTeam->school_logo_url && !str_contains($mainTeam->school_logo_url, 'default'))
+            <img src="{{ $mainTeam->school_logo_url }}" alt="Logo {{ $mainTeam->school_name }}" onerror="this.src='https://placehold.co/120x120?text=No+Logo'">
         @else
             <div class="logo-placeholder">
                 <i class="fas fa-school fa-3x mb-2"></i>
@@ -834,12 +830,30 @@
                     <div class="content-grid">
                         <div class="info-section">
                             <table class="info-table compact">
-                                <tr><td>Nama Sekolah</td><td><strong>{{ $mainTeam->school_name }}</strong></td></tr>
-                                <tr><td>Competition</td><td>{{ $mainTeam->competition ?? '-' }}</td></tr>
-                                <tr><td>Season</td><td>{{ $mainTeam->season ?? '-' }}</td></tr>
-                                <tr><td>Series</td><td>{{ $mainTeam->series ?? '-' }}</td></tr>
-                                <tr><td>Referral Code</td><td><code>{{ $mainTeam->referral_code ?? '-' }}</code></td></tr>
-                                <tr><td>Registered By</td><td>{{ $mainTeam->registered_by ?? '-' }}</td></tr>
+                                <tr>
+                                    <td>Nama Sekolah</td>
+                                    <td><strong>{{ $mainTeam->school_name }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>Competition</td>
+                                    <td>{{ $mainTeam->competition ?? '-' }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Season</td>
+                                    <td>{{ $mainTeam->season ?? '-' }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Series</td>
+                                    <td>{{ $mainTeam->series ?? '-' }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Referral Code</td>
+                                    <td><code>{{ $mainTeam->referral_code ?? '-' }}</code></td>
+                                </tr>
+                                <tr>
+                                    <td>Registered By</td>
+                                    <td>{{ $mainTeam->registered_by ?? '-' }}</td>
+                                </tr>
                             </table>
                         </div>
                         <div class="status-doc-section">
@@ -848,9 +862,9 @@
                                     <td>Status Kunci</td>
                                     <td>
                                         @if($mainTeam->locked_status == 'locked')
-                                            <span class="status-locked"><i class="fas fa-lock"></i> Terkunci</span>
+                                        <span class="status-locked"><i class="fas fa-lock"></i> Terkunci</span>
                                         @else
-                                            <span class="status-open"><i class="fas fa-lock-open"></i> Terbuka</span>
+                                        <span class="status-open"><i class="fas fa-lock-open"></i> Terbuka</span>
                                         @endif
                                     </td>
                                 </tr>
@@ -858,9 +872,9 @@
                                     <td>Status Verifikasi</td>
                                     <td>
                                         @if($mainTeam->verification_status == 'verified')
-                                            <span class="status-verified"><i class="fas fa-check-circle"></i> Terverifikasi</span>
+                                        <span class="status-verified"><i class="fas fa-check-circle"></i> Terverifikasi</span>
                                         @else
-                                            <span class="status-unverified"><i class="fas fa-clock"></i> Belum Verifikasi</span>
+                                        <span class="status-unverified"><i class="fas fa-clock"></i> Belum Verifikasi</span>
                                         @endif
                                     </td>
                                 </tr>
@@ -874,739 +888,739 @@
 
     <!-- TABS -->
     @include('team_verification.partials.category-tabs', [
-        'teamData' => $teamData,
-        'activeTab' => $activeTab,
-        'mainTeam' => $mainTeam
+    'teamData' => $teamData,
+    'activeTab' => $activeTab,
+    'mainTeam' => $mainTeam
     ])
 
     <!-- TAB CONTENT -->
     <div class="tab-content">
-        
+
         {{-- ==================== BASKET PUTRA ==================== --}}
         @if($activeTab == 'Basket Putra')
         @php
-            $team = $teamData['team_putra'] ?? null;
-            $players = $teamData['players_male'] ?? [];
-            $officials = $teamData['officials_basket_male'] ?? [];
+        $team = $teamData['team_putra'] ?? null;
+        $players = $teamData['players_male'] ?? [];
+        $officials = $teamData['officials_basket_male'] ?? [];
         @endphp
 
         @if($team)
-            <div class="card payment-action-card">
-                <div class="card-header">
-                    <i class="fas fa-receipt"></i>
-                    Bukti Pembayaran & Aksi Tim - Basket Putra
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="payment-info-box">
-                                <div class="payment-proof-label mb-2">
-                                    <i class="fas fa-money-bill-wave"></i> Status Pembayaran:
-                                    @if($team->payment_status == 'paid')
-                                        <span class="payment-status-badge payment-status-paid"><i class="fas fa-check-circle"></i> Lunas</span>
-                                    @elseif($team->payment_status == 'failed')
-                                        <span class="payment-status-badge payment-status-failed"><i class="fas fa-times-circle"></i> Gagal</span>
-                                    @else
-                                        <span class="payment-status-badge payment-status-pending"><i class="fas fa-clock"></i> Pending</span>
-                                    @endif
-                                </div>
-
-                                @if($team->payment_proof)
-                                    <a href="{{ Storage::url($team->payment_proof) }}" target="_blank" class="payment-proof-link available">
-                                        <i class="fas fa-file-invoice-dollar"></i> Lihat Bukti Pembayaran
-                                    </a>
+        <div class="card payment-action-card">
+            <div class="card-header">
+                <i class="fas fa-receipt"></i>
+                Bukti Pembayaran & Aksi Tim - Basket Putra
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="payment-info-box">
+                            <div class="payment-proof-label mb-2">
+                                <i class="fas fa-money-bill-wave"></i> Status Pembayaran:
+                                @if($team->payment_status == 'paid')
+                                <span class="payment-status-badge payment-status-paid"><i class="fas fa-check-circle"></i> Lunas</span>
+                                @elseif($team->payment_status == 'failed')
+                                <span class="payment-status-badge payment-status-failed"><i class="fas fa-times-circle"></i> Gagal</span>
                                 @else
-                                    <span class="payment-proof-link unavailable" onclick="showAlert('Bukti Pembayaran')">
-                                        <i class="fas fa-exclamation-triangle"></i> Bukti Pembayaran Belum Diupload
-                                    </span>
-                                @endif
-
-                                @if($team->payment_date)
-                                    <div class="mt-2">
-                                        <small class="text-muted"><i class="fas fa-calendar-alt"></i> Tanggal Bayar: {{ \Carbon\Carbon::parse($team->payment_date)->isoFormat('D MMM YYYY, HH:mm') }}</small>
-                                    </div>
+                                <span class="payment-status-badge payment-status-pending"><i class="fas fa-clock"></i> Pending</span>
                                 @endif
                             </div>
+
+                            @if($team->payment_proof)
+                            <a href="{{ Storage::url($team->payment_proof) }}" target="_blank" class="payment-proof-link available">
+                                <i class="fas fa-file-invoice-dollar"></i> Lihat Bukti Pembayaran
+                            </a>
+                            @else
+                            <span class="payment-proof-link unavailable" onclick="showAlert('Bukti Pembayaran')">
+                                <i class="fas fa-exclamation-triangle"></i> Bukti Pembayaran Belum Diupload
+                            </span>
+                            @endif
+
+                            @if($team->payment_date)
+                            <div class="mt-2">
+                                <small class="text-muted"><i class="fas fa-calendar-alt"></i> Tanggal Bayar: {{ \Carbon\Carbon::parse($team->payment_date)->isoFormat('D MMM YYYY, HH:mm') }}</small>
+                            </div>
+                            @endif
                         </div>
+                    </div>
 
-                        <div class="col-md-6">
-                            <div class="action-buttons-box">
-                                <div class="action-buttons-title">
-                                    <i class="fas fa-cogs"></i> Aksi Tim
-                                </div>
-                                <div class="action-buttons-row">
-                                    @if($team->locked_status != 'locked')
-                                        <form action="{{ route('admin.team.lock', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Kunci tim Basket Putra?')">
-                                            @csrf
-                                            <button type="submit" class="btn-action-simple btn-lock">
-                                                <i class="fas fa-lock"></i> Kunci Tim
-                                            </button>
-                                        </form>
-                                    @else
-                                        <form action="{{ route('admin.team.unlock', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Buka kunci tim Basket Putra?')">
-                                            @csrf
-                                            <button type="submit" class="btn-action-simple btn-unlock">
-                                                <i class="fas fa-unlock"></i> Buka Kunci
-                                            </button>
-                                        </form>
-                                    @endif
+                    <div class="col-md-6">
+                        <div class="action-buttons-box">
+                            <div class="action-buttons-title">
+                                <i class="fas fa-cogs"></i> Aksi Tim
+                            </div>
+                            <div class="action-buttons-row">
+                                @if($team->locked_status != 'locked')
+                                <form action="{{ route('admin.team.lock', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Kunci tim Basket Putra?')">
+                                    @csrf
+                                    <button type="submit" class="btn-action-simple btn-lock">
+                                        <i class="fas fa-lock"></i> Kunci Tim
+                                    </button>
+                                </form>
+                                @else
+                                <form action="{{ route('admin.team.unlock', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Buka kunci tim Basket Putra?')">
+                                    @csrf
+                                    <button type="submit" class="btn-action-simple btn-unlock">
+                                        <i class="fas fa-unlock"></i> Buka Kunci
+                                    </button>
+                                </form>
+                                @endif
 
-                                    @if($team->verification_status != 'verified')
-                                        <form action="{{ route('admin.team.verify', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Verifikasi tim Basket Putra?')">
-                                            @csrf
-                                            <button type="submit" class="btn-action-simple btn-verify">
-                                                <i class="fas fa-check-circle"></i> Verifikasi Tim
-                                            </button>
-                                        </form>
-                                    @else
-                                        <form action="{{ route('admin.team.unverify', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Batalkan verifikasi tim Basket Putra?')">
-                                            @csrf
-                                            <button type="submit" class="btn-action-simple btn-unverify">
-                                                <i class="fas fa-times-circle"></i> Batalkan Verifikasi
-                                            </button>
-                                        </form>
-                                    @endif
-                                </div>
+                                @if($team->verification_status != 'verified')
+                                <form action="{{ route('admin.team.verify', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Verifikasi tim Basket Putra?')">
+                                    @csrf
+                                    <button type="submit" class="btn-action-simple btn-verify">
+                                        <i class="fas fa-check-circle"></i> Verifikasi Tim
+                                    </button>
+                                </form>
+                                @else
+                                <form action="{{ route('admin.team.unverify', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Batalkan verifikasi tim Basket Putra?')">
+                                    @csrf
+                                    <button type="submit" class="btn-action-simple btn-unverify">
+                                        <i class="fas fa-times-circle"></i> Batalkan Verifikasi
+                                    </button>
+                                </form>
+                                @endif
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- PLAYERS TABLE -->
-            <div class="card">
-                <div class="card-header"><i class="fas fa-users"></i> Daftar Pemain Basket Putra ({{ count($players) }})</div>
-                <div class="card-body">
-                    @if(count($players) > 0)
-                        <div class="table-container">
-                            <table class="data">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Nama</th>
-                                        <th>Jersey</th>
-                                        <th>Gender</th>
-                                        <th>Posisi</th>
-                                        <th>Tinggi</th>
-                                        <th>Role Tim</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($players as $index => $player)
-                                    <tr>
-                                        <td>{{ $index + 1 }}</td>
-                                        <td>
-                                            <strong>{{ $player->name ?? 'N/A' }}</strong>
-                                            @if(isset($player->email) && $player->email)
-                                                <br><small class="text-muted">{{ $player->email }}</small>
-                                            @endif
-                                        </td>
-                                        <td class="text-center">
-                                            @if($player->jersey_number)
-                                                <span class="badge-jersey">{{ $player->jersey_number }}</span>
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @php
-                                                $gender = strtolower($player->gender ?? $player->category ?? '');
-                                            @endphp
-                                            @if(in_array($gender, ['male', 'putra', 'laki-laki']))
-                                                <span class="badge-gender-male"><i class="fas fa-male"></i> Putra</span>
-                                            @elseif(in_array($gender, ['female', 'putri', 'perempuan']))
-                                                <span class="badge-gender-female"><i class="fas fa-female"></i> Putri</span>
-                                            @else
-                                                <span class="badge-gender-male">-</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if($player->basketball_position)
-                                                <span class="badge-position">{{ $player->basketball_position }}</span>
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if($player->height)
-                                                {{ $player->height }} cm
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if(strtolower($player->role ?? '') == 'leader')
-                                                <span class="badge-role-leader"><i class="fas fa-crown"></i> Leader</span>
-                                            @else
-                                                <span class="badge-role-player">Player</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <a href="{{ route('admin.player.detail', $player->id) }}" class="btn-detail">
-                                                <i class="fas fa-eye"></i> Detail
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <div class="empty-state">
-                            <i class="fas fa-users"></i>
-                            <h5>Belum ada data pemain</h5>
-                            <p>Data pemain akan muncul setelah mendaftar menggunakan referral code tim ini.</p>
-                        </div>
-                    @endif
+        <!-- PLAYERS TABLE -->
+        <div class="card">
+            <div class="card-header"><i class="fas fa-users"></i> Daftar Pemain Basket Putra ({{ count($players) }})</div>
+            <div class="card-body">
+                @if(count($players) > 0)
+                <div class="table-container">
+                    <table class="data">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Nama</th>
+                                <th>Jersey</th>
+                                <th>Gender</th>
+                                <th>Posisi</th>
+                                <th>Tinggi</th>
+                                <th>Role Tim</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($players as $index => $player)
+                            <tr>
+                                <td>{{ $index + 1 }}</td>
+                                <td>
+                                    <strong>{{ $player->name ?? 'N/A' }}</strong>
+                                    @if(isset($player->email) && $player->email)
+                                    <br><small class="text-muted">{{ $player->email }}</small>
+                                    @endif
+                                </td>
+                                <td class="text-center">
+                                    @if($player->jersey_number)
+                                    <span class="badge-jersey">{{ $player->jersey_number }}</span>
+                                    @else
+                                    -
+                                    @endif
+                                </td>
+                                <td>
+                                    @php
+                                    $gender = strtolower($player->gender ?? $player->category ?? '');
+                                    @endphp
+                                    @if(in_array($gender, ['male', 'putra', 'laki-laki']))
+                                    <span class="badge-gender-male"><i class="fas fa-male"></i> Putra</span>
+                                    @elseif(in_array($gender, ['female', 'putri', 'perempuan']))
+                                    <span class="badge-gender-female"><i class="fas fa-female"></i> Putri</span>
+                                    @else
+                                    <span class="badge-gender-male">-</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($player->basketball_position)
+                                    <span class="badge-position">{{ $player->basketball_position }}</span>
+                                    @else
+                                    -
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($player->height)
+                                    {{ $player->height }} cm
+                                    @else
+                                    -
+                                    @endif
+                                </td>
+                                <td>
+                                    @if(strtolower($player->role ?? '') == 'leader')
+                                    <span class="badge-role-leader"><i class="fas fa-crown"></i> Leader</span>
+                                    @else
+                                    <span class="badge-role-player">Player</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <a href="{{ route('admin.player.detail', $player->id) }}" class="btn-detail">
+                                        <i class="fas fa-eye"></i> Detail
+                                    </a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
-            </div>
-
-            <!-- OFFICIALS TABLE -->
-            <div class="card">
-                <div class="card-header"><i class="fas fa-user-tie"></i> Daftar Official Basket Putra ({{ count($officials) }})</div>
-                <div class="card-body">
-                    @if(count($officials) > 0)
-                        <div class="table-container">
-                            <table class="data">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Nama</th>
-                                        <th>Jabatan</th>
-                                        <th>Email</th>
-                                        <th>Telepon</th>
-                                        <th>Gender</th>
-                                        <th>Status</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($officials as $index => $official)
-                                    <tr>
-                                        <td>{{ $index + 1 }}</td>
-                                        <td><strong>{{ $official->name ?? 'N/A' }}</strong></td>
-                                        <td><span class="badge-official-role">{{ $official->formatted_team_role ?? $official->team_role ?? '-' }}</span></td>
-                                        <td>@if($official->email)<a href="mailto:{{ $official->email }}" style="color:#3b82f6;">{{ $official->email }}</a>@else-@endif</td>
-                                        <td>@if($official->phone)<a href="tel:{{ $official->phone }}" style="color:#10b981;">{{ $official->phone }}</a>@else-@endif</td>
-                                        <td>
-                                            @if(strtolower($official->gender ?? '') == 'male')
-                                                <span class="badge-gender-male"><i class="fas fa-male"></i> Laki-laki</span>
-                                            @elseif(strtolower($official->gender ?? '') == 'female')
-                                                <span class="badge-gender-female"><i class="fas fa-female"></i> Perempuan</span>
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if($official->verification_status == 'verified')
-                                                <span class="status-verified"><i class="fas fa-check-circle"></i> Terverifikasi</span>
-                                            @elseif($official->verification_status == 'rejected')
-                                                <span class="status-rejected"><i class="fas fa-times-circle"></i> Ditolak</span>
-                                            @else
-                                                <span class="status-unverified"><i class="fas fa-clock"></i> Pending</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <a href="{{ route('admin.official.detail', $official->official_id) }}" class="btn-detail">
-                                                <i class="fas fa-eye"></i> Detail
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <div class="empty-state">
-                            <i class="fas fa-user-tie"></i>
-                            <h5>Belum ada data official</h5>
-                        </div>
-                    @endif
+                @else
+                <div class="empty-state">
+                    <i class="fas fa-users"></i>
+                    <h5>Belum ada data pemain</h5>
+                    <p>Data pemain akan muncul setelah mendaftar menggunakan referral code tim ini.</p>
                 </div>
+                @endif
             </div>
+        </div>
 
-            @include('team_verification.partials.jersey_gallery', ['team' => $team, 'category' => 'Basket Putra'])
+        <!-- OFFICIALS TABLE -->
+        <div class="card">
+            <div class="card-header"><i class="fas fa-user-tie"></i> Daftar Official Basket Putra ({{ count($officials) }})</div>
+            <div class="card-body">
+                @if(count($officials) > 0)
+                <div class="table-container">
+                    <table class="data">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Nama</th>
+                                <th>Jabatan</th>
+                                <th>Email</th>
+                                <th>Telepon</th>
+                                <th>Gender</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($officials as $index => $official)
+                            <tr>
+                                <td>{{ $index + 1 }}</td>
+                                <td><strong>{{ $official->name ?? 'N/A' }}</strong></td>
+                                <td><span class="badge-official-role">{{ $official->formatted_team_role ?? $official->team_role ?? '-' }}</span></td>
+                                <td>@if($official->email)<a href="mailto:{{ $official->email }}" style="color:#3b82f6;">{{ $official->email }}</a>@else-@endif</td>
+                                <td>@if($official->phone)<a href="tel:{{ $official->phone }}" style="color:#10b981;">{{ $official->phone }}</a>@else-@endif</td>
+                                <td>
+                                    @if(strtolower($official->gender ?? '') == 'male')
+                                    <span class="badge-gender-male"><i class="fas fa-male"></i> Laki-laki</span>
+                                    @elseif(strtolower($official->gender ?? '') == 'female')
+                                    <span class="badge-gender-female"><i class="fas fa-female"></i> Perempuan</span>
+                                    @else
+                                    -
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($official->verification_status == 'verified')
+                                    <span class="status-verified"><i class="fas fa-check-circle"></i> Terverifikasi</span>
+                                    @elseif($official->verification_status == 'rejected')
+                                    <span class="status-rejected"><i class="fas fa-times-circle"></i> Ditolak</span>
+                                    @else
+                                    <span class="status-unverified"><i class="fas fa-clock"></i> Pending</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <a href="{{ route('admin.official.detail', $official->official_id) }}" class="btn-detail">
+                                        <i class="fas fa-eye"></i> Detail
+                                    </a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                @else
+                <div class="empty-state">
+                    <i class="fas fa-user-tie"></i>
+                    <h5>Belum ada data official</h5>
+                </div>
+                @endif
+            </div>
+        </div>
+
+        @include('team_verification.partials.jersey_gallery', ['team' => $team, 'category' => 'Basket Putra'])
         @else
-            <div class="empty-state">
-                <i class="fas fa-basketball-ball" style="color:#3b82f6;"></i>
-                <h5>Tim Basket Putra Belum Terdaftar</h5>
-                <p>Sekolah <strong>{{ $mainTeam->school_name }}</strong> belum mendaftarkan tim untuk kategori ini.</p>
-            </div>
+        <div class="empty-state">
+            <i class="fas fa-basketball-ball" style="color:#3b82f6;"></i>
+            <h5>Tim Basket Putra Belum Terdaftar</h5>
+            <p>Sekolah <strong>{{ $mainTeam->school_name }}</strong> belum mendaftarkan tim untuk kategori ini.</p>
+        </div>
         @endif
 
         {{-- ==================== BASKET PUTRI ==================== --}}
         @elseif($activeTab == 'Basket Putri')
         @php
-            $team = $teamData['team_putri'] ?? null;
-            $players = $teamData['players_female'] ?? [];
-            $officials = $teamData['officials_basket_female'] ?? [];
+        $team = $teamData['team_putri'] ?? null;
+        $players = $teamData['players_female'] ?? [];
+        $officials = $teamData['officials_basket_female'] ?? [];
         @endphp
 
         @if($team)
-            <div class="card payment-action-card">
-                <div class="card-header" style="background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);">
-                    <i class="fas fa-receipt"></i>
-                    Bukti Pembayaran & Aksi Tim - Basket Putri
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="payment-info-box">
-                                <div class="payment-proof-label mb-2">
-                                    <i class="fas fa-money-bill-wave"></i> Status Pembayaran:
-                                    @if($team->payment_status == 'paid')
-                                        <span class="payment-status-badge payment-status-paid"><i class="fas fa-check-circle"></i> Lunas</span>
-                                    @elseif($team->payment_status == 'failed')
-                                        <span class="payment-status-badge payment-status-failed"><i class="fas fa-times-circle"></i> Gagal</span>
-                                    @else
-                                        <span class="payment-status-badge payment-status-pending"><i class="fas fa-clock"></i> Pending</span>
-                                    @endif
-                                </div>
-
-                                @if($team->payment_proof)
-                                    <a href="{{ Storage::url($team->payment_proof) }}" target="_blank" class="payment-proof-link available">
-                                        <i class="fas fa-file-invoice-dollar"></i> Lihat Bukti Pembayaran
-                                    </a>
+        <div class="card payment-action-card">
+            <div class="card-header" style="background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);">
+                <i class="fas fa-receipt"></i>
+                Bukti Pembayaran & Aksi Tim - Basket Putri
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="payment-info-box">
+                            <div class="payment-proof-label mb-2">
+                                <i class="fas fa-money-bill-wave"></i> Status Pembayaran:
+                                @if($team->payment_status == 'paid')
+                                <span class="payment-status-badge payment-status-paid"><i class="fas fa-check-circle"></i> Lunas</span>
+                                @elseif($team->payment_status == 'failed')
+                                <span class="payment-status-badge payment-status-failed"><i class="fas fa-times-circle"></i> Gagal</span>
                                 @else
-                                    <span class="payment-proof-link unavailable" onclick="showAlert('Bukti Pembayaran')">
-                                        <i class="fas fa-exclamation-triangle"></i> Bukti Pembayaran Belum Diupload
-                                    </span>
-                                @endif
-
-                                @if($team->payment_date)
-                                    <div class="mt-2">
-                                        <small class="text-muted"><i class="fas fa-calendar-alt"></i> Tanggal Bayar: {{ \Carbon\Carbon::parse($team->payment_date)->isoFormat('D MMM YYYY, HH:mm') }}</small>
-                                    </div>
+                                <span class="payment-status-badge payment-status-pending"><i class="fas fa-clock"></i> Pending</span>
                                 @endif
                             </div>
-                        </div>
 
-                        <div class="col-md-6">
-                            <div class="action-buttons-box">
-                                <div class="action-buttons-title">
-                                    <i class="fas fa-cogs"></i> Aksi Tim
-                                </div>
-                                <div class="action-buttons-row">
-                                    @if($team->locked_status != 'locked')
-                                        <form action="{{ route('admin.team.lock', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Kunci tim Basket Putri?')">
-                                            @csrf
-                                            <button type="submit" class="btn-action-simple btn-lock"><i class="fas fa-lock"></i> Kunci Tim</button>
-                                        </form>
-                                    @else
-                                        <form action="{{ route('admin.team.unlock', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Buka kunci tim Basket Putri?')">
-                                            @csrf
-                                            <button type="submit" class="btn-action-simple btn-unlock"><i class="fas fa-unlock"></i> Buka Kunci</button>
-                                        </form>
-                                    @endif
-                                    @if($team->verification_status != 'verified')
-                                        <form action="{{ route('admin.team.verify', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Verifikasi tim Basket Putri?')">
-                                            @csrf
-                                            <button type="submit" class="btn-action-simple btn-verify"><i class="fas fa-check-circle"></i> Verifikasi Tim</button>
-                                        </form>
-                                    @else
-                                        <form action="{{ route('admin.team.unverify', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Batalkan verifikasi tim Basket Putri?')">
-                                            @csrf
-                                            <button type="submit" class="btn-action-simple btn-unverify"><i class="fas fa-times-circle"></i> Batalkan Verifikasi</button>
-                                        </form>
-                                    @endif
-                                </div>
+                            @if($team->payment_proof)
+                            <a href="{{ Storage::url($team->payment_proof) }}" target="_blank" class="payment-proof-link available">
+                                <i class="fas fa-file-invoice-dollar"></i> Lihat Bukti Pembayaran
+                            </a>
+                            @else
+                            <span class="payment-proof-link unavailable" onclick="showAlert('Bukti Pembayaran')">
+                                <i class="fas fa-exclamation-triangle"></i> Bukti Pembayaran Belum Diupload
+                            </span>
+                            @endif
+
+                            @if($team->payment_date)
+                            <div class="mt-2">
+                                <small class="text-muted"><i class="fas fa-calendar-alt"></i> Tanggal Bayar: {{ \Carbon\Carbon::parse($team->payment_date)->isoFormat('D MMM YYYY, HH:mm') }}</small>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="action-buttons-box">
+                            <div class="action-buttons-title">
+                                <i class="fas fa-cogs"></i> Aksi Tim
+                            </div>
+                            <div class="action-buttons-row">
+                                @if($team->locked_status != 'locked')
+                                <form action="{{ route('admin.team.lock', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Kunci tim Basket Putri?')">
+                                    @csrf
+                                    <button type="submit" class="btn-action-simple btn-lock"><i class="fas fa-lock"></i> Kunci Tim</button>
+                                </form>
+                                @else
+                                <form action="{{ route('admin.team.unlock', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Buka kunci tim Basket Putri?')">
+                                    @csrf
+                                    <button type="submit" class="btn-action-simple btn-unlock"><i class="fas fa-unlock"></i> Buka Kunci</button>
+                                </form>
+                                @endif
+                                @if($team->verification_status != 'verified')
+                                <form action="{{ route('admin.team.verify', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Verifikasi tim Basket Putri?')">
+                                    @csrf
+                                    <button type="submit" class="btn-action-simple btn-verify"><i class="fas fa-check-circle"></i> Verifikasi Tim</button>
+                                </form>
+                                @else
+                                <form action="{{ route('admin.team.unverify', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Batalkan verifikasi tim Basket Putri?')">
+                                    @csrf
+                                    <button type="submit" class="btn-action-simple btn-unverify"><i class="fas fa-times-circle"></i> Batalkan Verifikasi</button>
+                                </form>
+                                @endif
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="card">
-                <div class="card-header" style="background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);">
-                    <i class="fas fa-users"></i> Daftar Pemain Basket Putri ({{ count($players) }})
-                </div>
-                <div class="card-body">
-                    @if(count($players) > 0)
-                        <div class="table-container">
-                            <table class="data">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Nama</th>
-                                        <th>Jersey</th>
-                                        <th>Gender</th>
-                                        <th>Posisi</th>
-                                        <th>Tinggi</th>
-                                        <th>Role Tim</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($players as $index => $player)
-                                    <tr>
-                                        <td>{{ $index + 1 }}</td>
-                                        <td>
-                                            <strong>{{ $player->name ?? 'N/A' }}</strong>
-                                            @if(isset($player->email) && $player->email)
-                                                <br><small class="text-muted">{{ $player->email }}</small>
-                                            @endif
-                                        </td>
-                                        <td class="text-center">
-                                            @if($player->jersey_number)
-                                                <span class="badge-jersey">{{ $player->jersey_number }}</span>
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @php
-                                                $gender = strtolower($player->gender ?? $player->category ?? '');
-                                            @endphp
-                                            @if(in_array($gender, ['female', 'putri', 'perempuan']))
-                                                <span class="badge-gender-female"><i class="fas fa-female"></i> Putri</span>
-                                            @else
-                                                <span class="badge-gender-female">Putri</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if($player->basketball_position)
-                                                <span class="badge-position">{{ $player->basketball_position }}</span>
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if($player->height)
-                                                {{ $player->height }} cm
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if(strtolower($player->role ?? '') == 'leader')
-                                                <span class="badge-role-leader"><i class="fas fa-crown"></i> Leader</span>
-                                            @else
-                                                <span class="badge-role-player">Player</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <a href="{{ route('admin.player.detail', $player->id) }}" class="btn-detail">
-                                                <i class="fas fa-eye"></i> Detail
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <div class="empty-state">
-                            <i class="fas fa-users"></i>
-                            <h5>Belum ada data pemain</h5>
-                        </div>
-                    @endif
-                </div>
+        <div class="card">
+            <div class="card-header" style="background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);">
+                <i class="fas fa-users"></i> Daftar Pemain Basket Putri ({{ count($players) }})
             </div>
-
-            <div class="card">
-                <div class="card-header" style="background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);">
-                    <i class="fas fa-user-tie"></i> Daftar Official Basket Putri ({{ count($officials) }})
+            <div class="card-body">
+                @if(count($players) > 0)
+                <div class="table-container">
+                    <table class="data">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Nama</th>
+                                <th>Jersey</th>
+                                <th>Gender</th>
+                                <th>Posisi</th>
+                                <th>Tinggi</th>
+                                <th>Role Tim</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($players as $index => $player)
+                            <tr>
+                                <td>{{ $index + 1 }}</td>
+                                <td>
+                                    <strong>{{ $player->name ?? 'N/A' }}</strong>
+                                    @if(isset($player->email) && $player->email)
+                                    <br><small class="text-muted">{{ $player->email }}</small>
+                                    @endif
+                                </td>
+                                <td class="text-center">
+                                    @if($player->jersey_number)
+                                    <span class="badge-jersey">{{ $player->jersey_number }}</span>
+                                    @else
+                                    -
+                                    @endif
+                                </td>
+                                <td>
+                                    @php
+                                    $gender = strtolower($player->gender ?? $player->category ?? '');
+                                    @endphp
+                                    @if(in_array($gender, ['female', 'putri', 'perempuan']))
+                                    <span class="badge-gender-female"><i class="fas fa-female"></i> Putri</span>
+                                    @else
+                                    <span class="badge-gender-female">Putri</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($player->basketball_position)
+                                    <span class="badge-position">{{ $player->basketball_position }}</span>
+                                    @else
+                                    -
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($player->height)
+                                    {{ $player->height }} cm
+                                    @else
+                                    -
+                                    @endif
+                                </td>
+                                <td>
+                                    @if(strtolower($player->role ?? '') == 'leader')
+                                    <span class="badge-role-leader"><i class="fas fa-crown"></i> Leader</span>
+                                    @else
+                                    <span class="badge-role-player">Player</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <a href="{{ route('admin.player.detail', $player->id) }}" class="btn-detail">
+                                        <i class="fas fa-eye"></i> Detail
+                                    </a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
-                <div class="card-body">
-                    @if(count($officials) > 0)
-                        <div class="table-container">
-                            <table class="data">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Nama</th>
-                                        <th>Jabatan</th>
-                                        <th>Email</th>
-                                        <th>Telepon</th>
-                                        <th>Gender</th>
-                                        <th>Status</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($officials as $index => $official)
-                                    <tr>
-                                        <td>{{ $index + 1 }}</td>
-                                        <td><strong>{{ $official->name ?? 'N/A' }}</strong></td>
-                                        <td><span class="badge-official-role">{{ $official->formatted_team_role ?? $official->team_role ?? '-' }}</span></td>
-                                        <td>@if($official->email)<a href="mailto:{{ $official->email }}">{{ $official->email }}</a>@else-@endif</td>
-                                        <td>@if($official->phone)<a href="tel:{{ $official->phone }}">{{ $official->phone }}</a>@else-@endif</td>
-                                        <td>
-                                            @if(strtolower($official->gender ?? '') == 'male')
-                                                <span class="badge-gender-male"><i class="fas fa-male"></i> Laki-laki</span>
-                                            @elseif(strtolower($official->gender ?? '') == 'female')
-                                                <span class="badge-gender-female"><i class="fas fa-female"></i> Perempuan</span>
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if($official->verification_status == 'verified')
-                                                <span class="status-verified">Terverifikasi</span>
-                                            @elseif($official->verification_status == 'rejected')
-                                                <span class="status-rejected">Ditolak</span>
-                                            @else
-                                                <span class="status-unverified">Pending</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <a href="{{ route('admin.official.detail', $official->official_id) }}" class="btn-detail">
-                                                <i class="fas fa-eye"></i> Detail
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <div class="empty-state">
-                            <i class="fas fa-user-tie"></i>
-                            <h5>Belum ada data official</h5>
-                        </div>
-                    @endif
+                @else
+                <div class="empty-state">
+                    <i class="fas fa-users"></i>
+                    <h5>Belum ada data pemain</h5>
                 </div>
+                @endif
             </div>
+        </div>
 
-            @include('team_verification.partials.jersey_gallery', ['team' => $team, 'category' => 'Basket Putri'])
+        <div class="card">
+            <div class="card-header" style="background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);">
+                <i class="fas fa-user-tie"></i> Daftar Official Basket Putri ({{ count($officials) }})
+            </div>
+            <div class="card-body">
+                @if(count($officials) > 0)
+                <div class="table-container">
+                    <table class="data">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Nama</th>
+                                <th>Jabatan</th>
+                                <th>Email</th>
+                                <th>Telepon</th>
+                                <th>Gender</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($officials as $index => $official)
+                            <tr>
+                                <td>{{ $index + 1 }}</td>
+                                <td><strong>{{ $official->name ?? 'N/A' }}</strong></td>
+                                <td><span class="badge-official-role">{{ $official->formatted_team_role ?? $official->team_role ?? '-' }}</span></td>
+                                <td>@if($official->email)<a href="mailto:{{ $official->email }}">{{ $official->email }}</a>@else-@endif</td>
+                                <td>@if($official->phone)<a href="tel:{{ $official->phone }}">{{ $official->phone }}</a>@else-@endif</td>
+                                <td>
+                                    @if(strtolower($official->gender ?? '') == 'male')
+                                    <span class="badge-gender-male"><i class="fas fa-male"></i> Laki-laki</span>
+                                    @elseif(strtolower($official->gender ?? '') == 'female')
+                                    <span class="badge-gender-female"><i class="fas fa-female"></i> Perempuan</span>
+                                    @else
+                                    -
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($official->verification_status == 'verified')
+                                    <span class="status-verified">Terverifikasi</span>
+                                    @elseif($official->verification_status == 'rejected')
+                                    <span class="status-rejected">Ditolak</span>
+                                    @else
+                                    <span class="status-unverified">Pending</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <a href="{{ route('admin.official.detail', $official->official_id) }}" class="btn-detail">
+                                        <i class="fas fa-eye"></i> Detail
+                                    </a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                @else
+                <div class="empty-state">
+                    <i class="fas fa-user-tie"></i>
+                    <h5>Belum ada data official</h5>
+                </div>
+                @endif
+            </div>
+        </div>
+
+        @include('team_verification.partials.jersey_gallery', ['team' => $team, 'category' => 'Basket Putri'])
         @else
-            <div class="empty-state">
-                <i class="fas fa-basketball-ball" style="color:#ec4899;"></i>
-                <h5>Tim Basket Putri Belum Terdaftar</h5>
-            </div>
+        <div class="empty-state">
+            <i class="fas fa-basketball-ball" style="color:#ec4899;"></i>
+            <h5>Tim Basket Putri Belum Terdaftar</h5>
+        </div>
         @endif
 
         {{-- ==================== DANCER ==================== --}}
         @elseif($activeTab == 'Dancer')
         @php
-            $team = $teamData['team_dancer'] ?? null;
-            $dancers = $teamData['dancers'] ?? [];
-            $officials = $teamData['officials_dancer'] ?? [];
+        $team = $teamData['team_dancer'] ?? null;
+        $dancers = $teamData['dancers'] ?? [];
+        $officials = $teamData['officials_dancer'] ?? [];
         @endphp
 
         @if($team)
-            <div class="card payment-action-card">
-                <div class="card-header" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
-                    <i class="fas fa-receipt"></i>
-                    Bukti Pembayaran & Aksi Tim - Dancer
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="payment-info-box">
-                                <div class="payment-proof-label mb-2">
-                                    <i class="fas fa-money-bill-wave"></i> Status Pembayaran:
-                                    @if($team->payment_status == 'paid')
-                                        <span class="payment-status-badge payment-status-paid"><i class="fas fa-check-circle"></i> Lunas</span>
-                                    @elseif($team->payment_status == 'failed')
-                                        <span class="payment-status-badge payment-status-failed"><i class="fas fa-times-circle"></i> Gagal</span>
-                                    @else
-                                        <span class="payment-status-badge payment-status-pending"><i class="fas fa-clock"></i> Pending</span>
-                                    @endif
-                                </div>
-
-                                @if($team->payment_proof)
-                                    <a href="{{ Storage::url($team->payment_proof) }}" target="_blank" class="payment-proof-link available">
-                                        <i class="fas fa-file-invoice-dollar"></i> Lihat Bukti Pembayaran
-                                    </a>
+        <div class="card payment-action-card">
+            <div class="card-header" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                <i class="fas fa-receipt"></i>
+                Bukti Pembayaran & Aksi Tim - Dancer
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="payment-info-box">
+                            <div class="payment-proof-label mb-2">
+                                <i class="fas fa-money-bill-wave"></i> Status Pembayaran:
+                                @if($team->payment_status == 'paid')
+                                <span class="payment-status-badge payment-status-paid"><i class="fas fa-check-circle"></i> Lunas</span>
+                                @elseif($team->payment_status == 'failed')
+                                <span class="payment-status-badge payment-status-failed"><i class="fas fa-times-circle"></i> Gagal</span>
                                 @else
-                                    <span class="payment-proof-link unavailable" onclick="showAlert('Bukti Pembayaran')">
-                                        <i class="fas fa-exclamation-triangle"></i> Bukti Pembayaran Belum Diupload
-                                    </span>
-                                @endif
-
-                                @if($team->payment_date)
-                                    <div class="mt-2">
-                                        <small class="text-muted"><i class="fas fa-calendar-alt"></i> Tanggal Bayar: {{ \Carbon\Carbon::parse($team->payment_date)->isoFormat('D MMM YYYY, HH:mm') }}</small>
-                                    </div>
+                                <span class="payment-status-badge payment-status-pending"><i class="fas fa-clock"></i> Pending</span>
                                 @endif
                             </div>
-                        </div>
 
-                        <div class="col-md-6">
-                            <div class="action-buttons-box">
-                                <div class="action-buttons-title">
-                                    <i class="fas fa-cogs"></i> Aksi Tim
-                                </div>
-                                <div class="action-buttons-row">
-                                    @if($team->locked_status != 'locked')
-                                        <form action="{{ route('admin.team.lock', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Kunci tim Dancer?')">
-                                            @csrf
-                                            <button type="submit" class="btn-action-simple btn-lock"><i class="fas fa-lock"></i> Kunci Tim</button>
-                                        </form>
-                                    @else
-                                        <form action="{{ route('admin.team.unlock', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Buka kunci tim Dancer?')">
-                                            @csrf
-                                            <button type="submit" class="btn-action-simple btn-unlock"><i class="fas fa-unlock"></i> Buka Kunci</button>
-                                        </form>
-                                    @endif
-                                    @if($team->verification_status != 'verified')
-                                        <form action="{{ route('admin.team.verify', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Verifikasi tim Dancer?')">
-                                            @csrf
-                                            <button type="submit" class="btn-action-simple btn-verify"><i class="fas fa-check-circle"></i> Verifikasi Tim</button>
-                                        </form>
-                                    @else
-                                        <form action="{{ route('admin.team.unverify', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Batalkan verifikasi tim Dancer?')">
-                                            @csrf
-                                            <button type="submit" class="btn-action-simple btn-unverify"><i class="fas fa-times-circle"></i> Batalkan Verifikasi</button>
-                                        </form>
-                                    @endif
-                                </div>
+                            @if($team->payment_proof)
+                            <a href="{{ Storage::url($team->payment_proof) }}" target="_blank" class="payment-proof-link available">
+                                <i class="fas fa-file-invoice-dollar"></i> Lihat Bukti Pembayaran
+                            </a>
+                            @else
+                            <span class="payment-proof-link unavailable" onclick="showAlert('Bukti Pembayaran')">
+                                <i class="fas fa-exclamation-triangle"></i> Bukti Pembayaran Belum Diupload
+                            </span>
+                            @endif
+
+                            @if($team->payment_date)
+                            <div class="mt-2">
+                                <small class="text-muted"><i class="fas fa-calendar-alt"></i> Tanggal Bayar: {{ \Carbon\Carbon::parse($team->payment_date)->isoFormat('D MMM YYYY, HH:mm') }}</small>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="action-buttons-box">
+                            <div class="action-buttons-title">
+                                <i class="fas fa-cogs"></i> Aksi Tim
+                            </div>
+                            <div class="action-buttons-row">
+                                @if($team->locked_status != 'locked')
+                                <form action="{{ route('admin.team.lock', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Kunci tim Dancer?')">
+                                    @csrf
+                                    <button type="submit" class="btn-action-simple btn-lock"><i class="fas fa-lock"></i> Kunci Tim</button>
+                                </form>
+                                @else
+                                <form action="{{ route('admin.team.unlock', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Buka kunci tim Dancer?')">
+                                    @csrf
+                                    <button type="submit" class="btn-action-simple btn-unlock"><i class="fas fa-unlock"></i> Buka Kunci</button>
+                                </form>
+                                @endif
+                                @if($team->verification_status != 'verified')
+                                <form action="{{ route('admin.team.verify', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Verifikasi tim Dancer?')">
+                                    @csrf
+                                    <button type="submit" class="btn-action-simple btn-verify"><i class="fas fa-check-circle"></i> Verifikasi Tim</button>
+                                </form>
+                                @else
+                                <form action="{{ route('admin.team.unverify', $team->team_id) }}" method="POST" onsubmit="return confirmAction('Batalkan verifikasi tim Dancer?')">
+                                    @csrf
+                                    <button type="submit" class="btn-action-simple btn-unverify"><i class="fas fa-times-circle"></i> Batalkan Verifikasi</button>
+                                </form>
+                                @endif
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="card">
-                <div class="card-header" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
-                    <i class="fas fa-music"></i> Daftar Dancer ({{ count($dancers) }})
-                </div>
-                <div class="card-body">
-                    @if(count($dancers) > 0)
-                        <div class="table-container">
-                            <table class="data">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Nama</th>
-                                        <th>Gender</th>
-                                        <th>Email</th>
-                                        <th>Telepon</th>
-                                        <th>Role Tim</th>
-                                        <th>Status</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($dancers as $index => $dancer)
-                                    <tr>
-                                        <td>{{ $index + 1 }}</td>
-                                        <td>
-                                            <strong>{{ $dancer->name ?? 'N/A' }}</strong>
-                                            @if(isset($dancer->birthdate) && $dancer->birthdate)
-                                                <br><small class="text-muted">{{ \Carbon\Carbon::parse($dancer->birthdate)->isoFormat('D MMM YYYY') }}</small>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @php
-                                                $gender = strtolower($dancer->gender ?? $dancer->category ?? '');
-                                            @endphp
-                                            @if(in_array($gender, ['male', 'putra', 'laki-laki']))
-                                                <span class="badge-gender-male"><i class="fas fa-male"></i> Putra</span>
-                                            @else
-                                                <span class="badge-gender-female"><i class="fas fa-female"></i> Putri</span>
-                                            @endif
-                                        </td>
-                                        <td>@if($dancer->email)<a href="mailto:{{ $dancer->email }}">{{ $dancer->email }}</a>@else-@endif</td>
-                                        <td>@if($dancer->phone)<a href="tel:{{ $dancer->phone }}">{{ $dancer->phone }}</a>@else-@endif</td>
-                                        <td>
-                                            @if(strtolower($dancer->role ?? '') == 'leader')
-                                                <span class="badge-role-leader"><i class="fas fa-crown"></i> Leader</span>
-                                            @else
-                                                <span class="badge-role-player">Member</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if($dancer->verification_status == 'verified')
-                                                <span class="status-verified">Terverifikasi</span>
-                                            @elseif($dancer->verification_status == 'rejected')
-                                                <span class="status-rejected">Ditolak</span>
-                                            @else
-                                                <span class="status-unverified">Pending</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <a href="{{ route('admin.dancer.detail', $dancer->dancer_id) }}" class="btn-detail">
-                                                <i class="fas fa-eye"></i> Detail
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <div class="empty-state">
-                            <i class="fas fa-music"></i>
-                            <h5>Belum ada data dancer</h5>
-                        </div>
-                    @endif
-                </div>
+        <div class="card">
+            <div class="card-header" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                <i class="fas fa-music"></i> Daftar Dancer ({{ count($dancers) }})
             </div>
-
-            <div class="card">
-                <div class="card-header" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
-                    <i class="fas fa-user-tie"></i> Daftar Official Dancer ({{ count($officials) }})
+            <div class="card-body">
+                @if(count($dancers) > 0)
+                <div class="table-container">
+                    <table class="data">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Nama</th>
+                                <th>Gender</th>
+                                <th>Email</th>
+                                <th>Telepon</th>
+                                <th>Role Tim</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($dancers as $index => $dancer)
+                            <tr>
+                                <td>{{ $index + 1 }}</td>
+                                <td>
+                                    <strong>{{ $dancer->name ?? 'N/A' }}</strong>
+                                    @if(isset($dancer->birthdate) && $dancer->birthdate)
+                                    <br><small class="text-muted">{{ \Carbon\Carbon::parse($dancer->birthdate)->isoFormat('D MMM YYYY') }}</small>
+                                    @endif
+                                </td>
+                                <td>
+                                    @php
+                                    $gender = strtolower($dancer->gender ?? $dancer->category ?? '');
+                                    @endphp
+                                    @if(in_array($gender, ['male', 'putra', 'laki-laki']))
+                                    <span class="badge-gender-male"><i class="fas fa-male"></i> Putra</span>
+                                    @else
+                                    <span class="badge-gender-female"><i class="fas fa-female"></i> Putri</span>
+                                    @endif
+                                </td>
+                                <td>@if($dancer->email)<a href="mailto:{{ $dancer->email }}">{{ $dancer->email }}</a>@else-@endif</td>
+                                <td>@if($dancer->phone)<a href="tel:{{ $dancer->phone }}">{{ $dancer->phone }}</a>@else-@endif</td>
+                                <td>
+                                    @if(strtolower($dancer->role ?? '') == 'leader')
+                                    <span class="badge-role-leader"><i class="fas fa-crown"></i> Leader</span>
+                                    @else
+                                    <span class="badge-role-player">Member</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($dancer->verification_status == 'verified')
+                                    <span class="status-verified">Terverifikasi</span>
+                                    @elseif($dancer->verification_status == 'rejected')
+                                    <span class="status-rejected">Ditolak</span>
+                                    @else
+                                    <span class="status-unverified">Pending</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <a href="{{ route('admin.dancer.detail', $dancer->dancer_id) }}" class="btn-detail">
+                                        <i class="fas fa-eye"></i> Detail
+                                    </a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
-                <div class="card-body">
-                    @if(count($officials) > 0)
-                        <div class="table-container">
-                            <table class="data">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Nama</th>
-                                        <th>Jabatan</th>
-                                        <th>Email</th>
-                                        <th>Telepon</th>
-                                        <th>Gender</th>
-                                        <th>Status</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($officials as $index => $official)
-                                    <tr>
-                                        <td>{{ $index + 1 }}</td>
-                                        <td><strong>{{ $official->name ?? 'N/A' }}</strong></td>
-                                        <td><span class="badge-official-role">{{ $official->formatted_team_role ?? $official->team_role ?? '-' }}</span></td>
-                                        <td>@if($official->email)<a href="mailto:{{ $official->email }}">{{ $official->email }}</a>@else-@endif</td>
-                                        <td>@if($official->phone)<a href="tel:{{ $official->phone }}">{{ $official->phone }}</a>@else-@endif</td>
-                                        <td>
-                                            @if(strtolower($official->gender ?? '') == 'male')
-                                                <span class="badge-gender-male"><i class="fas fa-male"></i> Laki-laki</span>
-                                            @elseif(strtolower($official->gender ?? '') == 'female')
-                                                <span class="badge-gender-female"><i class="fas fa-female"></i> Perempuan</span>
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if($official->verification_status == 'verified')
-                                                <span class="status-verified">Terverifikasi</span>
-                                            @elseif($official->verification_status == 'rejected')
-                                                <span class="status-rejected">Ditolak</span>
-                                            @else
-                                                <span class="status-unverified">Pending</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <a href="{{ route('admin.official.detail', $official->official_id) }}" class="btn-detail">
-                                                <i class="fas fa-eye"></i> Detail
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <div class="empty-state">
-                            <i class="fas fa-user-tie"></i>
-                            <h5>Belum ada data official</h5>
-                        </div>
-                    @endif
+                @else
+                <div class="empty-state">
+                    <i class="fas fa-music"></i>
+                    <h5>Belum ada data dancer</h5>
                 </div>
+                @endif
             </div>
+        </div>
 
-            @include('team_verification.partials.jersey_gallery', ['team' => $team, 'category' => 'Dancer'])
+        <div class="card">
+            <div class="card-header" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                <i class="fas fa-user-tie"></i> Daftar Official Dancer ({{ count($officials) }})
+            </div>
+            <div class="card-body">
+                @if(count($officials) > 0)
+                <div class="table-container">
+                    <table class="data">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Nama</th>
+                                <th>Jabatan</th>
+                                <th>Email</th>
+                                <th>Telepon</th>
+                                <th>Gender</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($officials as $index => $official)
+                            <tr>
+                                <td>{{ $index + 1 }}</td>
+                                <td><strong>{{ $official->name ?? 'N/A' }}</strong></td>
+                                <td><span class="badge-official-role">{{ $official->formatted_team_role ?? $official->team_role ?? '-' }}</span></td>
+                                <td>@if($official->email)<a href="mailto:{{ $official->email }}">{{ $official->email }}</a>@else-@endif</td>
+                                <td>@if($official->phone)<a href="tel:{{ $official->phone }}">{{ $official->phone }}</a>@else-@endif</td>
+                                <td>
+                                    @if(strtolower($official->gender ?? '') == 'male')
+                                    <span class="badge-gender-male"><i class="fas fa-male"></i> Laki-laki</span>
+                                    @elseif(strtolower($official->gender ?? '') == 'female')
+                                    <span class="badge-gender-female"><i class="fas fa-female"></i> Perempuan</span>
+                                    @else
+                                    -
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($official->verification_status == 'verified')
+                                    <span class="status-verified">Terverifikasi</span>
+                                    @elseif($official->verification_status == 'rejected')
+                                    <span class="status-rejected">Ditolak</span>
+                                    @else
+                                    <span class="status-unverified">Pending</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <a href="{{ route('admin.official.detail', $official->official_id) }}" class="btn-detail">
+                                        <i class="fas fa-eye"></i> Detail
+                                    </a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                @else
+                <div class="empty-state">
+                    <i class="fas fa-user-tie"></i>
+                    <h5>Belum ada data official</h5>
+                </div>
+                @endif
+            </div>
+        </div>
+
+        @include('team_verification.partials.jersey_gallery', ['team' => $team, 'category' => 'Dancer'])
         @else
-            <div class="empty-state">
-                <i class="fas fa-music" style="color:#8b5cf6;"></i>
-                <h5>Tim Dancer Belum Terdaftar</h5>
-            </div>
+        <div class="empty-state">
+            <i class="fas fa-music" style="color:#8b5cf6;"></i>
+            <h5>Tim Dancer Belum Terdaftar</h5>
+        </div>
         @endif
 
         @endif
@@ -1640,14 +1654,27 @@
             }).then((result) => result.isConfirmed);
         };
 
-        window.showLogoPopup = function(logoUrl, schoolName, category) {
-            Swal.fire({
-                title: 'Logo Sekolah',
-                html: `<div style="text-align:center;"><img src="${logoUrl || ''}" style="max-width:300px; max-height:300px; border-radius:8px;"><p>${schoolName}</p><p>${category}</p></div>`,
-                showCloseButton: true,
-                showConfirmButton: false
-            });
-        };
+       window.showLogoPopup = function(logoUrl, schoolName, category) {
+    if (!logoUrl || logoUrl.includes('default') || logoUrl.includes('placehold')) {
+        Swal.fire({
+            title: schoolName,
+            html: '<div style="text-align:center;"><i class="fas fa-school" style="font-size:4rem; color:#cbd5e1"></i><p>Logo belum tersedia</p></div>',
+            showCloseButton: true,
+            showConfirmButton: false
+        });
+        return;
+    }
+    Swal.fire({
+        title: ' ',
+        html: `<div style="text-align:center;">
+                    <img src="${logoUrl}" style="max-width:280px; max-height:280px; border-radius:12px; margin-bottom:12px;">
+                    <p style="font-size:1rem; font-weight:600; margin:0;">${schoolName}</p>
+                </div>`,
+        showCloseButton: true,
+        showConfirmButton: false,
+        width: '360px'
+    });
+};
 
         window.showJerseyPopup = function(imageUrl, title, schoolName, category) {
             Swal.fire({
