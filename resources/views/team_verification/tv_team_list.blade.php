@@ -784,9 +784,9 @@
                         @forelse ($teamList as $team)
                         <tr>
                             <td>
-                                <div class="logo-container" onclick="showLogoPopup('{{ asset('storage/' . $team->school_logo) }}', '{{ addslashes($team->school_name) }}')">
-                                    @if(!empty($team->school_logo))
-                                    <img src="{{ asset('storage/' . $team->school_logo) }}" class="logo-img" onerror="this.src='https://placehold.co/50x50?text=No+Logo'">
+                                <div class="logo-container" onclick="showLogoPopup('{{ $team->school_logo_url }}', '{{ addslashes($team->school_name) }}')">
+                                    @if($team->school_logo_url && !str_contains($team->school_logo_url, 'default'))
+                                    <img src="{{ $team->school_logo_url }}" class="logo-img" onerror="this.src='https://placehold.co/50x50?text=No+Logo'">
                                     @else
                                     <div class="logo-placeholder"><i class="fas fa-school"></i><br>No Logo</div>
                                     @endif
