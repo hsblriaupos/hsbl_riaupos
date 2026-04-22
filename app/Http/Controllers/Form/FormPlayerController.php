@@ -331,7 +331,7 @@ if ($canBeLeader) {
                 'name' => 'required|string|max:255',
                 'birthdate' => 'required|date',
                 'gender' => 'required|in:Male,Female',
-                'email' => 'required|email|unique:player_list,email',
+                'email' => 'required|email',
                 'phone' => 'required|string|max:20',
                 'grade' => 'required|string|max:10',
                 'sttb_year' => 'required|digits:4|integer',

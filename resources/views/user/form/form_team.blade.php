@@ -105,7 +105,7 @@
                                 </div>
                                 <h4 class="fw-bold text-dark mb-1">Gabung ke Tim</h4>
                                 <span class="badge bg-soft-teal text-teal px-2 py-1 rounded-pill mb-2" style="font-size: 0.7rem;">
-                                    🔗 Pakai Referral Code
+                                   🔗 Pakai Referral Code
                                 </span>
                             </div>
 

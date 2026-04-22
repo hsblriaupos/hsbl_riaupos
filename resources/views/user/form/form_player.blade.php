@@ -396,18 +396,18 @@
                                 <div class="row g-2">
                                     <div class="col-4">
                                         <label class="small text-muted d-block mb-1">Home</label>
-                                        <input type="file" class="form-control form-control-sm" id="jersey_home" 
-                                               name="jersey_home" accept=".jpg,.jpeg,.png">
+                                        <input type="file" class="form-control form-control-sm" id="jersey_home"
+                                            name="jersey_home" accept=".jpg,.jpeg,.png">
                                     </div>
                                     <div class="col-4">
                                         <label class="small text-muted d-block mb-1">Away</label>
-                                        <input type="file" class="form-control form-control-sm" id="jersey_away" 
-                                               name="jersey_away" accept=".jpg,.jpeg,.png">
+                                        <input type="file" class="form-control form-control-sm" id="jersey_away"
+                                            name="jersey_away" accept=".jpg,.jpeg,.png">
                                     </div>
                                     <div class="col-4">
                                         <label class="small text-muted d-block mb-1">Alternate</label>
-                                        <input type="file" class="form-control form-control-sm" id="jersey_alternate" 
-                                               name="jersey_alternate" accept=".jpg,.jpeg,.png">
+                                        <input type="file" class="form-control form-control-sm" id="jersey_alternate"
+                                            name="jersey_alternate" accept=".jpg,.jpeg,.png">
                                     </div>
                                 </div>
                                 <small class="text-muted d-block mt-2">Upload minimal 1 foto jersey (maks 2MB per file)</small>
@@ -617,376 +617,358 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('playerForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
-    
-    // Set max birthdate
-    const today = new Date();
-    const minBirthDate = new Date();
-    minBirthDate.setFullYear(today.getFullYear() - 10);
-    const birthdateInput = document.getElementById('birthdate');
-    if (birthdateInput) {
-        birthdateInput.max = minBirthDate.toISOString().split('T')[0];
-    }
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('playerForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
 
-    // ========== VALIDASI STTB TAHUN TELAH DIHAPUS ==========
-    // User bebas input tahun berapa saja, asalkan 4 digit angka
-
-    // NIK validation dengan AJAX + SweetAlert
-    const nikInput = document.getElementById('nik');
-    if (nikInput) {
-        let nikTimeout;
-        nikInput.addEventListener('input', function() {
-            clearTimeout(nikTimeout);
-            const nik = this.value;
-            if (nik.length === 16) {
-                nikTimeout = setTimeout(() => {
-                    fetch('{{ route("form.player.checkNik") }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({ nik: nik })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.exists) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'NIK Sudah Terdaftar',
-                                text: 'NIK ini sudah digunakan oleh pemain lain.',
-                                confirmButtonColor: '#4361ee'
-                            });
-                            nikInput.classList.add('is-invalid');
-                            document.getElementById('nikFeedback').innerText = 'NIK sudah terdaftar';
-                        } else {
-                            nikInput.classList.remove('is-invalid');
-                            document.getElementById('nikFeedback').innerText = '';
-                        }
-                    });
-                }, 500);
-            }
-        });
-    }
-
-    // Email validation dengan AJAX + SweetAlert
-    const emailInput = document.getElementById('email');
-    if (emailInput) {
-        let emailTimeout;
-        emailInput.addEventListener('input', function() {
-            clearTimeout(emailTimeout);
-            const email = this.value;
-            if (email && email.includes('@')) {
-                emailTimeout = setTimeout(() => {
-                    fetch('{{ route("form.player.checkEmail") }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({ email: email })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.exists) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Email Sudah Terdaftar',
-                                text: 'Email ini sudah digunakan oleh pemain lain.',
-                                confirmButtonColor: '#4361ee'
-                            });
-                            emailInput.classList.add('is-invalid');
-                            document.getElementById('emailFeedback').innerText = 'Email sudah terdaftar';
-                        } else {
-                            emailInput.classList.remove('is-invalid');
-                            document.getElementById('emailFeedback').innerText = '';
-                        }
-                    });
-                }, 500);
-            }
-        });
-    }
-
-    // Phone validation dengan SweetAlert
-    function validatePhone(input, fieldName) {
-        if (input.value) {
-            const phone = input.value.replace(/[^0-9]/g, '');
-            if (phone.length < 10 || phone.length > 13) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Nomor Telepon Tidak Valid',
-                    text: `${fieldName} harus 10-13 digit angka`,
-                    confirmButtonColor: '#4361ee'
-                });
-                input.value = '';
-                return false;
-            }
-        }
-        return true;
-    }
-
-    const phoneInput = document.getElementById('phone');
-    const fatherPhone = document.getElementById('father_phone');
-    const motherPhone = document.getElementById('mother_phone');
-
-    if (phoneInput) {
-        phoneInput.addEventListener('blur', function() {
-            validatePhone(this, 'Nomor WhatsApp');
-        });
-    }
-
-    if (fatherPhone) {
-        fatherPhone.addEventListener('blur', function() {
-            validatePhone(this, 'Nomor telepon ayah');
-        });
-    }
-
-    if (motherPhone) {
-        motherPhone.addEventListener('blur', function() {
-            validatePhone(this, 'Nomor telepon ibu');
-        });
-    }
-
-    // Jersey number validation
-    const jerseyNumber = document.getElementById('jersey_number');
-    if (jerseyNumber) {
-        jerseyNumber.addEventListener('input', function() {
-            let val = parseInt(this.value);
-            if (isNaN(val)) val = 0;
-            if (val < 0) this.value = 0;
-            if (val > 99) this.value = 99;
-        });
-    }
-
-    // Form validation dengan SweetAlert dan konfirmasi
-    form.addEventListener('submit', function(e) {
-        if (!validateAllFields()) {
-            e.preventDefault();
-            return false;
-        }
-
-        // Konfirmasi sebelum submit dengan SweetAlert
-        Swal.fire({
-            title: 'Konfirmasi Pendaftaran',
-            text: 'Pastikan semua data sudah benar. Apakah Anda yakin?',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#4361ee',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Ya, Kirim!',
-            cancelButtonText: 'Cek Lagi'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Memproses...';
-                submitBtn.disabled = true;
-                loadingModal.show();
-                form.submit();
-            }
-        });
-        
-        e.preventDefault();
-        return false;
-    });
-
-    function validateAllFields() {
-        // Required fields
-        const requiredInputs = [
-            { id: 'nik', name: 'NIK' },
-            { id: 'name', name: 'Nama Lengkap' },
-            { id: 'birthdate', name: 'Tanggal Lahir' },
-            { id: 'gender', name: 'Jenis Kelamin' },
-            { id: 'phone', name: 'WhatsApp' },
-            { id: 'email', name: 'Email' },
-            { id: 'grade', name: 'Kelas' },
-            { id: 'sttb_year', name: 'Tahun STTB' },
-            { id: 'height', name: 'Tinggi Badan' },
-            { id: 'weight', name: 'Berat Badan' },
-            { id: 'tshirt_size', name: 'Ukuran Kaos' },
-            { id: 'shoes_size', name: 'Ukuran Sepatu' },
-            { id: 'father_name', name: 'Nama Ayah' },
-            { id: 'father_phone', name: 'No. Telepon Ayah' },
-            { id: 'mother_name', name: 'Nama Ibu' },
-            { id: 'mother_phone', name: 'No. Telepon Ibu' }
-        ];
-
-        @if($category !== 'dancer')
-        requiredInputs.push(
-            { id: 'basketball_position', name: 'Posisi Basket' },
-            { id: 'jersey_number', name: 'Nomor Jersey' }
-        );
-        @endif
-
-        for (const field of requiredInputs) {
-            const element = document.getElementById(field.id);
-            if (!element || !element.value.trim()) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Field Tidak Lengkap',
-                    text: `Harap isi ${field.name}`,
-                    confirmButtonColor: '#4361ee'
-                });
-                if (element) element.focus();
-                return false;
-            }
-        }
-
-        // NIK validation
-        const nik = document.getElementById('nik').value;
-        if (nik.length !== 16) {
-            Swal.fire({
-                icon: 'error',
-                title: 'NIK Tidak Valid',
-                text: 'NIK harus 16 digit angka',
-                confirmButtonColor: '#4361ee'
-            });
-            document.getElementById('nik').focus();
-            return false;
-        }
-
-        // Email format
-        const email = document.getElementById('email').value;
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Email Tidak Valid',
-                text: 'Format email tidak valid',
-                confirmButtonColor: '#4361ee'
-            });
-            document.getElementById('email').focus();
-            return false;
-        }
-
-        // Phone numbers
-        const phone = document.getElementById('phone').value.replace(/[^0-9]/g, '');
-        if (phone.length < 10 || phone.length > 13) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Nomor WhatsApp Tidak Valid',
-                text: 'Nomor WhatsApp harus 10-13 digit',
-                confirmButtonColor: '#4361ee'
-            });
-            document.getElementById('phone').focus();
-            return false;
-        }
-
-        const fatherPhoneVal = document.getElementById('father_phone').value.replace(/[^0-9]/g, '');
-        if (fatherPhoneVal.length < 10 || fatherPhoneVal.length > 13) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Nomor Telepon Ayah Tidak Valid',
-                text: 'Nomor telepon ayah harus 10-13 digit',
-                confirmButtonColor: '#4361ee'
-            });
-            document.getElementById('father_phone').focus();
-            return false;
-        }
-
-        const motherPhoneVal = document.getElementById('mother_phone').value.replace(/[^0-9]/g, '');
-        if (motherPhoneVal.length < 10 || motherPhoneVal.length > 13) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Nomor Telepon Ibu Tidak Valid',
-                text: 'Nomor telepon ibu harus 10-13 digit',
-                confirmButtonColor: '#4361ee'
-            });
-            document.getElementById('mother_phone').focus();
-            return false;
+        // Set max birthdate
+        const today = new Date();
+        const minBirthDate = new Date();
+        minBirthDate.setFullYear(today.getFullYear() - 10);
+        const birthdateInput = document.getElementById('birthdate');
+        if (birthdateInput) {
+            birthdateInput.max = minBirthDate.toISOString().split('T')[0];
         }
 
         // ========== VALIDASI STTB TAHUN TELAH DIHAPUS ==========
-        // CUKUP CEK HANYA 4 DIGIT ANGKA
-        const sttbYear = document.getElementById('sttb_year').value;
-        if (!/^\d{4}$/.test(sttbYear)) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Tahun STTB Tidak Valid',
-                text: 'Tahun STTB harus 4 digit angka (contoh: 2024)',
-                confirmButtonColor: '#4361ee'
-            });
-            document.getElementById('sttb_year').focus();
-            return false;
+
+        // Phone validation dengan SweetAlert
+        function validatePhone(input, fieldName) {
+            if (input.value) {
+                const phone = input.value.replace(/[^0-9]/g, '');
+                if (phone.length < 10 || phone.length > 13) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Nomor Telepon Tidak Valid',
+                        text: `${fieldName} harus 10-13 digit angka`,
+                        confirmButtonColor: '#4361ee'
+                    });
+                    input.value = '';
+                    return false;
+                }
+            }
+            return true;
         }
-        // TIDAK ADA LAGI VALIDASI MIN/MAX!
 
-        // File uploads
-        const docInputs = [
-            { id: 'birth_certificate', name: 'Akta Kelahiran' },
-            { id: 'kk', name: 'Kartu Keluarga' },
-            { id: 'shun', name: 'SHUN' },
-            { id: 'last_report_card', name: 'Raport Terakhir' },
-            { id: 'formal_photo', name: 'Foto Formal' },
-            { id: 'assignment_letter', name: 'Surat Penugasan' }
-        ];
+        const phoneInput = document.getElementById('phone');
+        const fatherPhone = document.getElementById('father_phone');
+        const motherPhone = document.getElementById('mother_phone');
 
-        for (const doc of docInputs) {
-            const element = document.getElementById(doc.id);
-            if (!element.files || element.files.length === 0) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Dokumen Kurang',
-                    text: `Upload ${doc.name}`,
-                    confirmButtonColor: '#4361ee'
-                });
-                element.focus();
+        if (phoneInput) {
+            phoneInput.addEventListener('blur', function() {
+                validatePhone(this, 'Nomor WhatsApp');
+            });
+        }
+
+        if (fatherPhone) {
+            fatherPhone.addEventListener('blur', function() {
+                validatePhone(this, 'Nomor telepon ayah');
+            });
+        }
+
+        if (motherPhone) {
+            motherPhone.addEventListener('blur', function() {
+                validatePhone(this, 'Nomor telepon ibu');
+            });
+        }
+
+        // Jersey number validation
+        const jerseyNumber = document.getElementById('jersey_number');
+        if (jerseyNumber) {
+            jerseyNumber.addEventListener('input', function() {
+                let val = parseInt(this.value);
+                if (isNaN(val)) val = 0;
+                if (val < 0) this.value = 0;
+                if (val > 99) this.value = 99;
+            });
+        }
+
+        // Form validation dengan SweetAlert dan konfirmasi
+        form.addEventListener('submit', function(e) {
+            if (!validateAllFields()) {
+                e.preventDefault();
                 return false;
             }
-        }
 
-        @if($role === 'Leader')
-        // Payment proof
-        const paymentProof = document.getElementById('payment_proof');
-        if (!paymentProof.files || paymentProof.files.length === 0) {
+            // Konfirmasi sebelum submit dengan SweetAlert
             Swal.fire({
-                icon: 'error',
-                title: 'Bukti Transfer Belum Diupload',
-                text: 'Sebagai Leader, Anda wajib upload bukti transfer',
-                confirmButtonColor: '#4361ee'
+                title: 'Konfirmasi Pendaftaran',
+                text: 'Pastikan semua data sudah benar. Apakah Anda yakin?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#4361ee',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, Kirim!',
+                cancelButtonText: 'Cek Lagi'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Memproses...';
+                    submitBtn.disabled = true;
+                    loadingModal.show();
+                    form.submit();
+                }
             });
-            paymentProof.focus();
-            return false;
-        }
-        
-        @if($category !== 'dancer')
-        // Cek jersey (minimal 1)
-        const jerseyHome = document.getElementById('jersey_home');
-        const jerseyAway = document.getElementById('jersey_away');
-        const jerseyAlt = document.getElementById('jersey_alternate');
-        
-        const hasJersey = (jerseyHome && jerseyHome.files.length > 0) || 
-                         (jerseyAway && jerseyAway.files.length > 0) || 
-                         (jerseyAlt && jerseyAlt.files.length > 0);
-        
-        if (!hasJersey) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Foto Jersey Belum Diupload',
-                text: 'Sebagai Leader, Anda wajib upload minimal 1 foto jersey tim!',
-                confirmButtonColor: '#4361ee'
-            });
-            return false;
-        }
-        @endif
-        @endif
 
-        // Terms checkbox
-        if (!document.getElementById('terms').checked) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Syarat & Ketentuan',
-                text: 'Anda harus menyetujui syarat & ketentuan',
-                confirmButtonColor: '#4361ee'
-            });
-            document.getElementById('terms').focus();
+            e.preventDefault();
             return false;
-        }
+        });
 
-        return true;
-    }
-});
+        function validateAllFields() {
+            // Required fields
+            const requiredInputs = [{
+                    id: 'name',
+                    name: 'Nama Lengkap'
+                },
+                {
+                    id: 'birthdate',
+                    name: 'Tanggal Lahir'
+                },
+                {
+                    id: 'gender',
+                    name: 'Jenis Kelamin'
+                },
+                {
+                    id: 'phone',
+                    name: 'WhatsApp'
+                },
+                {
+                    id: 'grade',
+                    name: 'Kelas'
+                },
+                {
+                    id: 'sttb_year',
+                    name: 'Tahun STTB'
+                },
+                {
+                    id: 'height',
+                    name: 'Tinggi Badan'
+                },
+                {
+                    id: 'weight',
+                    name: 'Berat Badan'
+                },
+                {
+                    id: 'tshirt_size',
+                    name: 'Ukuran Kaos'
+                },
+                {
+                    id: 'shoes_size',
+                    name: 'Ukuran Sepatu'
+                },
+                {
+                    id: 'father_name',
+                    name: 'Nama Ayah'
+                },
+                {
+                    id: 'father_phone',
+                    name: 'No. Telepon Ayah'
+                },
+                {
+                    id: 'mother_name',
+                    name: 'Nama Ibu'
+                },
+                {
+                    id: 'mother_phone',
+                    name: 'No. Telepon Ibu'
+                }
+            ];
+
+            @if($category !== 'dancer')
+            requiredInputs.push({
+                id: 'basketball_position',
+                name: 'Posisi Basket'
+            }, {
+                id: 'jersey_number',
+                name: 'Nomor Jersey'
+            });
+            @endif
+
+            for (const field of requiredInputs) {
+                const element = document.getElementById(field.id);
+                if (!element || !element.value.trim()) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Field Tidak Lengkap',
+                        text: `Harap isi ${field.name}`,
+                        confirmButtonColor: '#4361ee'
+                    });
+                    if (element) element.focus();
+                    return false;
+                }
+            }
+
+            // Email format
+            const email = document.getElementById('email').value;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Email Tidak Valid',
+                    text: 'Format email tidak valid',
+                    confirmButtonColor: '#4361ee'
+                });
+                document.getElementById('email').focus();
+                return false;
+            }
+
+            // Tambahin setelah validasi email
+            const nik = document.getElementById('nik').value;
+            if (nik.length !== 16) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'NIK Tidak Valid',
+                    text: 'NIK harus 16 digit angka',
+                    confirmButtonColor: '#4361ee'
+                });
+                document.getElementById('nik').focus();
+                return false;
+            }
+
+            // Phone numbers
+            const phone = document.getElementById('phone').value.replace(/[^0-9]/g, '');
+            if (phone.length < 10 || phone.length > 13) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Nomor WhatsApp Tidak Valid',
+                    text: 'Nomor WhatsApp harus 10-13 digit',
+                    confirmButtonColor: '#4361ee'
+                });
+                document.getElementById('phone').focus();
+                return false;
+            }
+
+            const fatherPhoneVal = document.getElementById('father_phone').value.replace(/[^0-9]/g, '');
+            if (fatherPhoneVal.length < 10 || fatherPhoneVal.length > 13) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Nomor Telepon Ayah Tidak Valid',
+                    text: 'Nomor telepon ayah harus 10-13 digit',
+                    confirmButtonColor: '#4361ee'
+                });
+                document.getElementById('father_phone').focus();
+                return false;
+            }
+
+            const motherPhoneVal = document.getElementById('mother_phone').value.replace(/[^0-9]/g, '');
+            if (motherPhoneVal.length < 10 || motherPhoneVal.length > 13) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Nomor Telepon Ibu Tidak Valid',
+                    text: 'Nomor telepon ibu harus 10-13 digit',
+                    confirmButtonColor: '#4361ee'
+                });
+                document.getElementById('mother_phone').focus();
+                return false;
+            }
+
+            // ========== VALIDASI STTB TAHUN TELAH DIHAPUS ==========
+            // CUKUP CEK HANYA 4 DIGIT ANGKA
+            const sttbYear = document.getElementById('sttb_year').value;
+            if (!/^\d{4}$/.test(sttbYear)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Tahun STTB Tidak Valid',
+                    text: 'Tahun STTB harus 4 digit angka (contoh: 2024)',
+                    confirmButtonColor: '#4361ee'
+                });
+                document.getElementById('sttb_year').focus();
+                return false;
+            }
+            // TIDAK ADA LAGI VALIDASI MIN/MAX!
+
+            // File uploads
+            const docInputs = [{
+                    id: 'birth_certificate',
+                    name: 'Akta Kelahiran'
+                },
+                {
+                    id: 'kk',
+                    name: 'Kartu Keluarga'
+                },
+                {
+                    id: 'shun',
+                    name: 'SHUN'
+                },
+                {
+                    id: 'last_report_card',
+                    name: 'Raport Terakhir'
+                },
+                {
+                    id: 'formal_photo',
+                    name: 'Foto Formal'
+                },
+                {
+                    id: 'assignment_letter',
+                    name: 'Surat Penugasan'
+                }
+            ];
+
+            for (const doc of docInputs) {
+                const element = document.getElementById(doc.id);
+                if (!element.files || element.files.length === 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Dokumen Kurang',
+                        text: `Upload ${doc.name}`,
+                        confirmButtonColor: '#4361ee'
+                    });
+                    element.focus();
+                    return false;
+                }
+            }
+
+            @if($role === 'Leader')
+            // Payment proof
+            const paymentProof = document.getElementById('payment_proof');
+            if (!paymentProof.files || paymentProof.files.length === 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Bukti Transfer Belum Diupload',
+                    text: 'Sebagai Leader, Anda wajib upload bukti transfer',
+                    confirmButtonColor: '#4361ee'
+                });
+                paymentProof.focus();
+                return false;
+            }
+
+            @if($category !== 'dancer')
+            // Cek jersey (minimal 1)
+            const jerseyHome = document.getElementById('jersey_home');
+            const jerseyAway = document.getElementById('jersey_away');
+            const jerseyAlt = document.getElementById('jersey_alternate');
+
+            const hasJersey = (jerseyHome && jerseyHome.files.length > 0) ||
+                (jerseyAway && jerseyAway.files.length > 0) ||
+                (jerseyAlt && jerseyAlt.files.length > 0);
+
+            if (!hasJersey) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Foto Jersey Belum Diupload',
+                    text: 'Sebagai Leader, Anda wajib upload minimal 1 foto jersey tim!',
+                    confirmButtonColor: '#4361ee'
+                });
+                return false;
+            }
+            @endif
+            @endif
+
+            // Terms checkbox
+            if (!document.getElementById('terms').checked) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Syarat & Ketentuan',
+                    text: 'Anda harus menyetujui syarat & ketentuan',
+                    confirmButtonColor: '#4361ee'
+                });
+                document.getElementById('terms').focus();
+                return false;
+            }
+
+            return true;
+        }
+    });
 </script>
 @endpush
 @endsection

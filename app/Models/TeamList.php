@@ -107,28 +107,30 @@ class TeamList extends Model
     /**
      * Accessor URL logo sekolah/tim
      */
-    public function getSchoolLogoUrlAttribute()
-    {
-        // 1️⃣ Logo khusus tim
-        if ($this->school_logo) {
-            if (Storage::exists($this->school_logo)) {
-                return Storage::url($this->school_logo);
-            }
-
-            $publicPath = public_path('uploads/school_logo/' . $this->school_logo);
-            if (file_exists($publicPath)) {
-                return asset('uploads/school_logo/' . $this->school_logo);
-            }
-        }
-
-        // 2️⃣ Logo dari tabel school
-        if ($this->school && $this->school->school_logo) {
+   public function getSchoolLogoUrlAttribute()
+{
+    // 1️⃣ PRIORITAS: Logo dari tabel school (lebih utama!)
+    if ($this->school && $this->school->school_logo) {
+        if (Storage::disk('public')->exists($this->school->school_logo)) {
             return Storage::url($this->school->school_logo);
         }
-
-        // 3️⃣ Default
-        return asset('images/default-school-logo.png');
     }
+    
+    // 2️⃣ FALLBACK: Logo dari team_list (untuk data lama)
+    if ($this->school_logo) {
+        if (Storage::disk('public')->exists($this->school_logo)) {
+            return Storage::url($this->school_logo);
+        }
+        
+        $publicPath = public_path('uploads/school_logo/' . $this->school_logo);
+        if (file_exists($publicPath)) {
+            return asset('uploads/school_logo/' . $this->school_logo);
+        }
+    }
+    
+    // 3️⃣ DEFAULT
+    return asset('images/default-school-logo.png');
+}
 
     /**
      * 🔥 Accessor URL Jersey Home

@@ -815,18 +815,21 @@
         <div class="card-body">
             <div class="team-info">
                 <div class="logo-column">
-                    <div class="logo-box-square" onclick="showLogoPopup('{{ $mainTeam->logo_url ?? '' }}', '{{ $mainTeam->school_name }}', 'Main Team')">
-                        @if(isset($mainTeam->logo_url) && $mainTeam->logo_url)
-                            <img src="{{ $mainTeam->logo_url }}" alt="Logo {{ $mainTeam->school_name }}">
-                        @else
-                            <div class="logo-placeholder">
-                                <i class="fas fa-school fa-3x mb-2"></i>
-                                <span>No Logo</span>
-                            </div>
-                        @endif
-                        <small class="text-muted mt-2">Klik untuk perbesar</small>
-                    </div>
-                </div>
+    @php
+        // 🔥 PAKAI CARA YANG SAMA KAYAK DI TEAM LIST
+        $logoUrl = !empty($mainTeam->school_logo) ? asset('storage/' . $mainTeam->school_logo) : null;
+    @endphp
+    <div class="logo-box-square" onclick="showLogoPopup('{{ $logoUrl ?? '' }}', '{{ $mainTeam->school_name }}', '')">
+        @if($logoUrl)
+            <img src="{{ $logoUrl }}" alt="Logo {{ $mainTeam->school_name }}" onerror="this.src='https://placehold.co/120x120?text=No+Logo'">
+        @else
+            <div class="logo-placeholder">
+                <i class="fas fa-school fa-3x mb-2"></i>
+                <span>No Logo</span>
+            </div>
+        @endif
+    </div>
+</div>
                 <div class="content-column">
                     <div class="content-grid">
                         <div class="info-section">

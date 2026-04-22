@@ -771,7 +771,7 @@
                             <th>LOGO</th>
                             <th>NO</th>
                             <th>SEKOLAH</th>
-                            <th>NAMA TIM</th>
+
                             <th>KOMPETISI</th>
                             <th>REG</th>
                             <th>KUNCI</th>
@@ -797,9 +797,7 @@
                                 <div class="school-name">{{ Str::limit($team->school_name ?? '-', 28) }}</div>
                                 @if(!empty($team->season))<div class="text-small"><i class="fas fa-calendar-alt"></i> {{ $team->season }}</div>@endif
                             </td>
-                            <td>
-                                <div class="team-name">{{ Str::limit($team->team_name ?? '-', 20) }}</div>
-                            </td>
+
                             <td>
                                 <div class="competition-name">{{ Str::limit($team->competition ?? '-', 28) }}</div>
                                 @if(!empty($team->series))<div class="text-small"><i class="fas fa-layer-group"></i> {{ $team->series }}</div>@endif

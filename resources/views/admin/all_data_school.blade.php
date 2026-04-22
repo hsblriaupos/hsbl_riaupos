@@ -670,6 +670,12 @@
             font-size: 0.7rem;
         }
     }
+
+    .swal-title-small {
+        font-size: 1rem !important;
+        font-weight: 500 !important;
+        padding-top: 5px !important;
+    }
 </style>
 @endpush
 
@@ -836,6 +842,7 @@
                     <thead>
                         <tr>
                             <th style="width: 50px;">No.</th>
+                            <th style="width: 60px;">Logo</th>
                             <th>Nama Sekolah</th>
                             <th style="width: 90px;">Kategori</th>
                             <th style="width: 90px;">Jenis</th>
@@ -847,6 +854,25 @@
                         @forelse ($schools as $index => $school)
                         <tr>
                             <td class="text-center">{{ $schools->firstItem() + $index }}</td>
+
+                            <!-- 🔥 KOLOM LOGO -->
+                            <td class="text-center">
+                                @if($school->school_logo)
+                                <img src="{{ Storage::url($school->school_logo) }}"
+                                    alt="Logo {{ $school->school_name }}"
+                                    style="width: 40px; height: 40px; object-fit: contain; border-radius: 8px; cursor: pointer;"
+                                    onclick="showLogoPreview('{{ Storage::url($school->school_logo) }}', '{{ $school->school_name }}')"
+                                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div style="width: 40px; height: 40px; background: #f1f5f9; border-radius: 8px; display: none; align-items: center; justify-content: center; margin: 0 auto;">
+                                    <i class="fas fa-school text-muted" style="font-size: 18px;"></i>
+                                </div>
+                                @else
+                                <div style="width: 40px; height: 40px; background: #f1f5f9; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                                    <i class="fas fa-school text-muted" style="font-size: 18px;"></i>
+                                </div>
+                                @endif
+                            </td>
+
                             <td>{{ $school->school_name }}</td>
                             <td>
                                 <span class="badge badge-primary">
@@ -882,19 +908,19 @@
                                     </button>
 
                                     <form method="POST" action="{{ route('admin.school.delete') }}" class="delete-form d-inline">
-    @csrf
-    <input type="hidden" name="table" value="schools">
-    <input type="hidden" name="id" value="{{ $school->id }}">
-    <button type="button" class="action-icon delete-icon btn-delete" title="Hapus">
-        <i class="fas fa-trash"></i>
-    </button>
-</form>
+                                        @csrf
+                                        <input type="hidden" name="table" value="schools">
+                                        <input type="hidden" name="id" value="{{ $school->id }}">
+                                        <button type="button" class="action-icon delete-icon btn-delete" title="Hapus">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="6">
+                            <td colspan="7"> <!-- 🔥 UBAH dari colspan 6 menjadi 7 karena ada kolom logo -->
                                 <div class="empty-state">
                                     <i class="fas fa-school"></i>
                                     <p>Belum ada data sekolah.</p>
@@ -1039,6 +1065,20 @@
         document.getElementById('editCityId').value = button.dataset.city;
         document.getElementById('editCategory').value = button.dataset.category;
         document.getElementById('editType').value = button.dataset.type;
+    }
+
+    // Preview Logo - Title lebih kecil
+    function showLogoPreview(logoUrl, schoolName) {
+        Swal.fire({
+            title: schoolName,
+            html: `<img src="${logoUrl}" style="max-width: 280px; max-height: 280px; border-radius: 12px;">`,
+            showCloseButton: true,
+            showConfirmButton: false,
+            width: '360px',
+            customClass: {
+                title: 'swal-title-small'
+            }
+        });
     }
 
     // Delete Confirmation
