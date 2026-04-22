@@ -797,6 +797,12 @@
             font-size: 10px;
         }
     }
+
+/* Tampilan Bukti Bayar */
+body.swal2-shown {
+    overflow-y: auto !important;
+    padding-right: 0px !important;
+}
 </style>
 @endpush
 
@@ -815,17 +821,17 @@
         <div class="card-body">
             <div class="team-info">
                 <div class="logo-column">
-    <div class="logo-box-square" onclick="showLogoPopup('{{ $mainTeam->school_logo_url }}', '{{ $mainTeam->school_name }}', '')">
-        @if($mainTeam->school_logo_url && !str_contains($mainTeam->school_logo_url, 'default'))
-            <img src="{{ $mainTeam->school_logo_url }}" alt="Logo {{ $mainTeam->school_name }}" onerror="this.src='https://placehold.co/120x120?text=No+Logo'">
-        @else
-            <div class="logo-placeholder">
-                <i class="fas fa-school fa-3x mb-2"></i>
-                <span>No Logo</span>
-            </div>
-        @endif
-    </div>
-</div>
+                    <div class="logo-box-square" onclick="showLogoPopup('{{ $mainTeam->school_logo_url }}', '{{ $mainTeam->school_name }}', '')">
+                        @if($mainTeam->school_logo_url && !str_contains($mainTeam->school_logo_url, 'default'))
+                        <img src="{{ $mainTeam->school_logo_url }}" alt="Logo {{ $mainTeam->school_name }}" onerror="this.src='https://placehold.co/120x120?text=No+Logo'">
+                        @else
+                        <div class="logo-placeholder">
+                            <i class="fas fa-school fa-3x mb-2"></i>
+                            <span>No Logo</span>
+                        </div>
+                        @endif
+                    </div>
+                </div>
                 <div class="content-column">
                     <div class="content-grid">
                         <div class="info-section">
@@ -926,9 +932,9 @@
                             </div>
 
                             @if($team->payment_proof)
-                            <a href="{{ Storage::url($team->payment_proof) }}" target="_blank" class="payment-proof-link available">
-                                <i class="fas fa-file-invoice-dollar"></i> Lihat Bukti Pembayaran
-                            </a>
+                           <a href="javascript:void(0)" onclick="showPaymentProof('{{ Storage::url($team->payment_proof) }}')" class="payment-proof-link available">
+    <i class="fas fa-file-invoice-dollar"></i> Lihat Bukti Pembayaran
+</a>
                             @else
                             <span class="payment-proof-link unavailable" onclick="showAlert('Bukti Pembayaran')">
                                 <i class="fas fa-exclamation-triangle"></i> Bukti Pembayaran Belum Diupload
@@ -1179,9 +1185,9 @@
                             </div>
 
                             @if($team->payment_proof)
-                            <a href="{{ Storage::url($team->payment_proof) }}" target="_blank" class="payment-proof-link available">
-                                <i class="fas fa-file-invoice-dollar"></i> Lihat Bukti Pembayaran
-                            </a>
+                           <a href="javascript:void(0)" onclick="showPaymentProof('{{ Storage::url($team->payment_proof) }}')" class="payment-proof-link available">
+    <i class="fas fa-file-invoice-dollar"></i> Lihat Bukti Pembayaran
+</a>
                             @else
                             <span class="payment-proof-link unavailable" onclick="showAlert('Bukti Pembayaran')">
                                 <i class="fas fa-exclamation-triangle"></i> Bukti Pembayaran Belum Diupload
@@ -1421,9 +1427,9 @@
                             </div>
 
                             @if($team->payment_proof)
-                            <a href="{{ Storage::url($team->payment_proof) }}" target="_blank" class="payment-proof-link available">
-                                <i class="fas fa-file-invoice-dollar"></i> Lihat Bukti Pembayaran
-                            </a>
+                          <a href="javascript:void(0)" onclick="showPaymentProof('{{ Storage::url($team->payment_proof) }}')" class="payment-proof-link available">
+    <i class="fas fa-file-invoice-dollar"></i> Lihat Bukti Pembayaran
+</a>
                             @else
                             <span class="payment-proof-link unavailable" onclick="showAlert('Bukti Pembayaran')">
                                 <i class="fas fa-exclamation-triangle"></i> Bukti Pembayaran Belum Diupload
@@ -1654,25 +1660,33 @@
             }).then((result) => result.isConfirmed);
         };
 
-       window.showLogoPopup = function(logoUrl, schoolName, category) {
-    if (!logoUrl || logoUrl.includes('default') || logoUrl.includes('placehold')) {
-        Swal.fire({
-            title: schoolName,
-            html: '<div style="text-align:center;"><i class="fas fa-school" style="font-size:4rem; color:#cbd5e1"></i><p>Logo belum tersedia</p></div>',
-            showCloseButton: true,
-            showConfirmButton: false
-        });
-        return;
-    }
+        window.showLogoPopup = function(logoUrl, schoolName, category) {
+            Swal.fire({
+                title: 'Logo Sekolah',
+                html: `<div style="text-align:center;"><img src="${logoUrl || ''}" style="max-width:300px; max-height:300px; border-radius:8px;"><p>${schoolName}</p><p>${category}</p></div>`,
+                showCloseButton: true,
+                showConfirmButton: false
+            });
+        };
+
+      window.showPaymentProof = function(imageUrl) {
     Swal.fire({
-        title: ' ',
-        html: `<div style="text-align:center;">
-                    <img src="${logoUrl}" style="max-width:280px; max-height:280px; border-radius:12px; margin-bottom:12px;">
-                    <p style="font-size:1rem; font-weight:600; margin:0;">${schoolName}</p>
-                </div>`,
+        title: '📄 Bukti Pembayaran',
+        html: `<img src="${imageUrl}" style="max-width: 400px; width: 100%; max-height: 50vh; border-radius: 8px; object-fit: contain;">`,
         showCloseButton: true,
         showConfirmButton: false,
-        width: '360px'
+        width: '450px',
+        padding: '1rem',
+        background: '#fff',
+        backdrop: `rgba(0,0,0,0.5)`,
+        allowOutsideClick: true,
+        allowEscapeKey: true,
+        didOpen: () => {
+            document.body.style.overflow = 'auto';
+        },
+        willClose: () => {
+            document.body.style.overflow = '';
+        }
     });
 };
 
