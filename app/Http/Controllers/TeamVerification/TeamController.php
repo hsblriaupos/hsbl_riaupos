@@ -326,108 +326,173 @@ class TeamController extends Controller
         }
     }
 
-
     /**
-     * 🔥🔥🔥 FIX UTAMA: GET ALL TEAM DATA - MENGIKUTI TEAMLISTPROFILECONTROLLER
+     * 🔥🔥🔥 FIX: GET ALL TEAM DATA - MENGGUNAKAN LOGIKA SEPERTI USER
      */
     private function getAllTeamData($schoolName)
     {
-        $this->ensureConsistentSchoolId($schoolName);
-
-        // AMBIL SEMUA TIM UNTUK SEKOLAH INI
+        // 🔥 AMBIL SEMUA TIM UNTUK SEKOLAH INI
         $teams = TeamList::where('school_name', $schoolName)->get();
 
-        // ========== AMBIL DATA TEAM LENGKAP DENGAN LOGO ==========
-        $teamPutra = $teams->where('team_category', 'Basket Putra')->first();
-        $teamPutri = $teams->where('team_category', 'Basket Putri')->first();
-        $teamDancer = $teams->where('team_category', 'Dancer')->first();
+        // 🔥 AMBIL ATAU BUAT DATA UNTUK MASING-MASING KATEGORI
+        $teamPutra = null;
+        $teamPutri = null;
+        $teamDancer = null;
 
-        // ========== FORMAT LOGO URL ==========
+        $playersMale = [];
+        $playersFemale = [];
+        $dancers = collect();
+        $officialsBasketMale = [];
+        $officialsBasketFemale = [];
+        $officialsDancer = [];
+
+        // 🔥 LOOP SETIAP TIM DAN KUMPULKAN DATA BERDASARKAN GENDER
+        foreach ($teams as $team) {
+            // Ambil player dari tim ini
+            $teamPlayers = PlayerList::where('team_id', $team->team_id)->get();
+
+            foreach ($teamPlayers as $player) {
+                $gender = strtolower($player->gender ?? $player->category ?? '');
+
+                if (in_array($gender, ['male', 'putra', 'laki-laki'])) {
+                    $playersMale[] = $player;
+                    // Jika ada player male, tandai tim ini sebagai Basket Putra (virtual)
+                    if (!$teamPutra) {
+                        $teamPutra = $team;
+                    }
+                } elseif (in_array($gender, ['female', 'putri', 'perempuan'])) {
+                    $playersFemale[] = $player;
+                    if (!$teamPutri) {
+                        $teamPutri = $team;
+                    }
+                }
+            }
+
+            // 🔥 AMBIL DANCER (untuk semua tim, karena dancer bisa di tim mana saja)
+            $teamDancers = DancerList::where('team_id', $team->team_id)->get();
+            if ($teamDancers->count() > 0) {
+                $dancers = $dancers->merge($teamDancers);
+                if (!$teamDancer) {
+                    $teamDancer = $team;
+                }
+            }
+
+            // 🔥 AMBIL OFFICIALS
+            $teamOfficials = OfficialList::where('team_id', $team->team_id)->get();
+            foreach ($teamOfficials as $official) {
+                $category = strtolower($official->category ?? '');
+                $gender = strtolower($official->gender ?? '');
+
+                if ($category == 'basket_putra' || in_array($gender, ['male', 'putra', 'laki-laki'])) {
+                    $officialsBasketMale[] = $official;
+                } elseif ($category == 'basket_putri' || in_array($gender, ['female', 'putri', 'perempuan'])) {
+                    $officialsBasketFemale[] = $official;
+                } elseif ($category == 'dancer') {
+                    $officialsDancer[] = $official;
+                }
+            }
+        }
+
+        // 🔥 Jika masih ada player male tapi tidak ada tim, buat virtual team
+        if (!$teamPutra && count($playersMale) > 0) {
+            $teamPutra = $this->createVirtualTeam($schoolName, 'Basket Putra');
+        }
+
+        // 🔥 Jika masih ada player female tapi tidak ada tim, buat virtual team
+        if (!$teamPutri && count($playersFemale) > 0) {
+            $teamPutri = $this->createVirtualTeam($schoolName, 'Basket Putri');
+        }
+
+        // 🔥 Jika masih ada dancer tapi tidak ada tim, buat virtual team
+        if (!$teamDancer && $dancers->count() > 0) {
+            $teamDancer = $this->createVirtualTeam($schoolName, 'Dancer');
+        }
+
+        // ========== FORMAT TEAM ==========
         $teamPutra = $this->formatTeamLogo($teamPutra);
         $teamPutri = $this->formatTeamLogo($teamPutri);
         $teamDancer = $this->formatTeamLogo($teamDancer);
 
-        // ========== FORMAT DOKUMEN URL ==========
         $teamPutra = $this->formatTeamDocuments($teamPutra);
         $teamPutri = $this->formatTeamDocuments($teamPutri);
         $teamDancer = $this->formatTeamDocuments($teamDancer);
 
-        // ========== FORMAT JERSEY URL ==========
         $teamPutra = $this->formatTeamJersey($teamPutra);
         $teamPutri = $this->formatTeamJersey($teamPutri);
         $teamDancer = $this->formatTeamJersey($teamDancer);
 
-        // ========== AMBIL PLAYER BASED ON GENDER ==========
-        $playersMale = [];
-        $playersFemale = [];
-
-        if ($teamPutra) {
-            $playersMale = $this->getPlayersByTeamAndGender($teamPutra->team_id, 'male');
-        }
-
-        if ($teamPutri) {
-            $playersFemale = $this->getPlayersByTeamAndGender($teamPutri->team_id, 'female');
-        }
-
-        // ========== AMBIL DANCERS ==========
-        $dancers = collect();
-        if ($teamDancer) {
-            $dancers = $this->getDancersByTeamId($teamDancer->team_id);
-        }
-
-        // ========== AMBIL OFFICIALS PER KATEGORI ==========
-        $officialsBasketMale = collect();
-        $officialsBasketFemale = collect();
-        $officialsDancer = collect();
-        $allOfficials = collect();
-
-        if ($teamPutra) {
-            $officialsBasketMale = $this->getOfficialsByTeamAndCategory($teamPutra->team_id, 'basket_putra');
-            $allOfficials = $allOfficials->merge($officialsBasketMale);
-        }
-
-        if ($teamPutri) {
-            $officialsBasketFemale = $this->getOfficialsByTeamAndCategory($teamPutri->team_id, 'basket_putri');
-            $allOfficials = $allOfficials->merge($officialsBasketFemale);
-        }
-
-        if ($teamDancer) {
-            $officialsDancer = $this->getOfficialsByTeamAndCategory($teamDancer->team_id, 'dancer');
-            $allOfficials = $allOfficials->merge($officialsDancer);
-        }
-
         // ========== FORMAT DATA UNTUK VIEW ==========
         $teamData = [
-            // TEAM OBJECTS
             'team_putra' => $teamPutra,
             'team_putri' => $teamPutri,
             'team_dancer' => $teamDancer,
 
-            // PLAYERS
             'players_male' => $playersMale,
             'players_female' => $playersFemale,
             'total_players_male' => count($playersMale),
             'total_players_female' => count($playersFemale),
             'total_players' => count($playersMale) + count($playersFemale),
 
-            // DANCERS
             'dancers' => $dancers,
             'total_dancers' => $dancers->count(),
 
-            // OFFICIALS
             'officials_basket_male' => $officialsBasketMale,
             'officials_basket_female' => $officialsBasketFemale,
             'officials_dancer' => $officialsDancer,
-            'all_officials' => $allOfficials,
-            'total_officials' => $allOfficials->count(),
+            'total_officials' => count($officialsBasketMale) + count($officialsBasketFemale) + count($officialsDancer),
 
-            // TEAM INFO
-            'team_name' => $teamPutra->school_name ?? $teamPutri->school_name ?? $teamDancer->school_name ?? $schoolName,
-            'competition' => $teamPutra->competition ?? $teamPutri->competition ?? $teamDancer->competition ?? 'HSBL',
-            'team_category' => $teamPutra->team_category ?? $teamPutri->team_category ?? $teamDancer->team_category ?? 'Basketball',
-            'season' => $teamPutra->season ?? $teamPutri->season ?? $teamDancer->season ?? date('Y'),
-            'series' => $teamPutra->series ?? $teamPutri->series ?? $teamDancer->series ?? '1',
+            'team_name' => $schoolName,
+            'competition' => $teams->first()->competition ?? 'HSBL',
+            'season' => $teams->first()->season ?? date('Y'),
+            'series' => $teams->first()->series ?? '1',
         ];
+
+        // Format data untuk tampilan
+        $teamData = $this->formatTeamDataForDisplay($teamData);
+
+        return $teamData;
+    }
+    /**
+     * Format semua data untuk tampilan (photo URL, role formatting, dll)
+     * SAMA PERSIS DENGAN DI USER
+     */
+    private function formatTeamDataForDisplay($teamData)
+    {
+        // Format players male
+        if (!empty($teamData['players_male'])) {
+            foreach ($teamData['players_male'] as $player) {
+                $player->formatted_role = $this->formatRole($player->role);
+                $player->formal_photo_url = $this->getFormalPhotoUrl($player->formal_photo, 'player');
+            }
+        }
+
+        // Format players female
+        if (!empty($teamData['players_female'])) {
+            foreach ($teamData['players_female'] as $player) {
+                $player->formatted_role = $this->formatRole($player->role);
+                $player->formal_photo_url = $this->getFormalPhotoUrl($player->formal_photo, 'player');
+            }
+        }
+
+        // Format dancers
+        if ($teamData['dancers'] && $teamData['dancers']->count() > 0) {
+            foreach ($teamData['dancers'] as $dancer) {
+                $dancer->formatted_role = $this->formatRole($dancer->role);
+                $dancer->formal_photo_url = $this->getFormalPhotoUrl($dancer->formal_photo, 'dancer');
+            }
+        }
+
+        // Format officials
+        $officialTypes = ['officials_basket_male', 'officials_basket_female', 'officials_dancer'];
+        foreach ($officialTypes as $type) {
+            if (!empty($teamData[$type]) && count($teamData[$type]) > 0) {
+                foreach ($teamData[$type] as $official) {
+                    $official->formatted_team_role = $this->formatRole($official->team_role);
+                    $official->formatted_role = $this->formatRole($official->role);
+                    $official->formal_photo_url = $this->getFormalPhotoUrl($official->formal_photo, 'official');
+                }
+            }
+        }
 
         return $teamData;
     }
@@ -842,7 +907,7 @@ class TeamController extends Controller
     }
 
     /**
-     * 🔥🔥🔥 DEBUG: Cek data di database
+     * 🔥 DEBUG: Cek data mentah dari database
      */
     public function debugTeamData($teamId)
     {
@@ -851,45 +916,52 @@ class TeamController extends Controller
             return response()->json(['error' => 'Team tidak ditemukan'], 404);
         }
 
-        $debug = [
-            'team' => [
-                'id' => $team->team_id,
-                'school' => $team->school_name,
-                'category' => $team->team_category
-            ],
-            'players' => [
-                'total' => PlayerList::where('team_id', $teamId)->count(),
-                'male' => PlayerList::where('team_id', $teamId)
-                    ->whereIn('gender', ['Male', 'male', 'Laki-laki', 'Putra'])
-                    ->count(),
-                'female' => PlayerList::where('team_id', $teamId)
-                    ->whereIn('gender', ['Female', 'female', 'Perempuan', 'Putri'])
-                    ->count(),
-                'by_category' => PlayerList::where('team_id', $teamId)
-                    ->select('category', DB::raw('count(*) as total'))
-                    ->groupBy('category')
-                    ->get(),
-                'by_gender' => PlayerList::where('team_id', $teamId)
-                    ->select('gender', DB::raw('count(*) as total'))
-                    ->groupBy('gender')
-                    ->get(),
-                'sample' => PlayerList::where('team_id', $teamId)->take(5)->get()
-            ],
-            'dancers' => [
-                'total' => DancerList::where('team_id', $teamId)->count(),
-                'data' => DancerList::where('team_id', $teamId)->get(),
-                'columns' => $this->getTableColumns('dancer_list')
-            ],
-            'officials' => [
-                'total' => OfficialList::where('team_id', $teamId)->count(),
-                'by_category' => OfficialList::where('team_id', $teamId)
-                    ->select('category', DB::raw('count(*) as total'))
-                    ->groupBy('category')
-                    ->get()
-            ]
-        ];
+        // Ambil semua player dari semua tim sekolah
+        $allTeams = TeamList::where('school_name', $team->school_name)->get();
+        $allTeamIds = $allTeams->pluck('team_id')->toArray();
 
-        return response()->json($debug);
+        $allPlayers = PlayerList::whereIn('team_id', $allTeamIds)->get();
+
+        $playersMale = [];
+        $playersFemale = [];
+
+        foreach ($allPlayers as $player) {
+            $gender = strtolower($player->gender ?? $player->category ?? '');
+            if (in_array($gender, ['male', 'putra', 'laki-laki'])) {
+                $playersMale[] = $player;
+            } elseif (in_array($gender, ['female', 'putri', 'perempuan'])) {
+                $playersFemale[] = $player;
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'school' => $team->school_name,
+            'all_teams' => $allTeams->map(function ($t) {
+                return [
+                    'team_id' => $t->team_id,
+                    'category' => $t->team_category,
+                    'players_count' => PlayerList::where('team_id', $t->team_id)->count()
+                ];
+            }),
+            'all_players_raw' => $allPlayers->map(function ($p) {
+                return [
+                    'id' => $p->id,
+                    'name' => $p->name,
+                    'gender' => $p->gender,
+                    'category' => $p->category,
+                    'team_id' => $p->team_id
+                ];
+            }),
+            'players_male' => array_map(function ($p) {
+                return ['id' => $p->id, 'name' => $p->name, 'gender' => $p->gender ?? $p->category];
+            }, $playersMale),
+            'players_female' => array_map(function ($p) {
+                return ['id' => $p->id, 'name' => $p->name, 'gender' => $p->gender ?? $p->category];
+            }, $playersFemale),
+            'players_male_count' => count($playersMale),
+            'players_female_count' => count($playersFemale),
+        ]);
     }
 
     /**
@@ -1169,5 +1241,50 @@ class TeamController extends Controller
                 'message' => 'Error: ' . $e->getMessage()
             ], 500);
         }
+    }
+    /**
+     * Debug endpoint to check team data
+     */
+    public function debugTeamDataView($teamId)
+    {
+        $mainTeam = $this->getMainTeam($teamId);
+        $teamData = $this->getAllTeamData($mainTeam->school_name);
+
+        // Log untuk debugging
+        \Illuminate\Support\Facades\Log::info('DEBUG TEAM DATA:', [
+            'school' => $mainTeam->school_name,
+            'team_putra_exists' => isset($teamData['team_putra']) ? 'YES' : 'NO',
+            'team_putra_players' => count($teamData['players_male'] ?? []),
+            'team_putri_exists' => isset($teamData['team_putri']) ? 'YES' : 'NO',
+            'team_putri_players' => count($teamData['players_female'] ?? []),
+            'team_dancer_exists' => isset($teamData['team_dancer']) ? 'YES' : 'NO',
+            'team_dancer_count' => count($teamData['dancers'] ?? []),
+        ]);
+
+        // Return JSON untuk inspect
+        return response()->json([
+            'school' => $mainTeam->school_name,
+            'team_putra' => [
+                'exists' => isset($teamData['team_putra']),
+                'players_count' => count($teamData['players_male'] ?? []),
+                'players_sample' => collect($teamData['players_male'] ?? [])->take(3)->map(function ($p) {
+                    return ['name' => $p->name, 'gender' => $p->gender ?? $p->category ?? 'N/A'];
+                })
+            ],
+            'team_putri' => [
+                'exists' => isset($teamData['team_putri']),
+                'players_count' => count($teamData['players_female'] ?? []),
+                'players_sample' => collect($teamData['players_female'] ?? [])->take(3)->map(function ($p) {
+                    return ['name' => $p->name, 'gender' => $p->gender ?? $p->category ?? 'N/A'];
+                })
+            ],
+            'team_dancer' => [
+                'exists' => isset($teamData['team_dancer']),
+                'dancers_count' => count($teamData['dancers'] ?? []),
+                'dancers_sample' => collect($teamData['dancers'] ?? [])->take(3)->map(function ($d) {
+                    return ['name' => $d->name, 'gender' => $d->gender ?? $d->category ?? 'N/A'];
+                })
+            ]
+        ]);
     }
 }

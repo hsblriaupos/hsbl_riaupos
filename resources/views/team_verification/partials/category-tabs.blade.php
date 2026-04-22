@@ -1,25 +1,32 @@
 @php
+    // 🔥🔥🔥 PERBAIKAN: Sesuaikan dengan struktur data dari controller
     $tabs = [
         'Basket Putra' => [
             'label' => 'Basket Putra', 
             'icon' => 'fas fa-basketball-ball',
             'color' => '#3b82f6',
             'route' => 'admin.team.detail.basket-putra',
-            'exists' => isset($teamData['Basket Putra']) && $teamData['Basket Putra']['exists']
+            'team_key' => 'team_putra',
+            'players_key' => 'players_male',
+            'officials_key' => 'officials_basket_male',
         ],
         'Basket Putri' => [
             'label' => 'Basket Putri', 
             'icon' => 'fas fa-basketball-ball',
             'color' => '#ec4899',
             'route' => 'admin.team.detail.basket-putri',
-            'exists' => isset($teamData['Basket Putri']) && $teamData['Basket Putri']['exists']
+            'team_key' => 'team_putri',
+            'players_key' => 'players_female',
+            'officials_key' => 'officials_basket_female',
         ],
         'Dancer' => [
             'label' => 'Dancer', 
             'icon' => 'fas fa-music',
             'color' => '#8b5cf6',
             'route' => 'admin.team.detail.dancer',
-            'exists' => isset($teamData['Dancer']) && $teamData['Dancer']['exists']
+            'team_key' => 'team_dancer',
+            'players_key' => 'dancers',
+            'officials_key' => 'officials_dancer',
         ],
     ];
 @endphp
@@ -27,29 +34,37 @@
 <div class="category-tabs-wrapper">
     <div class="category-tabs-container">
         <nav class="category-tabs-nav">
-            @foreach($tabs as $key => $tab)
+            @foreach($tabs as $tabLabel => $tabConfig)
                 @php 
-                    $teamInfo = $teamData[$key] ?? null;
-                    $teamExists = $teamInfo && $teamInfo['exists'];
-                    $isActive = ($activeTab === $key);
+                    // 🔥🔥🔥 AMBIL DATA DARI STRUCTURE YANG BENAR
+                    $team = $teamData[$tabConfig['team_key']] ?? null;
+                    $players = $teamData[$tabConfig['players_key']] ?? [];
+                    $officials = $teamData[$tabConfig['officials_key']] ?? [];
+                    
+                    $teamExists = ($team !== null);
+                    $isActive = ($activeTab === $tabLabel);
                     
                     if($teamExists) {
-                        $playersCount = $teamInfo['players']->count();
-                        $officialsCount = $teamInfo['officials']->count();
+                        $playersCount = is_countable($players) ? count($players) : 0;
+                        $officialsCount = is_countable($officials) ? count($officials) : 0;
                         $totalCount = $playersCount + $officialsCount;
-                        $verified = isset($teamInfo['team']) && $teamInfo['team']->verification_status == 'verified';
-                        $locked = isset($teamInfo['team']) && $teamInfo['team']->locked_status == 'locked';
+                        $verified = isset($team->verification_status) && $team->verification_status == 'verified';
+                        $locked = isset($team->locked_status) && $team->locked_status == 'locked';
+                    } else {
+                        $totalCount = 0;
+                        $verified = false;
+                        $locked = false;
                     }
                     
-                    $tabRoute = route($tab['route'], $mainTeam->team_id);
+                    $tabRoute = route($tabConfig['route'], $mainTeam->team_id);
                 @endphp
                 
                 <a href="{{ $tabRoute }}" 
-                   data-category="{{ $key }}"
+                   data-category="{{ $tabLabel }}"
                    class="category-tabs-item {{ $isActive ? 'active' : '' }}"
-                   style="{{ $isActive ? 'border-bottom-color: ' . $tab['color'] . '; color: ' . $tab['color'] . ';' : '' }}">
-                    <i class="{{ $tab['icon'] }} tab-icon"></i>
-                    <span class="tab-label">{{ $tab['label'] }}</span>
+                   style="{{ $isActive ? 'border-bottom-color: ' . $tabConfig['color'] . '; color: ' . $tabConfig['color'] . ';' : '' }}">
+                    <i class="{{ $tabConfig['icon'] }} tab-icon"></i>
+                    <span class="tab-label">{{ $tabLabel }}</span>
                     
                     @if($teamExists)
                         <div class="tab-status">
@@ -67,9 +82,6 @@
                         @if($totalCount > 0)
                             <span class="badge-count">{{ $totalCount }}</span>
                         @endif
-                    @else
-                        {{-- HAPUS TANDA SERU - KOSONGKAN SAJA --}}
-                        <span class="status-badge unavailable" style="display: none;"></span>
                     @endif
                 </a>
             @endforeach

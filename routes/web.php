@@ -169,7 +169,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     // ========== TEAM VERIFICATION ==========
     Route::get('/team-list', [TeamController::class, 'teamList'])->name('tv_team_list');
     Route::get('/team-list/{id}', [TeamController::class, 'teamShow'])->name('team-list.show');
+    Route::get('/team-list/debug/{id}', [TeamController::class, 'debugTeamDataView'])->name('team-list.debug');
     Route::post('/team-list/export', [TeamController::class, 'export'])->name('team-list.export');
+    
     Route::delete('/team/{id}/delete', [TeamController::class, 'destroy'])->name('team.delete');
 
     // Team Verification Actions
