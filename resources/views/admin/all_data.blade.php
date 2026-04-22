@@ -541,6 +541,7 @@
                             <button type="button"
                                 class="btn-action btn-delete btn-delete-item"
                                 data-item-name="{{ $value }}"
+                                data-no-global
                                 onclick="confirmDelete('{{ $type }}', '{{ addslashes($value) }}')">
                                 <i class="fas fa-trash"></i>
                             </button>
@@ -593,6 +594,7 @@
                             <button type="button"
                                 class="btn-action btn-delete btn-delete-item"
                                 data-item-name="{{ $value }}"
+                                data-no-global 
                                 onclick="confirmDelete('{{ $type }}', '{{ addslashes($value) }}')">
                                 <i class="fas fa-trash"></i>
                             </button>

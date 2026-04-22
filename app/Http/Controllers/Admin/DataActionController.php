@@ -120,30 +120,32 @@ class DataActionController extends Controller
                     $new = null;
                 }
 
-                // Cek apakah data ada
-                $exists = DB::table('add_data')->where($column, $old)->exists();
-                if (!$exists) {
+                // Cari row yang mengandung nilai lama
+                $row = DB::table('add_data')->where($column, $old)->first();
+                
+                if (!$row) {
                     return redirect()->route('admin.all_data')->with('error', 'Data tidak ditemukan!');
                 }
 
-                // Cek jika nilai baru sudah ada (kecuali sama dengan yang lama)
+                // Cek jika nilai baru sudah ada di kolom yang sama (untuk baris lain)
                 if ($new !== null && $new !== $old) {
-                    $alreadyExists = DB::table('add_data')->where($column, $new)->exists();
+                    $alreadyExists = DB::table('add_data')
+                        ->where($column, $new)
+                        ->where('id', '!=', $row->id)
+                        ->exists();
+                        
                     if ($alreadyExists) {
                         return redirect()->route('admin.all_data')->with('warning', 'Nilai "' . $new . '" sudah ada!');
                     }
                 }
 
-                // Update data
-                $updated = DB::table('add_data')
-                    ->where($column, $old)
+                // Update data (set NULL jika perlu)
+                DB::table('add_data')
+                    ->where('id', $row->id)
                     ->update([$column => $new]);
 
-                if ($updated > 0) {
-                    return redirect()->route('admin.all_data')->with('success', 'Data berhasil diubah');
-                } else {
-                    return redirect()->route('admin.all_data')->with('warning', 'Tidak ada data yang berubah.');
-                }
+                return redirect()->route('admin.all_data')->with('success', 'Data berhasil diubah');
+                
             } catch (\Exception $e) {
                 Log::error('Error editing add_data:', ['error' => $e->getMessage()]);
                 return redirect()->route('admin.all_data')->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
@@ -359,14 +361,14 @@ class DataActionController extends Controller
         }
     }
 
-    // ========== DELETE METHOD UNTUK SEMUA DATA ==========
+    // ========== DELETE METHOD UNTUK SEMUA DATA (DIPERBAIKI) ==========
     public function delete(Request $request)
     {
         Log::info('DELETE REQUEST:', $request->all());
 
         $table = $request->input('table');
 
-        // ========== KHUSUS ADD_DATA ==========
+        // ========== KHUSUS ADD_DATA (DIPERBAIKI) ==========
         if ($table === 'add_data') {
             try {
                 $type = $request->input('type');
@@ -378,15 +380,13 @@ class DataActionController extends Controller
                     return redirect()->route('admin.all_data')->with('error', 'Data tidak lengkap!');
                 }
 
-                // Mapping type
+                // Mapping type ke kolom
                 $colMap = [
                     'season' => 'season_name',
                     'series' => 'series_name',
                     'competition' => 'competition',
                     'phase' => 'phase',
                     'competition_type' => 'competition_type',
-                    'competition type' => 'competition_type',
-                    'competition-type' => 'competition_type',
                 ];
 
                 $typeKey = strtolower(str_replace([' ', '-'], '_', $type));
@@ -396,7 +396,6 @@ class DataActionController extends Controller
                 }
 
                 $column = $colMap[$typeKey];
-
                 $deletedCount = 0;
                 $errors = [];
 
@@ -404,12 +403,32 @@ class DataActionController extends Controller
                     $value = trim($value);
                     if (!empty($value)) {
                         try {
-                            $deleted = DB::table('add_data')
-                                ->where($column, $value)
-                                ->delete();
-
-                            if ($deleted > 0) {
-                                $deletedCount += $deleted;
+                            // Cari row yang mengandung value ini
+                            $row = DB::table('add_data')->where($column, $value)->first();
+                            
+                            if ($row) {
+                                // Hitung berapa kolom yang terisi di row ini
+                                $filledColumns = 0;
+                                $columns = ['season_name', 'series_name', 'competition', 'phase', 'competition_type'];
+                                
+                                foreach ($columns as $col) {
+                                    if (!is_null($row->$col) && $row->$col !== '') {
+                                        $filledColumns++;
+                                    }
+                                }
+                                
+                                // Jika hanya 1 kolom yang terisi, hapus seluruh row
+                                if ($filledColumns <= 1) {
+                                    DB::table('add_data')->where('id', $row->id)->delete();
+                                    $deletedCount++;
+                                    Log::info("Deleted entire row ID: {$row->id} because only column '{$column}' was filled");
+                                } 
+                                // Jika lebih dari 1 kolom, set NULL kolom tersebut saja
+                                else {
+                                    DB::table('add_data')->where('id', $row->id)->update([$column => null]);
+                                    $deletedCount++;
+                                    Log::info("Set NULL column '{$column}' in row ID: {$row->id}");
+                                }
                             }
                         } catch (\Exception $e) {
                             $errors[] = 'Gagal menghapus "' . $value . '": ' . $e->getMessage();
@@ -417,15 +436,29 @@ class DataActionController extends Controller
                     }
                 }
 
+                // Bersihkan row yang semua kolomnya NULL
+                $cleaned = DB::table('add_data')
+                    ->whereNull('season_name')
+                    ->whereNull('series_name')
+                    ->whereNull('competition')
+                    ->whereNull('phase')
+                    ->whereNull('competition_type')
+                    ->delete();
+                    
+                if ($cleaned > 0) {
+                    Log::info("Cleaned up {$cleaned} rows that were completely empty");
+                }
+
                 if (!empty($errors)) {
                     return redirect()->route('admin.all_data')->with('error', implode('<br>', $errors));
                 }
 
                 if ($deletedCount > 0) {
-                    return redirect()->route('admin.all_data')->with('success', 'Data berhasil dihapus');
+                    return redirect()->route('admin.all_data')->with('success', $deletedCount . ' data berhasil dihapus');
                 } else {
                     return redirect()->route('admin.all_data')->with('warning', 'Tidak ada data yang terhapus.');
                 }
+                
             } catch (\Exception $e) {
                 Log::error('Error deleting add_data:', ['error' => $e->getMessage()]);
                 return redirect()->route('admin.all_data')->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
