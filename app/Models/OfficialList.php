@@ -30,9 +30,9 @@ class OfficialList extends Model
         'height',
         'weight',
         'team_role',
-        'category', // ✅ Ditambahkan
+        'category',
         'tshirt_size',
-        'shoes_size',
+        'shoes_size',  // ← Tetap string, sesuai migration
         'instagram',
         'tiktok',
         'formal_photo',
@@ -58,6 +58,7 @@ class OfficialList extends Model
         'unlocked_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
+        // ⚠️ HAPUS 'shoes_size' dari casts karena di DB tipenya VARCHAR
     ];
 
     /* ================= BOOT METHOD ================= */
@@ -65,13 +66,11 @@ class OfficialList extends Model
     {
         parent::boot();
 
-        // Auto-set category dari tim jika kosong
         static::creating(function ($official) {
             // Auto-set school_id dari team jika kosong
             if (empty($official->school_id) && $official->team_id) {
                 $team = TeamList::find($official->team_id);
                 if ($team) {
-                    // Cari school dari team
                     if ($team->school_id) {
                         $school = School::find($team->school_id);
                         if ($school) {
@@ -79,7 +78,6 @@ class OfficialList extends Model
                         }
                     }
                     
-                    // Jika masih kosong, cari berdasarkan nama sekolah
                     if (empty($official->school_id)) {
                         $school = School::where('school_name', $team->school_name)->first();
                         if ($school) {
@@ -87,13 +85,12 @@ class OfficialList extends Model
                         }
                     }
                     
-                    // Jika masih kosong, buat sekolah baru
                     if (empty($official->school_id)) {
                         $school = School::create([
                             'school_name' => $team->school_name,
                             'category_name' => 'SMA',
                             'type' => 'SWASTA',
-                            'city_id' => 1, // Default city
+                            'city_id' => 1,
                         ]);
                         $official->school_id = $school->id;
                         $team->update(['school_id' => $school->id]);
@@ -117,14 +114,6 @@ class OfficialList extends Model
                 } else {
                     $official->category = 'lainnya';
                 }
-            }
-        });
-
-        // Auto-update category jika team_role berubah ke dancer
-        static::updating(function ($official) {
-            // Jika team_role adalah Dancer (jika ada di enum), set category ke dancer
-            if ($official->isDirty('team_role') && $official->team_role === 'Dancer') {
-                $official->category = 'dancer';
             }
         });
     }
@@ -160,7 +149,7 @@ class OfficialList extends Model
 
     public function getAgeAttribute()
     {
-        return now()->diffInYears($this->birthdate);
+        return $this->birthdate ? now()->diffInYears($this->birthdate) : null;
     }
 
     public function getVerificationStatusLabelAttribute()
@@ -207,7 +196,6 @@ class OfficialList extends Model
         return $labels[$this->gender] ?? $this->gender;
     }
 
-    // ✅ ACCESSOR BARU: Category Label
     public function getCategoryLabelAttribute()
     {
         $labels = [
@@ -220,7 +208,6 @@ class OfficialList extends Model
         return $labels[$this->category] ?? 'Lainnya';
     }
 
-    // ✅ ACCESSOR BARU: Category Badge Color
     public function getCategoryBadgeColorAttribute()
     {
         $colors = [
@@ -275,7 +262,6 @@ class OfficialList extends Model
         return $query->where('team_role', $role);
     }
 
-    // ✅ SCOPES BARU: Filter by Category
     public function scopeByCategory($query, $category)
     {
         return $query->where('category', $category);
@@ -296,13 +282,11 @@ class OfficialList extends Model
         return $query->where('category', 'dancer');
     }
 
-    // Scope untuk official yang sudah finalized
     public function scopeFinalized($query)
     {
         return $query->where('is_finalized', true);
     }
 
-    // Scope untuk official yang belum finalized
     public function scopeNotFinalized($query)
     {
         return $query->where('is_finalized', false);
@@ -330,7 +314,6 @@ class OfficialList extends Model
         return !empty($this->school_id) && $this->school;
     }
 
-    // ✅ METHOD BARU: Check category
     public function isBasketPutra()
     {
         return $this->category === 'basket_putra';
@@ -346,7 +329,6 @@ class OfficialList extends Model
         return $this->category === 'dancer';
     }
 
-    // ✅ METHOD BARU: Get related players based on category
     public function getRelatedPlayers()
     {
         if (!$this->team_id) {
@@ -371,7 +353,6 @@ class OfficialList extends Model
         return PlayerList::where('team_id', $this->team_id)->get();
     }
 
-    // ✅ METHOD BARU: Get other officials in same category
     public function getCategoryOfficials()
     {
         if (!$this->team_id || !$this->category) {
@@ -384,7 +365,6 @@ class OfficialList extends Model
             ->get();
     }
 
-    // ✅ METHOD BARU: Finalize official
     public function finalize()
     {
         $this->update([
@@ -395,7 +375,6 @@ class OfficialList extends Model
         return $this;
     }
 
-    // ✅ METHOD BARU: Unlock official (by admin)
     public function unlock()
     {
         $this->update([
@@ -408,19 +387,15 @@ class OfficialList extends Model
         return $this;
     }
 
-    // ✅ METHOD BARU: Verify official
     public function verify()
     {
         $this->update(['verification_status' => 'verified']);
         return $this;
     }
 
-    // ✅ METHOD BARU: Reject official
     public function reject($reason = null)
     {
         $this->update(['verification_status' => 'rejected']);
-        // Anda bisa menambahkan log atau notification untuk reason
-        
         return $this;
     }
 
@@ -432,32 +407,29 @@ class OfficialList extends Model
             return asset($default);
         }
         
-        // Cek jika path sudah full URL
         if (filter_var($path, FILTER_VALIDATE_URL)) {
             return $path;
         }
         
-        // Cek storage
-        if (Storage::exists($path)) {
-            return Storage::url($path);
-        }
-        
-        // Cek public storage
         if (Storage::disk('public')->exists($path)) {
             return Storage::disk('public')->url($path);
+        }
+        
+        // Cek dengan prefix storage
+        $storagePath = 'storage/' . $path;
+        if (file_exists(public_path($storagePath))) {
+            return asset($storagePath);
         }
         
         return asset($default);
     }
 
-    // ✅ HELPER BARU: Determine category from team
     private static function determineCategoryFromTeam($team)
     {
         $teamName = strtolower($team->team_name ?? '');
         $teamType = strtolower($team->team_type ?? '');
         $teamCategory = strtolower($team->category ?? '');
         
-        // Cek berdasarkan nama tim
         if (str_contains($teamName, 'putra') || 
             str_contains($teamType, 'putra') || 
             str_contains($teamCategory, 'putra') ||
@@ -481,7 +453,6 @@ class OfficialList extends Model
             return 'dancer';
         }
         
-        // Default berdasarkan gender tim jika ada
         if (isset($team->team_gender)) {
             return $team->team_gender === 'male' ? 'basket_putra' : 'basket_putri';
         }
@@ -489,7 +460,6 @@ class OfficialList extends Model
         return 'lainnya';
     }
 
-    // ✅ METHOD BARU: Get all possible categories
     public static function getCategories()
     {
         return [
@@ -498,36 +468,5 @@ class OfficialList extends Model
             'dancer' => 'Dancer',
             'lainnya' => 'Lainnya'
         ];
-    }
-
-    // ✅ METHOD BARU: Get validation rules
-    public static function getValidationRules($officialId = null)
-    {
-        $rules = [
-            'nik' => 'required|digits:16|unique:official_list,nik' . ($officialId ? ",$officialId,official_id" : ''),
-            'name' => 'required|string|max:255',
-            'birthdate' => 'required|date|before_or_equal:' . now()->subYears(18)->format('Y-m-d'),
-            'gender' => 'required|in:male,female',
-            'email' => 'required|email|max:255|unique:official_list,email' . ($officialId ? ",$officialId,official_id" : ''),
-            'phone' => 'required|string|max:15',
-            'team_role' => 'required|in:Coach,Manager,Medical Support,Assistant Coach,Pendamping',
-            'category' => 'required|in:basket_putra,basket_putri,dancer,lainnya',
-            'height' => 'nullable|numeric|min:100|max:250',
-            'weight' => 'nullable|numeric|min:30|max:200',
-            'tshirt_size' => 'nullable|in:S,M,L,XL,XXL',
-            'shoes_size' => 'nullable|integer|min:36|max:46',
-            'instagram' => 'nullable|string|max:255',
-            'tiktok' => 'nullable|string|max:255',
-            'formal_photo' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
-            'license_photo' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'identity_card' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
-        ];
-
-        if (!$officialId) {
-            $rules['formal_photo'] = 'required|file|mimes:jpg,jpeg,png|max:2048';
-            $rules['identity_card'] = 'required|file|mimes:jpg,jpeg,png|max:2048';
-        }
-
-        return $rules;
     }
 }

@@ -919,7 +919,7 @@
 
             <!-- Student Pane -->
             <div id="pane-student" class="tab-pane">
-                <div class="form-title"><i class="fas fa-user-graduate"></i> Student Portal</div>
+                <div class="form-title"><i class="fas fa-user-graduate"></i> Student / Official Portal</div>
                 <div class="form-sub">Access your account</div>
 
                 <form method="POST" action="{{ route('student.login') }}" id="studentLoginForm">

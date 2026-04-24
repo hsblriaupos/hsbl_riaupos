@@ -39,6 +39,19 @@
             <!-- Main Form Card -->
             <div class="card border-0 shadow-lg">
                 <div class="card-body p-5">
+                    @if(session('error'))
+                    <div class="alert alert-danger">{{ session('error') }}</div>
+                    @endif
+
+                    @if($errors->any())
+                    <div class="alert alert-danger">
+                        <ul>
+                            @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    @endif
                     <form id="officialForm" action="{{ route('form.official.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <input type="hidden" name="team_id" value="{{ $team->team_id }}">
@@ -181,7 +194,7 @@
                                     <label class="form-label fw-medium">Tinggi (cm)</label>
                                     <input type="number" class="form-control @error('height') is-invalid @enderror"
                                         id="height" name="height" value="{{ old('height') }}"
-                                        min="100" max="250" step="1" placeholder="170" required >
+                                        min="100" max="250" step="1" placeholder="170" required>
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label fw-medium">Berat (kg)</label>
@@ -208,7 +221,7 @@
                                         <option value="">Pilih</option>
                                         @for($i = 36; $i <= 46; $i++)
                                             <option value="{{ $i }}" {{ old('shoes_size') == $i ? 'selected' : '' }}>{{ $i }}</option>
-                                        @endfor
+                                            @endfor
                                     </select>
                                 </div>
                             </div>
@@ -243,49 +256,57 @@
                             </div>
                         </div>
 
-                        <!-- SECTION 4: Upload Dokumen -->
-                        <div class="mb-5">
-                            <div class="d-flex align-items-center mb-4">
-                                <div class="icon-circle bg-gradient-teal me-3" style="width: 40px; height: 40px;">
-                                    <i class="fas fa-file-upload text-white"></i>
-                                </div>
-                                <h5 class="fw-bold mb-0">Upload Dokumen</h5>
-                            </div>
+                        <!-- SECTION 4: Upload Dokumen - PERBAIKAN -->
+<div class="mb-5">
+    <div class="d-flex align-items-center mb-4">
+        <div class="icon-circle bg-gradient-teal me-3" style="width: 40px; height: 40px;">
+            <i class="fas fa-file-upload text-white"></i>
+        </div>
+        <h5 class="fw-bold mb-0">Upload Dokumen</h5>
+    </div>
 
-                            <!-- 🔥 ALERT INI TETAP ADA DAN TIDAK AKAN HILANG 🔥 -->
-                            <div class="info-box" style="background-color: #cff4fc; border: 1px solid #b6effb; border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; color: #055160;">
-                                <div class="d-flex">
-                                    <div class="me-3">
-                                        <i class="fas fa-info-circle" style="color: #0dcaf0; font-size: 1.2rem;"></i>
-                                    </div>
-                                    <div>
-                                        <h6 style="font-weight: 600; margin-bottom: 0.25rem;">Informasi Upload Dokumen</h6>
-                                        <p style="margin-bottom: 0; font-size: 0.9rem;">Format: JPG, JPEG, PNG (maks 2MB). Pastikan dokumen terbaca jelas.</p>
-                                    </div>
-                                </div>
-                            </div>
+    <div class="info-box" style="background-color: #cff4fc; border: 1px solid #b6effb; border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; color: #055160;">
+        <div class="d-flex">
+            <div class="me-3">
+                <i class="fas fa-info-circle" style="color: #0dcaf0; font-size: 1.2rem;"></i>
+            </div>
+            <div>
+                <h6 style="font-weight: 600; margin-bottom: 0.25rem;">Informasi Upload Dokumen</h6>
+                <p style="margin-bottom: 0; font-size: 0.9rem;">Format: JPG, JPEG, PNG (maks 2MB). Pastikan dokumen terbaca jelas.</p>
+            </div>
+        </div>
+    </div>
 
-                            <div class="row g-4">
-                                <div class="col-md-4">
-                                    <label class="form-label fw-medium">Foto Formal 3x4 <span class="text-danger">*</span></label>
-                                    <input type="file" class="form-control @error('formal_photo') is-invalid @enderror"
-                                        id="formal_photo" name="formal_photo" accept="image/*" required>
-                                    <small class="text-muted">Background merah/biru, pakaian formal</small>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-medium">Foto KTP/SIM <span class="text-danger">*</span></label>
-                                    <input type="file" class="form-control @error('identity_card') is-invalid @enderror"
-                                        id="identity_card" name="identity_card" accept="image/*" required>
-                                    <small class="text-muted">Foto jelas, tidak blur</small>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-medium">Lisensi/Sertifikat <span class="text-danger">*</span></label>
-                                    <input type="file" class="form-control @error('license_photo') is-invalid @enderror"
-                                        id="license_photo" name="license_photo" accept="image/*,.pdf" required>
-                                    <small class="text-muted">Lisensi kepelatihan/sertifikat</small>
-                                </div>
-                            </div>
-                        </div>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <label class="form-label fw-medium">Foto Formal 3x4 <span class="text-danger">*</span></label>
+            <input type="file" class="form-control @error('formal_photo') is-invalid @enderror"
+                id="formal_photo" name="formal_photo" accept="image/jpeg,image/png,image/jpg" required>
+            <small class="text-muted">Background merah/biru, pakaian formal</small>
+            @error('formal_photo')
+                <div class="text-danger small mt-1">{{ $message }}</div>
+            @enderror
+        </div>
+        <div class="col-md-4">
+            <label class="form-label fw-medium">Foto KTP/SIM <span class="text-danger">*</span></label>
+            <input type="file" class="form-control @error('identity_card') is-invalid @enderror"
+                id="identity_card" name="identity_card" accept="image/jpeg,image/png,image/jpg" required>
+            <small class="text-muted">Foto jelas, tidak blur</small>
+            @error('identity_card')
+                <div class="text-danger small mt-1">{{ $message }}</div>
+            @enderror
+        </div>
+        <div class="col-md-4">
+            <label class="form-label fw-medium">Lisensi/Sertifikat <span class="text-danger">*</span></label>
+            <input type="file" class="form-control @error('license_photo') is-invalid @enderror"
+                id="license_photo" name="license_photo" accept="image/jpeg,image/png,image/jpg,application/pdf" required>
+            <small class="text-muted">Lisensi kepelatihan/sertifikat</small>
+            @error('license_photo')
+                <div class="text-danger small mt-1">{{ $message }}</div>
+            @enderror
+        </div>
+    </div>
+</div>
 
                         <!-- Terms Agreement -->
                         <div class="form-check mb-4">
@@ -511,152 +532,198 @@
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('officialForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
-    const nikInput = document.getElementById('nik');
-    const emailInput = document.getElementById('email');
-    const birthdateInput = document.getElementById('birthdate');
-    const categoryRadios = document.querySelectorAll('input[name="category"]');
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('officialForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+        const nikInput = document.getElementById('nik');
+        const emailInput = document.getElementById('email');
+        const birthdateInput = document.getElementById('birthdate');
+        const categoryRadios = document.querySelectorAll('input[name="category"]');
 
-    // Set max birthdate untuk usia minimal 18 tahun
-    const today = new Date();
-    const minBirthDate = new Date();
-    minBirthDate.setFullYear(today.getFullYear() - 18);
-    birthdateInput.max = minBirthDate.toISOString().split('T')[0];
+        // Set max birthdate untuk usia minimal 18 tahun
+        const today = new Date();
+        const minBirthDate = new Date();
+        minBirthDate.setFullYear(today.getFullYear() - 18);
+        birthdateInput.max = minBirthDate.toISOString().split('T')[0];
 
-    // Validasi kategori
-    function validateCategory() {
-        let isSelected = false;
-        categoryRadios.forEach(radio => {
-            if (radio.checked) isSelected = true;
-        });
-        return isSelected;
-    }
-
-    // NIK validation
-    nikInput.addEventListener('blur', function() {
-        if (this.value.length !== 16 && this.value.length > 0) {
-            alert('NIK harus 16 digit');
-            this.focus();
+        // Validasi kategori
+        function validateCategory() {
+            let isSelected = false;
+            categoryRadios.forEach(radio => {
+                if (radio.checked) isSelected = true;
+            });
+            return isSelected;
         }
-    });
 
-    // File size validation
-    const fileInputs = document.querySelectorAll('input[type="file"]');
-    fileInputs.forEach(input => {
-        input.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            if (file.size > 2 * 1024 * 1024) {
-                alert('File terlalu besar! Maksimal 2MB');
-                this.value = '';
+        // NIK validation
+        nikInput.addEventListener('blur', function() {
+            if (this.value.length !== 16 && this.value.length > 0) {
+                alert('NIK harus 16 digit');
+                this.focus();
             }
         });
-    });
 
-    // ===== 🔥 PERBAIKAN UTAMA: FORM VALIDATION 🔥 =====
-    form.addEventListener('submit', function(e) {
-        // Validasi lengkap terlebih dahulu
-        if (!validateAllFields()) {
-            e.preventDefault();
-            return false;
-        }
+        // File size validation
+        const fileInputs = document.querySelectorAll('input[type="file"]');
+        fileInputs.forEach(input => {
+            input.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
 
-        // Baru tampilkan loading setelah validasi sukses
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Memproses...';
-        submitBtn.disabled = true;
-        loadingModal.show();
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('File terlalu besar! Maksimal 2MB');
+                    this.value = '';
+                }
+            });
+        });
 
-        return true;
-    });
-
-    function validateAllFields() {
-        // 1. Cek kategori
-        if (!validateCategory()) {
-            alert('Pilih kategori official terlebih dahulu!');
-            return false;
-        }
-
-        // 2. Cek semua input text/select yang required
-        const requiredInputs = [
-            { id: 'nik', name: 'NIK' },
-            { id: 'name', name: 'Nama Lengkap' },
-            { id: 'birthdate', name: 'Tanggal Lahir' },
-            { id: 'gender', name: 'Jenis Kelamin' },
-            { id: 'phone', name: 'WhatsApp' },
-            { id: 'email', name: 'Email' },
-            { id: 'team_role', name: 'Peran dalam Tim' },
-            { id: 'height', name: 'Tinggi Badan' },
-            { id: 'weight', name: 'Berat Badan' },
-            { id: 'tshirt_size', name: 'Ukuran Kaos' },
-            { id: 'shoes_size', name: 'Ukuran Sepatu' },
-            { id: 'instagram', name: 'Instagram' },
-            { id: 'tiktok', name: 'TikTok' }
-        ];
-
-        for (const field of requiredInputs) {
-            const element = document.getElementById(field.id);
-            if (!element || !element.value.trim()) {
-                alert(`Harap isi ${field.name}`);
-                element?.focus();
+        // ===== 🔥 PERBAIKAN UTAMA: FORM VALIDATION 🔥 =====
+        form.addEventListener('submit', function(e) {
+            // Validasi lengkap terlebih dahulu
+            if (!validateAllFields()) {
+                e.preventDefault();
                 return false;
             }
-        }
 
-        // 3. Validasi khusus NIK harus 16 digit
-        const nik = document.getElementById('nik').value;
-        if (nik.length !== 16) {
-            alert('NIK harus 16 digit');
-            document.getElementById('nik').focus();
-            return false;
-        }
+            // Baru tampilkan loading setelah validasi sukses
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Memproses...';
+            submitBtn.disabled = true;
+            loadingModal.show();
 
-        // 4. Validasi email format
-        const email = document.getElementById('email').value;
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            alert('Format email tidak valid');
-            document.getElementById('email').focus();
-            return false;
-        }
+            return true;
+        });
 
-        // 5. Validasi phone minimal 10 digit
-        const phone = document.getElementById('phone').value.replace(/[^0-9]/g, '');
-        if (phone.length < 10) {
-            alert('Nomor WhatsApp minimal 10 digit');
-            document.getElementById('phone').focus();
-            return false;
-        }
-
-        // 6. Cek file upload
-        const fileInputs = [
-            { id: 'formal_photo', name: 'Foto Formal' },
-            { id: 'identity_card', name: 'Foto KTP/SIM' },
-            { id: 'license_photo', name: 'Lisensi/Sertifikat' }
-        ];
-
-        for (const file of fileInputs) {
-            const element = document.getElementById(file.id);
-            if (!element.files || element.files.length === 0) {
-                alert(`Upload ${file.name}`);
-                element.focus();
+        function validateAllFields() {
+            // 1. Cek kategori
+            if (!validateCategory()) {
+                alert('Pilih kategori official terlebih dahulu!');
                 return false;
             }
-        }
 
-        // 7. Cek terms checkbox
-        if (!document.getElementById('terms').checked) {
-            alert('Anda harus menyetujui syarat & ketentuan');
-            document.getElementById('terms').focus();
-            return false;
-        }
+            // 2. Cek semua input text/select yang required
+            const requiredInputs = [{
+                    id: 'nik',
+                    name: 'NIK'
+                },
+                {
+                    id: 'name',
+                    name: 'Nama Lengkap'
+                },
+                {
+                    id: 'birthdate',
+                    name: 'Tanggal Lahir'
+                },
+                {
+                    id: 'gender',
+                    name: 'Jenis Kelamin'
+                },
+                {
+                    id: 'phone',
+                    name: 'WhatsApp'
+                },
+                {
+                    id: 'email',
+                    name: 'Email'
+                },
+                {
+                    id: 'team_role',
+                    name: 'Peran dalam Tim'
+                },
+                {
+                    id: 'height',
+                    name: 'Tinggi Badan'
+                },
+                {
+                    id: 'weight',
+                    name: 'Berat Badan'
+                },
+                {
+                    id: 'tshirt_size',
+                    name: 'Ukuran Kaos'
+                },
+                {
+                    id: 'shoes_size',
+                    name: 'Ukuran Sepatu'
+                },
+                {
+                    id: 'instagram',
+                    name: 'Instagram'
+                },
+                {
+                    id: 'tiktok',
+                    name: 'TikTok'
+                }
+            ];
 
-        return true;
-    }
-});
+            for (const field of requiredInputs) {
+                const element = document.getElementById(field.id);
+                if (!element || !element.value.trim()) {
+                    alert(`Harap isi ${field.name}`);
+                    element?.focus();
+                    return false;
+                }
+            }
+
+            // 3. Validasi khusus NIK harus 16 digit
+            const nik = document.getElementById('nik').value;
+            if (nik.length !== 16) {
+                alert('NIK harus 16 digit');
+                document.getElementById('nik').focus();
+                return false;
+            }
+
+            // 4. Validasi email format
+            const email = document.getElementById('email').value;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert('Format email tidak valid');
+                document.getElementById('email').focus();
+                return false;
+            }
+
+            // 5. Validasi phone minimal 10 digit
+            const phone = document.getElementById('phone').value.replace(/[^0-9]/g, '');
+            if (phone.length < 10) {
+                alert('Nomor WhatsApp minimal 10 digit');
+                document.getElementById('phone').focus();
+                return false;
+            }
+
+            // 6. Cek file upload
+            const fileInputs = [{
+                    id: 'formal_photo',
+                    name: 'Foto Formal'
+                },
+                {
+                    id: 'identity_card',
+                    name: 'Foto KTP/SIM'
+                },
+                {
+                    id: 'license_photo',
+                    name: 'Lisensi/Sertifikat'
+                }
+            ];
+
+            for (const file of fileInputs) {
+                const element = document.getElementById(file.id);
+                if (!element.files || element.files.length === 0) {
+                    alert(`Upload ${file.name}`);
+                    element.focus();
+                    return false;
+                }
+            }
+
+            // 7. Cek terms checkbox
+            if (!document.getElementById('terms').checked) {
+                alert('Anda harus menyetujui syarat & ketentuan');
+                document.getElementById('terms').focus();
+                return false;
+            }
+
+            return true;
+        }
+    });
 </script>
 @endpush
 @endsection
