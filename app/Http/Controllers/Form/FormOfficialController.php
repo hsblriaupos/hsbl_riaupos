@@ -75,10 +75,30 @@ class FormOfficialController extends Controller
                 'formal_photo' => 'required|file|mimes:jpg,jpeg,png|max:2048',
                 'license_photo' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
                 'identity_card' => 'required|file|mimes:jpg,jpeg,png|max:2048',
+                'assignment_letter' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
                 'terms' => 'required|accepted',
             ], [
                 'email.unique' => 'Email sudah terdaftar sebagai official.',
-                // ... pesan error lainnya tetap sama
+                'nik.required' => 'NIK wajib diisi.',
+                'nik.digits' => 'NIK harus 16 digit.',
+                'name.required' => 'Nama lengkap wajib diisi.',
+                'birthdate.required' => 'Tanggal lahir wajib diisi.',
+                'birthdate.before_or_equal' => 'Usia minimal 18 tahun.',
+                'gender.required' => 'Jenis kelamin wajib dipilih.',
+                'phone.required' => 'Nomor WhatsApp wajib diisi.',
+                'email.required' => 'Email wajib diisi.',
+                'team_role.required' => 'Peran dalam tim wajib dipilih.',
+                'height.required' => 'Tinggi badan wajib diisi.',
+                'weight.required' => 'Berat badan wajib diisi.',
+                'tshirt_size.required' => 'Ukuran kaos wajib dipilih.',
+                'shoes_size.required' => 'Ukuran sepatu wajib dipilih.',
+                'instagram.required' => 'Instagram wajib diisi.',
+                'tiktok.required' => 'TikTok wajib diisi.',
+                'formal_photo.required' => 'Foto formal wajib diupload.',
+                'license_photo.required' => 'Lisensi/sertifikat wajib diupload.',
+                'identity_card.required' => 'Foto KTP/SIM wajib diupload.',
+                'assignment_letter.required' => 'Surat tugas wajib diupload.',
+                'terms.accepted' => 'Anda harus menyetujui syarat & ketentuan.',
             ]);
 
             if ($validator->fails()) {
@@ -187,6 +207,7 @@ class FormOfficialController extends Controller
             $formalPhotoPath = null;
             $licensePhotoPath = null;
             $identityCardPath = null;
+            $assignmentLetterPath = null;
 
             // Upload formal_photo
             if ($request->hasFile('formal_photo')) {
@@ -224,8 +245,20 @@ class FormOfficialController extends Controller
                 Log::info('Identity card uploaded: ' . $identityCardPath);
             }
 
+            // Upload assignment_letter (Surat Tugas)
+            if ($request->hasFile('assignment_letter')) {
+                $file = $request->file('assignment_letter');
+                $filename = time() . '_assignment_' . preg_replace('/[^a-zA-Z0-9]/', '_', $request->name) . '.' . $file->getClientOriginalExtension();
+                $assignmentLetterPath = $file->storeAs('uploads/officials/assignment_letters', $filename, 'public');
+                
+                if (!$assignmentLetterPath) {
+                    throw new \Exception('Gagal upload surat tugas');
+                }
+                Log::info('Assignment letter uploaded: ' . $assignmentLetterPath);
+            }
+
             // Validasi file upload wajib
-            if (!$formalPhotoPath || !$licensePhotoPath || !$identityCardPath) {
+            if (!$formalPhotoPath || !$licensePhotoPath || !$identityCardPath || !$assignmentLetterPath) {
                 throw new \Exception('Semua file wajib diupload');
             }
 
@@ -251,6 +284,7 @@ class FormOfficialController extends Controller
                 'formal_photo' => $formalPhotoPath,
                 'license_photo' => $licensePhotoPath,
                 'identity_card' => $identityCardPath,
+                'assignment_letter' => $assignmentLetterPath,
                 'role' => 'Member',
                 'verification_status' => 'unverified',
                 'is_finalized' => false,
@@ -269,16 +303,20 @@ class FormOfficialController extends Controller
 
             DB::commit();
 
-            return redirect()->route('form.official.success', [
-                'team_id' => $request->team_id,
-                'official_id' => $official->official_id
-            ])->with('success', 'Pendaftaran official berhasil!');
+            return redirect()->to('/form/official/success/' . $request->team_id . '/' . $official->official_id)
+    ->with('success', 'Pendaftaran official berhasil!');
             
         } catch (\Illuminate\Database\QueryException $e) {
             DB::rollBack();
             Log::error('Database error: ' . $e->getMessage());
-            Log::error('SQL: ' . $e->getSql());
-            Log::error('Bindings: ' . json_encode($e->getBindings()));
+            
+            // 🔥 PERBAIKAN: Ganti isset($e->getSql()) dengan method_exists atau error code
+            if (method_exists($e, 'getSql') && $e->getSql()) {
+                Log::error('SQL: ' . $e->getSql());
+            }
+            
+            $bindings = method_exists($e, 'getBindings') ? $e->getBindings() : [];
+            Log::error('Bindings: ' . json_encode($bindings));
             
             return redirect()->back()
                 ->with('error', 'Database error: ' . $e->getMessage())
@@ -290,7 +328,7 @@ class FormOfficialController extends Controller
             Log::error('====================================');
             Log::error('ERROR STORING OFFICIAL: ' . $e->getMessage());
             Log::error('Stack trace: ' . $e->getTraceAsString());
-            Log::error('Request data: ' . json_encode($request->except(['formal_photo', 'license_photo', 'identity_card'])));
+            Log::error('Request data: ' . json_encode($request->except(['formal_photo', 'license_photo', 'identity_card', 'assignment_letter'])));
             Log::error('====================================');
 
             return redirect()->back()
@@ -311,6 +349,7 @@ class FormOfficialController extends Controller
             'public/uploads/officials/formal_photos',
             'public/uploads/officials/license_photos',
             'public/uploads/officials/identity_cards',
+            'public/uploads/officials/assignment_letters',
         ];
 
         foreach ($directories as $directory) {

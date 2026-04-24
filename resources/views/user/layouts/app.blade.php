@@ -448,7 +448,7 @@
                         ]],
                         ['label' => 'About', 'url' => url('user/media/about'), 'icon' => 'fas fa-landmark text-sm'],
                     ];
-                    @endphp
+                    @endphp 
 
                     @foreach($menu as $index => $item)
                         @if(isset($item['submenu']))

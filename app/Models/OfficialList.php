@@ -32,12 +32,13 @@ class OfficialList extends Model
         'team_role',
         'category',
         'tshirt_size',
-        'shoes_size',  // ← Tetap string, sesuai migration
+        'shoes_size', 
         'instagram',
         'tiktok',
         'formal_photo',
         'license_photo',
         'identity_card',
+        'assignment_letter',
         'role',
         'verification_status',
         'is_finalized',
@@ -469,4 +470,9 @@ class OfficialList extends Model
             'lainnya' => 'Lainnya'
         ];
     }
+
+    public function getAssignmentLetterUrlAttribute()
+{
+    return $this->getFileUrl($this->assignment_letter, 'images/default-document.png');
+}
 }

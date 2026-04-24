@@ -32,7 +32,6 @@
         
         body {
             background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-            min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: var(--text-dark);
         }
@@ -536,9 +535,42 @@
                 transform: none;
             }
         }
+        /* Footer responsive text */
+.footer-custom .footer-text {
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 0;
+}
+
+.footer-custom .footer-developer {
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 0.25rem;
+    margin-bottom: 0;
+}
+
+/* Desktop */
+@media (min-width: 768px) {
+    .footer-custom .footer-text {
+        font-size: 0.75rem;
+    }
+    .footer-custom .footer-developer {
+        font-size: 0.7rem;
+    }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+    .footer-custom .footer-text {
+        font-size: 0.6rem;
+    }
+    .footer-custom .footer-developer {
+        font-size: 0.55rem;
+        word-break: keep-all;
+        white-space: normal;
+    }
+}
     </style>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
@@ -754,26 +786,26 @@
         </div>
     </nav>
     
-    <!-- Main Content -->
-    <div class="container">
-        @yield('content')
-    </div>
-    
-    <!-- Footer -->
-    <footer class="mt-5 py-4 footer-custom">
-        <div class="container">
-            <div class="text-center">
-                <div style="color: rgba(255, 255, 255, 0.8);">
-                    <p class="mb-1">&copy; {{ date('Y') }} Riau Pos - Student Basketball League. All Rights Reserved.</p>
-                    <p class="d-flex align-items-center justify-content-center gap-1 mt-2 flex-wrap">
-                        <span>Developed with</span>
-                        <i class="fas fa-heart" style="color: #ff6b6b;"></i>
-                        <span>by : Mutia Rizkianti | Wafiq Wardatul Khairani</span>
-                    </p>
-                </div>
-            </div>
+    <!-- Main Content - AUTO EXPANDS TO PUSH FOOTER DOWN -->
+    <main class="flex-grow-1">
+        <div class="container py-3">
+            @yield('content')
         </div>
-    </footer>
+    </main>
+    
+    <!-- Footer - STAYS AT BOTTOM -->
+<footer class="footer-custom">
+    <div class="container py-2 py-md-3">
+        <div class="text-center">
+            <p class="footer-text">
+                &copy; {{ date('Y') }} Riau Pos - Student Basketball League. All Rights Reserved.
+            </p>
+            <p class="footer-developer">
+                <i class="fas fa-heart" style="color: #ff6b6b;"></i> Developed by : Mutia Rizkianti | Wafiq Wardatul Khairani
+            </p>
+        </div>
+    </div>
+</footer>
     
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
