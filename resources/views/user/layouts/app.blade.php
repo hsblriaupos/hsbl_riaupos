@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
     <title>@yield('title', 'SBL Riau Pos')</title>
 
     {{-- Favicon --}}
@@ -58,11 +58,24 @@
             scrollbar-color: var(--primary-blue) #f1f1f1;
         }
 
+        /* PENTING: Bikin body dan layout flex biar footer nempel di bawah */
         body {
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
             min-height: 100vh;
             overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #user-layout {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        main {
+            flex: 1 0 auto;
         }
 
         /* Button Template Styles */
@@ -311,28 +324,6 @@
             visibility: visible;
         }
 
-        /* Mobile Responsiveness */
-        @media (max-width: 768px) {
-            .floating-nav-toggle {
-                width: 44px;
-                height: 44px;
-                top: 15px;
-                right: 15px;
-            }
-
-            .floating-nav-menu {
-                top: 69px;
-                right: 15px;
-                left: 15px;
-                max-width: none;
-            }
-
-            .swal2-popup {
-                margin: 1rem !important;
-                padding: 1.25rem !important;
-            }
-        }
-
         /* Animations */
         @keyframes fadeInUp {
             from {
@@ -416,6 +407,91 @@
             transform: translateY(-4px);
             box-shadow: 0 8px 16px rgba(59, 130, 246, 0.15);
             border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        /* ========== PERBAIKAN KHUSUS FOOTER DI HP (TANPA MENGUBAH STRUKTUR) ========== */
+        footer {
+            flex-shrink: 0;
+            margin-top: auto;
+        }
+
+        /* Responsive untuk HP - ukuran font mengecil, layout tetap sama */
+        @media (max-width: 640px) {
+            /* Kecilkan padding footer biar gak kebanyakan ruang kosong */
+            footer .max-w-7xl {
+                padding-left: 1rem;
+                padding-right: 1rem;
+                padding-top: 0.75rem;
+                padding-bottom: 0.75rem;
+            }
+            
+            /* Kecilkan ukuran logo di HP */
+            footer img {
+                height: 60px !important;
+                margin-top: 0 !important;
+                margin-bottom: 0 !important;
+            }
+            
+            /* Kecilkan judul di HP */
+            footer h3 {
+                font-size: 0.9rem !important;
+            }
+            
+            footer p.text-blue-100 {
+                font-size: 0.6rem !important;
+            }
+            
+            /* Copyright text mengecil */
+            footer .text-xs.text-blue-200 {
+                font-size: 0.6rem !important;
+            }
+            
+            /* Bagian "Developed with love" - DIBUAT WRAP SUPAYA TIDAK KEPOTONG */
+            footer .flex.items-center.justify-center {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.25rem;
+                font-size: 0.6rem;
+            }
+            
+            /* Ikon hati tetap proporsional */
+            footer .fa-heart {
+                font-size: 0.55rem;
+            }
+            
+            /* Spasi antar baris di footer */
+            footer .text-center > div:last-child {
+                margin-top: 0.5rem;
+            }
+            
+            /* Layout logo dan teks tetap vertikal di HP (dari md:flex-row jadi column) */
+            footer .flex.flex-col.md\:flex-row {
+                flex-direction: column !important;
+                text-align: center;
+                gap: 0.5rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            footer .md\:mb-0 {
+                margin-bottom: 0 !important;
+            }
+            
+            footer .md\:text-left {
+                text-align: center !important;
+            }
+        }
+
+        /* Tablet - penyesuaian sedang */
+        @media (min-width: 641px) and (max-width: 768px) {
+            footer img {
+                height: 75px !important;
+            }
+            
+            footer .flex.items-center.justify-center {
+                font-size: 0.65rem;
+                flex-wrap: wrap;
+                gap: 0.25rem;
+            }
         }
     </style>
 
@@ -838,7 +914,7 @@
         </div>
     </div>
 
-    {{-- ==================== FOOTER ==================== --}}
+    {{-- ==================== FOOTER (SAMA PERSIS KAYA ASLINYA) ==================== --}}
     <footer class="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-t-3xl">
         <div class="max-w-7xl mx-auto px-6 py-4">
             <div class="text-center pt-0">

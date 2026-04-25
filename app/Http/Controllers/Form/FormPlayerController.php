@@ -329,7 +329,7 @@ if ($canBeLeader) {
             $rules = [
                 'nik' => 'required|unique:player_list,nik',
                 'name' => 'required|string|max:255',
-                'birthdate' => 'required|date',
+                'birthdate' => 'required|date', 
                 'gender' => 'required|in:Male,Female',
                 'email' => 'required|email',
                 'phone' => 'required|string|max:20',
