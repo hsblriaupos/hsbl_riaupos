@@ -124,13 +124,17 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label small text-muted mb-0">Tinggi Badan</label>
-                                    <div class="form-control-static form-control-sm">{{ $official->height ? $official->height . ' cm' : '-' }}</div>
+                                    <div class="form-control-static form-control-sm">
+                                        {{ $official->height ? intval($official->height) . ' cm' : '-' }}
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label small text-muted mb-0">Berat Badan</label>
-                                    <div class="form-control-static form-control-sm">{{ $official->weight ? $official->weight . ' kg' : '-' }}</div>
+                                    <div class="form-control-static form-control-sm">
+                                        {{ $official->weight ? intval($official->weight) . ' kg' : '-' }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -238,7 +242,7 @@
                         </div>
                     </div>
 
-                                        <!-- Foto Formal -->
+                    <!-- Foto Formal -->
                     <div class="section mb-3">
                         <h6 class="section-title mb-2 fw-semibold">
                             <i class="fas fa-image me-2"></i>Foto Formal
@@ -275,6 +279,11 @@
 
                     <!-- Status Verifikasi -->
                     <div class="section">
+                        <h6 class="section-title mb-2 fw-semibold">
+                            <i class="fas fa-check-circle me-2"></i>Status Verifikasi
+                        </h6>
+                        <div class="list-group list-group-flush">
+                            
                             <div class="list-group-item px-0 py-1 d-flex justify-content-between align-items-center">
                                 <small><i class="fas fa-calendar-plus fa-xs me-2 text-muted"></i>Dibuat</small>
                                 <small>{{ $official->created_at ? \Carbon\Carbon::parse($official->created_at)->isoFormat('D MMM YYYY HH:mm') : '-' }}</small>
