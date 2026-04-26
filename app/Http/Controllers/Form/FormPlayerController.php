@@ -351,6 +351,7 @@ if ($canBeLeader) {
                 'kk' => 'required|file|mimes:pdf|max:1024',
                 'shun' => 'required|file|mimes:pdf|max:1024',
                 'last_report_card' => 'required|file|mimes:pdf|max:1024',
+                'report_identity' => 'required|file|mimes:pdf|max:1024',
                 'formal_photo' => 'required|file|mimes:jpg,jpeg,png|max:1024',
                 'assignment_letter' => 'nullable|file|mimes:pdf|max:1024',
                 'terms' => 'required|accepted',

@@ -288,14 +288,14 @@
                             </div>
                         </div>
 
-                        <!-- Dokumen Wajib dengan Thumbnail Preview - VERSION FIXED -->
+                        <!-- Dokumen Wajib dengan Thumbnail Preview -->
                         <div class="form-section">
                             <div class="section-title mb-1">
                                 <div class="title-icon">
                                     <i class="fas fa-file-alt"></i>
                                 </div>
                                 <h6 class="mb-0">Dokumen Wajib</h6>
-                                <span class="badge bg-primary bg-opacity-10 text-primary ms-1" style="font-size: 9px;">6</span>
+                                <span class="badge bg-primary bg-opacity-10 text-primary ms-1" style="font-size: 9px;">7</span> <!-- Ubah dari 6 jadi 7 -->
                             </div>
 
                             <div class="row g-1">
@@ -304,9 +304,11 @@
                                 ['name' => 'birth_certificate', 'label' => 'Akta Kelahiran', 'accept' => '.pdf', 'icon' => 'fa-file-pdf', 'color' => 'danger'],
                                 ['name' => 'kk', 'label' => 'Kartu Keluarga', 'accept' => '.pdf', 'icon' => 'fa-file-pdf', 'color' => 'danger'],
                                 ['name' => 'shun', 'label' => 'SHUN', 'accept' => '.pdf', 'icon' => 'fa-file-pdf', 'color' => 'danger'],
-                                ['name' => 'last_report_card', 'label' => 'Raport Terakhir', 'accept' => '.pdf', 'icon' => 'fa-file-pdf', 'color' => 'danger'],
+                                ['name' => 'last_report_card', 'label' => 'Rapor Terakhir', 'accept' => '.pdf', 'icon' => 'fa-file-pdf', 'color' => 'danger'],
+                                ['name' => 'report_identity', 'label' => 'Identitas Rapor', 'accept' => '.pdf', 'icon' => 'fa-file-pdf', 'color' => 'danger'],
+                                ['name' => 'assignment_letter', 'label' => 'Surat Tugas', 'accept' => '.pdf', 'icon' => 'fa-file-pdf', 'color' => 'danger'],
                                 ['name' => 'formal_photo', 'label' => 'Foto Formal', 'accept' => 'image/*', 'icon' => 'fa-file-image', 'color' => 'primary'],
-                                ['name' => 'assignment_letter', 'label' => 'Surat Tugas', 'accept' => '.pdf', 'icon' => 'fa-file-pdf', 'color' => 'danger']
+
                                 ];
                                 @endphp
 
@@ -398,10 +400,10 @@
                                 </div>
 
                                 <!-- Caption minimal upload 1 jersey - STAY, no animation -->
-<div class="jersey-caption mt-2 mb-0" style="font-size: 9px; color: #856404; background: #fef3c7; padding: 4px 8px; border-radius: 4px; border-left: 3px solid #f59e0b; animation: none; transition: none;">
-    <i class="fas fa-info-circle me-1" style="animation: none;"></i>
-    <strong>Catatan:</strong> Minimal upload 1 foto jersey (Home/Away/Alternate)
-</div>
+                                <div class="jersey-caption mt-2 mb-0" style="font-size: 9px; color: #856404; background: #fef3c7; padding: 4px 8px; border-radius: 4px; border-left: 3px solid #f59e0b; animation: none; transition: none;">
+                                    <i class="fas fa-info-circle me-1" style="animation: none;"></i>
+                                    <strong>Catatan:</strong> Minimal upload 1 foto jersey (Home/Away/Alternate)
+                                </div>
                             </div>
                             @endif
 
@@ -944,7 +946,7 @@
         // ==================== DOCUMENT UPLOAD (6 Dokumen Wajib) ====================
 
         // Setup file inputs untuk dokumen wajib
-        const docNames = ['birth_certificate', 'kk', 'shun', 'last_report_card', 'formal_photo', 'assignment_letter'];
+       const docNames = ['birth_certificate', 'kk', 'shun', 'last_report_card', 'report_identity', 'formal_photo', 'assignment_letter'];
 
         docNames.forEach(function(docName) {
             const fileInput = document.getElementById(`input-${docName}`);

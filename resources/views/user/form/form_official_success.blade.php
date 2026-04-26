@@ -66,7 +66,7 @@
 
                     <!-- Footer -->
                     <div class="text-center mt-3 pt-1 border-top">
-                        <span style="font-size: 0.6rem;" class="text-muted">support@sbl.com</span>
+                        <span style="font-size: 0.6rem;" class="text-muted">hondahsblriaupos@gmail.com</span>
                     </div>
                 </div>
             </div>
