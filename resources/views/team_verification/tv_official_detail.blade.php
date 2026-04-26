@@ -41,12 +41,6 @@
                         <i class="fas fa-user-tie me-2 text-warning"></i>Detail Official
                     </h6>
                 </div>
-                <div>
-                    <span class="badge bg-info">
-                        <i class="fas fa-id-card me-1"></i>
-                        {{ ucfirst($official->role ?? 'Official') }}
-                    </span>
-                </div>
             </div>
         </div>
 
