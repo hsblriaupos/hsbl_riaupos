@@ -41,6 +41,17 @@
                         <i class="fas fa-user-circle me-2 text-primary"></i>Detail Pemain
                     </h6>
                 </div>
+                <div>
+                    @if($player->is_finalized)
+                    <span class="badge bg-success" style="font-size: 0.6rem;">
+                        <i class="fas fa-check-circle me-1"></i>Final
+                    </span>
+                    @else
+                    <span class="badge bg-warning" style="font-size: 0.6rem;">
+                        <i class="fas fa-clock me-1"></i>Draft
+                    </span>
+                    @endif
+                </div>
             </div>
         </div>
 
@@ -227,7 +238,7 @@
                                     <label class="form-label text-muted mb-0" style="font-size: 0.65rem;">Instagram</label>
                                     <div class="form-control-static form-control-sm" style="font-size: 0.7rem; padding: 0.2rem 0.4rem;">
                                         @if($player->instagram)
-                                        <a href="https://instagram.com/{{ ltrim($player->instagram, '@') }}" target="_blank" class="small" style="font-size: 0.7rem;">
+                                        <a href="https://instagram.com/{{ ltrim($player->instagram, '@') }}" target="_blank" style="font-size: 0.7rem;">
                                             <i class="fab fa-instagram me-1"></i>{{ $player->instagram }}
                                         </a>
                                         @else
@@ -241,7 +252,7 @@
                                     <label class="form-label text-muted mb-0" style="font-size: 0.65rem;">TikTok</label>
                                     <div class="form-control-static form-control-sm" style="font-size: 0.7rem; padding: 0.2rem 0.4rem;">
                                         @if($player->tiktok)
-                                        <a href="https://tiktok.com/@{{ $player->tiktok }}" target="_blank" class="small" style="font-size: 0.7rem;">
+                                        <a href="https://tiktok.com/@{{ $player->tiktok }}" target="_blank" style="font-size: 0.7rem;">
                                             <i class="fab fa-tiktok me-1"></i>{{ $player->tiktok }}
                                         </a>
                                         @else
@@ -314,11 +325,11 @@
                                              alt="Foto Formal" 
                                              class="img-fluid"
                                              style="max-width: 100%; height: auto; max-height: 180px; object-fit: contain; cursor: pointer;"
-                                             onclick="window.open('{{ Storage::url($player->formal_photo) }}', '_blank')">
+                                             onclick="showPhotoPopup('{{ Storage::url($player->formal_photo) }}', 'Foto Formal - {{ $player->name }}')">
                                         <div class="position-absolute top-0 end-0 p-1">
                                             <button type="button" 
                                                     class="btn btn-light btn-xs rounded-circle"
-                                                    onclick="window.open('{{ Storage::url($player->formal_photo) }}', '_blank')"
+                                                    onclick="showPhotoPopup('{{ Storage::url($player->formal_photo) }}', 'Foto Formal - {{ $player->name }}')"
                                                     style="padding: 2px 4px; font-size: 0.6rem;">
                                                 <i class="fas fa-search-plus fa-xs"></i>
                                             </button>
@@ -472,4 +483,38 @@ body {
     }
 }
 </style>
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Fungsi untuk menampilkan foto dalam popup (SweetAlert2)
+        window.showPhotoPopup = function(photoUrl, title) {
+            Swal.fire({
+                title: title,
+                html: `
+                    <div class="text-center">
+                        <img src="${photoUrl}" 
+                             alt="${title}" 
+                             style="max-width: 100%; max-height: 350px; border-radius: 6px; object-fit: contain;"
+                             class="img-fluid">
+                        <div class="mt-2">
+                            <a href="${photoUrl}" 
+                               class="btn btn-outline-primary btn-xs"
+                               target="_blank">
+                                <i class="fas fa-external-link-alt me-1"></i> Buka di Tab Baru
+                            </a>
+                        </div>
+                    </div>
+                `,
+                showCloseButton: true,
+                showConfirmButton: false,
+                width: '450px',
+                padding: '0.8rem',
+                background: '#fff'
+            });
+        };
+    });
+</script>
+@endpush
 @endsection
