@@ -37,7 +37,7 @@
         <div class="card-header bg-white border-bottom py-2">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h6 class="mb-0 fw-semibold">
+                    <h6 class="mb-0 fw-semibold" style="font-size: 0.8rem;">
                         <i class="fas fa-user-tie me-2 text-warning"></i>Detail Official
                     </h6>
                 </div>
@@ -53,29 +53,27 @@
                         <img src="{{ Storage::url($official->formal_photo) }}" 
                              alt="{{ $official->name }}" 
                              class="rounded-circle border" 
-                             style="width: 50px; height: 50px; object-fit: cover;">
+                             style="width: 45px; height: 45px; object-fit: cover;">
                         @else
                         <div class="avatar-placeholder rounded-circle d-flex align-items-center justify-content-center" 
-                             style="width: 50px; height: 50px; background-color: #e9ecef; color: #6c757d;">
-                            <i class="fas fa-user-tie fa-2x"></i>
+                             style="width: 45px; height: 45px; background-color: #e9ecef; color: #6c757d;">
+                            <i class="fas fa-user-tie fa-lg"></i>
                         </div>
                         @endif
                     </div>
                     <div class="col">
-                        <h5 class="mb-0 fw-semibold">{{ $official->name ?? 'N/A' }}</h5>
-                        <div class="text-muted small">
+                        <h6 class="mb-0 fw-semibold" style="font-size: 0.85rem;">{{ $official->name ?? 'N/A' }}</h6>
+                        <div class="text-muted" style="font-size: 0.7rem;">
                             <span class="me-2">
-                                <i class="fas fa-tag me-1"></i>{{ ucfirst($official->team_role ?? '-') }}
+                                <i class="fas fa-tag fa-xs me-1"></i>{{ ucfirst($official->team_role ?? '-') }}
                             </span>
                             <span>
-                                <i class="fas fa-venus-mars me-1"></i>
+                                <i class="fas fa-venus-mars fa-xs me-1"></i>
                                 {{ $official->gender ?? '-' }}
                             </span>
                         </div>
-                        <div class="small">
-                            <i class="fas fa-school me-1"></i>{{ $official->school_name ?? 'N/A' }}
-                            <span class="mx-1">•</span>
-                            <i class="fas fa-building me-1"></i>{{ $official->team->school_name ?? 'N/A' }}
+                        <div class="text-muted" style="font-size: 0.65rem;">
+                            <i class="fas fa-school fa-xs me-1"></i>{{ $official->school_name ?? 'N/A' }}
                         </div>
                     </div>
                 </div>
@@ -87,20 +85,20 @@
                 <div class="col-lg-6">
                     <!-- Data Pribadi -->
                     <div class="section mb-3">
-                        <h6 class="section-title mb-2 fw-semibold">
+                        <h6 class="section-title mb-2 fw-semibold" style="font-size: 0.75rem;">
                             <i class="fas fa-id-card me-2"></i>Data Pribadi
                         </h6>
                         <div class="row g-2">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="form-label small text-muted mb-0">NIK</label>
-                                    <div class="form-control-static form-control-sm">{{ $official->nik ?? '-' }}</div>
+                                    <label class="form-label text-muted mb-0" style="font-size: 0.65rem;">NIK</label>
+                                    <div class="form-control-static form-control-sm" style="font-size: 0.7rem; padding: 0.2rem 0.4rem;">{{ $official->nik ?? '-' }}</div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="form-label small text-muted mb-0">Tanggal Lahir</label>
-                                    <div class="form-control-static form-control-sm">
+                                    <label class="form-label text-muted mb-0" style="font-size: 0.65rem;">Tanggal Lahir</label>
+                                    <div class="form-control-static form-control-sm" style="font-size: 0.7rem; padding: 0.2rem 0.4rem;">
                                         @if($official->birthdate)
                                         {{ \Carbon\Carbon::parse($official->birthdate)->isoFormat('D MMM YYYY') }}
                                         @else
@@ -111,28 +109,28 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="form-label small text-muted mb-0">Email</label>
-                                    <div class="form-control-static form-control-sm">{{ $official->email ?? '-' }}</div>
+                                    <label class="form-label text-muted mb-0" style="font-size: 0.65rem;">Email</label>
+                                    <div class="form-control-static form-control-sm" style="font-size: 0.7rem; padding: 0.2rem 0.4rem;">{{ $official->email ?? '-' }}</div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="form-label small text-muted mb-0">Telepon</label>
-                                    <div class="form-control-static form-control-sm">{{ $official->phone ?? '-' }}</div>
+                                    <label class="form-label text-muted mb-0" style="font-size: 0.65rem;">Telepon</label>
+                                    <div class="form-control-static form-control-sm" style="font-size: 0.7rem; padding: 0.2rem 0.4rem;">{{ $official->phone ?? '-' }}</div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="form-label small text-muted mb-0">Tinggi Badan</label>
-                                    <div class="form-control-static form-control-sm">
+                                    <label class="form-label text-muted mb-0" style="font-size: 0.65rem;">Tinggi Badan</label>
+                                    <div class="form-control-static form-control-sm" style="font-size: 0.7rem; padding: 0.2rem 0.4rem;">
                                         {{ $official->height ? intval($official->height) . ' cm' : '-' }}
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="form-label small text-muted mb-0">Berat Badan</label>
-                                    <div class="form-control-static form-control-sm">
+                                    <label class="form-label text-muted mb-0" style="font-size: 0.65rem;">Berat Badan</label>
+                                    <div class="form-control-static form-control-sm" style="font-size: 0.7rem; padding: 0.2rem 0.4rem;">
                                         {{ $official->weight ? intval($official->weight) . ' kg' : '-' }}
                                     </div>
                                 </div>
@@ -142,16 +140,16 @@
 
                     <!-- Data Social Media -->
                     <div class="section mb-3">
-                        <h6 class="section-title mb-2 fw-semibold">
+                        <h6 class="section-title mb-2 fw-semibold" style="font-size: 0.75rem;">
                             <i class="fas fa-share-alt me-2"></i>Media Sosial
                         </h6>
                         <div class="row g-2">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="form-label small text-muted mb-0">Instagram</label>
-                                    <div class="form-control-static form-control-sm">
+                                    <label class="form-label text-muted mb-0" style="font-size: 0.65rem;">Instagram</label>
+                                    <div class="form-control-static form-control-sm" style="font-size: 0.7rem; padding: 0.2rem 0.4rem;">
                                         @if($official->instagram)
-                                            <a href="https://instagram.com/{{ $official->instagram }}" target="_blank" class="small">
+                                            <a href="https://instagram.com/{{ $official->instagram }}" target="_blank" style="font-size: 0.7rem;">
                                                 <i class="fab fa-instagram me-1"></i>{{ $official->instagram }}
                                             </a>
                                         @else
@@ -162,10 +160,10 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="form-label small text-muted mb-0">TikTok</label>
-                                    <div class="form-control-static form-control-sm">
+                                    <label class="form-label text-muted mb-0" style="font-size: 0.65rem;">TikTok</label>
+                                    <div class="form-control-static form-control-sm" style="font-size: 0.7rem; padding: 0.2rem 0.4rem;">
                                         @if($official->tiktok)
-                                            <a href="https://tiktok.com/@{{ $official->tiktok }}" target="_blank" class="small">
+                                            <a href="https://tiktok.com/@{{ $official->tiktok }}" target="_blank" style="font-size: 0.7rem;">
                                                 <i class="fab fa-tiktok me-1"></i>{{ $official->tiktok }}
                                             </a>
                                         @else
@@ -179,20 +177,20 @@
 
                     <!-- Ukuran -->
                     <div class="section mb-3">
-                        <h6 class="section-title mb-2 fw-semibold">
+                        <h6 class="section-title mb-2 fw-semibold" style="font-size: 0.75rem;">
                             <i class="fas fa-tshirt me-2"></i>Ukuran
                         </h6>
                         <div class="row g-2">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="form-label small text-muted mb-0">Ukuran Baju</label>
-                                    <div class="form-control-static form-control-sm">{{ $official->tshirt_size ?? '-' }}</div>
+                                    <label class="form-label text-muted mb-0" style="font-size: 0.65rem;">Ukuran Baju</label>
+                                    <div class="form-control-static form-control-sm" style="font-size: 0.7rem; padding: 0.2rem 0.4rem;">{{ $official->tshirt_size ?? '-' }}</div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="form-label small text-muted mb-0">Ukuran Sepatu</label>
-                                    <div class="form-control-static form-control-sm">{{ $official->shoes_size ?? '-' }}</div>
+                                    <label class="form-label text-muted mb-0" style="font-size: 0.65rem;">Ukuran Sepatu</label>
+                                    <div class="form-control-static form-control-sm" style="font-size: 0.7rem; padding: 0.2rem 0.4rem;">{{ $official->shoes_size ?? '-' }}</div>
                                 </div>
                             </div>
                         </div>
@@ -203,7 +201,7 @@
                 <div class="col-lg-6">
                     <!-- Dokumen -->
                     <div class="section mb-3">
-                        <h6 class="section-title mb-2 fw-semibold">
+                        <h6 class="section-title mb-2 fw-semibold" style="font-size: 0.75rem;">
                             <i class="fas fa-file-alt me-2"></i>Dokumen
                         </h6>
                         <div class="row g-2">
@@ -220,20 +218,20 @@
                                 <div class="document-item p-2 border rounded h-100">
                                     <div class="d-flex align-items-center justify-content-between mb-1">
                                         <div>
-                                            <i class="fas {{ $doc['icon'] }} me-1 {{ $official->{$doc['field']} ? 'text-danger' : 'text-muted' }}"></i>
-                                            <small class="fw-semibold">{{ $doc['name'] }}</small>
+                                            <i class="fas {{ $doc['icon'] }} me-1 {{ $official->{$doc['field']} ? 'text-danger' : 'text-muted' }}" style="font-size: 0.7rem;"></i>
+                                            <small class="fw-semibold" style="font-size: 0.65rem;">{{ $doc['name'] }}</small>
                                         </div>
                                     </div>
                                     @if($official->{$doc['field']})
                                     <button type="button" 
                                             class="btn btn-outline-primary btn-xs w-100 mt-1"
                                             onclick="showDocumentPopup('{{ Storage::url($official->{$doc['field']}) }}', '{{ $doc['name'] }}')"
-                                            style="font-size: 11px; padding: 4px 6px;">
+                                            style="font-size: 0.6rem; padding: 3px 5px;">
                                         <i class="fas fa-eye fa-xs me-1"></i>Lihat
                                     </button>
                                     @else
                                     <div class="text-center py-1 bg-light rounded mt-1">
-                                        <span class="badge bg-light text-muted" style="font-size: 10px;">Tidak ada</span>
+                                        <span class="badge bg-light text-muted" style="font-size: 0.6rem;">Tidak ada</span>
                                     </div>
                                     @endif
                                 </div>
@@ -244,7 +242,7 @@
 
                     <!-- Foto Formal -->
                     <div class="section mb-3">
-                        <h6 class="section-title mb-2 fw-semibold">
+                        <h6 class="section-title mb-2 fw-semibold" style="font-size: 0.75rem;">
                             <i class="fas fa-image me-2"></i>Foto Formal
                         </h6>
                         <div class="row">
@@ -255,21 +253,21 @@
                                         <img src="{{ Storage::url($official->formal_photo) }}" 
                                              alt="Foto Formal" 
                                              class="img-fluid"
-                                             style="max-width: 100%; height: auto; max-height: 200px; object-fit: contain; cursor: pointer;"
+                                             style="max-width: 100%; height: auto; max-height: 180px; object-fit: contain; cursor: pointer;"
                                              onclick="showPhotoPopup('{{ Storage::url($official->formal_photo) }}', 'Foto Formal - {{ $official->name }}')">
                                         <div class="position-absolute top-0 end-0 p-1">
                                             <button type="button" 
                                                     class="btn btn-light btn-xs rounded-circle"
                                                     onclick="showPhotoPopup('{{ Storage::url($official->formal_photo) }}', 'Foto Formal - {{ $official->name }}')"
-                                                    style="padding: 2px 5px; font-size: 10px;">
-                                                <i class="fas fa-search-plus"></i>
+                                                    style="padding: 2px 4px; font-size: 0.6rem;">
+                                                <i class="fas fa-search-plus fa-xs"></i>
                                             </button>
                                         </div>
                                     </div>
                                     @else
                                     <div class="text-center py-3 bg-light">
                                         <i class="fas fa-user-tie fa-2x text-muted mb-1"></i>
-                                        <div class="small text-muted">Belum ada foto</div>
+                                        <div class="small text-muted" style="font-size: 0.6rem;">Belum ada foto</div>
                                     </div>
                                     @endif
                                 </div>
@@ -279,18 +277,17 @@
 
                     <!-- Status Verifikasi -->
                     <div class="section">
-                        <h6 class="section-title mb-2 fw-semibold">
+                        <h6 class="section-title mb-2 fw-semibold" style="font-size: 0.75rem;">
                             <i class="fas fa-check-circle me-2"></i>Status Verifikasi
                         </h6>
                         <div class="list-group list-group-flush">
-                            
-                            <div class="list-group-item px-0 py-1 d-flex justify-content-between align-items-center">
-                                <small><i class="fas fa-calendar-plus fa-xs me-2 text-muted"></i>Dibuat</small>
-                                <small>{{ $official->created_at ? \Carbon\Carbon::parse($official->created_at)->isoFormat('D MMM YYYY HH:mm') : '-' }}</small>
+                            <div class="list-group-item px-0 py-1 d-flex justify-content-between align-items-center" style="font-size: 0.7rem;">
+                                <small style="font-size: 0.65rem;"><i class="fas fa-calendar-plus fa-xs me-2 text-muted"></i>Dibuat</small>
+                                <small style="font-size: 0.65rem;">{{ $official->created_at ? \Carbon\Carbon::parse($official->created_at)->isoFormat('D MMM YYYY HH:mm') : '-' }}</small>
                             </div>
-                            <div class="list-group-item px-0 py-1 d-flex justify-content-between align-items-center">
-                                <small><i class="fas fa-edit fa-xs me-2 text-muted"></i>Terakhir Update</small>
-                                <small>{{ $official->updated_at ? \Carbon\Carbon::parse($official->updated_at)->isoFormat('D MMM YYYY HH:mm') : '-' }}</small>
+                            <div class="list-group-item px-0 py-1 d-flex justify-content-between align-items-center" style="font-size: 0.7rem;">
+                                <small style="font-size: 0.65rem;"><i class="fas fa-edit fa-xs me-2 text-muted"></i>Terakhir Update</small>
+                                <small style="font-size: 0.65rem;">{{ $official->updated_at ? \Carbon\Carbon::parse($official->updated_at)->isoFormat('D MMM YYYY HH:mm') : '-' }}</small>
                             </div>
                         </div>
                     </div>
@@ -300,7 +297,7 @@
 
         <!-- Footer Card -->
         <div class="card-footer bg-white border-top py-2">
-            <div class="small text-muted">
+            <div class="text-muted" style="font-size: 0.6rem;">
                 <i class="fas fa-clock me-1"></i>
                 Data terakhir diperbarui: {{ $official->updated_at ? \Carbon\Carbon::parse($official->updated_at)->isoFormat('D MMMM YYYY HH:mm') : '-' }}
             </div>
@@ -316,7 +313,7 @@ body {
 
 /* Breadcrumb */
 .breadcrumb {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
 }
 
 .breadcrumb-item a {
@@ -340,7 +337,7 @@ body {
 
 /* Section Styles */
 .section-title {
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     color: #343a40;
     padding-bottom: 0.25rem;
     border-bottom: 1px solid #e9ecef;
@@ -352,15 +349,15 @@ body {
 
 /* Form Controls */
 .form-label {
-    font-size: 0.7rem;
-    font-weight: 600;
+    font-size: 0.65rem;
+    font-weight: 500;
     margin-bottom: 0;
 }
 
 .form-control-static {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem;
-    line-height: 1.4;
+    padding: 0.2rem 0.4rem;
+    font-size: 0.7rem;
+    line-height: 1.3;
     color: #212529;
     background-color: #f8f9fa;
     border: 1px solid #e9ecef;
@@ -369,8 +366,8 @@ body {
 }
 
 .form-control-sm {
-    padding: 0.2rem 0.5rem;
-    font-size: 0.75rem;
+    padding: 0.15rem 0.4rem;
+    font-size: 0.7rem;
 }
 
 /* Document Items */
@@ -395,13 +392,12 @@ body {
 /* List Group */
 .list-group-item {
     border-color: rgba(0, 0, 0, 0.05);
-    font-size: 0.75rem;
 }
 
 /* Button */
 .btn-xs {
-    padding: 0.2rem 0.4rem;
-    font-size: 0.7rem;
+    padding: 0.15rem 0.3rem;
+    font-size: 0.6rem;
     border-radius: 0.2rem;
 }
 
@@ -423,7 +419,7 @@ body {
     }
     
     .card-body {
-        padding: 1rem;
+        padding: 0.75rem;
     }
     
     .pdf-container {
